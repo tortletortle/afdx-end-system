@@ -4,3 +4,4 @@
 T00 tb_t00_common default
 T01 tb_t01_reset_regs default
 T02 tb_t02_tx_buf_sn default
+T03 tb_t03_frame_builder default

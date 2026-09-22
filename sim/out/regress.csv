@@ -1,4 +1,5 @@
 test_id,config,tb,result,max_dev,wall_s,summary
-T00,default,tb_t00_common,PASS,na,6.7,# T00 COMMON PASS (crc32 x9 vectors; sync_fifo full+random 4000; bram 1W2R sweep 8192)
-T01,default,tb_t01_reset_regs,PASS,na,77.3,# T01 SMOKE PASS (skeleton: register page + timebase + CRC32)
-T02,default,tb_t02_tx_buf_sn,PASS,na,4.2,# T02 TXBUF PASS (tx_sn_gen wrap/override/init; tx_port_buf smp/queue/exhaust/T17-pending/random)
+T00,default,tb_t00_common,PASS,na,4.1,# T00 COMMON PASS (crc32 x9 vectors; sync_fifo full+random 4000; bram 1W2R sweep 8192)
+T01,default,tb_t01_reset_regs,PASS,na,112.9,# T01 SMOKE PASS (skeleton: register page + timebase + CRC32)
+T02,default,tb_t02_tx_buf_sn,PASS,na,6.9,# T02 TXBUF PASS (tx_sn_gen wrap/override/init; tx_port_buf smp/queue/exhaust/T17-pending/random)
+T03,default,tb_t03_frame_builder,PASS,na,7.2,# T03 BUILDER PASS (16 golden frames x 3 rdy modes; L=8..1471; pad/SN/csum/B-net; stall=0 at line rate)

@@ -4,8 +4,8 @@ Reading pref.tcl
 
 # source compile.tcl
 # Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
-# Start time: 19:35:47 on Sep 22,2026
-# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/AFDX_top.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v tb/tb_t00_common.v tb/tb_t01_reset_regs.v tb/tb_t02_tx_buf_sn.v 
+# Start time: 19:56:08 on Sep 22,2026
+# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/AFDX_top.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v ../rtl/tx/tx_frame_builder.v tb/tb_t00_common.v tb/tb_t01_reset_regs.v tb/tb_t02_tx_buf_sn.v tb/tb_t03_frame_builder.v 
 # ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # -- Compiling module rst_sync
 # -- Compiling module timebase
@@ -15,13 +15,16 @@ Reading pref.tcl
 # -- Compiling module AFDX_top
 # -- Compiling module tx_sn_gen
 # -- Compiling module tx_port_buf
+# -- Compiling module tx_frame_builder
 # -- Compiling module tb_t00_common
 # -- Compiling module tb_t01_reset_regs
 # -- Compiling module tb_t02_tx_buf_sn
+# -- Compiling module tb_t03_frame_builder
 # 
 # Top level modules:
 # 	tb_t00_common
 # 	tb_t01_reset_regs
 # 	tb_t02_tx_buf_sn
-# End time: 19:35:48 on Sep 22,2026, Elapsed time: 0:00:01
+# 	tb_t03_frame_builder
+# End time: 19:56:09 on Sep 22,2026, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 0

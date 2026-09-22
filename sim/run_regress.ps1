@@ -96,7 +96,8 @@ if (-not $KeepWork) {
     '../rtl/common/rst_sync.v', '../rtl/common/timebase.v',
     '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
     '../rtl/common/bram_sdp.v',  '../rtl/top/AFDX_top.v',
-    '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v'
+    '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
+    '../rtl/tx/tx_frame_builder.v'
   )
   $tbs = @(); foreach ($m in $manifest) { $tbs += ('tb/' + $m.Tb + '.v') }
   $env:VLOG_SRC = (($rtl + ($tbs | Select-Object -Unique)) -join ' ')

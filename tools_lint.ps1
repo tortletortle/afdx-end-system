@@ -61,7 +61,8 @@ foreach ($m in @(
   @('crc32',     'rtl/common/crc32.v'),
   @('timebase',  'rtl/common/timebase.v'),
   @('tx_sn_gen',   'rtl/tx/tx_sn_gen.v'),
-  @('tx_port_buf', 'rtl/tx/tx_port_buf.v')
+  @('tx_port_buf', 'rtl/tx/tx_port_buf.v'),
+  @('tx_frame_builder', 'rtl/tx/tx_frame_builder.v')
 )) {
   Lint $m[0] ($base + @('--top-module', $m[0]) + @($m[1]))
 }
@@ -75,6 +76,8 @@ Lint 'tb_t01_reset_regs' ($tbbase + @('--top-module','tb_t01_reset_regs') + $com
   'rtl/top/AFDX_top.v','sim/tb/tb_t01_reset_regs.v'))
 Lint 'tb_t02_tx_buf_sn' ($tbbase + @('--top-module','tb_t02_tx_buf_sn') + @(
   'rtl/tx/tx_sn_gen.v','rtl/tx/tx_port_buf.v','sim/tb/tb_t02_tx_buf_sn.v'))
+Lint 'tb_t03_frame_builder' ($tbbase + @('--top-module','tb_t03_frame_builder') + @(
+  'rtl/common/bram_sdp.v','rtl/tx/tx_sn_gen.v','rtl/tx/tx_frame_builder.v','sim/tb/tb_t03_frame_builder.v'))
 
 Remove-Item $gatefile -Force -ErrorAction SilentlyContinue
 if ($script:fail -ne 0) { Write-Output "LINT GATE: FAIL"; exit 1 }

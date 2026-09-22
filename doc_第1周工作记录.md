@@ -70,6 +70,35 @@
 4. Verilator 5.006 新坑：`for` 内非阻塞写数组报 `BLKLOOPINIT`（ModelSim 可过），
    寄存器阵列须 generate 展开——记入踩坑清单。
 
-下一步：`tx_frame_builder`（§7.3）——黄金模型 `build_frame` 已有，先做 L=8/17/18/1471
-四个边界向量生成器再写 RTL。
+## 六、`tx_frame_builder`（09-22 夜，性能优先口径）
+
+| # | 项 | 产出 | 判据与证据 |
+|---|---|---|---|
+| 12 | `tx_frame_builder`（§7.3/§6） | `rtl/tx/tx_frame_builder.v`（3 态 FSM：IDLE/SETUP/EMIT；首部 42 B 组合 mux；pass1 走 PMEM A 口 1 字/拍；pass2 走 B 口双字预取；SN/pad/双网 SMAC 字节；blk_free 在末载荷字节即归还） | Verilator 0E；T03 |
+| 13 | 向量生成器 | `sw/golden/gen_t03_vectors.py` → `sim/vec/t03_frames.hex`（16 帧：L=8/17/18/19/1470/1471/9/100 + 8 随机；1 帧关 UDP 校验和） | 黄金模型 `build_frame` 单一来源 |
+| 14 | T03 | `sim/tb/tb_t03_frame_builder.v`（bram_sdp 真 PMEM + tx_sn_gen 真例化；3 种 rdy 模式：10 拍节拍 / 每拍 / 随机背压；逐字节比对 + 长度 + B 网差异 + blk_free/done 各 1 次 + 线速下 stall=0 + L 越界拒） | `T03 BUILDER PASS`；`REGRESS SUMMARY: 4/4 pass`；LINT 12/12 |
+
+**性能结果（T03 模式 0，125 MHz，10 拍/字节）**：
+
+| 指标 | 设计书 §7.3/§4.1 原口径 | 本实现实测 | 倍数 |
+|---|---|---|---|
+| pass1（L=1471 校验和） | 11 768 拍 = 117.7 μs（8 拍/字节） | 368 拍 ≈ 2.9 μs（1 字/拍） | 32× |
+| start → 首字节 | 轻载 349 拍 = 2.8 μs；满载 ≈118.7 μs | **22~24 拍 ≈ 0.18 μs**（所有 L 恒定） | 15×/500× |
+| start → done（L=1471，线速） | ≈ 118.7 + 121.4 μs | 15 000 拍 ≈ 120 μs（纯线上时间，无前置等待） | — |
+| 首部存储 | 64×16 header buffer ≈ 1.0 K FF | 无（字段寄存器 + 组合 mux） | 省 ~1 K FF |
+
+设计决策（需回写设计书 §7.3/§8.4 v0.5）：
+
+1. **pass1/pass2 重叠**：pass2 从 SETUP 完成立即发首部，UDP 校验和字段在偏移 40 才需要，
+   40 B × 10 拍 = 400 拍 > pass1 最长 368 拍，线速下永不等待；`p1_stall_cnt` 做哨兵
+   （T03 断言线速下为 0；每拍 rdy 压力模式下会 >0，属预期）。
+2. **PMEM 双读口分工**落地：A 口 pass1、B 口 pass2——正是 §7.14 给 bram_sdp 设 1W2R 的理由。
+3. **块早归还**：末载荷字节被接收即 `blk_free`（SN/pad 不读 PMEM），块周转比等 `frame_done`
+   早 ≥ 1 字节 + FCS 时间；tx_port_buf 已按此接口。
+4. 帧布局按黄金模型（pad 在 SN **之后**，§6.1 表）；§7.3 文字"填充在 SN 之前"与 §6.1 表矛盾，
+   以 §6.1 表 + 可执行模型为准，已记问题清单待定稿。
+5. ModelSim 坑（vlog-2730 再现）：TB 里 `always` 后置声明的观察寄存器必须前置声明。
+
+下一步（第 3 周提前量）：`mac_tx_if`（节拍/IFG/FCS）+ `tx_rm`（双网分发）→ 用 T03 向量
+做端到端 FCS 比对；再 `tx_vl_scheduler`。
 
