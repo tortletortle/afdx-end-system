@@ -1,0 +1,19 @@
+# throwaway probe #2 for O-20#3: manual pass sequence using the shipped
+# BRAM rules (share/stratix/common/brams.txt + brams_map.v), bypassing
+# the buggy memory_switch inside the bare `synth` macro (RD_DATA/RD_DATA_B
+# double-drive). If this maps to M4K cells, the ELINX_SYNTH story is:
+# batch flow works but needs memory_bram explicitly.
+# ARCHIVED 2026-09-22: probe input _bram_norw.v was deleted; this file is
+# kept as evidence only (its log _bram_mbram.log is the first successful
+# M4K mapping). The production version is bram_sdp_smoke.ys.
+read_verilog elinx/prj/_bram_norw.v
+hierarchy -top bram_t
+proc
+opt
+memory_dff
+opt_clean
+memory_collect
+memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
+techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
+opt
+stat

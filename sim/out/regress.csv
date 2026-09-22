@@ -1,0 +1,4 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T00,default,tb_t00_common,PASS,na,6.7,# T00 COMMON PASS (crc32 x9 vectors; sync_fifo full+random 4000; bram 1W2R sweep 8192)
+T01,default,tb_t01_reset_regs,PASS,na,77.3,# T01 SMOKE PASS (skeleton: register page + timebase + CRC32)
+T02,default,tb_t02_tx_buf_sn,PASS,na,4.2,# T02 TXBUF PASS (tx_sn_gen wrap/override/init; tx_port_buf smp/queue/exhaust/T17-pending/random)

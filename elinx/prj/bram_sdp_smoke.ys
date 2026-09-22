@@ -1,0 +1,28 @@
+# =====================================================================
+# bram_sdp_smoke.ys - BRAM inference smoke (O-20 item 3, decision 09-29)
+# RESULT 2026-09-22: PASS with the explicit memory_bram sequence below.
+#   8192x32 maps to 64 x altsyncram (M4K) cells, 0 register-file blow-up
+#   (probe log: _bram_mbram.log). The bare `synth` macro FAILS instead:
+#   its memory_switch pass emits a $mem whose RD_DATA and RD_DATA_B both
+#   drive the same read port -> CHECK "multiple conflicting drivers".
+#   Same failure with 1W1R or 1W2R, single or split always blocks,
+#   with/without rd_en, and (* no_rw_check *): tool-flow bug, not an
+#   RTL coding issue.
+# CONSEQUENCE: bram_sdp stays a pure behavioral model (simulation);
+#   eLinx batch synthesis runs the memory_bram sequence explicitly
+#   (this file). The ELINX_SYNTH IP branch (doc 7.19) is NOT needed.
+# Run (from C:\Workspace\diansai):
+#   "C:\Program Files (x86)\eHiWay\eLinx3.0\bin\shell\bin\eLinx_synthesis.exe" -s elinx/prj/bram_sdp_smoke.ys -l elinx/prj/bram_sdp_smoke.log
+# Verdict rule: stat must show altsyncram/M4K cells (not ~262k DFF), rc=0.
+# =====================================================================
+read_verilog rtl/common/bram_sdp.v
+hierarchy -top bram_sdp
+proc
+opt
+memory_dff
+opt_clean
+memory_collect
+memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
+techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
+opt
+stat

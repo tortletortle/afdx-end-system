@@ -1,0 +1,20 @@
+# =====================================================================
+# AFDX_top_synth.ys - eLinx synthesis (skeleton, week 1 exit condition)
+# Run (from C:\Workspace\diansai):
+#   "C:\Program Files (x86)\eHiWay\eLinx3.0\bin\shell\bin\eLinx_synthesis.exe" ^
+#     -s elinx/prj/AFDX_top_synth.ys -l elinx/prj/AFDX_top_synth.log
+# Result 2026-09-21: synth OK, 3281 cells (1417 MUX / 550 OR / 572 AND /
+#   103 NOT / 11 XOR / 509 DFF / 119 LCELL), 500 wires, 0 errors.
+# Note: this eLinx build has no headless write_vqm pass (.vqm is written
+#   by the Infrastructure backend in the GUI flow); synth+stat is the
+#   self-proof per design doc 11 (synthesis is optional self-check).
+# =====================================================================
+read_verilog \
+  rtl/common/rst_sync.v \
+  rtl/common/timebase.v \
+  rtl/common/sync_fifo.v \
+  rtl/common/crc32.v \
+  rtl/top/AFDX_top.v
+hierarchy -top AFDX_top
+synth
+stat

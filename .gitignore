@@ -1,0 +1,27 @@
+# ModelSim / Questa
+sim/work/
+sim/work_iso/
+sim/transcript
+transcript
+*.wlf
+*.vstf
+vsim.wlf
+# waveforms & sim scratch (keep regress.csv and console logs as evidence)
+sim/out/*.vcd
+# Python
+__pycache__/
+*.pyc
+# eLinx scratch
+elinx/prj/*.log
+!elinx/prj/bram_sdp_smoke.log
+!elinx/prj/_bram_mbram.log
+# lint scratch
+_lint_gate.f
+# probe / conversion scratch (week-0 investigation)
+_*.txt
+_*.py
+_*.ps1
+# archives / binaries from organizers
+*.rar
+*.pdf
+*.xlsx

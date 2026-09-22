@@ -1,0 +1,6 @@
+# sim/tests.manifest - regression test list (parsed by run_regress.ps1)
+# Format: <test-id> <tb-module> [config]   (order = execution order, doc 12.4)
+# Add one line per new TB. Full-config tests get their own line + config tag.
+T00 tb_t00_common default
+T01 tb_t01_reset_regs default
+T02 tb_t02_tx_buf_sn default
