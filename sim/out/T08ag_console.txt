@@ -5,7 +5,7 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t08ag_rx_ingress 
-# Start time: 00:40:34 on Sep 24,2026
+# Start time: 20:29:52 on Sep 24,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # ** Warning: tb/tb_t08a_rx_ingress.v(21): (vopt-2685) [TFMPC] - Too few port connections for 'dut'.  Expected 35, found 34.
@@ -30,5 +30,5 @@ Reading pref.tcl
 # T08a RXINGRESS PASS (IF_MODE=1, 22 model/zlib frames, bad frame isolation/PMEM BE)
 # ** Note: $finish    : tb/tb_t08a_rx_ingress.v(169)
 #    Time: 36224 ns  Iteration: 1  Instance: /tb_t08ag_rx_ingress/core
-# End time: 00:40:36 on Sep 24,2026, Elapsed time: 0:00:02
+# End time: 20:29:54 on Sep 24,2026, Elapsed time: 0:00:02
 # Errors: 0, Warnings: 2

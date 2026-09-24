@@ -2,7 +2,7 @@
 // enter this stage.  One synchronous PSN read and one conditional write share
 // the same RAM port; a rejected frame never changes PSN.  The 163-bit payload
 // is the RX ingress descriptor {blk,len,ts,vlid,sn,net,ifid,src,dst,sport,dport}.
-// This standalone stage is not yet wired into AFDX_top (lookup/port still TODO).
+// v0.5.14: wired in AFDX_top after rx_flt; RM/parse/port downstream still TODO.
 `timescale 1 ns / 1 ps
 module rx_ic #(
   parameter integer NUM_RX_VL = 4096

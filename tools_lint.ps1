@@ -55,7 +55,7 @@ $txmods = @(
 )
 $rxmods = @('rtl/rx/mac_rx_if.v', 'rtl/rx/rx_block_pool.v',
             'rtl/rx/rx_pmem_queue.v', 'rtl/rx/rx_vl_lookup.v',
-            'rtl/rx/rx_flt.v')
+            'rtl/rx/rx_flt.v', 'rtl/rx/rx_ic.v')
 # gate 1: top elaboration
 Lint 'AFDX_top' ($base + @('--top-module','AFDX_top') + $common + $txmods + $rxmods + @('rtl/top/init_sweep.v','rtl/top/AFDX_top.v'))
 
@@ -123,6 +123,10 @@ Lint 'tb_t08d_top_flt' ($tbbase + @('--top-module','tb_t08d_top_flt') + $common 
   'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08d_top_flt.v'))
 Lint 'tb_t08dg_top_flt' ($tbbase + @('--top-module','tb_t08dg_top_flt') + $common + $txmods + $rxmods + @(
   'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08d_top_flt.v'))
+Lint 'tb_t08e_top_ic' ($tbbase + @('--top-module','tb_t08e_top_ic') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08e_top_ic.v'))
+Lint 'tb_t08eg_top_ic' ($tbbase + @('--top-module','tb_t08eg_top_ic') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08e_top_ic.v'))
 Lint 'tb_t09_rx_ic' ($tbbase + @('--top-module','tb_t09_rx_ic') + @(
   'rtl/rx/rx_ic.v','sim/tb/tb_t09_rx_ic.v'))
 Lint 'tb_t09s_rx_ic' ($tbbase + @('--top-module','tb_t09s_rx_ic') + @(

@@ -1,8 +1,10 @@
 // T08d: top-level RX semantic filter (rx_flt, design doc 7.8 S2).
 // Real model/zlib frames feed mac_rx_if -> lookup -> rx_flt; the TB checks
 // PASS/UNCONF/NET/LMAX/VLID verdicts, per-class DROP counters, block
-// conservation and reset clearing.  IC/RM/port delivery is still NOT wired:
-// a PASS frame is only counted+recycled, so this is NOT a full T08/T22.
+// conservation and reset clearing.  v0.5.14: rx_ic is wired after FLT, but
+// this test runs with CTL.IC_EN=0 (0x051A) so PASS frames take the IC bypass
+// and FLT verdicts/counters stay isolated from PSN state (IC is T08e).
+// RM/port delivery is still NOT wired, so this is NOT a full T08/T22.
 `timescale 1 ns / 1 ps
 module tb_t08d_core #(parameter integer IF_MODE=0);
   reg clk=0, reset=1;
@@ -118,7 +120,7 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
     end
   endtask
   task cfg_mode_on;  begin host_write(16'h0008,32'h2000); end endtask
-  task run_mode_on;  begin host_write(16'h0008,32'h051E); end endtask
+  task run_mode_on;  begin host_write(16'h0008,32'h051A); end endtask // IC_EN=0
   // RX_VL_CFG idx 0x100 words: 0x1D80+0x200/0x201.
   task write_vlcfg(input [31:0] w0,input [31:0] w1);
     begin
@@ -178,6 +180,10 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
     host_read(16'h001C,rd); if(rd!==32'd4) bad("DROP_CNT total mismatch");
     host_read(16'h0040,rd); if(rd!==32'd3) bad("DROP_CNT_K unconf class mismatch");
     host_read(16'h0044,rd); if(rd!==32'd1) bad("DROP_CNT_K lmax class mismatch");
+    host_read(16'h0048,rd); if(rd!==32'd0) bad("IC drop counted while IC_EN=0");
+    if(dut.ic_accept_cnt!==0) bad("IC saw frames while IC_EN=0 (bypass broken)");
+    if(dut.u_rxic.psn_mem[13'h100]!==8'd0 || dut.u_rxic.psn_mem[13'h1100]!==8'd0)
+      bad("PSN written while IC_EN=0");
     // Reset clears counters and verdict pipeline.
     @(negedge clk);reset=1;repeat(6) @(negedge clk);reset=0;
     waitc=0;
