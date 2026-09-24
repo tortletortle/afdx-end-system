@@ -2,9 +2,10 @@
 // AFDX_top.v —— AFDX 端系统顶层（第 2 周初始化/主机总线接线中）
 // 设计书: §5.1（顶层端口总表）/ §4.2（复位）/ §4.3（参数表）/
 //         §7.14 + 附录 A（寄存器页，doc/regs.yaml 为单一来源）/ §7.18（时基）
-// 状态: 初始化扫描/前门/TX 闭环；RX 双入口/PMEM -> lookup -> FLT -> IC 已接线
-//       （v0.5.14：rx_ic 独占唯一 PSN RAM）。IC 接受帧因 RM/解析/端口未实现
-//       仍只计数并回收块；后级 RX/管理面及完整 T05/T22 指标仍未验收。
+// 状态: 初始化扫描/前门/TX 闭环；RX 双入口/PMEM -> lookup -> FLT -> IC -> RM
+//       已接线（v0.5.14：rx_ic 独占 PSN RAM；v0.5.15：rx_rm 独占 RM_ST RAM）。
+//       RM forward 帧因解析/端口未实现仍只计数并回收块；后级 RX/管理面及完整
+//       T05/T22 指标仍未验收。
 // 命名/握手: §10（信号小写下划线、参数大写下划线、vld/rdy 或 pulse）
 // =====================================================================
 `timescale 1 ns / 1 ps
@@ -79,7 +80,6 @@ module AFDX_top #(
   // PSN RAM 由 u_rxic 唯一持有（init_sweep T_PSN 直写其单写口）；哈希 RAM
   // 由 u_rxlookup 唯一持有。RM 状态尚未连接 RX 判决链。
   // 其他配置字不复位；w0.valid 清零后读取未启用项返回零，避免暴露 X 内容。
-  reg [31:0] rm_mem       [0:NUM_RX_VL-1];
   reg [31:0] rx_cfg_mem   [0:2*NUM_RX_VL-1];
   reg [31:0] tx_cfg_mem   [0:5*NUM_TX_VL-1];
   // §8.2/O-27: 与 TX w0~w4 分离的 Q20 份额表，0x0480+VL；数据 BRAM 不整片复位。
@@ -116,6 +116,10 @@ module AFDX_top #(
   wire [11:0] ic_out_vl;
   wire [162:0] ic_out_desc;
   reg  [31:0] ic_drop_cnt, ic_accept_cnt;
+  wire rm_in_vld, rm_in_ready, rm_out_vld, rm_out_fwd, rm_out_skew;
+  wire [162:0] rm_in_desc, rm_out_desc;
+  wire [11:0] rm_in_vl, rm_out_vl;
+  reg  [31:0] rm_dup_cnt, rm_fwd_cnt, rm_skew_cnt;
   wire rx_desc_valid_a, rx_desc_valid_b, rx_desc_pop_a, rx_desc_pop_b;
   wire [162:0] rx_desc_a, rx_desc_b;
   // 前置跨区声明：Questa vlog-2730 不允许在主机译码里先使用、后声明。
@@ -281,7 +285,6 @@ module AFDX_top #(
 
   // 扫描优先于配置期前门写；无同步复位整片 BRAM 的写法。
   always @(posedge clk) begin
-    if (init_we && init_target == 3'd1) rm_mem[init_addr] <= 32'd0;
     if (init_we && init_target == 3'd3) rx_cfg_mem[init_addr * 13'd2] <= 32'd0;
     else if (cfg_write && rx_hit) rx_cfg_mem[rx_idx] <= host_wdata;
     if (init_we && init_target == 3'd4) tx_cfg_mem[init_addr * 13'd5] <= 32'd0;
@@ -372,7 +375,8 @@ module AFDX_top #(
         // IC（0x48）；其余类别仍未接线返回 0，不能当完整统计面验收。
         if (drop_k) rdata_r <= (off == 8'h40) ? flt_unconf_cnt :
                                (off == 8'h44) ? flt_lmax_cnt :
-                               (off == 8'h48) ? ic_drop_cnt : 32'd0;
+                               (off == 8'h48) ? ic_drop_cnt :
+                               (off == 8'h4C) ? rm_dup_cnt : 32'd0;
         else case (off)
           8'h00: rdata_r <= REG_ID;
           8'h04: rdata_r <= REG_REV;
@@ -614,10 +618,11 @@ module AFDX_top #(
   wire lookup_in_vld = rx_stream_en &&
                         (rx_desc_valid_a || rx_desc_valid_b);
   wire lookup_take = lookup_in_vld && lookup_in_ready;
-  // drain、FLT 拒绝/旁路、IC 输出共用唯一 free_pipe 口：三者按拍互斥，
+  // drain、FLT 拒绝、IC 拒绝、RM 输出共用唯一 free_pipe 口：按拍互斥，
   // 否则同拍第二个块释放会被覆盖丢失（见下方 rx_pipe_free）。
   wire lookup_drain = !rx_stream_en && !lookup_out_vld && !flt_out_vld &&
-                       !ic_out_vld && (rx_desc_valid_a || rx_desc_valid_b);
+                       !ic_out_vld && !rm_out_vld &&
+                       (rx_desc_valid_a || rx_desc_valid_b);
   assign rx_desc_pop_a = rx_desc_valid_a && (lookup_take || lookup_drain);
   assign rx_desc_pop_b = !rx_desc_valid_a && rx_desc_valid_b &&
                          (lookup_take || lookup_drain);
@@ -645,53 +650,84 @@ module AFDX_top #(
     .out_vld(flt_out_vld), .out_ready(flt_out_ready),
     .out_pass(flt_out_pass), .out_reason(flt_out_reason),
     .out_vl(flt_out_vl), .out_desc(flt_out_desc));
-  // IC（§7.10，v0.5.14）：FLT PASS 帧进入 rx_ic，按 {网, 查表索引} 读改写
-  // 唯一 PSN RAM。CTL.IC_EN(bit2)=0 时 PASS 帧旁路 IC（不读写 PSN）。
-  // 唯一 free_pipe 口的仲裁：IC 输出拍（ic_out_vld，out_ready 恒 1，只保持
-  // 1 拍）优先；此拍 FLT 输出被反压（rx_flt 保持结果），drain 被禁止。
-  // 未接 RM/端口前，IC 接受帧同样回收块并计数（过渡行为）。
+  // IC（§7.10）→ RM（§7.11）：FLT PASS 帧进入 rx_ic，按 {网, 查表索引} 读改写
+  // 唯一 PSN RAM；CTL.IC_EN(bit2)=0 时 PASS 帧旁路 IC（不读写 PSN）直接进 RM。
+  // IC 接受帧进入 rx_rm（唯一 RM_ST RAM，v0.5.15）；IC 拒绝帧回收块。
+  // 唯一 free_pipe 口按拍互斥，优先级：RM 输出 > IC 拒绝 > FLT 拒绝 > drain；
+  // 未获准的来源保持（rx_ic/rx_flt/rx_rm 输出均保持到握手）。
+  // RM 进口两源：IC 接受优先，FLT 旁路仅在 IC 无输出时进入。
+  // 解析/端口未接之前，RM forward 帧计数后同样回收块（过渡行为）。
   wire ic_en = ctl_r[2];
   wire flt_to_ic = flt_out_pass && ic_en;
+  wire flt_to_rm = flt_out_pass && !ic_en;
+  wire ic_rej    = ic_out_vld && !ic_out_accept;
+  wire ic_to_rm  = ic_out_vld && ic_out_accept;
+  wire ic_out_ready = ic_out_accept ? rm_in_ready : !rm_out_vld;
+  wire ic_fire   = ic_out_vld && ic_out_ready;
   assign ic_in_vld = flt_out_vld && flt_to_ic && !ic_out_vld;
-  assign flt_out_ready = !ic_out_vld && (!flt_to_ic || ic_in_ready);
+  assign flt_out_ready = !ic_out_vld &&
+                         (flt_to_ic ? ic_in_ready :
+                          flt_to_rm ? rm_in_ready : !rm_out_vld);
   wire flt_fire = flt_out_vld && flt_out_ready;
-  wire flt_free = flt_fire && !flt_to_ic;          // 拒绝或 IC 旁路
+  wire flt_free = flt_fire && !flt_out_pass;       // FLT 拒绝
+  assign rm_in_vld  = ic_to_rm || (flt_out_vld && flt_to_rm && !ic_out_vld);
+  assign rm_in_desc = ic_to_rm ? ic_out_desc : flt_out_desc;
+  assign rm_in_vl   = ic_to_rm ? ic_out_vl   : flt_out_vl;
+  wire [31:0] rm_in_w0 = rx_cfg_mem[{rm_in_vl,1'b0}];
   rx_ic #(.NUM_RX_VL(NUM_RX_VL)) u_rxic (
     .clk(clk), .rst_sync(rst_sync), .init_done(init_done),
     .init_we(init_we && (init_target == 3'd0)), .init_addr(init_addr),
     .ic_first_any(udp_cfg_r[0]),
     .in_vld(ic_in_vld), .in_ready(ic_in_ready),
     .in_desc(flt_out_desc), .in_vl(flt_out_vl),
-    .out_vld(ic_out_vld), .out_ready(1'b1),
+    .out_vld(ic_out_vld), .out_ready(ic_out_ready),
     .out_accept(ic_out_accept), .out_reason(ic_out_reason),
     .out_desc(ic_out_desc), .out_vl(ic_out_vl),
     // IC/RM 调试窗口（0xA800，DEBUG_EN）尚未实现：强制写口先 tie off。
     .dbg_en(1'b0), .dbg_wr(1'b0), .dbg_vl(12'd0), .dbg_net(1'b0), .dbg_psn(8'd0));
-  // DROP_CNT_K 登记 FLT 层原因（unconf 含 NET/VLID 不一致，lmax 单列）与 IC
-  // 拒绝；DROP_CNT 合计含两者。mac_rx_if 的 CRC/长度类拒绝仍由其内部计数，
-  // 接入统计面是后续项。计数按握手拍（FLT 可能被反压保持多拍）。
+  rx_rm #(.NUM_RX_VL(NUM_RX_VL)) u_rxrm (
+    .clk(clk), .rst_sync(rst_sync), .init_done(init_done),
+    .init_we(init_we && (init_target == 3'd1)), .init_addr(init_addr),
+    .rm_glb_en(ctl_r[3]),
+    .in_vld(rm_in_vld), .in_ready(rm_in_ready),
+    .in_desc(rm_in_desc), .in_vl(rm_in_vl),
+    .in_rm_en(rm_in_w0[30]), .in_net_mode(rm_in_w0[29:28]),
+    .in_skew_exp(rm_in_w0[27:24]),
+    .out_vld(rm_out_vld), .out_ready(1'b1),
+    .out_fwd(rm_out_fwd), .out_skew(rm_out_skew),
+    .out_desc(rm_out_desc), .out_vl(rm_out_vl),
+    .dbg_en(1'b0), .dbg_wr(1'b0), .dbg_vl(12'd0), .dbg_data(33'd0));
+  wire ic_rej_fire = ic_rej && ic_fire;
+  // DROP_CNT_K 登记 FLT 层原因（unconf 含 NET/VLID 不一致，lmax 单列）、IC
+  // 拒绝（0x48）与 RM 重复副本（0x4C）；DROP_CNT 合计含全部。mac_rx_if 的
+  // CRC/长度类拒绝仍由其内部计数。计数按握手拍（各级可能被反压保持多拍）。
   always @(posedge clk) begin
     if (rst_sync) begin
       flt_unconf_cnt <= 32'd0; flt_lmax_cnt <= 32'd0; flt_drop_total <= 32'd0;
       ic_drop_cnt <= 32'd0; ic_accept_cnt <= 32'd0;
+      rm_dup_cnt <= 32'd0; rm_fwd_cnt <= 32'd0; rm_skew_cnt <= 32'd0;
     end else begin
-      if (flt_fire && !flt_out_pass) begin
+      if (flt_free) begin
         if (flt_out_reason == 3'd3) flt_lmax_cnt <= flt_lmax_cnt + 32'd1;
         else flt_unconf_cnt <= flt_unconf_cnt + 32'd1;
       end
-      // FLT 拒绝与 IC 输出按拍互斥，合计最多 +1。
-      if ((flt_fire && !flt_out_pass) || (ic_out_vld && !ic_out_accept))
+      // RM 输出 / IC 拒绝 / FLT 拒绝按拍互斥（free 口仲裁），合计最多 +1。
+      if (flt_free || ic_rej_fire || (rm_out_vld && !rm_out_fwd))
         flt_drop_total <= flt_drop_total + 32'd1;
-      if (ic_out_vld && !ic_out_accept) ic_drop_cnt <= ic_drop_cnt + 32'd1;
-      if (ic_out_vld && ic_out_accept) ic_accept_cnt <= ic_accept_cnt + 32'd1;
+      if (ic_rej_fire) ic_drop_cnt <= ic_drop_cnt + 32'd1;
+      if (ic_to_rm && rm_in_ready) ic_accept_cnt <= ic_accept_cnt + 32'd1;
+      if (rm_out_vld && !rm_out_fwd) rm_dup_cnt <= rm_dup_cnt + 32'd1;
+      if (rm_out_vld && rm_out_fwd) rm_fwd_cnt <= rm_fwd_cnt + 32'd1;
+      if (rm_out_vld && rm_out_skew) rm_skew_cnt <= rm_skew_cnt + 32'd1;
     end
   end
   always @(posedge clk) begin
     if (rst_sync) begin rx_pipe_free <= 1'b0; rx_pipe_free_id <= 4'd0; end
     else begin
-      // IC 接受帧在 RM/端口接入前同样回收（过渡行为，见上注释）。
-      rx_pipe_free <= ic_out_vld || flt_free || lookup_drain;
-      if (ic_out_vld) rx_pipe_free_id <= ic_out_desc[162:159];
+      // RM forward 帧在解析/端口接入前同样回收（过渡行为，见上注释）。
+      rx_pipe_free <= rm_out_vld || ic_rej_fire || flt_free || lookup_drain;
+      if (rm_out_vld) rx_pipe_free_id <= rm_out_desc[162:159];
+      else if (ic_rej_fire) rx_pipe_free_id <= ic_out_desc[162:159];
       else if (flt_free) rx_pipe_free_id <= flt_out_desc[162:159];
       else if (lookup_drain) rx_pipe_free_id <= lookup_in_desc[162:159];
     end

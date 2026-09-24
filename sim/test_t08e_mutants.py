@@ -27,22 +27,22 @@ VSIM_CANDIDATES = (
     Path(r"C:\altera_pro\26.1.1\modelsim_ae\win32aloem\vsim.exe"),
 )
 # Single, precisely matched RTL faults (file, name, needle, replacement):
-# free-port collision (FLT vs IC, drain vs IC), reject writes PSN, A/B PSN
+# free-port collision (FLT reject vs RM output, drain vs RM output), reject writes PSN, A/B PSN
 # aliasing, IC_EN ignored, IC drop missing from DROP_CNT, lost-one disabled.
 # A compile failure or timeout is not a detected functional fault.
 MUTATIONS = (
-    (TOP, "flt_reject_collides_with_ic_output",
-     "assign flt_out_ready = !ic_out_vld && (",
-     "assign flt_out_ready = ("),
-    (TOP, "drain_collides_with_ic_output",
-     "!ic_out_vld && (rx_desc_valid_a || rx_desc_valid_b);",
-     "(rx_desc_valid_a || rx_desc_valid_b);"),
+    (TOP, "flt_reject_collides_with_rm_output",
+     "flt_to_rm ? rm_in_ready : !rm_out_vld);",
+     "flt_to_rm ? rm_in_ready : 1'b1);"),
+    (TOP, "drain_collides_with_rm_output",
+     "!ic_out_vld && !rm_out_vld &&",
+     "!ic_out_vld &&"),
     (TOP, "ic_en_ignored",
      "wire flt_to_ic = flt_out_pass && ic_en;",
      "wire flt_to_ic = flt_out_pass;"),
     (TOP, "ic_drop_missing_from_total",
-     "if ((flt_fire && !flt_out_pass) || (ic_out_vld && !ic_out_accept))",
-     "if (flt_fire && !flt_out_pass)"),
+     "if (flt_free || ic_rej_fire || (rm_out_vld && !rm_out_fwd))",
+     "if (flt_free || (rm_out_vld && !rm_out_fwd))"),
     (IC, "reject_writes_psn",
      "(state == ST_WRITE) && accept_q;",
      "(state == ST_WRITE);"),

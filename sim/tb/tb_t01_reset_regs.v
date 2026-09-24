@@ -228,7 +228,7 @@ module tb_t01_reset_regs;
         init_seen[4],init_seen[5],init_seen[6],init_seen[7],last_init_cycle,init_done_cycle);
       err = err + 1;
     end
-    if (dut.u_rxic.psn_mem[8191] !== 8'd0 || dut.rm_mem[4095] !== 32'd0 ||
+    if (dut.u_rxic.psn_mem[8191] !== 8'd0 || dut.u_rxrm.rm_mem[4095] !== 33'd0 ||
         dut.u_rxlookup.table1way1[2047] !== 32'd0 || dut.rx_cfg_mem[8190] !== 32'd0 ||
         dut.tx_cfg_mem[635] !== 32'd0 || dut.port_cfg_mem[1020] !== 32'd0 ||
         dut.rx_desc_mem[255] !== 32'd0 || dut.vl_stat_mem[127] !== 32'd0) begin

@@ -7,7 +7,7 @@
 | 交付平台 | 指南原文：「本赛题全部通过 eLinx 软件进行编译及仿真，无需硬件平台」。因此全文不出现器件型号、管脚约束与片内资源占比，开销一律给绝对量。组委会《问题汇总》另有两条口径相关的答复：「要求基于 FPGA 做仿真」——必须在 eLinx/ModelSim 里对 RTL 或综合后网表跑波形，不许拿纯软件功能模型代替；「需要参赛者自己编写仿真激励（文件）并验证内容」——赛方不提供激励与参考测试环境，见附录 D |
 | 开发环境 | eLinx（RTL 输入、综合、时序分析、IP 生成、Tcl 自动化、联合仿真）、Questa Starter（主力仿真：回归 / 断言 / 覆盖率，O-15）、ModelSim 10.x（仅 eLinx 联合仿真取证）、Verilator（eLinx 自带，lint）、Python 3 |
 | 评测依据 | 指南「测评标准」四项：代码及仿真环境 40%、设计文档 20%、测试（仿真）报告 20%、技术指标 20%。技术指标全部由仿真测量；综合与时序属可选自证材料，见 §9、§11 |
-| 文档版本 | v0.5.14（v0.2 起的修订见附录 F；顶层哈希前门、双网 RX/主机争用、FLT 语义过滤与顶层 IC 各有局部 RTL 仿真证据；RM/端口交付、T05b/完整 T08/T22 及顶层 STA 未验收） |
+| 文档版本 | v0.5.15（v0.2 起的修订见附录 F；顶层哈希前门、双网 RX/主机争用、FLT 语义过滤、顶层 IC 与 RM 各有局部 RTL 仿真证据；解析/端口交付、T05b/完整 T08/T22 及顶层 STA 未验收） |
 | 编写 / 评审 | 编写：全队；评审：指导教师；变更需在第 4 周 P0 闭环前提出 |
 
 ---
@@ -713,6 +713,8 @@ SkewMax：编码 `4<<skewmax_exp`，`skewmax_exp ∈ [0,15]` ⇒ 4 μs ~ 131 ms�
 
 资源：8 个 18 Kbit 块（状态）+ 4 深描述符 FIFO + 比较器，1.1K LUT。
 
+实现状态（09-24，v0.5.15）：`rx_rm.v` 现为可综合 RTL，接入 `AFDX_top`（IC 之后；`CTL.IC_EN`=0 时 FLT PASS 帧旁路 IC 直接进 RM），原顶层 `rm_mem` 初始化壳删除，`init_sweep` T_RM 扫描驱动 `u_rxrm` 唯一写口。与上文规划的差异：① A/B 两网在 lookup 入口前已由两个 `rx_pmem_queue` 串行化成一条流，RM 对同一 VL 逐项读—判—写回，B 副本判决时必然看到 A 副本的写回，因此不再设 2 深 A/B 等待队列和 4096 bit `pending` 位图；② 入口按 A 优先出队而非严格时间序，后判的副本时间戳可能更早，窗口判据改为 24 bit 有符号差的**绝对值** `|ts−last_ts| ≤ 4<<skewmax_exp`（单边差会把早到的迟判副本误当新帧）；③ 表项增加 `seen` 位（33 bit，见附录 C），否则上电清零的 {0,0} 与“SN=0、ts≈0”的合法首帧不可区分。生效条件为 `CTL.RM_EN && w0.rm_en && w0.net_mode==11`，否则直接 forward 且不读写表项；超 SkewMax 的同 SN 仍 forward 并计 skew 事件（内部计数）。重复副本计入 `DROP_CNT_K` rm（`0x004C`）与 `DROP_CNT` 合计。已知限制（按本节算法）：只记最近一次 forward 的 SN，一网连续领先多帧后另一网补到的旧 SN 会再次 forward。RM forward 帧在解析/端口实现前仍计数后回收块；调试窗口写口 tie off。T10/T10g 验证见 §12.4。
+
 ### 7.12 `rx_ip_udp_parse`
 
 功能：利用 `mac_rx_if` 的首部/校验结果完成 IP/UDP 字段及端口表匹配，产出 `{port_id, payload_off, payload_len}`；不再为校验和回读整帧 PMEM（O-04/O-05）。
@@ -1186,6 +1188,8 @@ T21/T22 是本次设计新增（相对上一版计划），因为评审看的是
 
 09-24 v0.5.14 **P0-05 IC 顶层接线**：`rx_ic` 接在 `rx_flt` 之后并独占唯一 PSN RAM（顶层 `psn_mem` 壳删除，T01 改查 `u_rxic.psn_mem`）；`CTL.IC_EN` 旁路、`IC_FIRST_ANY`、IC 拒绝计数 `0x0048` 与 `DROP_CNT` 合计、唯一 `free_pipe` 口三源（IC 输出/FLT 拒绝或旁路/drain）按拍互斥。新增 T08e/T08eg：真实 79 B 帧改 SN 并重算 FCS，两种 IF_MODE 各 390 次 IC 判决——严格首帧、重复、丢一/丢二、倒退、SN=0、A/B 独立、254→1 回绕、FIRST_ANY、IC_EN=0 旁路、A/B 0~9 拍偏斜（含 FLT 拒绝与 IC 输出争用）及 91 次 RX_EN 关断扫描（drain 与 IC 输出重叠 2 次），逐判决对独立 TB 参考模型、PSN RAM 与逐帧块守恒。`sim/test_t08e_mutants.py` 7/7 故障检出；T08c 3/3、T12 顶层 5/5 复跑检出。T08d 改以 IC_EN=0 运行以保持纯 FLT 判据。一次编译全量 **28/28 PASS**，存档 `sim/out/regress_full_28_20260924.csv`，SHA-256 `1C15FB4AB44037AA8C526FC497853D6ED7441FC55FA843829335632757C14306`；证据索引 `sim/out/test_evidence_28_20260924.json`；lint 0 `%Error`、`run_all.py --strict` 5/5。RM/解析/端口、完整 T08/T22、T05b、STA 未验收。
 
+09-24 v0.5.15 **P0-06 RM 顶层接线**：`rx_rm` 接在 `rx_ic` 之后（IC_EN=0 时 FLT 旁路进 RM）并独占唯一 RM_ST RAM（顶层 `rm_mem` 壳删除，T01 改查 `u_rxrm.rm_mem`）；表项 33 bit 含 `seen`；有符号绝对时差窗口；`CTL.RM_EN`、`w0.rm_en`、`net_mode=11` 三条件生效；重复副本计 `0x004C` 与 `DROP_CNT`；唯一 `free_pipe` 口四源（RM 输出 > IC 拒绝 > FLT 拒绝 > drain）按拍互斥。新增 T10/T10g：真实帧 A/B 副本 0~9 拍偏斜、A 先/B 先各 10 对，窗口内外（exp=5/0）、上电首帧 SN=0 配 131 ms 窗口、RM_EN/rm_en 关闭、IC_EN 旁路、IC 拒绝帧不污染表项、（IF_MODE=0）早到迟判副本，逐判决对独立 TB 模型并核对 RM RAM、逐帧块守恒与逐 SN 交付次数。`sim/test_t10_mutants.py` 7/7 检出；T08e 的 RX_EN 关断扫描扩到 13×13=169 次，两个 free 口争用突变改为针对 RM 输出，仍 7/7；T08c 3/3、T12 顶层 5/5。Questa 首轮曾因 4096 bit `seen` 寄存器位图在默认 vopt 优化下未被扫描清零而 T01/T10 失败（+acc 下正常），改为 RAM 内 `seen` 位后通过。一次编译全量 **30/30 PASS**，存档 `sim/out/regress_full_30_20260924.csv`，SHA-256 `BDE89DB8F2A60BD67FDB8FDCFA9060E0D9D63E672AA89BA0C05B28C0D26E1BED`；证据索引 `sim/out/test_evidence_30_20260924.json`；lint 0 `%Error`。解析/端口、完整 T08/T22、T05b、STA 未验收。
+
 ---
 
 ## 13 进度与分工
@@ -1363,7 +1367,7 @@ TX Q20 份额是**独立的一字/每 VL 配置表**（`0x0480~0x04FF`，[20:0]=
 | | w1 | [31:0] `expect_vl`（4 字节，含 VLID 校验用） |
 | `RX_HASH` | way | [31:29] 填充（恒 0），[28] `valid`，[27:12] `vlid`，[11:0] `idx`；2 表×2048 桶×2 way，每表一桶两 way 连续占两个字（`base + table×4096 + bucket×2 + way`），两表并行读（§7.9） |
 | `PSN` | — | [7:0] 上一正确 SN |
-| `RM_ST` | — | [31:8] `last_ts[23:0]`，[7:0] `last_sn`（共 32 bit，不留冗余字段）；`pending` 不占表位，见 §7.11 |
+| `RM_ST` | — | [32] `seen`（v0.5.15 增：init_sweep 清零、forward 置 1），[31:8] `last_ts[23:0]`，[7:0] `last_sn`（共 33 bit）；`pending` 位图在串行化实现中取消，见 §7.11 |
 
 ## 附录 D 待出题方确认清单
 
@@ -1447,6 +1451,7 @@ TX Q20 份额是**独立的一字/每 VL 配置表**（`0x0480~0x04FF`，[20:0]=
 | v0.5.12 | 2026-09-23 | 补 HOST-01 主机 PMEM 单写口竞争的可执行约定：RX 优先、1 笔 pending、落字才 ACK、复位取消。T08c/T08cg 两档各 28 对真实双网帧/40 笔冲突写，20 持续 CS + 20 单拍脉冲，定向 2/2 PASS；三类隔离 RTL 故障 3/3 捕获。同步 §5.4 的 Q20/哈希有效区配置字数与 §12.2 T22 时序；Questa 最新 24/24 PASS（CSV SHA-256 `4F71F01AED42DE5D9FFEF6231212FBED26220667D91B9434642E8579B4110EB8`）。该测试未证明持续双网满速的主机等待上界、混合读写或完整 RX 交付，P0-02 仅局部推进。 |
 | v0.5.13 | 2026-09-23 | P0-03 过滤落地：`rx_flt.v` 从壳实现为语义过滤并接入 `AFDX_top`（mac_rx_if→lookup→flt，S1 已由入口流式完成、S2 需 vl_idx 故判决在查表后）；UNCONF（未命中/越界/valid=0）、VLID（expect_vl 不符）、NET（net_mode 使能位）、LMAX（len>lmax，均含 FCS）四类拒绝，DROP_CNT/DROP_CNT_K(unconf,lmax) 前门可读、复位清零；块释放移到 FLT 判决后，drain 与 FLT 输出互斥。T08d/T08dg 真实帧双模式 2/2 PASS（7 判决/帧池守恒/坏 FCS 隔离/计数读回）；全量 26/26 PASS（CSV SHA-256 `9E18DEBF4EDB77A210A0029CBCA0E92F9788B86E078736F490B24995087474BF`）。PASS 帧仍回收不投递，IC/RM/端口、完整 T08/T22、T05b、STA 未验收；FLT 配置读口为行为级组合读，BRAM 化须并入主机读口。 |
 | v0.5.14 | 2026-09-24 | P0-05 IC 顶层接线：`rx_ic` 接在 FLT 之后并独占唯一 PSN RAM（顶层 `psn_mem` 壳删除，T_PSN 扫描直驱 IC 写口）；`CTL.IC_EN`=0 旁路、`UDP_CFG[0]` IC_FIRST_ANY、IC 拒绝计入 `DROP_CNT_K` ic（`0x0048`）与 `DROP_CNT`；唯一 `free_pipe` 口三源按拍互斥（IC 输出优先，FLT 反压、drain 禁止）。T08e/T08eg 双模式 2/2 PASS（390 判决/参考模型/PSN RAM/偏斜与 RX_EN 关断扫描/块守恒），T08e 故障注入 7/7；全量 28/28 PASS（CSV SHA-256 `1C15FB4AB44037AA8C526FC497853D6ED7441FC55FA843829335632757C14306`）。IC 接受帧仍回收不投递，RM/解析/端口、调试窗口、完整 T08/T22、T05b、STA 未验收。 |
+| v0.5.15 | 2026-09-24 | P0-06 RM 顶层接线：`rx_rm` 实现并接在 IC 之后（IC_EN=0 时 FLT 旁路进 RM），独占唯一 RM_ST RAM；A/B 已在入口串行化，取消 2 深等待队列与 pending 位图；窗口改为有符号绝对时差；RM_ST 加 `seen` 位（33 bit）；重复副本计 `DROP_CNT_K` rm `0x004C`。新增 T10/T10g 与 `test_t10_mutants.py`（7/7）；T08e 关断扫描扩至 169 次、突变 7/7；全量 30/30 PASS（`regress_full_30_20260924.csv`）。 |
 | v0.6（计划） | 10 月初 | 125 MHz 拍数换算已在 v0.5.2 闭环、哈希区口径与 §3.3 时延上界已在 v0.5.3 定案；余下：补 pass1/pass2 实测波形引用（待 T02~T05） |
 | v1.0（计划） | 10-20 | P0 闭环，T01~T13 实测数据与（若做了）综合报告写入，作为提交版设计文档底稿 |
 

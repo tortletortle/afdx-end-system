@@ -5,7 +5,7 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t08cg_host_arb 
-# Start time: 20:30:07 on Sep 24,2026
+# Start time: 20:59:05 on Sep 24,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # //  Questa Altera Starter FPGA Edition-64
@@ -27,5 +27,5 @@ Reading pref.tcl
 # T08c HOST-ARBITRATION PASS (IF_MODE=1 real_dual_frames=56 host_writes=40 deferred=40 held=20 pulse=20 commits=40 max_wait=2 reset_abort=1)
 # ** Note: $finish    : tb/tb_t08c_host_arb.v(195)
 #    Time: 428248 ns  Iteration: 1  Instance: /tb_t08cg_host_arb/core
-# End time: 20:30:09 on Sep 24,2026, Elapsed time: 0:00:02
+# End time: 20:59:08 on Sep 24,2026, Elapsed time: 0:00:03
 # Errors: 0, Warnings: 0

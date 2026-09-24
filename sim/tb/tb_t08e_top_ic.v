@@ -7,12 +7,13 @@
 //     wrap 254 -> 1 as lost-one, IC_FIRST_ANY=1, CTL.IC_EN=0 bypass);
 //   * an independent TB PSN model re-derives every IC output;
 //   * PSN RAM contents (unique RAM inside u_rxic) for both nets;
+//   * RX_EN stop sweep 13 skews x 13 offsets (drain vs IC/RM output);
 //   * A/B near-simultaneous frames at 0..9 cycle skew, with the B frame
 //     either IC-accepted or FLT-rejected, so FLT reject / IC output / free
 //     port contention is exercised; block conservation after every frame;
 //   * DROP_CNT(0x1C) = FLT + IC drops, DROP_CNT_K ic(0x48), reset clearing.
-// RM/parse/port are still shells: an IC-accepted frame is only counted and
-// its block recycled.  This is NOT a full T08/T22.
+// v0.5.15: IC-accepted frames continue into rx_rm (VL rm_en=0 here, so RM
+// forwards them); parse/port are still shells, the block is then recycled.  This is NOT a full T08/T22.
 `timescale 1 ns / 1 ps
 module tb_t08e_core #(parameter integer IF_MODE=0);
   reg clk=0, reset=1;
@@ -60,13 +61,14 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
   always @(posedge clk) if(!reset) begin
     if(dut.rx_ovf_a||dut.rx_ovf_b) bad("RX FIFO overflow");
     if(dut.flt_out_vld && dut.flt_out_ready && !dut.flt_out_pass) flt_rej=flt_rej+1;
-    // coverage: a queued descriptor waits for drain while IC is emitting
-    if(!dut.rx_stream_en && dut.ic_out_vld &&
+    // coverage: a queued descriptor waits for drain while IC/RM is emitting
+    if(!dut.rx_stream_en && (dut.ic_out_vld || dut.rm_out_vld) &&
        (dut.rx_desc_valid_a || dut.rx_desc_valid_b)) drain_ic_overlap=drain_ic_overlap+1;
     // at most one block release source per cycle on the shared free port
-    if((dut.ic_out_vld + dut.flt_free + dut.lookup_drain) > 1)
+    if((dut.rm_out_vld + dut.ic_rej_fire + dut.flt_free + dut.lookup_drain) > 1)
       bad("two block releases in one cycle on shared free port");
-    if(dut.ic_out_vld) begin
+    // v0.5.15: an IC-accepted output may wait for rx_rm; count handshakes.
+    if(dut.ic_fire) begin
       ic_seen=ic_seen+1;
       if(dut.ic_out_accept) ic_acc=ic_acc+1; else ic_rej=ic_rej+1;
       if(dut.ic_out_vl!==12'h100) bad("IC out_vl is not the looked-up index");
@@ -294,7 +296,8 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
     // around A's IC output cycle (shared free port).  Outcome per frame may
     // be drain / FLT reject / truncation; only conservation + model are
     // asserted, and counters must stay consistent with what was observed.
-    for(d=0;d<7;d=d+1) for(k=0;k<13;k=k+1) begin
+    // d up to 12 so B completes while A is already in RM (drain vs RM out).
+    for(d=0;d<13;d=d+1) for(k=0;k<13;k=k+1) begin
       build(0,sn_next[7:0]); build(1,8'd13);
       fork
         drive_a;
@@ -322,7 +325,7 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
     host_read(16'h0048,rd); if(rd!==32'd0) bad("IC drop counter not cleared");
     host_read(16'h001C,rd); if(rd!==32'd0) bad("DROP_CNT not cleared");
     if(errors==0)
-      $display("T08e TOP IC PASS (IF_MODE=%0d ic=%0d accept=%0d reject=%0d flt_reject=%0d drain_overlap=%0d skew=0..9 rxen_sweep=91 wrap/first_any/bypass/reset ok)",
+      $display("T08e TOP IC PASS (IF_MODE=%0d ic=%0d accept=%0d reject=%0d flt_reject=%0d drain_overlap=%0d skew=0..9 rxen_sweep=169 wrap/first_any/bypass/reset ok)",
         IF_MODE,ic_seen,ic_acc,ic_rej,flt_rej,drain_ic_overlap);
     else $display("T08e TOP IC FAIL (IF_MODE=%0d errors=%0d)",IF_MODE,errors);
     $finish;

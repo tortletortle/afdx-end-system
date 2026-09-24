@@ -18,6 +18,8 @@ T08d tb_t08d_top_flt flt
 T08dg tb_t08dg_top_flt flt-gmii
 T08e tb_t08e_top_ic ic-top
 T08eg tb_t08eg_top_ic ic-top-gmii
+T10 tb_t10_top_rm rm-top
+T10g tb_t10g_top_rm rm-top-gmii
 T09 tb_t09_rx_ic full
 T09s tb_t09s_rx_ic small
 T09p tb_t09p_rx_ic full
