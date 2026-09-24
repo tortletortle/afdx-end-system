@@ -4,8 +4,8 @@ Reading pref.tcl
 
 # source compile.tcl
 # Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
-# Start time: 20:56:55 on Sep 24,2026
-# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/top/AFDX_top.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v ../rtl/rx/rx_rm.v tb/tb_t00_common.v tb/tb_t01_reset_regs.v tb/tb_t02_tx_buf_sn.v tb/tb_t03_frame_builder.v tb/tb_t04_tx_chain.v tb/tb_t05c_cfg_budget.v tb/tb_t08a_rx_ingress.v tb/tb_t08b_top_rx.v tb/tb_t08c_host_arb.v tb/tb_t08d_top_flt.v tb/tb_t08e_top_ic.v tb/tb_t10_top_rm.v tb/tb_t09_rx_ic.v tb/tb_t09p_rx_ic.v tb/tb_t12_rx_lookup.v tb/tb_t12f_top_lookup.v tb/tb_t22a_frontdoor_tx.v 
+# Start time: 21:27:03 on Sep 24,2026
+# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/top/AFDX_top.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v ../rtl/rx/rx_rm.v ../rtl/rx/rx_ip_udp_parse.v ../rtl/rx/rx_port_buf.v tb/tb_t00_common.v tb/tb_t01_reset_regs.v tb/tb_t02_tx_buf_sn.v tb/tb_t03_frame_builder.v tb/tb_t04_tx_chain.v tb/tb_t05c_cfg_budget.v tb/tb_t08a_rx_ingress.v tb/tb_t08b_top_rx.v tb/tb_t08c_host_arb.v tb/tb_t08d_top_flt.v tb/tb_t08e_top_ic.v tb/tb_t10_top_rm.v tb/tb_t11_top_port.v tb/tb_t09_rx_ic.v tb/tb_t09p_rx_ic.v tb/tb_t12_rx_lookup.v tb/tb_t12f_top_lookup.v tb/tb_t22a_frontdoor_tx.v 
 # ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # -- Compiling module rst_sync
 # -- Compiling module timebase
@@ -28,6 +28,8 @@ Reading pref.tcl
 # -- Compiling module rx_vl_lookup
 # -- Compiling module rx_flt
 # -- Compiling module rx_rm
+# -- Compiling module rx_ip_udp_parse
+# -- Compiling module rx_port_buf
 # -- Compiling module tb_t00_common
 # -- Compiling module tb_t01_reset_regs
 # -- Compiling module tb_t02_tx_buf_sn
@@ -54,6 +56,9 @@ Reading pref.tcl
 # -- Compiling module tb_t10_core
 # -- Compiling module tb_t10_top_rm
 # -- Compiling module tb_t10g_top_rm
+# -- Compiling module tb_t11_core
+# -- Compiling module tb_t11_top_port
+# -- Compiling module tb_t11g_top_port
 # -- Compiling module tb_t09_core
 # -- Compiling module tb_t09_rx_ic
 # -- Compiling module tb_t09s_rx_ic
@@ -90,6 +95,8 @@ Reading pref.tcl
 # 	tb_t08eg_top_ic
 # 	tb_t10_top_rm
 # 	tb_t10g_top_rm
+# 	tb_t11_top_port
+# 	tb_t11g_top_port
 # 	tb_t09_rx_ic
 # 	tb_t09s_rx_ic
 # 	tb_t09p_rx_ic
@@ -101,5 +108,5 @@ Reading pref.tcl
 # 	tb_t12f_top_lookup
 # 	tb_t12fg_top_lookup
 # 	tb_t22a_frontdoor_tx
-# End time: 20:56:56 on Sep 24,2026, Elapsed time: 0:00:01
+# End time: 21:27:03 on Sep 24,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0

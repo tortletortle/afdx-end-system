@@ -133,7 +133,7 @@ if (-not $KeepWork) {
     '../rtl/tx/mac_tx_if.v',   '../rtl/rx/mac_rx_if.v',
     '../rtl/rx/rx_block_pool.v', '../rtl/rx/rx_pmem_queue.v',
     '../rtl/rx/rx_ic.v', '../rtl/rx/rx_vl_lookup.v', '../rtl/rx/rx_flt.v',
-    '../rtl/rx/rx_rm.v'
+    '../rtl/rx/rx_rm.v', '../rtl/rx/rx_ip_udp_parse.v', '../rtl/rx/rx_port_buf.v'
   )
   # TB file = tb/<tb>.v; a TB whose file hosts several top modules (e.g.
   # tb_t04g_tx_chain lives in tb_t04_tx_chain.v) is mapped here.
@@ -144,6 +144,7 @@ if (-not $KeepWork) {
                'tb_t08dg_top_flt' = 'tb_t08d_top_flt';
                'tb_t08eg_top_ic' = 'tb_t08e_top_ic';
                'tb_t10g_top_rm' = 'tb_t10_top_rm';
+               'tb_t11g_top_port' = 'tb_t11_top_port';
                'tb_t09s_rx_ic' = 'tb_t09_rx_ic';
                'tb_t09ps_rx_ic' = 'tb_t09p_rx_ic';
                'tb_t12c_lookup' = 'tb_t12_rx_lookup';

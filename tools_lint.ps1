@@ -55,7 +55,8 @@ $txmods = @(
 )
 $rxmods = @('rtl/rx/mac_rx_if.v', 'rtl/rx/rx_block_pool.v',
             'rtl/rx/rx_pmem_queue.v', 'rtl/rx/rx_vl_lookup.v',
-            'rtl/rx/rx_flt.v', 'rtl/rx/rx_ic.v', 'rtl/rx/rx_rm.v')
+            'rtl/rx/rx_flt.v', 'rtl/rx/rx_ic.v', 'rtl/rx/rx_rm.v',
+            'rtl/rx/rx_ip_udp_parse.v', 'rtl/rx/rx_port_buf.v')
 # gate 1: top elaboration
 Lint 'AFDX_top' ($base + @('--top-module','AFDX_top') + $common + $txmods + $rxmods + @('rtl/top/init_sweep.v','rtl/top/AFDX_top.v'))
 
@@ -80,6 +81,8 @@ foreach ($m in @(
   @('mac_rx_if',       'rtl/rx/mac_rx_if.v'),
   @('rx_ic',           'rtl/rx/rx_ic.v'),
   @('rx_rm',           'rtl/rx/rx_rm.v'),
+  @('rx_ip_udp_parse', 'rtl/rx/rx_ip_udp_parse.v'),
+  @('rx_port_buf',     'rtl/rx/rx_port_buf.v'),
   @('rx_flt',          'rtl/rx/rx_flt.v'),
   @('rx_vl_lookup',    'rtl/rx/rx_vl_lookup.v')
 )) {
@@ -132,6 +135,10 @@ Lint 'tb_t10_top_rm' ($tbbase + @('--top-module','tb_t10_top_rm') + $common + $t
   'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t10_top_rm.v'))
 Lint 'tb_t10g_top_rm' ($tbbase + @('--top-module','tb_t10g_top_rm') + $common + $txmods + $rxmods + @(
   'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t10_top_rm.v'))
+Lint 'tb_t11_top_port' ($tbbase + @('--top-module','tb_t11_top_port') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t11_top_port.v'))
+Lint 'tb_t11g_top_port' ($tbbase + @('--top-module','tb_t11g_top_port') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t11_top_port.v'))
 Lint 'tb_t09_rx_ic' ($tbbase + @('--top-module','tb_t09_rx_ic') + @(
   'rtl/rx/rx_ic.v','sim/tb/tb_t09_rx_ic.v'))
 Lint 'tb_t09s_rx_ic' ($tbbase + @('--top-module','tb_t09s_rx_ic') + @(

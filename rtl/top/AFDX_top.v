@@ -78,7 +78,7 @@ module AFDX_top #(
     .init_target(init_target), .init_addr(init_addr), .init_done(init_done));
 
   // PSN RAM 由 u_rxic 唯一持有（init_sweep T_PSN 直写其单写口）；哈希 RAM
-  // 由 u_rxlookup 唯一持有。RM 状态尚未连接 RX 判决链。
+  // 由 u_rxlookup 唯一持有；RM_ST 由 u_rxrm、RX 端口描述符由 u_rxpb 持有。
   // 其他配置字不复位；w0.valid 清零后读取未启用项返回零，避免暴露 X 内容。
   reg [31:0] rx_cfg_mem   [0:2*NUM_RX_VL-1];
   reg [31:0] tx_cfg_mem   [0:5*NUM_TX_VL-1];
@@ -92,9 +92,11 @@ module AFDX_top #(
   wire cfg_over = (cfg_sum_r > Q20_LIMIT);
   wire cfg_missing = (cfg_missing_cnt != 8'd0);
   reg [31:0] port_cfg_mem [0:4*NUM_PORTS-1];
-  reg [31:0] rx_desc_mem  [0:NUM_PORTS-1];
   reg [31:0] vl_stat_mem  [0:NUM_TX_VL-1];
 
+  // RX 描述符（v0.5.16 起 174 bit）：{plen[10:0], blk, len, ts, vlid, sn, net,
+  // ifid, src, dst, sport, dport}；低 163 bit 布局与 rx_ic 单元测试一致。
+  localparam integer RXD_W = 174;
   reg [31:0] ctl_r, int_en_r, err_r, int_st_r;
   reg [31:0] smac_r, ip_r, udp_cfg_r, dbg_ctrl_r, rdata_r;
   reg [15:0] hash_seed0_r, hash_seed1_r;
@@ -104,24 +106,36 @@ module AFDX_top #(
   wire [31:0] hash_cfg_rdata;
   wire lookup_in_ready, lookup_out_vld, lookup_out_hit;
   wire [11:0] lookup_out_vl;
-  wire [162:0] lookup_out_desc;
+  wire [RXD_W-1:0] lookup_out_desc;
   wire flt_in_ready, flt_out_vld, flt_out_pass;
   wire [2:0] flt_out_reason;
   wire [11:0] flt_out_vl;
-  wire [162:0] flt_out_desc;
+  wire [RXD_W-1:0] flt_out_desc;
   wire flt_out_ready;
   reg  [31:0] flt_unconf_cnt, flt_lmax_cnt, flt_drop_total;
   wire ic_in_vld, ic_in_ready, ic_out_vld, ic_out_accept;
   wire [2:0] ic_out_reason;
   wire [11:0] ic_out_vl;
-  wire [162:0] ic_out_desc;
+  wire [RXD_W-1:0] ic_out_desc;
   reg  [31:0] ic_drop_cnt, ic_accept_cnt;
   wire rm_in_vld, rm_in_ready, rm_out_vld, rm_out_fwd, rm_out_skew;
-  wire [162:0] rm_in_desc, rm_out_desc;
+  wire [RXD_W-1:0] rm_in_desc, rm_out_desc;
   wire [11:0] rm_in_vl, rm_out_vl;
   reg  [31:0] rm_dup_cnt, rm_fwd_cnt, rm_skew_cnt;
+  wire rm_out_ready, rm_fire, rm_dup_fire;
+  wire prs_in_ready, prs_out_vld, prs_out_drop;
+  wire [2:0] prs_out_reason;
+  wire [7:0] prs_out_port;
+  wire [1:0] prs_out_type;
+  wire [3:0] prs_out_depth, prs_out_blk;
+  wire [10:0] prs_out_plen;
+  wire [23:0] prs_out_ts;
+  wire pb_in_ready, pb_free0, pb_free1, pb_ev_drop;
+  wire [3:0] pb_free0_id, pb_free1_id, rxpb_cnt_word;
+  wire [31:0] rxpb_desc_word, rxpb_deliver_cnt, rxpb_port_drop_cnt,
+              rxpb_ovr_cnt, rxpb_qovf_cnt;
   wire rx_desc_valid_a, rx_desc_valid_b, rx_desc_pop_a, rx_desc_pop_b;
-  wire [162:0] rx_desc_a, rx_desc_b;
+  wire [RXD_W-1:0] rx_desc_a, rx_desc_b;
   // 前置跨区声明：Questa vlog-2730 不允许在主机译码里先使用、后声明。
   wire host_pmem_rd, desc_hit, pmem_wok, msg_valid, fb_busy, sch_take, pb_wr_valid;
   wire [7:0] desc_idx;
@@ -129,7 +143,8 @@ module AFDX_top #(
   wire [15:0] pb_free_map, sch_bag_cnt;
   wire [31:0] pmem_data_a, pb_desc_rd_data;
   wire [NUM_PORTS-1:0] pb_req;
-  reg ack_r, pmem_rd_d, desc_rd_d, hash_rd_d;
+  reg ack_r, pmem_rd_d, desc_rd_d, hash_rd_d, desc_rx_d;
+  wire host_rx_rd, host_rx_rd_wait, hop_desc_rd, fb_rd_en_a;
   reg host_pmem_pending;
   reg [12:0] host_pmem_pending_addr;
   reg [31:0] host_pmem_pending_data;
@@ -141,18 +156,23 @@ module AFDX_top #(
   always @(posedge clk) begin
     if (rst_sync) begin
       ack_r <= 1'b0; pmem_rd_d <= 1'b0; desc_rd_d <= 1'b0; hash_rd_d <= 1'b0;
+      desc_rx_d <= 1'b0;
     end
     else begin
-      ack_r <= (hs && (!host_pmem_req || host_commit_now)) || host_commit_pending;
+      // 运行期 RX 块读与 builder 抢读口 A 时不 ACK，主机保持请求到 ACK（重试）。
+      ack_r <= (hs && (!host_pmem_req || host_commit_now) && !host_rx_rd_wait) ||
+               host_commit_pending;
       pmem_rd_d <= host_pmem_rd;
       desc_rd_d <= hs && !host_we && desc_hit;
+      desc_rx_d <= hop_desc_rd;
       hash_rd_d <= hash_rd_accept;
     end
   end
   assign host_ack = ack_r;
   assign host_rdata = hash_rd_d ? hash_cfg_rdata :
                        pmem_rd_d ? pmem_data_a :
-                      desc_rd_d ? (pb_req[desc_idx] ? pb_desc_rd_data : 32'd0) : rdata_r;
+                      desc_rd_d ? (desc_rx_d ? rdata_r :
+                                   pb_req[desc_idx] ? pb_desc_rd_data : 32'd0) : rdata_r;
 
   // 字地址译码：寄存器页以 4 字为间距，表/PMEM 每个字地址连续。
   wire [7:0] off = host_addr[7:0];
@@ -177,6 +197,17 @@ module AFDX_top #(
   wire vlstat_hit = (host_addr >= 16'hA810 && host_addr <= 16'hAC0F);
   wire pmem_hit = (host_addr >= 16'h8800 && host_addr <= 16'hA7FF);
   wire msg_wr_hit = (host_addr >= 16'h8280 && host_addr <= 16'h837F);
+  // v0.5.16 RX 端口主机操作：PORT_DESC 0x8180+p（RX 端口读即清 fresh/ovf）、
+  // MSG_RD 0x8380+p（写：释放）、MSG_CNT 0x8480+p（读：消息数）。三段低 8 位
+  // 同为 0x80 起，端口号统一为 host_addr[7:0]-0x80。端口表 w0[18]=1 为 RX 端口。
+  wire msg_rd_hit  = (host_addr >= 16'h8380 && host_addr <= 16'h847F);
+  wire msg_cnt_hit = (host_addr >= 16'h8480 && host_addr <= 16'h857F);
+  wire [7:0]  hop_port = host_addr[7:0] - 8'h80;
+  wire [31:0] hop_w0 = port_cfg_mem[{hop_port,2'b00}];
+  wire hop_is_rx = hop_w0[31] && hop_w0[18];
+  assign hop_desc_rd = hs && !host_we && desc_hit && hop_is_rx && init_done;
+  wire msg_rd_ok = msg_rd_hit && init_done && hop_is_rx;
+  wire hop_msg_rd = we && msg_rd_ok;
   wire [9:0] tx_idx   = host_addr - 16'h0200;
   wire [12:0] rx_idx  = host_addr - 16'h1D80;
   wire [12:0] hash_idx= host_addr - 16'h3D80;
@@ -291,7 +322,6 @@ module AFDX_top #(
     else if (cfg_write && tx_hit) tx_cfg_mem[tx_idx] <= host_wdata;
     if (init_we && init_target == 3'd5) port_cfg_mem[init_addr * 13'd4] <= 32'd0;
     else if (cfg_write && port_hit) port_cfg_mem[port_idx] <= host_wdata;
-    if (init_we && init_target == 3'd6) rx_desc_mem[init_addr] <= 32'd0;
     if (init_we && init_target == 3'd7) vl_stat_mem[init_addr] <= 32'd0;
   end
 
@@ -336,13 +366,13 @@ module AFDX_top #(
                       (off == 8'h7C) || (off == 8'h80) || (off == 8'hFC);
   wire rd_known = (reg_page && reg_align && reg_known) || stats_hit ||
                   tx_hit || share_hit || rx_hit || hash_rd_accept ||
-                  port_hit || desc_hit || vlstat_hit ||
+                  port_hit || desc_hit || vlstat_hit || msg_cnt_hit || host_rx_rd ||
                   (pmem_hit && init_done && ctl_r[13] && !ctl_r[0] && !fb_busy);
   wire wr_known = (reg_page && reg_align && reg_writable) ||
                   (cfg_write && (tx_hit || rx_hit || port_hit)) ||
                   hash_wr_accept ||
                   share_wr ||
-                  pmem_wok || msg_valid;
+                  pmem_wok || msg_valid || msg_rd_ok;
   wire rd_miss = hs && !host_we && !rd_known;
   wire hash_reg_bad = (hash_seed0_addr && !hash_seed0_wr) ||
                       (hash_seed1_addr && !hash_seed1_wr) ||
@@ -403,13 +433,20 @@ module AFDX_top #(
           8'hFC: rdata_r <= dbg_ctrl_r;
           default: rdata_r <= 32'hDEAD_BEEF;
         endcase
-      end else if (stats_hit) rdata_r <= 32'd0;
+      // 全局统计页（v0.5.16 起接 RX 端口面，其余仍读 0）：0x0100 RX 交付消息数，
+      // 0x0101 解析丢弃（端口未配/方向/UDP 目的端口/SAP），0x0102 采样覆盖，
+      // 0x0103 队列满丢弃。
+      end else if (stats_hit) rdata_r <= (host_addr[7:0] == 8'h00) ? rxpb_deliver_cnt :
+                                         (host_addr[7:0] == 8'h01) ? rxpb_port_drop_cnt :
+                                         (host_addr[7:0] == 8'h02) ? rxpb_ovr_cnt :
+                                         (host_addr[7:0] == 8'h03) ? rxpb_qovf_cnt : 32'd0;
       else if (tx_hit) rdata_r <= tx_cfg_valid ? tx_cfg_mem[tx_idx] : 32'd0;
       else if (share_hit) rdata_r <= (init_done && cfg_share_loaded[share_idx]) ?
                                    {11'd0,cfg_share_mem[share_idx]} : 32'd0;
       else if (rx_hit) rdata_r <= rx_cfg_valid ? rx_cfg_mem[rx_idx] : 32'd0;
       else if (port_hit) rdata_r <= port_cfg_valid ? port_cfg_mem[port_idx] : 32'd0;
-      else if (desc_hit) rdata_r <= 32'd0;  // 同拍 PB 读出经 desc_rd_d 选到 host_rdata
+      else if (desc_hit) rdata_r <= hop_is_rx ? rxpb_desc_word : 32'd0;  // TX: PB 读出经 desc_rd_d 选
+      else if (msg_cnt_hit) rdata_r <= hop_is_rx ? {28'd0,rxpb_cnt_word} : 32'd0;
       else if (vlstat_hit) rdata_r <= (vs_idx[2:0] == 3'd0 &&
                             ((vs_idx >> 3) < NUM_TX_VL)) ? vl_stat_mem[vs_idx >> 3] : 32'd0;
       else rdata_r <= 32'hDEAD_BEEF;
@@ -454,7 +491,8 @@ module AFDX_top #(
   wire [31:0] msg_port_w3 = port_cfg_mem[{msg_port,2'b00}+10'd3];
   wire msg_len_ok = (host_wdata[15:0] >= 16'd8) && (host_wdata[15:0] <= 16'd1471);
   assign msg_valid = msg_wr_hit && init_done && !ctl_r[13] &&
-                   msg_port_w0[31] && (msg_port_w0[17:16] != 2'd2) && msg_len_ok;
+                   msg_port_w0[31] && !msg_port_w0[18] &&
+                   (msg_port_w0[17:16] != 2'd2) && msg_len_ok;
   wire msg_commit = we && msg_valid;
   wire fb_free;
   wire [3:0] fb_free_blk;
@@ -478,8 +516,13 @@ module AFDX_top #(
   assign pmem_wok = init_done && pmem_hit &&
                   ((ctl_r[13] && !ctl_r[0]) || (!ctl_r[13] && in_open_blk));
   assign host_pmem_req = we && pmem_wok;
-  assign host_pmem_rd = hs && !host_we && pmem_hit && init_done && ctl_r[13] &&
-                      !ctl_r[0] && !fb_busy;
+  // 运行期（CFG_MODE=0）主机可读 RX 块（6..15）取接收载荷；读口 A 被 builder
+  // 占用的拍不读不 ACK（host_rx_rd_wait），主机按协议保持请求直到 ACK。
+  assign host_rx_rd = hs && !host_we && pmem_hit && init_done && !ctl_r[13] &&
+                      (host_pmem_addr[12:9] >= 4'd6);
+  assign host_rx_rd_wait = host_rx_rd && fb_rd_en_a;
+  assign host_pmem_rd = (hs && !host_we && pmem_hit && init_done && ctl_r[13] &&
+                         !ctl_r[0] && !fb_busy) || (host_rx_rd && !fb_rd_en_a);
   // 两网各有写 FIFO。RX 优先、双网轮换；等 RX 都暂空时落已锁存主机写。
   wire q_wr_a, q_wr_b, q_pop_a, q_pop_b;
   wire [12:0] q_addr_a, q_addr_b;
@@ -513,7 +556,7 @@ module AFDX_top #(
                               host_commit_pending ? host_pmem_pending_data : host_wdata;
   wire [3:0] pmem_wr_be = q_pop_a ? q_be_a : q_pop_b ? q_be_b : 4'hF;
   wire pmem_wr_en = q_pop_a || q_pop_b || host_commit_pending || host_commit_now;
-  wire fb_rd_en_a, fb_rd_en_b;
+  wire fb_rd_en_b;
   wire [12:0] fb_rd_addr_a, fb_rd_addr_b;
   wire [31:0] pmem_data_b;
   bram_sdp #(.W(32), .D(PMEM_KB*256), .BYTE_EN(1)) u_pmem (
@@ -545,13 +588,15 @@ module AFDX_top #(
     .free_a(rx_rel_a), .free_id_a(rx_rel_id_a),
     .free_b(rx_rel_b), .free_id_b(rx_rel_id_b),
     .free_pipe(rx_pipe_free), .free_id_pipe(rx_pipe_free_id),
+    .free_pb0(pb_free0), .free_id_pb0(pb_free0_id),
+    .free_pb1(pb_free1), .free_id_pb1(pb_free1_id),
     .free_map(rx_free_map), .exhaust_cnt(rx_exh_cnt), .borrow_cnt(rx_borrow_cnt));
   wire rxw_en_a, rxw_en_b, rxd_vld_a, rxd_vld_b;
   wire [12:0] rxw_addr_a, rxw_addr_b;
   wire [31:0] rxw_data_a, rxw_data_b;
   wire [3:0] rxw_be_a, rxw_be_b;
   wire [3:0] rxd_blk_a, rxd_blk_b;
-  wire [10:0] rxd_len_a, rxd_len_b;
+  wire [10:0] rxd_len_a, rxd_len_b, rxd_plen_a, rxd_plen_b;
   wire [23:0] rxd_ts_a, rxd_ts_b;
   wire [15:0] rxd_vlid_a, rxd_vlid_b, rxd_sport_a, rxd_sport_b,
               rxd_dport_a, rxd_dport_b;
@@ -572,7 +617,7 @@ module AFDX_top #(
     .desc_ts(rxd_ts_a), .desc_vlid(rxd_vlid_a), .desc_sn(rxd_sn_a),
     .desc_net(rxd_net_a), .desc_ifid(rxd_ifid_a),
     .desc_src_ip(rxd_src_a), .desc_dst_ip(rxd_dst_a),
-    .desc_sport(rxd_sport_a), .desc_dport(rxd_dport_a),
+    .desc_sport(rxd_sport_a), .desc_dport(rxd_dport_a), .desc_plen(rxd_plen_a),
     .frame_err(rx_frame_err_a), .crc_err(rx_crc_err_a),
     .drop_reason(rx_drop_reason_a), .good_cnt(), .drop_cnt(), .disabled_cnt());
   mac_rx_if #(.IF_MODE(IF_MODE), .FCS_MODE(FCS_MODE), .MAX_FRAME(MAX_FRAME), .NET_ID(1))
@@ -588,23 +633,23 @@ module AFDX_top #(
     .desc_ts(rxd_ts_b), .desc_vlid(rxd_vlid_b), .desc_sn(rxd_sn_b),
     .desc_net(rxd_net_b), .desc_ifid(rxd_ifid_b),
     .desc_src_ip(rxd_src_b), .desc_dst_ip(rxd_dst_b),
-    .desc_sport(rxd_sport_b), .desc_dport(rxd_dport_b),
+    .desc_sport(rxd_sport_b), .desc_dport(rxd_dport_b), .desc_plen(rxd_plen_b),
     .frame_err(rx_frame_err_b), .crc_err(rx_crc_err_b),
     .drop_reason(rx_drop_reason_b), .good_cnt(), .drop_cnt(), .disabled_cnt());
-  wire [162:0] rx_desc_in_a = {rxd_blk_a,rxd_len_a,rxd_ts_a,rxd_vlid_a,rxd_sn_a,
+  wire [RXD_W-1:0] rx_desc_in_a = {rxd_plen_a,rxd_blk_a,rxd_len_a,rxd_ts_a,rxd_vlid_a,rxd_sn_a,
                                 rxd_net_a,rxd_ifid_a,rxd_src_a,rxd_dst_a,
                                 rxd_sport_a,rxd_dport_a};
-  wire [162:0] rx_desc_in_b = {rxd_blk_b,rxd_len_b,rxd_ts_b,rxd_vlid_b,rxd_sn_b,
+  wire [RXD_W-1:0] rx_desc_in_b = {rxd_plen_b,rxd_blk_b,rxd_len_b,rxd_ts_b,rxd_vlid_b,rxd_sn_b,
                                 rxd_net_b,rxd_ifid_b,rxd_src_b,rxd_dst_b,
                                 rxd_sport_b,rxd_dport_b};
   wire rx_ovf_a, rx_ovf_b;
-  rx_pmem_queue u_rxq_a (
+  rx_pmem_queue #(.DW(RXD_W)) u_rxq_a (
     .clk(clk), .rst_sync(rst_sync), .in_wr_en(rxw_en_a), .in_wr_addr(rxw_addr_a),
     .in_wr_data(rxw_data_a), .in_wr_be(rxw_be_a),
     .in_desc_vld(rxd_vld_a), .in_desc(rx_desc_in_a), .frame_room(rx_room_a),
     .wr_valid(q_wr_a), .wr_addr(q_addr_a), .wr_data(q_data_a), .wr_be(q_be_a), .wr_pop(q_pop_a),
     .desc_valid(rx_desc_valid_a), .desc(rx_desc_a), .desc_pop(rx_desc_pop_a), .overflow(rx_ovf_a));
-  rx_pmem_queue u_rxq_b (
+  rx_pmem_queue #(.DW(RXD_W)) u_rxq_b (
     .clk(clk), .rst_sync(rst_sync), .in_wr_en(rxw_en_b), .in_wr_addr(rxw_addr_b),
     .in_wr_data(rxw_data_b), .in_wr_be(rxw_be_b),
     .in_desc_vld(rxd_vld_b), .in_desc(rx_desc_in_b), .frame_room(rx_room_b),
@@ -614,7 +659,7 @@ module AFDX_top #(
   // 端口尚未接线，故 IC 接受帧也暂不交付消息，仅计数/释放；DROP 帧按
   // unconf/lmax/ic 归类计数）。配置期对停流前排队的描述符逐个丢弃而不是拿新
   // 映像重新解释，防止旧帧穿越换种子/重装边界。
-  wire [162:0] lookup_in_desc = rx_desc_valid_a ? rx_desc_a : rx_desc_b;
+  wire [RXD_W-1:0] lookup_in_desc = rx_desc_valid_a ? rx_desc_a : rx_desc_b;
   wire lookup_in_vld = rx_stream_en &&
                         (rx_desc_valid_a || rx_desc_valid_b);
   wire lookup_take = lookup_in_vld && lookup_in_ready;
@@ -626,7 +671,7 @@ module AFDX_top #(
   assign rx_desc_pop_a = rx_desc_valid_a && (lookup_take || lookup_drain);
   assign rx_desc_pop_b = !rx_desc_valid_a && rx_desc_valid_b &&
                          (lookup_take || lookup_drain);
-  rx_vl_lookup #(.NUM_RX_VL(NUM_RX_VL),.HASH_BUCKETS(2048)) u_rxlookup (
+  rx_vl_lookup #(.DW(RXD_W),.NUM_RX_VL(NUM_RX_VL),.HASH_BUCKETS(2048)) u_rxlookup (
     .clk(clk),.rst_sync(rst_sync),.init_done(init_done),
     .init_we(init_we && (init_target == 3'd2)),.init_addr(init_addr),
     .cfg_mode(ctl_r[13]),.rx_enable(ctl_r[1]),
@@ -640,7 +685,7 @@ module AFDX_top #(
     .out_vl(lookup_out_vl),.out_desc(lookup_out_desc));
   // FLT 判决（§7.8 S2）：w0/w1 与既有 rx_cfg_valid 同款组合读；BRAM 化时
   // 须与主机读口合并为同一物理口（同 rx_ic 的写口纪律），本切片先取语义。
-  rx_flt #(.NUM_RX_VL(NUM_RX_VL)) u_rxflt (
+  rx_flt #(.DW(RXD_W), .NUM_RX_VL(NUM_RX_VL)) u_rxflt (
     .clk(clk), .rst_sync(rst_sync), .init_we(init_we),
     .in_vld(lookup_out_vld), .in_ready(flt_in_ready),
     .in_hit(lookup_out_hit), .in_vl(lookup_out_vl),
@@ -656,7 +701,6 @@ module AFDX_top #(
   // 唯一 free_pipe 口按拍互斥，优先级：RM 输出 > IC 拒绝 > FLT 拒绝 > drain；
   // 未获准的来源保持（rx_ic/rx_flt/rx_rm 输出均保持到握手）。
   // RM 进口两源：IC 接受优先，FLT 旁路仅在 IC 无输出时进入。
-  // 解析/端口未接之前，RM forward 帧计数后同样回收块（过渡行为）。
   wire ic_en = ctl_r[2];
   wire flt_to_ic = flt_out_pass && ic_en;
   wire flt_to_rm = flt_out_pass && !ic_en;
@@ -674,7 +718,7 @@ module AFDX_top #(
   assign rm_in_desc = ic_to_rm ? ic_out_desc : flt_out_desc;
   assign rm_in_vl   = ic_to_rm ? ic_out_vl   : flt_out_vl;
   wire [31:0] rm_in_w0 = rx_cfg_mem[{rm_in_vl,1'b0}];
-  rx_ic #(.NUM_RX_VL(NUM_RX_VL)) u_rxic (
+  rx_ic #(.DW(RXD_W), .NUM_RX_VL(NUM_RX_VL)) u_rxic (
     .clk(clk), .rst_sync(rst_sync), .init_done(init_done),
     .init_we(init_we && (init_target == 3'd0)), .init_addr(init_addr),
     .ic_first_any(udp_cfg_r[0]),
@@ -685,7 +729,7 @@ module AFDX_top #(
     .out_desc(ic_out_desc), .out_vl(ic_out_vl),
     // IC/RM 调试窗口（0xA800，DEBUG_EN）尚未实现：强制写口先 tie off。
     .dbg_en(1'b0), .dbg_wr(1'b0), .dbg_vl(12'd0), .dbg_net(1'b0), .dbg_psn(8'd0));
-  rx_rm #(.NUM_RX_VL(NUM_RX_VL)) u_rxrm (
+  rx_rm #(.DW(RXD_W), .NUM_RX_VL(NUM_RX_VL)) u_rxrm (
     .clk(clk), .rst_sync(rst_sync), .init_done(init_done),
     .init_we(init_we && (init_target == 3'd1)), .init_addr(init_addr),
     .rm_glb_en(ctl_r[3]),
@@ -693,10 +737,39 @@ module AFDX_top #(
     .in_desc(rm_in_desc), .in_vl(rm_in_vl),
     .in_rm_en(rm_in_w0[30]), .in_net_mode(rm_in_w0[29:28]),
     .in_skew_exp(rm_in_w0[27:24]),
-    .out_vld(rm_out_vld), .out_ready(1'b1),
+    .out_vld(rm_out_vld), .out_ready(rm_out_ready),
     .out_fwd(rm_out_fwd), .out_skew(rm_out_skew),
     .out_desc(rm_out_desc), .out_vl(rm_out_vl),
     .dbg_en(1'b0), .dbg_wr(1'b0), .dbg_vl(12'd0), .dbg_data(33'd0));
+  // RM → 解析（§7.12）→ 端口（§7.13），v0.5.16。RM forward 帧等待解析口，
+  // 重复副本立即回收（free_pipe 最高优先）；解析丢弃与端口侧释放经 rx_port_buf
+  // 的两个独立释放口归还，不占 free_pipe。
+  assign rm_out_ready = rm_out_fwd ? prs_in_ready : 1'b1;
+  assign rm_fire      = rm_out_vld && rm_out_ready;
+  assign rm_dup_fire  = rm_out_vld && !rm_out_fwd;
+  wire [31:0] prs_w0  = rx_cfg_mem[{rm_out_vl,1'b0}];
+  wire [7:0]  prs_pb  = prs_w0[19:12];
+  rx_ip_udp_parse #(.DW(RXD_W), .NUM_PORTS(NUM_PORTS)) u_rxprs (
+    .clk(clk), .rst_sync(rst_sync),
+    .in_vld(rm_out_vld && rm_out_fwd), .in_ready(prs_in_ready),
+    .in_desc(rm_out_desc), .in_w0(prs_w0),
+    .port_w0(port_cfg_mem[{prs_pb,2'b00}]), .port_w1(port_cfg_mem[{prs_pb,2'b01}]),
+    .port_w3(port_cfg_mem[{prs_pb,2'b11}]),
+    .out_vld(prs_out_vld), .out_ready(pb_in_ready),
+    .out_drop(prs_out_drop), .out_reason(prs_out_reason), .out_port(prs_out_port),
+    .out_type(prs_out_type), .out_depth(prs_out_depth), .out_blk(prs_out_blk),
+    .out_plen(prs_out_plen), .out_ts(prs_out_ts));
+  rx_port_buf #(.NUM_PORTS(NUM_PORTS)) u_rxpb (
+    .clk(clk), .rst_sync(rst_sync),
+    .init_we(init_we && (init_target == 3'd6)), .init_addr(init_addr),
+    .in_vld(prs_out_vld), .in_ready(pb_in_ready), .in_drop(prs_out_drop),
+    .in_port(prs_out_port), .in_type(prs_out_type), .in_depth(prs_out_depth),
+    .in_blk(prs_out_blk), .in_plen(prs_out_plen),
+    .hop_desc_rd(hop_desc_rd), .hop_msg_rd(hop_msg_rd), .hop_port(hop_port),
+    .hop_type(hop_w0[17:16]), .desc_word(rxpb_desc_word), .cnt_word(rxpb_cnt_word),
+    .free0(pb_free0), .free0_id(pb_free0_id), .free1(pb_free1), .free1_id(pb_free1_id),
+    .ev_drop(pb_ev_drop), .deliver_cnt(rxpb_deliver_cnt),
+    .port_drop_cnt(rxpb_port_drop_cnt), .ovr_cnt(rxpb_ovr_cnt), .qovf_cnt(rxpb_qovf_cnt));
   wire ic_rej_fire = ic_rej && ic_fire;
   // DROP_CNT_K 登记 FLT 层原因（unconf 含 NET/VLID 不一致，lmax 单列）、IC
   // 拒绝（0x48）与 RM 重复副本（0x4C）；DROP_CNT 合计含全部。mac_rx_if 的
@@ -711,22 +784,23 @@ module AFDX_top #(
         if (flt_out_reason == 3'd3) flt_lmax_cnt <= flt_lmax_cnt + 32'd1;
         else flt_unconf_cnt <= flt_unconf_cnt + 32'd1;
       end
-      // RM 输出 / IC 拒绝 / FLT 拒绝按拍互斥（free 口仲裁），合计最多 +1。
-      if (flt_free || ic_rej_fire || (rm_out_vld && !rm_out_fwd))
-        flt_drop_total <= flt_drop_total + 32'd1;
+      // RM 重复 / IC 拒绝 / FLT 拒绝按拍互斥（free 口仲裁），至多 +1；端口侧
+      // （解析丢弃、队列满）另一路，同拍合计至多 +2。
+      flt_drop_total <= flt_drop_total +
+                        {31'd0,(flt_free || ic_rej_fire || rm_dup_fire)} +
+                        {31'd0,pb_ev_drop};
       if (ic_rej_fire) ic_drop_cnt <= ic_drop_cnt + 32'd1;
       if (ic_to_rm && rm_in_ready) ic_accept_cnt <= ic_accept_cnt + 32'd1;
-      if (rm_out_vld && !rm_out_fwd) rm_dup_cnt <= rm_dup_cnt + 32'd1;
-      if (rm_out_vld && rm_out_fwd) rm_fwd_cnt <= rm_fwd_cnt + 32'd1;
-      if (rm_out_vld && rm_out_skew) rm_skew_cnt <= rm_skew_cnt + 32'd1;
+      if (rm_dup_fire) rm_dup_cnt <= rm_dup_cnt + 32'd1;
+      if (rm_fire && rm_out_fwd) rm_fwd_cnt <= rm_fwd_cnt + 32'd1;
+      if (rm_fire && rm_out_skew) rm_skew_cnt <= rm_skew_cnt + 32'd1;
     end
   end
   always @(posedge clk) begin
     if (rst_sync) begin rx_pipe_free <= 1'b0; rx_pipe_free_id <= 4'd0; end
     else begin
-      // RM forward 帧在解析/端口接入前同样回收（过渡行为，见上注释）。
-      rx_pipe_free <= rm_out_vld || ic_rej_fire || flt_free || lookup_drain;
-      if (rm_out_vld) rx_pipe_free_id <= rm_out_desc[162:159];
+      rx_pipe_free <= rm_dup_fire || ic_rej_fire || flt_free || lookup_drain;
+      if (rm_dup_fire) rx_pipe_free_id <= rm_out_desc[162:159];
       else if (ic_rej_fire) rx_pipe_free_id <= ic_out_desc[162:159];
       else if (flt_free) rx_pipe_free_id <= flt_out_desc[162:159];
       else if (lookup_drain) rx_pipe_free_id <= lookup_in_desc[162:159];

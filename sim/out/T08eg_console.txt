@@ -5,7 +5,7 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t08eg_top_ic 
-# Start time: 20:59:23 on Sep 24,2026
+# Start time: 21:30:07 on Sep 24,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # //  Questa Altera Starter FPGA Edition-64
@@ -25,7 +25,7 @@ Reading pref.tcl
 # Loading sv_std.std
 # Loading work.tb_t08eg_top_ic(fast)
 # T08e TOP IC PASS (IF_MODE=1 ic=468 accept=463 reject=5 flt_reject=145 drain_overlap=5 skew=0..9 rxen_sweep=169 wrap/first_any/bypass/reset ok)
-# ** Note: $finish    : tb/tb_t08e_top_ic.v(331)
-#    Time: 870456 ns  Iteration: 1  Instance: /tb_t08eg_top_ic/core
-# End time: 20:59:26 on Sep 24,2026, Elapsed time: 0:00:03
+# ** Note: $finish    : tb/tb_t08e_top_ic.v(333)
+#    Time: 870488 ns  Iteration: 1  Instance: /tb_t08eg_top_ic/core
+# End time: 21:30:11 on Sep 24,2026, Elapsed time: 0:00:04
 # Errors: 0, Warnings: 0

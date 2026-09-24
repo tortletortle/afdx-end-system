@@ -5,7 +5,7 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t12c_lookup 
-# Start time: 20:59:51 on Sep 24,2026
+# Start time: 21:30:43 on Sep 24,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # //  Questa Altera Starter FPGA Edition-64
@@ -27,5 +27,5 @@ Reading pref.tcl
 # T12 LOOKUP PASS (case=0, N=4096, buckets=2048, image=4096/8192, lookups=100000, hits=61638 misses=38362, all_idx=4096 ways=1111, in_stall=530931 out_stall=330933 max_hold=73, seed=172d/ab61)
 # ** Note: $finish    : tb/tb_t12_rx_lookup.v(341)
 #    Time: 5309880 ns  Iteration: 1  Instance: /tb_t12c_lookup/core
-# End time: 20:59:57 on Sep 24,2026, Elapsed time: 0:00:06
+# End time: 21:30:51 on Sep 24,2026, Elapsed time: 0:00:08
 # Errors: 0, Warnings: 0

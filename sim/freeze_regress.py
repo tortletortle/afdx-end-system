@@ -48,6 +48,7 @@ def freeze(csv_path, out_path):
         "sim/compile.tcl", "sim/run_one.tcl",
         "sim/test_t09_mutants.py", "sim/test_t12_mutants.py",
         "sim/test_t12_top_mutants.py", "sim/test_t08c_mutants.py", "tools_lint.ps1",
+        "sim/test_t08e_mutants.py", "sim/test_t10_mutants.py", "sim/test_t11_mutants.py",
         "doc/regs.yaml", "doc/regs_pkg.svh", "tools/gen_regs.py",
         "doc/当前进度_20260923.md", "doc/README.md", "doc/后续计划.md",
         "tools/selfcheck_claims.py",
@@ -68,6 +69,9 @@ def freeze(csv_path, out_path):
     outputs.update((SIM / "out" / "T12_mutants_report.txt",
                     SIM / "out" / "T12_top_mutants_report.txt",
                      SIM / "out" / "T08c_mutants_report.txt",
+                    SIM / "out" / "T08e_mutants_report.txt",
+                    SIM / "out" / "T10_mutants_report.txt",
+                    SIM / "out" / "T11_mutants_report.txt",
                     ROOT / "elinx" / "prj" / "rx_lookup_probe.log",
                     ROOT / "elinx" / "prj" / "rx_lookup_smoke.log"))
     outputs.update(SIM / "out" / (row["test_id"] + "_console.txt") for row in rows)
@@ -75,6 +79,9 @@ def freeze(csv_path, out_path):
     outputs.update((SIM / "out").glob("T12mut_*.txt"))
     outputs.update((SIM / "out").glob("T12topmut_*.txt"))
     outputs.update((SIM / "out").glob("T08cmut_*.txt"))
+    outputs.update((SIM / "out").glob("T08emut_*.txt"))
+    outputs.update((SIM / "out").glob("T10mut_*.txt"))
+    outputs.update((SIM / "out").glob("T11mut_*.txt"))
     missing = [str(p) for p in inputs | outputs if not p.is_file()]
     if missing:
         raise RuntimeError("cannot bind missing inputs/logs: " + ", ".join(sorted(missing)))

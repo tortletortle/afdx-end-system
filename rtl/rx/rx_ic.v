@@ -5,6 +5,7 @@
 // v0.5.14: wired in AFDX_top after rx_flt; RM/parse/port downstream still TODO.
 `timescale 1 ns / 1 ps
 module rx_ic #(
+  parameter integer DW = 163,     // RX 描述符位宽（v0.5.16 顶层用 174）
   parameter integer NUM_RX_VL = 4096
 ) (
   input  wire         clk,
@@ -15,13 +16,13 @@ module rx_ic #(
   input  wire         ic_first_any,    // UDP_CFG[0]; snapshot at input handshake
   input  wire         in_vld,
   output wire         in_ready,
-  input  wire [162:0] in_desc,
+  input  wire [DW-1:0] in_desc,
   input  wire [11:0]  in_vl,           // looked-up index, NOT wire VLID
   output reg          out_vld,
   input  wire         out_ready,
   output reg          out_accept,
   output reg  [2:0]   out_reason,
-  output reg  [162:0] out_desc,
+  output reg  [DW-1:0] out_desc,
   output reg  [11:0]  out_vl,
   input  wire         dbg_en,
   input  wire         dbg_wr,
@@ -99,7 +100,7 @@ module rx_ic #(
       out_vld <= 1'b0;
       out_accept <= 1'b0;
       out_reason <= R_OK;
-      out_desc <= 163'd0;
+      out_desc <= {DW{1'b0}};
       out_vl <= 12'd0;
       addr_q <= 13'd0;
       sn_q <= 8'd0;

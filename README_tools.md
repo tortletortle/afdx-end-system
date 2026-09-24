@@ -38,9 +38,11 @@ python tools\run_all.py --strict
 | `sim/test_t09_mutants.py` | 独立临时 work 库依次注入「丢一帧判错」「拒绝写回错」「B 网地址漏偏移」3 个 RTL 错误，要求 T09ps 每次报 FAIL；只修改临时 RTL，不改源文件及日常 sim/work，原始 SHA 留在 `sim/out/T09_mutants_report.txt` | `python sim/test_t09_mutants.py` → `T09 MUTATION SUMMARY: 3/3 detected`，退出码 0；只证明这 3 种故障能抓住 |
 | `sim/test_t08c_mutants.py` | 顶层 T08c 隔离故障注入：过早 ACK/丢写、未锁存待决数据、未锁存待决地址；只改临时 RTL，报告 `sim/out/T08c_mutants_report.txt` | 3/3 检出、退出码 0；**与回归串行运行**，不要并行 |
 | `sim/tb/tb_t08e_top_ic.v` | T08e/T08eg：顶层 lookup→FLT→IC 链；真实 79 B 帧改 SN 并在 TB 内重算 FCS，逐判决对独立参考模型、核对 `u_rxic.psn_mem` 与逐帧块守恒；含 A/B 偏斜争用与 RX_EN 关断 drain 扫描 | `-Tests T08e,T08eg` 两档 `T08e TOP IC PASS`；RM/端口未接，不等于完整 T08/T22 |
-| `sim/test_t08e_mutants.py` | 顶层 IC 接线的 7 个隔离故障（free 口与 RM 输出争用×2、IC_EN 失效、IC 拒绝漏计合计、拒绝写 PSN、A/B PSN 混用、丢一帧误拒），跑 `tb_t08eg_top_ic`；报告 `sim/out/T08e_mutants_report.txt` | `T08e MUTATION SUMMARY: 7/7 detected`、退出码 0；与回归串行 |
+| `sim/test_t08e_mutants.py` | 顶层 IC 接线的 5 个隔离故障（IC_EN 失效、IC 拒绝漏计合计、拒绝写 PSN、A/B PSN 混用、丢一帧误拒），跑 `tb_t08eg_top_ic`；报告 `sim/out/T08e_mutants_report.txt` | `T08e MUTATION SUMMARY: 5/5 detected`、退出码 0；与回归串行 |
 | `sim/tb/tb_t10_top_rm.v` | T10/T10g：顶层 lookup→FLT→IC→RM 链；A/B 副本偏斜/先后、SkewMax 内外、RM 开关、IC 旁路、IC 拒绝不污染、（IF_MODE=0）早到迟判副本；逐判决对独立 RM 模型、核对 `u_rxrm.rm_mem` 与逐帧块守恒、逐 SN 交付次数 | `-Tests T10,T10g` 两档 `T10 TOP RM PASS`；解析/端口未接，不等于完整 T08/T22 |
 | `sim/test_t10_mutants.py` | 顶层 RM 的 7 个隔离故障（不删重复、单边窗口、忽略 seen、重复改写表项、RM_EN 失效、IC 旁路不进 RM、RM 丢弃漏计合计），跑 `tb_t10_top_rm`；报告 `sim/out/T10_mutants_report.txt` | `T10 MUTATION SUMMARY: 7/7 detected`、退出码 0；与回归串行 |
+| `sim/tb/tb_t11_top_port.v` | T11/T11g：顶层 RM→`rx_ip_udp_parse`→`rx_port_buf`；采样交付/读清/覆盖/pin、深度 3 队列与溢出、五类解析丢弃、访问错误、复位；主机前门读描述符并在运行期逐字节读回 PMEM 载荷 | manifest 登记，随 `sim/run_regress.ps1` 运行；builder 同拍抢读口的延后 ACK 无定向激励 |
+| `sim/test_t11_mutants.py` | 顶层解析/端口的 13 个隔离故障（fresh 不读清、已读覆盖不 pin、旧 pin 泄漏、队列深度失效、出队不前移、初始化不清、目的端口/方向检查缺失、载荷长度字段错、描述符返回清后值、端口丢弃漏计合计、运行期载荷读缺失、非 RX 端口 MSG_RD），跑 `tb_t11_top_port`；报告 `sim/out/T11_mutants_report.txt` | `T11 MUTATION SUMMARY: 13/13 detected`、退出码 0；与回归串行 |
 | `sim/test_t12_mutants.py` / `sim/test_t12_top_mutants.py` | 哈希查找单元 / 顶层查找的隔离故障注入，报告分别在 `sim/out/T12_mutants_report.txt`、`sim/out/T12_top_mutants_report.txt` | 以脚本末行 SUMMARY 全部检出且退出码 0 为准；同样不要与回归并行 |
 | `sim/freeze_regress.py` | 对命名的**完整**回归 CSV 做 manifest 同序/全 PASS 校验，记录 runner 实际 RTL/TB、向量、脚本及各用例/综合/变异报告的 SHA-256；保存 JSON 便于比对未提交源码与证据 | 完整运行后执行，例如最新一轮：`python sim/freeze_regress.py --csv sim/out/regress_full_26_20260923.csv --out sim/out/test_evidence_26_20260923.json`；只绑定摘要，不等于打包可复现源码或完成交付 |
 | `elinx/prj/rx_ic_smoke.ys` | eLinx 单模块 RAM 映射冒烟，显式 `memory_bram` 并断言 8192×8 PSN 映成 16 × altsyncram(M4K)，防止 rc=0 但扩成万级 FF；只覆盖独立 `rx_ic` | `eLinx_synthesis.exe -s elinx/prj/rx_ic_smoke.ys -l elinx/prj/rx_ic_smoke.log` 返回 0 且 `stat` 有 16 × altsyncram；不代替顶层综合/STA |
@@ -65,7 +67,7 @@ python tools\run_all.py --strict
 文档脚本仅保证**内部自洽与算术正确**。RTL 已有单元/局部接线仿真；以 `sim/tests.manifest`
 与最新 `sim/out/regress.csv` 为准，单项 PASS 不可推导系统端到端、满载抖动或时序达标。
 T08b 只证明 RX 双网入口、PMEM 写口和描述符落盘；T12f 证明顶层哈希查找；T08d 证明 FLT 语义过滤已接顶层；
-T08e 证明 IC 已接在 FLT 之后（T09/T09p 为 IC 单元级），T10 证明 RM 已接在 IC 之后。RM→parse→端口全链、完整 T08/T22、T05b 满载抖动和 125 MHz STA 均待验证。
+T08e 证明 IC 已接在 FLT 之后（T09/T09p 为 IC 单元级），T10 证明 RM 已接在 IC 之后，T11 证明 RM→解析→RX 端口交付与主机读回（定向切片）。完整 T08/T21/T22、SAP/中断、T05b 满载抖动和 125 MHz STA 均待验证。
 IC 单元已独立映射 M4K，不能将其单元器件数当作顶层时序或资源验收结论。
 
 ## 历史说明（2026-09-21 平铺时期，已失效）

@@ -7,7 +7,7 @@
 | 交付平台 | 指南原文：「本赛题全部通过 eLinx 软件进行编译及仿真，无需硬件平台」。因此全文不出现器件型号、管脚约束与片内资源占比，开销一律给绝对量。组委会《问题汇总》另有两条口径相关的答复：「要求基于 FPGA 做仿真」——必须在 eLinx/ModelSim 里对 RTL 或综合后网表跑波形，不许拿纯软件功能模型代替；「需要参赛者自己编写仿真激励（文件）并验证内容」——赛方不提供激励与参考测试环境，见附录 D |
 | 开发环境 | eLinx（RTL 输入、综合、时序分析、IP 生成、Tcl 自动化、联合仿真）、Questa Starter（主力仿真：回归 / 断言 / 覆盖率，O-15）、ModelSim 10.x（仅 eLinx 联合仿真取证）、Verilator（eLinx 自带，lint）、Python 3 |
 | 评测依据 | 指南「测评标准」四项：代码及仿真环境 40%、设计文档 20%、测试（仿真）报告 20%、技术指标 20%。技术指标全部由仿真测量；综合与时序属可选自证材料，见 §9、§11 |
-| 文档版本 | v0.5.15（v0.2 起的修订见附录 F；顶层哈希前门、双网 RX/主机争用、FLT 语义过滤、顶层 IC 与 RM 各有局部 RTL 仿真证据；解析/端口交付、T05b/完整 T08/T22 及顶层 STA 未验收） |
+| 文档版本 | v0.5.16（v0.2 起的修订见附录 F；顶层哈希前门、双网 RX/主机争用、FLT 语义过滤、顶层 IC、RM 与 RX 解析/端口交付（采样/队列，主机前门读回）各有局部 RTL 仿真证据；SAP/管理面、中断、T05b/完整 T08/T22 及顶层 STA 未验收） |
 | 编写 / 评审 | 编写：全队；评审：指导教师；变更需在第 4 周 P0 闭环前提出 |
 
 ---
@@ -713,7 +713,7 @@ SkewMax：编码 `4<<skewmax_exp`，`skewmax_exp ∈ [0,15]` ⇒ 4 μs ~ 131 ms�
 
 资源：8 个 18 Kbit 块（状态）+ 4 深描述符 FIFO + 比较器，1.1K LUT。
 
-实现状态（09-24，v0.5.15）：`rx_rm.v` 现为可综合 RTL，接入 `AFDX_top`（IC 之后；`CTL.IC_EN`=0 时 FLT PASS 帧旁路 IC 直接进 RM），原顶层 `rm_mem` 初始化壳删除，`init_sweep` T_RM 扫描驱动 `u_rxrm` 唯一写口。与上文规划的差异：① A/B 两网在 lookup 入口前已由两个 `rx_pmem_queue` 串行化成一条流，RM 对同一 VL 逐项读—判—写回，B 副本判决时必然看到 A 副本的写回，因此不再设 2 深 A/B 等待队列和 4096 bit `pending` 位图；② 入口按 A 优先出队而非严格时间序，后判的副本时间戳可能更早，窗口判据改为 24 bit 有符号差的**绝对值** `|ts−last_ts| ≤ 4<<skewmax_exp`（单边差会把早到的迟判副本误当新帧）；③ 表项增加 `seen` 位（33 bit，见附录 C），否则上电清零的 {0,0} 与“SN=0、ts≈0”的合法首帧不可区分。生效条件为 `CTL.RM_EN && w0.rm_en && w0.net_mode==11`，否则直接 forward 且不读写表项；超 SkewMax 的同 SN 仍 forward 并计 skew 事件（内部计数）。重复副本计入 `DROP_CNT_K` rm（`0x004C`）与 `DROP_CNT` 合计。已知限制（按本节算法）：只记最近一次 forward 的 SN，一网连续领先多帧后另一网补到的旧 SN 会再次 forward。RM forward 帧在解析/端口实现前仍计数后回收块；调试窗口写口 tie off。T10/T10g 验证见 §12.4。
+实现状态（09-24，v0.5.15）：`rx_rm.v` 现为可综合 RTL，接入 `AFDX_top`（IC 之后；`CTL.IC_EN`=0 时 FLT PASS 帧旁路 IC 直接进 RM），原顶层 `rm_mem` 初始化壳删除，`init_sweep` T_RM 扫描驱动 `u_rxrm` 唯一写口。与上文规划的差异：① A/B 两网在 lookup 入口前已由两个 `rx_pmem_queue` 串行化成一条流，RM 对同一 VL 逐项读—判—写回，B 副本判决时必然看到 A 副本的写回，因此不再设 2 深 A/B 等待队列和 4096 bit `pending` 位图；② 入口按 A 优先出队而非严格时间序，后判的副本时间戳可能更早，窗口判据改为 24 bit 有符号差的**绝对值** `|ts−last_ts| ≤ 4<<skewmax_exp`（单边差会把早到的迟判副本误当新帧）；③ 表项增加 `seen` 位（33 bit，见附录 C），否则上电清零的 {0,0} 与“SN=0、ts≈0”的合法首帧不可区分。生效条件为 `CTL.RM_EN && w0.rm_en && w0.net_mode==11`，否则直接 forward 且不读写表项；超 SkewMax 的同 SN 仍 forward 并计 skew 事件（内部计数）。重复副本计入 `DROP_CNT_K` rm（`0x004C`）与 `DROP_CNT` 合计。已知限制（按本节算法）：只记最近一次 forward 的 SN，一网连续领先多帧后另一网补到的旧 SN 会再次 forward。RM forward 帧自 v0.5.16 起送入 `rx_ip_udp_parse`（§7.12，等待其 `in_ready`），重复副本仍立即回收；调试窗口写口 tie off。T10/T10g 验证见 §12.4。
 
 ### 7.12 `rx_ip_udp_parse`
 
@@ -729,6 +729,8 @@ IP 头反码和与按伪首部/UDP Length 截断的 UDP 校验和在 `mac_rx_if`
 
 错误分支：IP 校验和错 → `drop(ip_csum)`；UDP 长度与帧长不符 → `drop(len)`；端口未配置 → `drop(port)`；校验和不符 → `drop(udp_csum)`。全部独立计数。
 
+实现状态（09-24，v0.5.16）：`rx_ip_udp_parse.v` 接在 `rx_rm` forward 输出之后。P1 的长度/校验/SN 位置一致性已在 `mac_rx_if` 收帧时判定（不通过的帧不产生描述符），本模块不重复；`mac_rx_if` 在描述符里新增 `payload_len = UDP Length − 8`（11 bit），RX 描述符由 163 bit 扩为 174 bit（新字段在最高位 [173:163]，队列/lookup/FLT/IC/RM 以参数 `DW` 透传，单元 TB 仍用 163 bit）。P2 以 `RX_VL_CFG.w0.port_base` 为端口号，组合读端口表 w0/w1/w3，按序判：端口号 ≥ `NUM_PORTS` → RANGE；`w0.valid=0` 或 `type=3` → CFG；`w0[18]` 方向位=0（TX 端口）→ DIR；`type=2`（SAP，管理面未接）→ SAP；`w1[15:0]` ≠ 帧 UDP 目的端口 → DPORT。输出寄存 1 拍并保持到端口侧接收。与上文规划的差异：不另设 `drop(port)` 等分类计数，端口侧丢弃统一记入全局统计 `0x0101` 与 `DROP_CNT` 合计（DROP_CNT_K 仍无 port 类）；`expect_vl` 核对未做（端口表无该字段）；IP 分片不支持。
+
 ### 7.13 `rx_port_buf`
 
 功能：把通过判决的消息落到端口，维护新鲜度与中断。
@@ -741,6 +743,14 @@ IP 头反码和与按伪首部/UDP Length 截断的 UDP 校验和在 `mac_rx_if`
 
 端口描述符表 256×32 bit（BRAM，1 块），读清 `fresh` 与 `valid`（寄存器阵列 shadow + 写回，避免"读后不知是否要清"的歧义，采用"读即清"）。
 
+实现状态（09-24，v0.5.16）：`rx_port_buf.v` 接在解析之后，按端口号持有 `{cnt, head, tail, pin_blk, fresh, ovf, seen, pin}` 寄存器阵列与按块的 `len/next`；`init_sweep` 目标 6（原顶层 `rx_desc_mem` 壳删除）清端口状态。主机协议（前门字地址，端口表 w0 `valid && dir=1` 的 RX 端口）：
+
+- `PORT_DESC 0x8180+p` 读：`[31] valid [30] fresh [29] ovf [28] pin [27:24] cnt [23:20] blk [10:0] L`，返回清除前的值，读后清 `fresh/ovf` 并记 `seen`（主机已开始读该消息）。载荷在 PMEM `0x8800 + blk×0x200 + (42+i)/4`，大端字节序（第 k 字节在 `[31−8(k mod 4) -: 8]`）；运行期（`CTL.CFG_MODE=0`）允许读 RX 块 6~15，读口 A 被 builder 占用的拍不给 ACK，主机保持请求重试。
+- `MSG_RD 0x8380+p` 写：采样端口释放 pin 块，且若当前消息已 `seen` 则释放它；队列端口弹出队首。非 RX 端口写入置 `ERR.ACC`。
+- `MSG_CNT 0x8480+p` 读：消息条数（采样 0/1）。非 RX 端口读 0；TX 的 `MSG_WR` 写到 RX 端口置 `ERR.ACC`。
+
+采样覆盖：`ovr_cnt`++、`ovf=1`；旧消息未 `seen` 则旧块立即归还，已 `seen` 则旧块转为 pin（保持数据完整直到 `MSG_RD`），已有 pin 时先归还更早的 pin。队列端口按块链入队，满（`cnt ≥ w3.depth`，0 视为 1）丢新帧并 `q_ovf`++。端口侧两路块释放直接接块池两个独立释放口，不占 `free_pipe`。全局统计 `0x0100` RX 交付、`0x0101` 解析丢弃、`0x0102` 采样覆盖、`0x0103` 队列满（其余统计字仍读 0）；解析丢弃与队列满同时计入 `DROP_CNT`。未做：SAP 转 `mgmt/`、INT_STATUS 各位与 `host_irq`、`pmem_exhaust` 反压、运行期改端口类型时的在持块回收（须在 CFG_MODE 且端口空时改）。T11/T11g 验证见 §12.4 与附录 E。
+
 ### 7.14 `host_if`
 
 地址空间按 32 bit 字组织，`host_addr[15:0]` 是字地址，可寻址范围 64 K 字 = 256 KB。下表 15 行（含空洞外的全部区段）合计 53536 字 = 209.1 KB，占 81.7%，其中空洞 `0x0500~0x1D7F` 另计；剩下 `0xEC20~0xFFFF`（5088 字）留给 P2 与将来。下表按「项数 × 每项字数」排布（`0x0500`~`0x1D7F` 留给将来表项，既有 RX/PMEM 基址不移动；PMEM 起始自动 2 KB 对齐），`tools/check_addr.py` 会逐行复核容量声明并检查重叠：
@@ -748,7 +758,7 @@ IP 头反码和与按伪首部/UDP Length 截断的 UDP 校验和在 `mac_rx_if`
 | 区间（字地址） | 容量 | 内容 | 访问 |
 |---|---|---|---|
 | `0x0000`~`0x00FF` | 256 字（1 KB） | 全局寄存器：`ID`、`REV`、`CTL`、`STATUS`、`ERR`、`INT_*`、`DROP_CNT[0..11]`、`TB_CNT`、`CFG_SUM`、`CFG_ERR`、`SMAC_CFG`、`IP_CFG`、`UDP_CFG`、`TX_WR_BLK`、`HASH_SEED0/1`、`HASH_IMAGE`、`DBG_CTRL` | R/W |
-| `0x0100`~`0x01FF` | 256 字（1 KB） | 全局统计：帧/字节/丢弃计数、抖动最大/均值、前 8 VL 直方图 | R / W1C |
+| `0x0100`~`0x01FF` | 256 字（1 KB） | 全局统计：帧/字节/丢弃计数、抖动最大/均值、前 8 VL 直方图（v0.5.16 起 `0x0100~0x0103` = RX 交付/解析丢弃/采样覆盖/队列满，余读 0） | R / W1C |
 | `0x0200`~`0x047F` | 640 字（2.5 KB） | TX VL 表：128 项 × 5 字（附录 B 的 w0~w4 静态配置；动态三项不在这张表里，见附录 B 说明） | R/W（`CFG_MODE=1`） |
 | `0x0480`~`0x04FF` | 128 字（0.5 KB） | TX Q20 份额表：128 项 × 1 字（[20:0] 为逐 VL ceil 带宽份额，地址 `0x0480 + VL`） | R/W（写仅 `CFG_MODE=1`） |
 | `0x1D80`~`0x3D7F` | 8192 字（32 KB） | RX VL 配置表：4096 项 × 2 字 | R/W（`CFG_MODE=1`） |
@@ -1141,7 +1151,7 @@ TB 与 RTL 的唯一接口是顶层端口 + 附录 A 的寄存器，任何"为�
 | T08c/T08cg | 主机与真实 A/B RX 写口争用（IF_MODE=0/1） | 每档 28 对双网真帧与 40 笔连续冲突主机写（20 持 CS、20 单拍脉冲）、待决时地址/数据改变、复位前挂起事务 | ACK 不早于实际落字、全部提交恰好一次且读回一致、复位取消；3 类隔离故障必须被抓；**不等于持续双网满载写口的等待上界** | AFDX_top（HOST-01 局部） |
 | T09 | IC 判决 | 丢 1 帧、丢 2 帧、乱序、SN=0、`psn=0` 首帧（含 `IC_FIRST_ANY` 两版） | 判决与模型一致 | ic |
 | T10 | RM | A/B 同拍、偏斜 50/99/100/101 μs、A 丢 B 补、超 SkewMax | 无重复投递、无漏投 | rm |
-| T11 | 端口行为 | 采样覆盖、队列满、`commit` 与 `free` 同拍 | 覆盖计数、溢出、不丢序 | port_buf |
+| T11 | 端口行为 | 采样覆盖、队列满、`commit` 与 `free` 同拍（v0.5.16 T11/T11g 覆盖 RX 侧：顶层真帧经 RM→解析→端口，主机前门读描述符/载荷、pin、队列序、解析丢弃；TX 侧同拍另由 T02） | 覆盖计数、溢出、不丢序 | port_buf |
 | T12 | 4096 RX VL 压力 | 两表离线布谷鸟摆放：连号/随机/刻意碰撞 VLID、换种子失败样本，装载后 10 万帧 | 成功映像固定 2 拍查找，失败配置禁止开 RX；未配置项仅 `flt_miss`，无运行期探测 | lookup |
 | T12f/T12fg | 顶层 4096 键/8192 字哈希前门（IF_MODE=0/1） | 完整映像逐拍写读、真实 A/B 收帧命中/未命中/坏 FCS、重配置/复位、5 类隔离故障 | 证明前门/入口查表，**不证明 RX FLT/IC/RM/端口交付与整机 STA** | AFDX_top（哈希切片） |
 | T13 | 端到端回环时延 | 满载/轻载各 1000 帧，两种 IF_MODE 分列 | 模式 0 轻载 TX 首字节 ≤1.5 μs、RX 无 RM 等待 ≤0.4 μs、总 ≤0.15 ms；饱和最大帧 TX 首字节 ≤2.5 μs（排队另计）、总 ≤0.25 ms，均待系统实测 | sys |
@@ -1189,6 +1199,8 @@ T21/T22 是本次设计新增（相对上一版计划），因为评审看的是
 09-24 v0.5.14 **P0-05 IC 顶层接线**：`rx_ic` 接在 `rx_flt` 之后并独占唯一 PSN RAM（顶层 `psn_mem` 壳删除，T01 改查 `u_rxic.psn_mem`）；`CTL.IC_EN` 旁路、`IC_FIRST_ANY`、IC 拒绝计数 `0x0048` 与 `DROP_CNT` 合计、唯一 `free_pipe` 口三源（IC 输出/FLT 拒绝或旁路/drain）按拍互斥。新增 T08e/T08eg：真实 79 B 帧改 SN 并重算 FCS，两种 IF_MODE 各 390 次 IC 判决——严格首帧、重复、丢一/丢二、倒退、SN=0、A/B 独立、254→1 回绕、FIRST_ANY、IC_EN=0 旁路、A/B 0~9 拍偏斜（含 FLT 拒绝与 IC 输出争用）及 91 次 RX_EN 关断扫描（drain 与 IC 输出重叠 2 次），逐判决对独立 TB 参考模型、PSN RAM 与逐帧块守恒。`sim/test_t08e_mutants.py` 7/7 故障检出；T08c 3/3、T12 顶层 5/5 复跑检出。T08d 改以 IC_EN=0 运行以保持纯 FLT 判据。一次编译全量 **28/28 PASS**，存档 `sim/out/regress_full_28_20260924.csv`，SHA-256 `1C15FB4AB44037AA8C526FC497853D6ED7441FC55FA843829335632757C14306`；证据索引 `sim/out/test_evidence_28_20260924.json`；lint 0 `%Error`、`run_all.py --strict` 5/5。RM/解析/端口、完整 T08/T22、T05b、STA 未验收。
 
 09-24 v0.5.15 **P0-06 RM 顶层接线**：`rx_rm` 接在 `rx_ic` 之后（IC_EN=0 时 FLT 旁路进 RM）并独占唯一 RM_ST RAM（顶层 `rm_mem` 壳删除，T01 改查 `u_rxrm.rm_mem`）；表项 33 bit 含 `seen`；有符号绝对时差窗口；`CTL.RM_EN`、`w0.rm_en`、`net_mode=11` 三条件生效；重复副本计 `0x004C` 与 `DROP_CNT`；唯一 `free_pipe` 口四源（RM 输出 > IC 拒绝 > FLT 拒绝 > drain）按拍互斥。新增 T10/T10g：真实帧 A/B 副本 0~9 拍偏斜、A 先/B 先各 10 对，窗口内外（exp=5/0）、上电首帧 SN=0 配 131 ms 窗口、RM_EN/rm_en 关闭、IC_EN 旁路、IC 拒绝帧不污染表项、（IF_MODE=0）早到迟判副本，逐判决对独立 TB 模型并核对 RM RAM、逐帧块守恒与逐 SN 交付次数。`sim/test_t10_mutants.py` 7/7 检出；T08e 的 RX_EN 关断扫描扩到 13×13=169 次，两个 free 口争用突变改为针对 RM 输出，仍 7/7；T08c 3/3、T12 顶层 5/5。Questa 首轮曾因 4096 bit `seen` 寄存器位图在默认 vopt 优化下未被扫描清零而 T01/T10 失败（+acc 下正常），改为 RAM 内 `seen` 位后通过。一次编译全量 **30/30 PASS**，存档 `sim/out/regress_full_30_20260924.csv`，SHA-256 `BDE89DB8F2A60BD67FDB8FDCFA9060E0D9D63E672AA89BA0C05B28C0D26E1BED`；证据索引 `sim/out/test_evidence_30_20260924.json`；lint 0 `%Error`。解析/端口、完整 T08/T22、T05b、STA 未验收。
+
+09-24 v0.5.16 **P0-06 RX 解析/端口交付**：`rx_ip_udp_parse`（端口号取 `port_base`，RANGE/CFG/DIR/SAP/DPORT 五类判决）与 `rx_port_buf`（采样覆盖 + 读中 pin、队列块链与深度、读即清 fresh/ovf）接在 RM forward 之后，端口侧两路释放直连块池；RX 描述符扩为 174 bit（+`payload_len`）；原顶层 `rx_desc_mem` 壳删除，T01 改查 `u_rxpb.p_cnt`。主机前门：RX 端口 `PORT_DESC` 读、`MSG_RD` 释放/出队、`MSG_CNT`，运行期读 RX 块载荷（与 builder 抢读口时延后 ACK）；非 RX 端口 `MSG_RD`、RX 端口 `MSG_WR` 置 `ERR.ACC`；统计 `0x0100~0x0103`，端口侧丢弃计入 `DROP_CNT`。RM 计数改按握手计。新增 T11/T11g：真实帧经 RM→解析→端口，A/B 副本每条恰好交付一次、描述符字段与前门读回的 32 B 载荷逐字节对照发送帧、fresh/ovf 读清、未读覆盖即归还、已读覆盖 pin 保持数据至 `MSG_RD`、二次覆盖归还旧 pin、深度 3 队列 5 帧（2 帧 q_ovf、FIFO 序）、五类解析丢弃、访问错误、复位清零，并逐步核对在持块数守恒；`sim/test_t11_mutants.py` 13/13 检出。T08d/T08e/T10 的 `DROP_CNT` 期望加上无端口配置时的解析丢弃；T08e 两个 free 口争用突变因 forward 不再经 `free_pipe` 而失去可达激励，移出（剩 5/5，缺口见脚本注释）；T10 7/7。一次编译全量 **32/32 PASS**，存档 `sim/out/regress_full_32_20260924.csv`，SHA-256 `398860249BD66845634FFFAF0769D254487916D56F596F8FD1E1A6C9DF34FD8F`；证据索引 `sim/out/test_evidence_32_20260924.json`；lint 0 `%Error`。SAP/管理面、中断、`pmem_exhaust`、完整 T08/T21/T22、T05b、STA 未验收；builder 与主机同拍抢 PMEM 读口的延后 ACK 路径无定向激励。
 
 ---
 
@@ -1452,6 +1464,7 @@ TX Q20 份额是**独立的一字/每 VL 配置表**（`0x0480~0x04FF`，[20:0]=
 | v0.5.13 | 2026-09-23 | P0-03 过滤落地：`rx_flt.v` 从壳实现为语义过滤并接入 `AFDX_top`（mac_rx_if→lookup→flt，S1 已由入口流式完成、S2 需 vl_idx 故判决在查表后）；UNCONF（未命中/越界/valid=0）、VLID（expect_vl 不符）、NET（net_mode 使能位）、LMAX（len>lmax，均含 FCS）四类拒绝，DROP_CNT/DROP_CNT_K(unconf,lmax) 前门可读、复位清零；块释放移到 FLT 判决后，drain 与 FLT 输出互斥。T08d/T08dg 真实帧双模式 2/2 PASS（7 判决/帧池守恒/坏 FCS 隔离/计数读回）；全量 26/26 PASS（CSV SHA-256 `9E18DEBF4EDB77A210A0029CBCA0E92F9788B86E078736F490B24995087474BF`）。PASS 帧仍回收不投递，IC/RM/端口、完整 T08/T22、T05b、STA 未验收；FLT 配置读口为行为级组合读，BRAM 化须并入主机读口。 |
 | v0.5.14 | 2026-09-24 | P0-05 IC 顶层接线：`rx_ic` 接在 FLT 之后并独占唯一 PSN RAM（顶层 `psn_mem` 壳删除，T_PSN 扫描直驱 IC 写口）；`CTL.IC_EN`=0 旁路、`UDP_CFG[0]` IC_FIRST_ANY、IC 拒绝计入 `DROP_CNT_K` ic（`0x0048`）与 `DROP_CNT`；唯一 `free_pipe` 口三源按拍互斥（IC 输出优先，FLT 反压、drain 禁止）。T08e/T08eg 双模式 2/2 PASS（390 判决/参考模型/PSN RAM/偏斜与 RX_EN 关断扫描/块守恒），T08e 故障注入 7/7；全量 28/28 PASS（CSV SHA-256 `1C15FB4AB44037AA8C526FC497853D6ED7441FC55FA843829335632757C14306`）。IC 接受帧仍回收不投递，RM/解析/端口、调试窗口、完整 T08/T22、T05b、STA 未验收。 |
 | v0.5.15 | 2026-09-24 | P0-06 RM 顶层接线：`rx_rm` 实现并接在 IC 之后（IC_EN=0 时 FLT 旁路进 RM），独占唯一 RM_ST RAM；A/B 已在入口串行化，取消 2 深等待队列与 pending 位图；窗口改为有符号绝对时差；RM_ST 加 `seen` 位（33 bit）；重复副本计 `DROP_CNT_K` rm `0x004C`。新增 T10/T10g 与 `test_t10_mutants.py`（7/7）；T08e 关断扫描扩至 169 次、突变 7/7；全量 30/30 PASS（`regress_full_30_20260924.csv`）。 |
+| v0.5.16 | 2026-09-24 | P0-06 RX 解析/端口交付：`rx_ip_udp_parse`、`rx_port_buf` 接在 RM 之后（§7.12/§7.13 实现状态），描述符 174 bit，主机 `PORT_DESC`/`MSG_RD`/`MSG_CNT`/运行期载荷读回，统计 `0x0100~0x0103`。新增 T11/T11g 与 `test_t11_mutants.py`（13/13）；T08e 突变 5/5、T10 7/7；全量 32/32 PASS（`regress_full_32_20260924.csv`）。 |
 | v0.6（计划） | 10 月初 | 125 MHz 拍数换算已在 v0.5.2 闭环、哈希区口径与 §3.3 时延上界已在 v0.5.3 定案；余下：补 pass1/pass2 实测波形引用（待 T02~T05） |
 | v1.0（计划） | 10-20 | P0 闭环，T01~T13 实测数据与（若做了）综合报告写入，作为提交版设计文档底稿 |
 

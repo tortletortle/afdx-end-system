@@ -15,8 +15,8 @@
 //     {seen,last_ts,last_sn} checked; block conservation after every frame; one
 //     block release per cycle on the shared free port;
 //   * DROP_CNT_K rm (0x4C), DROP_CNT total, reset clears RAM/seen/counters.
-// Parse/port are still shells: a forwarded frame is counted and its block
-// recycled.  This is NOT a full T08/T22.
+// v0.5.16: forwarded frames continue to parse; no RX port is configured here,
+// so each is dropped as port-unconfigured and its block recycled.  This is NOT a full T08/T22.
 `timescale 1 ns / 1 ps
 module tb_t10_core #(parameter integer IF_MODE=0);
   reg clk=0, reset=1;
@@ -44,7 +44,7 @@ module tb_t10_core #(parameter integer IF_MODE=0);
   integer errors=0, rm_seen=0, rm_fwd=0, rm_dup=0, rm_skew=0, ic_rej=0;
   integer from_bypass=0, pairs=0;
   integer i,k,d,waitc,f0,u0,s0;
-  reg [31:0] rd, w0;
+  reg [31:0] rd, w0, pd;
   // independent reference RM model (VL index 0x100 only)
   reg m_seen; reg [7:0] m_sn; reg [23:0] m_ts;
   reg m_act, m_fwd, m_skw; reg [23:0] m_d, m_win;
@@ -60,11 +60,11 @@ module tb_t10_core #(parameter integer IF_MODE=0);
 
   always @(posedge clk) if(!reset) begin
     if(dut.rx_ovf_a||dut.rx_ovf_b) bad("RX FIFO overflow");
-    if((dut.rm_out_vld + dut.ic_rej_fire + dut.flt_free + dut.lookup_drain) > 1)
+    if((dut.rm_dup_fire + dut.ic_rej_fire + dut.flt_free + dut.lookup_drain) > 1)
       bad("two block releases in one cycle on shared free port");
     if(dut.ic_rej_fire) ic_rej=ic_rej+1;
     if(dut.rm_in_vld && dut.rm_in_ready && !dut.ic_to_rm) from_bypass=from_bypass+1;
-    if(dut.rm_out_vld) begin
+    if(dut.rm_fire) begin
       rm_seen=rm_seen+1;
       if(dut.rm_out_vl!==12'h100) bad("RM out_vl is not the looked-up index");
       if(dut.rm_out_desc[158:148]!==11'd79) bad("RM descriptor len corrupted");
@@ -315,7 +315,9 @@ module tb_t10_core #(parameter integer IF_MODE=0);
     end
     host_read(16'h004C,rd); if(rd!==rm_dup) bad("DROP_CNT_K rm mismatch");
     host_read(16'h0048,rd); if(rd!==ic_rej) bad("DROP_CNT_K ic mismatch");
-    host_read(16'h001C,rd); if(rd!==rm_dup+ic_rej) bad("DROP_CNT total != IC+RM drops");
+    // v0.5.16: forwarded frames reach parse; no RX port configured -> port drop.
+    host_read(16'h0101,pd); if(pd!==dut.rm_fwd_cnt) bad("port drops != RM forwards (no port configured)");
+    host_read(16'h001C,rd); if(rd!==rm_dup+ic_rej+pd) bad("DROP_CNT total != IC+RM+port drops");
     if(dut.rm_fwd_cnt!==rm_fwd || dut.rm_skew_cnt!==rm_skew) bad("RM internal counters wrong");
     // ---- 8. reset clears RM RAM, seen bitmap and counters ----
     @(negedge clk);reset=1;repeat(6) @(negedge clk);reset=0;

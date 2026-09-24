@@ -24,6 +24,7 @@
 // =====================================================================
 `timescale 1 ns / 1 ps
 module rx_rm #(
+  parameter integer DW = 163,     // RX 描述符位宽（v0.5.16 顶层用 174）
   parameter integer NUM_RX_VL = 4096
 ) (
   input  wire         clk,
@@ -34,7 +35,7 @@ module rx_rm #(
   input  wire         rm_glb_en,       // CTL.RM_EN (bit3)
   input  wire         in_vld,
   output wire         in_ready,
-  input  wire [162:0] in_desc,
+  input  wire [DW-1:0] in_desc,
   input  wire [11:0]  in_vl,
   input  wire         in_rm_en,        // RX_VL_CFG w0[30]
   input  wire [1:0]   in_net_mode,     // RX_VL_CFG w0[29:28]
@@ -43,7 +44,7 @@ module rx_rm #(
   input  wire         out_ready,
   output reg          out_fwd,         // 1 = forward, 0 = drop_dup
   output reg          out_skew,        // same SN beyond SkewMax (forwarded)
-  output reg  [162:0] out_desc,
+  output reg  [DW-1:0] out_desc,
   output reg  [11:0]  out_vl,
   input  wire         dbg_en,
   input  wire         dbg_wr,
@@ -89,7 +90,7 @@ module rx_rm #(
   always @(posedge clk) begin
     if (rst_sync) begin
       state <= ST_IDLE; out_vld <= 1'b0; out_fwd <= 1'b0; out_skew <= 1'b0;
-      out_desc <= 163'd0; out_vl <= 12'd0; addr_q <= 12'd0; ts_q <= 24'd0;
+      out_desc <= {DW{1'b0}}; out_vl <= 12'd0; addr_q <= 12'd0; ts_q <= 24'd0;
       skew_q <= 24'd0; sn_q <= 8'd0; active_q <= 1'b0;
       fwd_q <= 1'b0; skew_ev_q <= 1'b0;
     end else if (init_we) begin

@@ -3,14 +3,16 @@
 // desc_mark 是最后一字进入写 FIFO 后的写指针；只有读指针追到 mark
 // （PMEM 写沿已提交）才放出好帧，防止后级在内存未完成时观察该帧。
 `timescale 1 ns / 1 ps
-module rx_pmem_queue (
+module rx_pmem_queue #(
+  parameter integer DW = 163      // RX 描述符位宽（v0.5.16 顶层用 174，高位加 payload_len）
+) (
   input wire clk, rst_sync,
   input wire in_wr_en,
   input wire [12:0] in_wr_addr,
   input wire [31:0] in_wr_data,
   input wire [3:0] in_wr_be,
   input wire in_desc_vld,
-  input wire [162:0] in_desc,
+  input wire [DW-1:0] in_desc,
   output wire frame_room,
   output wire wr_valid,
   output wire [12:0] wr_addr,
@@ -18,12 +20,12 @@ module rx_pmem_queue (
   output wire [3:0] wr_be,
   input wire wr_pop,
   output wire desc_valid,
-  output wire [162:0] desc,
+  output wire [DW-1:0] desc,
   input wire desc_pop,
   output reg overflow
 );
   reg [48:0] words [0:7];
-  reg [162:0] descs [0:3];
+  reg [DW-1:0] descs [0:3];
   reg [3:0] marks [0:3];
   reg [3:0] wp, rp;
   reg [2:0] dw, dr;

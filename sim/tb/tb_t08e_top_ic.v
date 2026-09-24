@@ -41,7 +41,7 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
   reg [7:0] frm_b [0:78];
   integer errors=0, ic_seen=0, ic_acc=0, ic_rej=0, flt_rej=0, drain_ic_overlap=0;
   integer i,k,d,waitc,sn_next;
-  reg [31:0] rd;
+  reg [31:0] rd, pd;
   // directed expectation for the NEXT IC output (sequential sends only)
   reg exp_active=0, exp_acc=0;
   reg [2:0] exp_reason=0;
@@ -65,7 +65,7 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
     if(!dut.rx_stream_en && (dut.ic_out_vld || dut.rm_out_vld) &&
        (dut.rx_desc_valid_a || dut.rx_desc_valid_b)) drain_ic_overlap=drain_ic_overlap+1;
     // at most one block release source per cycle on the shared free port
-    if((dut.rm_out_vld + dut.ic_rej_fire + dut.flt_free + dut.lookup_drain) > 1)
+    if((dut.rm_dup_fire + dut.ic_rej_fire + dut.flt_free + dut.lookup_drain) > 1)
       bad("two block releases in one cycle on shared free port");
     // v0.5.15: an IC-accepted output may wait for rx_rm; count handshakes.
     if(dut.ic_fire) begin
@@ -290,7 +290,8 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
     if(flt_rej!==10) bad("FLT reject count (NET) wrong");
     host_read(16'h0048,rd); if(rd!==32'd5)  bad("DROP_CNT_K ic mismatch");
     host_read(16'h0040,rd); if(rd!==32'd10) bad("DROP_CNT_K unconf mismatch");
-    host_read(16'h001C,rd); if(rd!==32'd15) bad("DROP_CNT total != FLT+IC");
+    host_read(16'h0101,pd); if(pd!==dut.rm_fwd_cnt) bad("port drops != RM forwards");
+    host_read(16'h001C,rd); if(rd!==32'd15+pd) bad("DROP_CNT total != FLT+IC+port");
     // ---- 7b. RX_EN drop sweep: stop the stream t cycles after A enters IC
     // while B (skew d) is finishing, so a queued B descriptor is drained
     // around A's IC output cycle (shared free port).  Outcome per frame may
@@ -316,7 +317,8 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
     if(drain_ic_overlap==0) bad("sweep never overlapped drain with IC output window");
     host_read(16'h0048,rd); if(rd!==ic_rej)  bad("DROP_CNT_K ic != observed after sweep");
     host_read(16'h0040,rd); if(rd!==flt_rej) bad("DROP_CNT_K unconf != observed after sweep");
-    host_read(16'h001C,rd); if(rd!==ic_rej+flt_rej) bad("DROP_CNT total != observed after sweep");
+    host_read(16'h0101,pd); if(pd!==dut.rm_fwd_cnt) bad("port drops != RM forwards after sweep");
+    host_read(16'h001C,rd); if(rd!==ic_rej+flt_rej+pd) bad("DROP_CNT total != observed after sweep");
     // ---- 8. reset clears IC state, counters and PSN RAM ----
     @(negedge clk);reset=1;repeat(6) @(negedge clk);reset=0;
     wait_init;

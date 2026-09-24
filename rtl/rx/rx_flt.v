@@ -14,6 +14,7 @@
 // =====================================================================
 `timescale 1 ns / 1 ps
 module rx_flt #(
+  parameter integer DW = 163,     // RX 描述符位宽（v0.5.16 顶层用 174）
   parameter integer NUM_RX_VL = 4096
 ) (
   input  wire         clk,
@@ -23,7 +24,7 @@ module rx_flt #(
   output wire         in_ready,
   input  wire         in_hit,
   input  wire [11:0]  in_vl,
-  input  wire [162:0] in_desc,
+  input  wire [DW-1:0] in_desc,
   input  wire [31:0]  in_w0,       // RX_VL_CFG[2*in_vl]，父层组合读
   input  wire [31:0]  in_w1,       // RX_VL_CFG[2*in_vl+1]（expect_vl）
   output reg          out_vld,     // 保持至 out_ready
@@ -31,7 +32,7 @@ module rx_flt #(
   output reg          out_pass,
   output reg  [2:0]   out_reason,  // 0 PASS,1 UNCONF,2 NET,3 LMAX,4 VLID
   output reg  [11:0]  out_vl,
-  output reg  [162:0] out_desc
+  output reg  [DW-1:0] out_desc
 );
   localparam [2:0] F_PASS=3'd0, F_UNCONF=3'd1, F_NET=3'd2, F_LMAX=3'd3,
                    F_VLID=3'd4;
@@ -48,7 +49,7 @@ module rx_flt #(
   always @(posedge clk) begin
     if (rst_sync || init_we) begin
       busy <= 1'b0; out_vld <= 1'b0; out_pass <= 1'b0;
-      out_reason <= F_PASS; out_vl <= 12'd0; out_desc <= 163'd0;
+      out_reason <= F_PASS; out_vl <= 12'd0; out_desc <= {DW{1'b0}};
     end else if (!busy) begin
       if (in_vld && in_ready) begin
         out_desc <= in_desc; out_vl <= in_vl;

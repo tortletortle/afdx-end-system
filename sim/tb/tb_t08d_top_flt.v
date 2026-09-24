@@ -26,7 +26,7 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
   reg [31:0] vec [0:1144];
   integer errors=0,flt_seen=0,pass_seen=0,drop_seen=0,crc_seen=0;
   integer i,waitc;
-  reg [31:0] rd;
+  reg [31:0] rd, pd;
   reg expect_active=0, expect_pass=0;
   reg [2:0] expect_reason=0;
   task bad(input [8*96-1:0] reason);
@@ -177,7 +177,9 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
     // Verdict histogram and per-class counters.
     if(pass_seen!==3 || drop_seen!==4 || flt_seen!==7)
       bad("verdict histogram wrong");
-    host_read(16'h001C,rd); if(rd!==32'd4) bad("DROP_CNT total mismatch");
+    // v0.5.16: the 3 PASS frames reach parse; VL port_base=0 is unconfigured.
+    host_read(16'h0101,pd); if(pd!==32'd3) bad("port-drop count for PASS frames wrong");
+    host_read(16'h001C,rd); if(rd!==32'd4+pd) bad("DROP_CNT total mismatch");
     host_read(16'h0040,rd); if(rd!==32'd3) bad("DROP_CNT_K unconf class mismatch");
     host_read(16'h0044,rd); if(rd!==32'd1) bad("DROP_CNT_K lmax class mismatch");
     host_read(16'h0048,rd); if(rd!==32'd0) bad("IC drop counted while IC_EN=0");

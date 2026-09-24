@@ -6,6 +6,7 @@
 // No runtime probe/eviction: parallel synchronous bucket reads, four compares.
 `timescale 1 ns / 1 ps
 module rx_vl_lookup #(
+  parameter integer DW = 163,     // RX 描述符位宽（v0.5.16 顶层用 174）
   parameter integer NUM_RX_VL=4096,
   parameter integer HASH_BUCKETS=2048
 ) (
@@ -26,12 +27,12 @@ module rx_vl_lookup #(
   output wire [31:0]  cfg_rdata,
   input  wire         in_vld,
   output wire         in_ready,
-  input  wire [162:0] in_desc,
+  input  wire [DW-1:0] in_desc,
   output reg          out_vld,
   input  wire         out_ready,
   output reg          out_hit,
   output reg  [11:0]  out_vl,
-  output reg  [162:0] out_desc
+  output reg  [DW-1:0] out_desc
 );
   localparam integer BITS = $clog2(HASH_BUCKETS);
   localparam integer WORDS = 4*HASH_BUCKETS;
@@ -138,7 +139,7 @@ module rx_vl_lookup #(
       out_vld <= 1'b0;
       out_hit <= 1'b0;
       out_vl <= 12'd0;
-      out_desc <= 163'd0;
+      out_desc <= {DW{1'b0}};
       vlid_q <= 16'd0;
       cfg_rvalid <= 1'b0;
       cfg_sel_q <= 2'd0;

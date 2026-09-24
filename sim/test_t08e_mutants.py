@@ -27,22 +27,23 @@ VSIM_CANDIDATES = (
     Path(r"C:\altera_pro\26.1.1\modelsim_ae\win32aloem\vsim.exe"),
 )
 # Single, precisely matched RTL faults (file, name, needle, replacement):
-# free-port collision (FLT reject vs RM output, drain vs RM output), reject writes PSN, A/B PSN
-# aliasing, IC_EN ignored, IC drop missing from DROP_CNT, lost-one disabled.
+# reject writes PSN, A/B PSN aliasing, IC_EN ignored, IC drop missing from
+# DROP_CNT, lost-one disabled.
+# v0.5.16: the two former free-port collision mutants (FLT reject / drain vs RM
+# output) were removed.  Since RM forward frames no longer release through
+# free_pipe, the collision is reachable only on an RM *duplicate* output
+# cycle; T08e runs with RM inactive (no duplicates), and neither T08e nor T10
+# drive a FLT reject into that exact cycle (both mutants MISSED locally).  The
+# per-cycle exclusivity monitor in T08e/T10/T11 remains, but that
+# dup-vs-FLT/drain collision has no stimulus coverage (residual gap).
 # A compile failure or timeout is not a detected functional fault.
 MUTATIONS = (
-    (TOP, "flt_reject_collides_with_rm_output",
-     "flt_to_rm ? rm_in_ready : !rm_out_vld);",
-     "flt_to_rm ? rm_in_ready : 1'b1);"),
-    (TOP, "drain_collides_with_rm_output",
-     "!ic_out_vld && !rm_out_vld &&",
-     "!ic_out_vld &&"),
     (TOP, "ic_en_ignored",
      "wire flt_to_ic = flt_out_pass && ic_en;",
      "wire flt_to_ic = flt_out_pass;"),
     (TOP, "ic_drop_missing_from_total",
-     "if (flt_free || ic_rej_fire || (rm_out_vld && !rm_out_fwd))",
-     "if (flt_free || (rm_out_vld && !rm_out_fwd))"),
+     "{31'd0,(flt_free || ic_rej_fire || rm_dup_fire)} +",
+     "{31'd0,(flt_free || rm_dup_fire)} +"),
     (IC, "reject_writes_psn",
      "(state == ST_WRITE) && accept_q;",
      "(state == ST_WRITE);"),

@@ -231,7 +231,7 @@ module tb_t01_reset_regs;
     if (dut.u_rxic.psn_mem[8191] !== 8'd0 || dut.u_rxrm.rm_mem[4095] !== 33'd0 ||
         dut.u_rxlookup.table1way1[2047] !== 32'd0 || dut.rx_cfg_mem[8190] !== 32'd0 ||
         dut.tx_cfg_mem[635] !== 32'd0 || dut.port_cfg_mem[1020] !== 32'd0 ||
-        dut.rx_desc_mem[255] !== 32'd0 || dut.vl_stat_mem[127] !== 32'd0) begin
+        dut.u_rxpb.p_cnt[255] !== 4'd0 || dut.vl_stat_mem[127] !== 32'd0) begin
       $display("  [err] last address of some scanned RAM not cleared"); err = err + 1;
     end
     // 表只允许 CFG_MODE=1 且 INIT_DONE=1 时写；单拍流水可以连续两笔。

@@ -43,6 +43,7 @@ module mac_rx_if #(
   output reg  [31:0] desc_dst_ip,
   output reg  [15:0] desc_sport,
   output reg  [15:0] desc_dport,
+  output reg  [10:0] desc_plen,        // v0.5.16: UDP 载荷长 L = udp_len-8（首部已核对）
   output reg         frame_err,       // 坏帧一次性脉冲；不更新任何 IC/RM 状态
   output reg         crc_err,         // FCS 失败脉冲（含与长度错重叠时）
   output reg  [7:0]  drop_reason,     // 01 CRC,02 IP,04 UDP,08 HDR,10 LEN,20 PAD,40 NO_BLK,80 ABORT
@@ -130,7 +131,7 @@ module mac_rx_if #(
       blk_release <= 1'b0; blk_release_id <= 4'd0;
       desc_vld <= 1'b0; desc_blk <= 4'd0; desc_len <= 11'd0; desc_ts <= 24'd0;
       desc_vlid <= 16'd0; desc_sn <= 8'd0; desc_net <= 1'b0; desc_ifid <= 3'd0;
-      desc_src_ip <= 32'd0; desc_dst_ip <= 32'd0; desc_sport <= 16'd0; desc_dport <= 16'd0;
+      desc_src_ip <= 32'd0; desc_dst_ip <= 32'd0; desc_sport <= 16'd0; desc_dport <= 16'd0; desc_plen <= 11'd0;
       frame_err <= 1'b0; crc_err <= 1'b0; drop_reason <= 8'd0;
       good_cnt <= 16'd0; drop_cnt <= 16'd0; disabled_cnt <= 16'd0;
     end else begin
@@ -167,6 +168,7 @@ module mac_rx_if #(
           desc_net <= NET_ID[0]; desc_ifid <= ifid_q;
           desc_src_ip <= src_ip_q; desc_dst_ip <= dst_ip_q;
           desc_sport <= sport_q; desc_dport <= dport_q;
+          desc_plen <= payload_len[10:0];
         end else begin
           drop_cnt <= drop_cnt + 16'd1; frame_err <= 1'b1; drop_reason <= reason_now;
           blk_release <= blk_vld_q; blk_release_id <= blk_q;

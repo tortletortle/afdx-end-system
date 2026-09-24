@@ -48,8 +48,8 @@ MUTATIONS = (
      "assign rm_in_vld  = ic_to_rm || (flt_out_vld && flt_to_rm && !ic_out_vld);",
      "assign rm_in_vld  = ic_to_rm;"),
     (TOP, "rm_drop_missing_from_total",
-     "if (flt_free || ic_rej_fire || (rm_out_vld && !rm_out_fwd))",
-     "if (flt_free || ic_rej_fire)"),
+     "{31'd0,(flt_free || ic_rej_fire || rm_dup_fire)} +",
+     "{31'd0,(flt_free || ic_rej_fire)} +"),
 )
 
 
