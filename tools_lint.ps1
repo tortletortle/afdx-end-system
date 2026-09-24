@@ -161,6 +161,18 @@ Lint 'tb_t12f_top_lookup' ($tbbase + @('--top-module','tb_t12f_top_lookup') +
 Lint 'tb_t12fg_top_lookup' ($tbbase + @('--top-module','tb_t12fg_top_lookup') +
   $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
   'rtl/top/AFDX_top.v','sim/tb/tb_t12f_top_lookup.v'))
+Lint 'tb_t22_top_loopback' ($tbbase + @('--top-module','tb_t22_top_loopback') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t22_top_loopback.v'))
+Lint 'tb_t22g_top_loopback' ($tbbase + @('--top-module','tb_t22g_top_loopback') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t22_top_loopback.v'))
+Lint 'tb_t11i_top_int' ($tbbase + @('--top-module','tb_t11i_top_int') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t11i_top_int.v'))
+Lint 'tb_t11ig_top_int' ($tbbase + @('--top-module','tb_t11ig_top_int') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t11i_top_int.v'))
 
 Remove-Item $gatefile -Force -ErrorAction SilentlyContinue
 if ($script:fail -ne 0) { Write-Output "LINT GATE: FAIL"; exit 1 }

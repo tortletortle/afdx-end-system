@@ -32,4 +32,8 @@ T12s tb_t12s_lookup small-collision
 T12h tb_t12h_lookup small-rehash
 T12f tb_t12f_top_lookup frontdoor-ingress
 T12fg tb_t12fg_top_lookup frontdoor-gmii
+T22 tb_t22_top_loopback loopback
+T22g tb_t22g_top_loopback loopback-gmii
+T11i tb_t11i_top_int int-top
+T11ig tb_t11ig_top_int int-top-gmii
 T22a tb_t22a_frontdoor_tx default

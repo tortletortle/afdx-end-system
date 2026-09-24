@@ -145,6 +145,8 @@ if (-not $KeepWork) {
                'tb_t08eg_top_ic' = 'tb_t08e_top_ic';
                'tb_t10g_top_rm' = 'tb_t10_top_rm';
                'tb_t11g_top_port' = 'tb_t11_top_port';
+               'tb_t11ig_top_int' = 'tb_t11i_top_int';
+               'tb_t22g_top_loopback' = 'tb_t22_top_loopback';
                'tb_t09s_rx_ic' = 'tb_t09_rx_ic';
                'tb_t09ps_rx_ic' = 'tb_t09p_rx_ic';
                'tb_t12c_lookup' = 'tb_t12_rx_lookup';

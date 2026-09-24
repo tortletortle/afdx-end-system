@@ -55,6 +55,9 @@ module rx_port_buf #(
   output reg  [3:0]  free1_id,
   // statistics / events
   output reg         ev_drop,       // parse drop or queue overflow (1 frame)
+  output reg         ev_sample,     // v0.5.17 INT: sampling message delivered
+  output reg         ev_queue,      // v0.5.17 INT: message enqueued
+  output reg         ev_ovf,        // v0.5.17 INT: sampling overwrite or queue full
   output reg  [31:0] deliver_cnt,
   output reg  [31:0] port_drop_cnt,
   output reg  [31:0] ovr_cnt,
@@ -93,6 +96,7 @@ module rx_port_buf #(
 
   always @(posedge clk) begin
     free0 <= 1'b0; free1 <= 1'b0; ev_drop <= 1'b0;
+    ev_sample <= 1'b0; ev_queue <= 1'b0; ev_ovf <= 1'b0;
     if (rst_sync) begin
       free0_id <= 4'd0; free1_id <= 4'd0;
       deliver_cnt <= 32'd0; port_drop_cnt <= 32'd0; ovr_cnt <= 32'd0; qovf_cnt <= 32'd0;
@@ -129,8 +133,9 @@ module rx_port_buf #(
       end else if (in_type == 2'd0) begin
         b_len[in_blk] <= in_plen;
         deliver_cnt <= deliver_cnt + 32'd1;
+        ev_sample <= 1'b1;
         if (e_cnt != 4'd0) begin
-          ovr_cnt <= ovr_cnt + 32'd1;
+          ovr_cnt <= ovr_cnt + 32'd1; ev_ovf <= 1'b1;
           p_ovf[in_port] <= 1'b1;
           if (e_seen) begin
             if (e_pin) begin free0 <= 1'b1; free0_id <= e_pinb; end
@@ -143,11 +148,12 @@ module rx_port_buf #(
         p_fresh[in_port] <= 1'b1; p_seen[in_port] <= 1'b0;
       end else if (e_cnt >= in_depth) begin
         free0 <= 1'b1; free0_id <= in_blk; ev_drop <= 1'b1;
-        qovf_cnt <= qovf_cnt + 32'd1;
+        qovf_cnt <= qovf_cnt + 32'd1; ev_ovf <= 1'b1;
         p_ovf[in_port] <= 1'b1;
       end else begin
         b_len[in_blk] <= in_plen;
         deliver_cnt <= deliver_cnt + 32'd1;
+        ev_queue <= 1'b1;
         if (e_cnt == 4'd0) begin
           p_head[in_port] <= in_blk; p_fresh[in_port] <= 1'b1;
         end else b_nxt[e_tail] <= in_blk;

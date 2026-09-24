@@ -130,7 +130,8 @@ module AFDX_top #(
   wire [3:0] prs_out_depth, prs_out_blk;
   wire [10:0] prs_out_plen;
   wire [23:0] prs_out_ts;
-  wire pb_in_ready, pb_free0, pb_free1, pb_ev_drop;
+  wire pb_in_ready, pb_free0, pb_free1, pb_ev_drop, pb_ev_sample, pb_ev_queue, pb_ev_ovf;
+  wire rx_crc_err_a, rx_crc_err_b;
   wire [3:0] pb_free0_id, pb_free1_id, rxpb_cnt_word;
   wire [31:0] rxpb_desc_word, rxpb_deliver_cnt, rxpb_port_drop_cnt,
               rxpb_ovr_cnt, rxpb_qovf_cnt;
@@ -463,7 +464,11 @@ module AFDX_top #(
       if (wr_bad || rd_miss) err_r <= err_r | 32'h1 | (cfg_over ? 32'h2 : 32'd0);
       else if (w1c_err)      err_r <= (err_r & ~host_wdata) & 32'hFFFF_FFF7;
       else if (cfg_over)     err_r <= err_r | 32'h2;
-      if (w1c_int) int_st_r <= int_st_r & ~host_wdata;
+      // INT_STATUS（v0.5.17）：[0] 新采样消息 [1] 队列入队 [2] 采样覆盖/队列满
+      // [3] CRC 错帧（A 或 B）；事件置位优先于同拍 W1C。[4] 丢弃突增阈值寄存器
+      // 未定义、[5..7] 管理面未接，恒 0。
+      int_st_r <= (w1c_int ? (int_st_r & ~host_wdata) : int_st_r) |
+                  {28'd0, (rx_crc_err_a | rx_crc_err_b), pb_ev_ovf, pb_ev_queue, pb_ev_sample};
       if (we && reg_page && reg_align) begin
         case (off)
           8'h08: ctl_r <= ctl_value;
@@ -603,8 +608,7 @@ module AFDX_top #(
   wire [7:0] rxd_sn_a, rxd_sn_b, rx_drop_reason_a, rx_drop_reason_b;
   wire [2:0] rxd_ifid_a, rxd_ifid_b;
   wire [31:0] rxd_src_a, rxd_src_b, rxd_dst_a, rxd_dst_b;
-  wire rxd_net_a, rxd_net_b, rx_frame_err_a, rx_frame_err_b,
-       rx_crc_err_a, rx_crc_err_b;
+  wire rxd_net_a, rxd_net_b, rx_frame_err_a, rx_frame_err_b;
   mac_rx_if #(.IF_MODE(IF_MODE), .FCS_MODE(FCS_MODE), .MAX_FRAME(MAX_FRAME), .NET_ID(0))
   u_mac_rx_a (
     .clk(clk), .rst_sync(rst_sync), .enable(rx_stream_en), .udp_csum_en(udp_cfg_r[1]),
@@ -768,7 +772,8 @@ module AFDX_top #(
     .hop_desc_rd(hop_desc_rd), .hop_msg_rd(hop_msg_rd), .hop_port(hop_port),
     .hop_type(hop_w0[17:16]), .desc_word(rxpb_desc_word), .cnt_word(rxpb_cnt_word),
     .free0(pb_free0), .free0_id(pb_free0_id), .free1(pb_free1), .free1_id(pb_free1_id),
-    .ev_drop(pb_ev_drop), .deliver_cnt(rxpb_deliver_cnt),
+    .ev_drop(pb_ev_drop), .ev_sample(pb_ev_sample), .ev_queue(pb_ev_queue),
+    .ev_ovf(pb_ev_ovf), .deliver_cnt(rxpb_deliver_cnt),
     .port_drop_cnt(rxpb_port_drop_cnt), .ovr_cnt(rxpb_ovr_cnt), .qovf_cnt(rxpb_qovf_cnt));
   wire ic_rej_fire = ic_rej && ic_fire;
   // DROP_CNT_K 登记 FLT 层原因（unconf 含 NET/VLID 不一致，lmax 单列）、IC
