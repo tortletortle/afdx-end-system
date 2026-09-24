@@ -47,8 +47,17 @@ $common = @(
 )
 $base = @('--lint-only','-Wall','-Wno-fatal','-Wno-WIDTH')
 
+# TX chain dependencies are now elaborated inside AFDX_top, not only the T04 TB.
+$txmods = @(
+  'rtl/tx/tx_sn_gen.v', 'rtl/tx/tx_port_buf.v', 'rtl/tx/tx_frame_builder.v',
+  'rtl/tx/tx_vl_scheduler.v', 'rtl/tx/tx_rm.v', 'rtl/tx/tx_pace.v',
+  'rtl/tx/mac_tx_if.v'
+)
+$rxmods = @('rtl/rx/mac_rx_if.v', 'rtl/rx/rx_block_pool.v',
+            'rtl/rx/rx_pmem_queue.v', 'rtl/rx/rx_vl_lookup.v',
+            'rtl/rx/rx_flt.v')
 # gate 1: top elaboration
-Lint 'AFDX_top' ($base + @('--top-module','AFDX_top') + $common + @('rtl/top/AFDX_top.v'))
+Lint 'AFDX_top' ($base + @('--top-module','AFDX_top') + $common + $txmods + $rxmods + @('rtl/top/init_sweep.v','rtl/top/AFDX_top.v'))
 
 # gate 2: standalone common modules (not yet instantiated in AFDX_top)
 # rst_sync is excluded: its output port is named like the module itself
@@ -57,14 +66,23 @@ Lint 'AFDX_top' ($base + @('--top-module','AFDX_top') + $common + @('rtl/top/AFD
 # It stays covered by the AFDX_top gate.
 foreach ($m in @(
   @('bram_sdp',  'rtl/common/bram_sdp.v'),
+  @('init_sweep', 'rtl/top/init_sweep.v'),
   @('sync_fifo', 'rtl/common/sync_fifo.v'),
   @('crc32',     'rtl/common/crc32.v'),
   @('timebase',  'rtl/common/timebase.v'),
   @('tx_sn_gen',   'rtl/tx/tx_sn_gen.v'),
   @('tx_port_buf', 'rtl/tx/tx_port_buf.v'),
-  @('tx_frame_builder', 'rtl/tx/tx_frame_builder.v')
+  @('tx_frame_builder', 'rtl/tx/tx_frame_builder.v'),
+  @('tx_pace',         'rtl/tx/tx_pace.v'),
+  @('tx_rm',           'rtl/tx/tx_rm.v'),
+  @('tx_vl_scheduler', 'rtl/tx/tx_vl_scheduler.v'),
+  @('mac_tx_if',       'rtl/tx/mac_tx_if.v', 'rtl/common/crc32.v'),
+  @('mac_rx_if',       'rtl/rx/mac_rx_if.v'),
+  @('rx_ic',           'rtl/rx/rx_ic.v'),
+  @('rx_flt',          'rtl/rx/rx_flt.v'),
+  @('rx_vl_lookup',    'rtl/rx/rx_vl_lookup.v')
 )) {
-  Lint $m[0] ($base + @('--top-module', $m[0]) + @($m[1]))
+  Lint $m[0] ($base + @('--top-module', $m[0]) + @($m[1..($m.Count-1)]))
 }
 
 # gate 3: TBs
@@ -72,12 +90,61 @@ $tbbase = $base + @('--timing','-Wno-PINCONNECTEMPTY')
 Lint 'tb_t00_common' ($tbbase + @('--top-module','tb_t00_common') + @(
   'rtl/common/crc32.v','rtl/common/sync_fifo.v','rtl/common/bram_sdp.v',
   'sim/tb/tb_t00_common.v'))
-Lint 'tb_t01_reset_regs' ($tbbase + @('--top-module','tb_t01_reset_regs') + $common + @(
-  'rtl/top/AFDX_top.v','sim/tb/tb_t01_reset_regs.v'))
+Lint 'tb_t01_reset_regs' ($tbbase + @('--top-module','tb_t01_reset_regs') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t01_reset_regs.v'))
 Lint 'tb_t02_tx_buf_sn' ($tbbase + @('--top-module','tb_t02_tx_buf_sn') + @(
   'rtl/tx/tx_sn_gen.v','rtl/tx/tx_port_buf.v','sim/tb/tb_t02_tx_buf_sn.v'))
+$txchain = @('rtl/common/timebase.v','rtl/common/crc32.v','rtl/common/bram_sdp.v',
+  'rtl/tx/tx_sn_gen.v','rtl/tx/tx_port_buf.v','rtl/tx/tx_frame_builder.v',
+  'rtl/tx/tx_vl_scheduler.v','rtl/tx/tx_rm.v','rtl/tx/tx_pace.v','rtl/tx/mac_tx_if.v',
+  'sim/tb/tb_t04_tx_chain.v')
+Lint 'tb_t04_tx_chain'  ($tbbase + @('--top-module','tb_t04_tx_chain')  + $txchain)
+Lint 'tb_t04g_tx_chain' ($tbbase + @('--top-module','tb_t04g_tx_chain') + $txchain)
 Lint 'tb_t03_frame_builder' ($tbbase + @('--top-module','tb_t03_frame_builder') + @(
   'rtl/common/bram_sdp.v','rtl/tx/tx_sn_gen.v','rtl/tx/tx_frame_builder.v','sim/tb/tb_t03_frame_builder.v'))
+Lint 'tb_t22a_frontdoor_tx' ($tbbase + @('--top-module','tb_t22a_frontdoor_tx') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t22a_frontdoor_tx.v'))
+Lint 'tb_t05c_cfg_budget' ($tbbase + @('--top-module','tb_t05c_cfg_budget') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t05c_cfg_budget.v'))
+
+Lint 'tb_t08a_rx_ingress' ($tbbase + @('--top-module','tb_t08a_rx_ingress') + @(
+  'rtl/rx/mac_rx_if.v','sim/tb/tb_t08a_rx_ingress.v'))
+Lint 'tb_t08ag_rx_ingress' ($tbbase + @('--top-module','tb_t08ag_rx_ingress') + @(
+  'rtl/rx/mac_rx_if.v','sim/tb/tb_t08a_rx_ingress.v'))
+Lint 'tb_t08b_top_rx' ($tbbase + @('--top-module','tb_t08b_top_rx') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08b_top_rx.v'))
+Lint 'tb_t08bg_top_rx' ($tbbase + @('--top-module','tb_t08bg_top_rx') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08b_top_rx.v'))
+Lint 'tb_t08c_host_arb' ($tbbase + @('--top-module','tb_t08c_host_arb') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08c_host_arb.v'))
+Lint 'tb_t08cg_host_arb' ($tbbase + @('--top-module','tb_t08cg_host_arb') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08c_host_arb.v'))
+Lint 'tb_t08d_top_flt' ($tbbase + @('--top-module','tb_t08d_top_flt') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08d_top_flt.v'))
+Lint 'tb_t08dg_top_flt' ($tbbase + @('--top-module','tb_t08dg_top_flt') + $common + $txmods + $rxmods + @(
+  'rtl/top/init_sweep.v','rtl/top/AFDX_top.v','sim/tb/tb_t08d_top_flt.v'))
+Lint 'tb_t09_rx_ic' ($tbbase + @('--top-module','tb_t09_rx_ic') + @(
+  'rtl/rx/rx_ic.v','sim/tb/tb_t09_rx_ic.v'))
+Lint 'tb_t09s_rx_ic' ($tbbase + @('--top-module','tb_t09s_rx_ic') + @(
+  'rtl/rx/rx_ic.v','sim/tb/tb_t09_rx_ic.v'))
+Lint 'tb_t09p_rx_ic' ($tbbase + @('--top-module','tb_t09p_rx_ic') + @(
+  'rtl/rx/rx_ic.v','sim/tb/tb_t09p_rx_ic.v'))
+Lint 'tb_t09ps_rx_ic' ($tbbase + @('--top-module','tb_t09ps_rx_ic') + @(
+  'rtl/rx/rx_ic.v','sim/tb/tb_t09p_rx_ic.v'))
+Lint 'tb_t12c_lookup' ($tbbase + @('--top-module','tb_t12c_lookup') + @(
+  'rtl/rx/rx_vl_lookup.v','sim/tb/tb_t12_rx_lookup.v'))
+Lint 'tb_t12r_lookup' ($tbbase + @('--top-module','tb_t12r_lookup') + @(
+  'rtl/rx/rx_vl_lookup.v','sim/tb/tb_t12_rx_lookup.v'))
+Lint 'tb_t12s_lookup' ($tbbase + @('--top-module','tb_t12s_lookup') + @(
+  'rtl/rx/rx_vl_lookup.v','sim/tb/tb_t12_rx_lookup.v'))
+Lint 'tb_t12h_lookup' ($tbbase + @('--top-module','tb_t12h_lookup') + @(
+  'rtl/rx/rx_vl_lookup.v','sim/tb/tb_t12_rx_lookup.v'))
+Lint 'tb_t12f_top_lookup' ($tbbase + @('--top-module','tb_t12f_top_lookup') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t12f_top_lookup.v'))
+Lint 'tb_t12fg_top_lookup' ($tbbase + @('--top-module','tb_t12fg_top_lookup') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t12f_top_lookup.v'))
 
 Remove-Item $gatefile -Force -ErrorAction SilentlyContinue
 if ($script:fail -ne 0) { Write-Output "LINT GATE: FAIL"; exit 1 }

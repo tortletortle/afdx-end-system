@@ -4,7 +4,7 @@
 #   - 未列出的地址返回 32'hDEAD_BEEF 并置 ERR.ACC（§7.14）。
 #   - access: ro / wo / rw / w1c（写 1 清）/ rc（读清）。
 #   - reset 为复位释放后 2 拍内的值（§4.2）。
-#   - 表区（TX_VL_TAB / RX_VL_CFG / RX_HASH / PORT_TAB / VL_STATS / PMEM / LOAD）不在本文件，
+#   - 表区（TX_VL_TAB / TX_Q20_SHARE / RX_VL_CFG / RX_HASH / PORT_TAB / VL_STATS / PMEM / LOAD）不在本文件，
 #     它们的基址由 tools/fix_addr.py 生成、tools/check_addr.py 复核，避免两处手填漂移。
 registers:
   - name: ID
@@ -25,7 +25,7 @@ registers:
   - name: STATUS
     addr: 0x000C
     access: ro
-    reset: 0x0000_0000
+    reset: 0x0000_003C
     desc: "见 A.2"
   - name: ERR
     addr: 0x0010
@@ -36,7 +36,7 @@ registers:
     addr: 0x0014
     access: rw
     reset: 0x0000_0000
-    desc: "8 位（新采样、队列非空、溢出、CRC 撤销、丢弃突增、TFTP 完成、SNMP 请求、RTC 失步）"
+    desc: "8 位（新采样、队列非空、溢出、CRC 错帧、丢弃突增、TFTP 完成、SNMP 请求、RTC 失步）"
   - name: INT_STATUS
     addr: 0x0018
     access: w1c
@@ -67,17 +67,17 @@ registers:
     addr: 0x0058
     access: ro
     reset: 0x0000_0000
-    desc: "[31:0] 配置带宽和，Q20 定点（1.0 ≡ 100 Mbps 满负荷）"
+    desc: "[27:0] 已启用 TX VL 的 Q20 份额和（前门 `0x0480+VL`，1.0 ≡ 100 Mbps 满负荷）；[31:28]=0"
   - name: CFG_ERR
     addr: 0x005C
     access: ro
     reset: 0x0000_0000
-    desc: "[7:0] 违规项位图（超额、端口冲突、Lmax、BAG、SkewMax）"
+    desc: "[0]=CFG_SUM>2^20 超额，[1]=已启用 VL 缺失/零份额；[7:2] 预留后续端口冲突/Lmax/BAG/SkewMax 检查（当前读 0）"
   - name: SMAC_CFG
     addr: 0x0060
     access: rw
-    reset: 0x0000_0000
-    desc: "[31:24]=UDI，[23:20]=IFID，[19:16]=net_id_A，[15:12]=net_id_B"
+    reset: 0x0001_2001
+    desc: "[31:16]=`UDI[15:0]`（A664P7 16 bit User-Defined ID），[2:0]=A 网 Interface ID（默认 1），[14:12]=B 网 Interface ID（默认 2），其余保留（O-03）"
   - name: IP_CFG
     addr: 0x0064
     access: rw
@@ -96,23 +96,28 @@ registers:
   - name: UDP_CFG
     addr: 0x0070
     access: rw
-    reset: 0x0000_0140
+    reset: 0x0000_0142
     desc: "[1]=`UDP_CSUM_MODE`（1=计算并校验），[0]=`IC_FIRST_ANY`，[7:4]=`LOG2_AVG`，[15:8]=`TH_JUMP`（μs）"
-  - name: BURST_ADDR
-    addr: 0x00F0
+  - name: TX_WR_BLK
+    addr: 0x0074
+    access: ro
+    reset: 0x0000_0010
+    desc: "[3:0]=`tx_port_buf` 当前对主机开放的 PMEM 写入块号（§7.1），[4]=开放块有效（TX 池未耗尽）；RO"
+  - name: HASH_SEED0
+    addr: 0x0078
     access: rw
     reset: 0x0000_0000
-    desc: "突发搬运目标字地址，写 `BURST_DATA` 后自动递增"
-  - name: BURST_LEN
-    addr: 0x00F4
-    access: wo
-    reset: 0x0000_0000
-    desc: "突发长度（1~16 字），超 16 截断并置 `ERR.ACC`"
-  - name: BURST_DATA
-    addr: 0x00F8
+    desc: "[15:0]=表0离线映像的种子，[31:16]=0；仅 INIT_DONE、CFG_MODE=1 且 TX/RX_EN=0 可写；更新后映像失效"
+  - name: HASH_SEED1
+    addr: 0x007C
     access: rw
     reset: 0x0000_0000
-    desc: "读写都走这里：一次突发最多 16 字，用于整表搬运（省 4096 次单字写的仿真时间）"
+    desc: "[15:0]=表1离线映像的种子，[31:16]=0；仅 INIT_DONE、CFG_MODE=1 且 TX/RX_EN=0 可写；更新后映像失效"
+  - name: HASH_IMAGE
+    addr: 0x0080
+    access: rw
+    reset: 0x0000_0000
+    desc: "读：[0]=主机映像已提交、[1/2]=两种子已写、[3]=种子后至少一有效表项已写；配置期写0使标志失效，写1需三前提满足才提交（不在硬件校验完整映像/manifest）"
   - name: DBG_CTRL
     addr: 0x00FC
     access: rw
@@ -126,12 +131,12 @@ registers:
     desc: "全局帧数/字节数/最大抖动/均值/直方图 8×32（统计页 `0x0100`~`0x01FF`，规模见 §9）"
 ctl_bits:
   - {bit: 0, name: TX_EN, dflt: 0, desc: "发送流水使能，0 时调度器停摆"}
-  - {bit: 1, name: RX_EN, dflt: 0, desc: "接收流水使能，0 时 `mac_rx_if` 丢弃并计数"}
+  - {bit: 1, name: RX_EN, dflt: 0, desc: "接收入口使能，要求 INIT_DONE 及 HASH_IMAGE[0] 已提交；0 时 `mac_rx_if` 丢弃并计数"}
   - {bit: 2, name: IC_EN, dflt: 1, desc: "IC 判决使能"}
   - {bit: 3, name: RM_EN, dflt: 1, desc: "RM 去重使能"}
-  - {bit: 4, name: SCHED_MODE, dflt: 1, desc: "1=最早到期优先，0=轮询（对应 D3、§11.4 `SCHED_MIN_EN`）"}
+  - {bit: 4, name: SCHED_MODE, dflt: 1, desc: "兼容旧寄存器布局；当前 RTL 固定顺序扫描，写 0/1 均不切换轮询或归约树（O-14）"}
   - {bit: 5, name: RSVD_5, dflt: 0, desc: "UDP 校验和模式改由独立寄存器 `UDP_CFG`（`0x0070`）承担，避免与 §6.4 的表项配置重复"}
-  - {bit: 6, name: FCS_LATE_DROP_DIS, dflt: 0, desc: "1=CRC 结果进入判决链（严格模式）"}
+  - {bit: 6, name: RSVD_6, dflt: 0, desc: "保留、读 0 / 写无效；O-04 不允许迟到撤销"}
   - {bit: 7, name: SUBVL_EN, dflt: 0, desc: "子 VL 轮询（P2）"}
   - {bit: 8, name: SNMP_EN, dflt: 1, desc: "SNMP 精简代理使能"}
   - {bit: 9, name: TFTP_EN, dflt: 0, desc: "615A/TFTP 加载使能"}
@@ -146,15 +151,17 @@ status_bits:
   - {bit: "[1]", name: BUILDER_BUSY, desc: "构建器正在组帧"}
   - {bit: "[7:2]", name: PMEM_FREE, desc: "空闲块数（0~16，6 bit）"}
   - {bit: "[8]", name: DROP_STORM, desc: "丢弃速率超阈（连续 2^12 拍内 >16 帧）"}
-  - {bit: "[9]", name: BAG_VIOL, desc: "出现违反 BAG 的发送（只应由 `CFG_SUM` 判决防住）"}
+  - {bit: "[9]", name: BAG_VIOL, desc: "调度入选时迟到 ≥一个 BAG 的哨兵（不是提前发送；按帧首时间戳另测 BAG 间隔）"}
   - {bit: "[10]", name: CRC_ERR, desc: "最近一帧 CRC 不符"}
   - {bit: "[12:11]", name: OVF_CNT_MAX, desc: "观察窗口内单端口最大连续溢出档位（0=无，1=<16，2=<256，3=≥256）"}
+  - {bit: "[13]", name: INIT_DONE, desc: "复位清表扫描且末次写入可见后为 1；此前 TX_EN/RX_EN 无效（O-08）"}
+  - {bit: "[14]", name: CFG_OVER, desc: "当前 CFG_SUM>2^20 超额（随配置恢复而清零）；TX_EN 开流被拒，CFG_ERR[0]=1"}
   - {bit: "[31]", name: ALIVE, desc: "每 2^24 拍翻转，供健康检查与 SNMP `sysUpTime`"}
 err_bits:
-  - {bit: "[0]", name: ACC, desc: "访问了未映射地址、或 R/W 属性违规（§7.14）"}
-  - {bit: "[1]", name: BAG_OVF, desc: "`CFG_SUM` 判决：配置带宽和 >1.0"}
+  - {bit: "[0]", name: ACC, desc: "未映射/RW 违规、份额/哈希保留位非零，或 INIT_DONE=0、TX 份额超配/缺项、RX 哈希尚未提交时强行开流/提交哈希（§4.2/§7.9）"}
+  - {bit: "[1]", name: BAG_OVF, desc: "`CFG_SUM` 判决：配置带宽和 >1.0；W1C 后若持续超额下拍再置位"}
   - {bit: "[2]", name: PMEM_EXH, desc: "分配 PMEM 块时空闲链为空"}
-  - {bit: "[3]", name: HASH_CONF, desc: "哈希 3 级探测仍未命中且槽位被占（§7.9）"}
+  - {bit: "[3]", name: RSVD_3, desc: "保留、读 0 / 写无效；布谷鸟摆放失败在离线配置期报错（O-13）"}
   - {bit: "[4]", name: PORT_CONFLICT, desc: "两个 VL 落到同一 `(port_base / port_mask)` 组合"}
   - {bit: "[5]", name: FRAME_OVERLONG, desc: "收到 >1518 B 的帧"}
   - {bit: "[6]", name: FRAME_TRUNC, desc: "收到 <64 B 的帧（不含前导码）"}

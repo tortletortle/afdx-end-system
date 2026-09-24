@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AFDX 端系统｜工作过程演示</title>
+<style>
+:root{--navy:#102a56;--blue:#2563eb;--blue-bg:#eef5ff;--ink:#172238;--muted:#64748b;--line:#d7e1ec;--green:#16845b;--green-bg:#e8f7f0;--amber:#a66d16;--amber-bg:#fff6dc;--red:#c2414b;--red-bg:#fff0f1;--shadow:0 10px 28px #17365d18}
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;line-height:1.55}.page{max-width:1440px;margin:auto;padding:22px 28px 48px}header{background:var(--navy);color:#fff;padding:28px 34px;border-radius:16px;box-shadow:var(--shadow)}h1{font-size:clamp(28px,3.8vw,46px);line-height:1.15;margin:5px 0 10px;letter-spacing:-.04em}.eyebrow{font-size:12px;letter-spacing:.16em;color:#b8d8ff}.intro{max-width:920px;color:#dbeafe;margin:0;font-size:15px}.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.fact{font-size:12px;border:1px solid #ffffff3d;color:#e5f1ff;border-radius:99px;padding:5px 10px;background:#ffffff12}.toolbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:16px 0}.toolbar button,.toolbar input{font:inherit}.toolbar button{border:1px solid #c7d5e5;background:#fff;color:#243d63;border-radius:8px;padding:8px 13px;cursor:pointer}.toolbar button.primary{color:#fff;background:var(--blue);border-color:var(--blue)}.toolbar button:hover{filter:brightness(.97)}.toolbar input{border:1px solid #c7d5e5;border-radius:8px;padding:8px 11px;width:220px;background:#fff}.status-line{color:var(--muted);font-size:13px;margin-left:auto}.main{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:22px}.demo-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr);gap:20px}.demo h2,.panel h2,.below h2{font-size:20px;margin:0 0 5px}.sub{color:var(--muted);font-size:13px;margin:0 0 17px}.path{position:relative;padding:24px 12px 20px;background:#f8fafc;border:1px solid #e0e8f1;border-radius:12px;overflow:hidden}.path-line{position:absolute;left:6%;right:6%;top:92px;height:4px;background:#cbd8e8}.path-line::after{content:"";position:absolute;left:0;top:0;width:var(--progress,0%);height:100%;background:var(--blue);transition:width .35s ease}.nodes{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.node{min-width:0;text-align:center;cursor:pointer;position:relative;z-index:1}.node-dot{width:54px;height:54px;margin:17px auto 10px;border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid #b9c9dc;color:#60758e;font-weight:700;transition:.25s}.node b{display:block;font-size:13px;white-space:nowrap}.node small{display:block;color:#77879a;font-size:11px;margin-top:3px;white-space:nowrap}.node.done .node-dot{border-color:var(--green);color:var(--green);background:var(--green-bg)}.node.active .node-dot{border-color:var(--blue);color:#fff;background:var(--blue);box-shadow:0 0 0 7px #2563eb22;transform:scale(1.08)}.node.planned .node-dot{border-color:#d7b66d;color:var(--amber);background:var(--amber-bg)}.node.off .node-dot{border-color:#e0a5aa;color:var(--red);background:var(--red-bg)}.packet{position:absolute;left:5%;top:79px;width:25px;height:25px;border-radius:7px;background:#1d4ed8;box-shadow:0 3px 10px #1d4ed866;transform:translateX(-50%);transition:left .55s ease;z-index:3}.step-info{margin-top:16px;padding:15px 17px;border-left:4px solid var(--blue);background:var(--blue-bg);border-radius:8px}.step-info h3{margin:0 0 4px;font-size:18px}.step-info p{margin:3px 0;color:#48627e;font-size:14px}.step-meta{color:#61738b;font-size:12px;margin-top:7px}.panel{background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:18px}.panel h2{font-size:18px}.detail-empty{color:var(--muted);font-size:14px}.detail-title{font-size:21px;font-weight:700;margin-bottom:4px}.detail-tag{display:inline-block;border-radius:99px;padding:3px 8px;font-size:11px;font-weight:700;margin:3px 0 12px}.tag-ok{background:var(--green-bg);color:var(--green)}.tag-plan{background:var(--amber-bg);color:var(--amber)}.tag-risk{background:var(--red-bg);color:var(--red)}.detail-row{border-top:1px solid var(--line);padding:10px 0;font-size:13px}.detail-row strong{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}.term-area{margin-top:20px;border-top:1px solid var(--line);padding-top:18px}.term-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.term-head h2{font-size:18px;margin:0}.term-search{width:210px;border:1px solid #c7d5e5;border-radius:7px;padding:7px 9px}.term-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.term-btn{border:1px dashed #7792b3;background:#fff;color:#1e4b86;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px}.term-btn:hover,.term-btn.selected{background:var(--blue-bg);border-color:var(--blue)}.term-detail{margin-top:12px;min-height:78px;padding:12px 14px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;font-size:13px}.term-detail b{font-size:17px;color:var(--navy)}.term-detail p{color:#536b86;margin:4px 0 0}.below{margin-top:20px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:var(--shadow)}.below-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.mini{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fbfcfe}.mini h3{margin:0 0 8px;font-size:16px}.mini p,.mini li{font-size:13px;color:var(--muted)}.mini ul{padding-left:18px;margin:6px 0}.badge{display:inline-block;border-radius:99px;padding:3px 8px;font-size:11px;font-weight:700}.badge.ok{background:var(--green-bg);color:var(--green)}.badge.plan{background:var(--amber-bg);color:var(--amber)}.badge.risk{background:var(--red-bg);color:var(--red)}.tests{width:100%;border-collapse:collapse;font-size:13px}.tests th,.tests td{text-align:left;padding:9px;border-bottom:1px solid var(--line)}.tests th{color:var(--muted);background:#f7fafc}.tests tr:last-child td{border-bottom:0}.foot{text-align:center;color:#75869a;font-size:12px;margin-top:18px}@media(max-width:980px){.demo-grid{grid-template-columns:1fr}.below-grid{grid-template-columns:1fr 1fr}.status-line{width:100%;margin-left:0}}@media(max-width:620px){.page{padding:12px}.main,.below,header{padding:18px}.nodes{grid-template-columns:repeat(3,1fr);row-gap:16px}.path-line,.packet{display:none}.node-dot{margin-top:4px}.below-grid{grid-template-columns:1fr}.term-head{align-items:flex-start;flex-direction:column}.term-search{width:100%}}@media print{.toolbar,.term-area{display:none}.main,.below,header{box-shadow:none}.path{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div style="background:#fff4e5;border:2px solid #d97706;color:#7c2d12;padding:10px 16px;margin:0;font:14px/1.6 'Microsoft YaHei',Arial,sans-serif;text-align:center">⚠ 历史快照（2026-09-23）：本页为早期展示资料，动画中的完整收发流程已过期，不代表当前实现或验收结论。最新状态见 <a href="doc/当前进度_20260923.md" style="color:#9a3412">doc/当前进度_20260923.md</a>。</div>
+<div class="page">
+<header><div class="eyebrow">AFDX END SYSTEM · 工作过程演示</div><h1>一帧数据如何通过 AFDX 端系统</h1><p class="intro">这是项目的核心工作过程。点击“下一步”或播放动画，观察数据从主机进入系统，经发送链路、双网传输、接收链路，最后回到通信端口。点击任意模块或术语，可以查看详细解释。</p><div class="facts"><span class="fact">GMII：125 MHz / 8 bit</span><span class="fact">目标速率：100 Mbps</span><span class="fact">TX VL：128</span><span class="fact">RX VL：4096</span><span class="fact">PMEM：32 KB</span><span class="fact">当前：T00~T03 已通过</span></div></header>
+<div class="toolbar"><button id="play" class="primary">▶ 播放</button><button id="prev">‹ 上一步</button><button id="next">下一步 ›</button><button id="reset">↺ 重置</button><input id="termSearch" placeholder="搜索术语，例如 BAG、校验和"><span class="status-line" id="playState">第 1 / 11 步 · 已暂停</span></div>
+<div class="main"><div class="demo-grid"><div class="demo"><h2>数据流动画</h2><p class="sub">蓝色方块代表当前正在处理的业务数据。点击模块名称可查看模块职责。</p><div class="path" id="path"><div class="path-line"></div><div class="packet" id="packet"></div><div class="nodes" id="nodes"></div></div><div class="step-info"><h3 id="stepTitle"></h3><p id="stepText"></p><div class="step-meta" id="stepMeta"></div></div></div><aside class="panel"><h2>模块说明</h2><div id="detail" class="detail-empty">点击上方任意模块，查看它做什么、输入什么、输出什么，以及当前是否已经实现。</div></aside></div><div class="term-area"><div class="term-head"><h2>术语说明</h2><input class="term-search" id="termSearch2" placeholder="筛选术语"></div><div class="term-list" id="terms"></div><div class="term-detail" id="termDetail"><b>请选择一个术语</b><p>术语解释会显示在这里，不会遮挡主流程。</p></div></div></div>
+<div class="below"><h2>当前项目状态</h2><p class="sub">只保留与展示直接相关的信息：哪些已经完成，哪些还没有接入。</p><div class="below-grid"><div class="mini"><h3>已经完成</h3><span class="badge ok">有代码 + 有局部测试</span><ul><li>公共模块：CRC32、FIFO、BRAM、复位、时基。</li><li>TX：SN 生成、端口缓存、帧构建器。</li><li>T00、T01、T02、T03：当前回归 4/4 PASS。</li></ul></div><div class="mini"><h3>正在推进</h3><span class="badge plan">规格已定义</span><ul><li>把已完成的 TX 模块接入顶层。</li><li>实现 BAG 调度、双网复制和 MAC TX。</li><li>建立第一条端到端 TX 验证链。</li></ul></div><div class="mini"><h3>尚未实现</h3><span class="badge risk">当前缺口</span><ul><li>RX 全链路仍是骨架。</li><li>SNMP、TFTP、RTC 管理面未闭环。</li><li><code>AFDX_top</code> 网络输出当前仍为 0。</li></ul></div></div><h2 style="margin-top:22px">已有验证结果</h2><table class="tests"><thead><tr><th>测试</th><th>验证内容</th><th>结果</th></tr></thead><tbody><tr><td>T00</td><td>CRC32、FIFO 随机压力、BRAM 扫描与并发</td><td><span class="badge ok">PASS</span></td></tr><tr><td>T01</td><td>复位、寄存器、时基、软件中断 smoke</td><td><span class="badge ok">PASS</span></td></tr><tr><td>T02</td><td>TX buffer、SN 回绕、块耗尽、随机参考模型</td><td><span class="badge ok">PASS</span></td></tr><tr><td>T03</td><td>16 个黄金帧、长度边界、校验和、A/B 网、背压</td><td><span class="badge ok">PASS</span></td></tr></tbody></table><div class="mini" style="margin-top:12px"><b>注意：</b>以上是单元级/局部集成测试，不等于完整 AFDX 端到端系统已经通过。当前证据见 <code>sim/out/regress.csv</code> 和 <code>sim/out/T00_console.txt ~ T03_console.txt</code>。</div></div>
+<div class="foot">页面基于当前仓库 HEAD 7d070de 整理 · 无外部依赖 · 支持浏览器展示和打印</div>
+</div>
+<script>
+const steps=[
+ {title:'复位与配置',text:'系统先复位。主机随后写入寄存器、VL 表、端口表和网络参数。',meta:'输入：reset、主机配置数据　输出：可运行配置',node:0},
+ {title:'主机写入业务数据',text:'主机把一条业务消息写入 PMEM。PMEM 是系统内部保存数据包的共享存储区。',meta:'模块：host_if / PMEM　文件：rtl/common/bram_sdp.v',node:0},
+ {title:'提交消息',text:'主机写 MSG_WR，告诉端口缓存“这条消息已经写完，可以发送了”。',meta:'模块：tx_port_buf　文件：rtl/tx/tx_port_buf.v',node:1},
+ {title:'检查 BAG 时间',text:'调度器检查每条 VL 是否到了允许发送的时间，只选择满足带宽间隔的消息。',meta:'BAG = 同一条 VL 两次发送之间的最小间隔',node:2},
+ {title:'构建 AFDX 帧',text:'帧构建器先扫描数据计算校验和，再生成 MAC、IP、UDP、SN 和填充字段。',meta:'模块：tx_frame_builder　文件：rtl/tx/tx_frame_builder.v',node:3},
+ {title:'复制到网络 A / B',text:'如果启用双网，同一帧会复制两份，分别发送到网络 A 和网络 B。',meta:'模块：tx_rm　当前：规划中，尚未接入顶层',node:4},
+ {title:'网络传输',text:'帧经过两张逻辑网络。仿真时可以人为注入丢帧、重复、乱序或 CRC 错误。',meta:'接口：GMII　目标：125 MHz、8 bit',node:5},
+ {title:'RX 接收与过滤',text:'接收端先把帧写入 PMEM，再检查长度、地址、类型、IP、VLID 和 CRC。',meta:'模块：mac_rx_if / rx_flt　当前：规划中',node:6},
+ {title:'完整性检查与去重',text:'IC 检查 SN 是否连续；RM 删除 A/B 网络收到的重复副本，只保留一份有效数据。',meta:'IC = 完整性检查　RM = 双网余度管理',node:7},
+ {title:'交付给端口',text:'通过检查的 Payload 写入通信端口；采样端口保留最新值，队列端口按顺序保存。',meta:'模块：rx_ip_udp_parse / rx_port_buf　当前：规划中',node:8},
+ {title:'统计与中断',text:'系统更新发送、接收、丢帧、CRC 错误等状态，并可通过中断通知主机。',meta:'模块：stats_regs / host_if　当前：部分骨架',node:9}
+];
+const nodes=[
+ {name:'主机',sub:'配置 / 数据',cls:'done'},
+ {name:'TX缓存',sub:'tx_port_buf',cls:'done'},
+ {name:'调度',sub:'BAG',cls:'planned'},
+ {name:'组帧',sub:'frame_builder',cls:'done'},
+ {name:'双网',sub:'A / B',cls:'planned'},
+ {name:'网络',sub:'GMII',cls:'planned'},
+ {name:'RX过滤',sub:'mac_rx_if',cls:'planned'},
+ {name:'IC / RM',sub:'检查 / 去重',cls:'planned'},
+ {name:'端口',sub:'Payload',cls:'planned'},
+ {name:'主机',sub:'统计 / IRQ',cls:'planned'}
+];
+const moduleDetails={
+ 0:['主机 / 配置','主机负责写寄存器、配置表和业务数据。','输入：host_cs、host_we、地址、写数据。','输出：配置项、PMEM 数据、MSG_WR 提交。','规划中的完整 host_if 尚未接入；当前顶层有基础寄存器页。','plan'],
+ 1:['tx_port_buf','保存待发送消息，管理 PMEM 块和端口描述符。','输入：消息提交、端口号、长度。','输出：sch_req、块号、长度、队列状态。','已实现；T02 通过。','ok'],
+ 2:['tx_vl_scheduler','决定哪条 VL 现在可以发送。','输入：各 VL 的 BAG、到期时间和待发标志。','输出：被选中的端口和取数请求。','当前仍为空壳；T04/T05 未完成。','plan'],
+ 3:['tx_frame_builder','把 Payload 组装成一帧 AFDX 数据。','输入：PMEM 数据、VL 配置、SN。','输出：MAC/IP/UDP/SN/填充组成的字节流。','已实现；T03 通过。','ok'],
+ 4:['tx_rm','管理网络 A/B 复制。','输入：一帧内部字节流、net_mode。','输出：网络 A 和网络 B 两路帧。','当前为空壳；尚未接入顶层。','plan'],
+ 5:['GMII / MAC 接口','GMII 是 MAC 与物理层之间的 8 bit 数据接口。','输入：帧字节、时钟、ready。','输出：网络字节流；处理节拍、IFG、FCS。','mac_tx_if 当前为空壳。','plan'],
+ 6:['mac_rx_if / rx_flt','先接收帧，再判断这是不是合法帧。','输入：网络 A/B 字节流。','输出：合法帧描述符、丢弃原因。','RX 模块当前为空壳。','risk'],
+ 7:['rx_ic / rx_rm','IC 检查序号连续性；RM 删除双网重复帧。','输入：SN、到达时间、A/B 副本。','输出：接受、丢弃或错误状态。','当前未实现。','risk'],
+ 8:['rx_ip_udp_parse / rx_port_buf','解析 IP/UDP 并把 Payload 交付到通信端口。','输入：通过判决的帧。','输出：端口数据、SAP 管理数据。','当前未实现。','risk'],
+ 9:['stats_regs / host_if','记录事件，并通过寄存器和中断让主机知道结果。','输入：发送、接收、错误事件。','输出：计数器、INT_STATUS、host_irq。','当前只有部分寄存器骨架。','plan']
+};
+const terms={
+ 'AFDX':['Avionics Full-Duplex Switched Ethernet，航空电子全双工交换式以太网。','本项目要实现的网络系统，重点是通信可预测和双网可靠性。','总体架构、TX/RX 全链路'],
+ 'VL':['Virtual Link，虚拟链路。','一条逻辑业务通道；不同业务使用不同 VL，分别配置发送周期和地址。','tx_vl_scheduler、rx_vl_lookup'],
+ 'BAG':['Bandwidth Allocation Gap，带宽分配间隔。','同一条 VL 两次发送之间必须等待的最短时间，防止发送过快。','tx_vl_scheduler'],
+ 'PMEM':['Packet Memory，包存储区。','硬件内部保存业务数据包的共享内存。本项目目标为 32 KB。','bram_sdp、tx_port_buf、rx_port_buf'],
+ 'SN':['Sequence Number，序列号。','每条 VL 自己维护的编号，用来发现丢帧、重复帧和乱序。','tx_sn_gen、rx_ic'],
+ 'IC':['Integrity Check，完整性检查。','接收端根据 SN 检查帧是否连续、是否丢失或重复。','rx_ic'],
+ 'RM':['Redundancy Management，余度管理。','双网同时收到相同帧时，只保留一份，删除另一份。','tx_rm、rx_rm'],
+ 'SkewMax':['双网副本最大允许时间差。','A 网和 B 网同一帧到达时间差超过它时，不能简单当作正常重复帧。','rx_rm'],
+ 'GMII':['Gigabit Media Independent Interface。','MAC 和物理层之间的数字接口，本项目使用 8 bit、125 MHz。','mac_tx_if、mac_rx_if'],
+ 'MAC':['Media Access Control，介质访问控制层。','负责以太网帧、MAC 地址、帧边界和字节传输。','mac_tx_if、mac_rx_if'],
+ 'PHY':['Physical Layer，物理层。','把数字数据变成真实电信号。本项目不实现真实 PHY，只仿真 MAC 接口。','系统边界'],
+ 'FCS':['Frame Check Sequence，帧校验序列。','帧末尾的校验值，用于判断传输中数据是否被破坏。','CRC32、mac_tx_if'],
+ 'IFG':['Inter-Frame Gap，帧间间隔。','两帧之间必须保留的空闲时间。','mac_tx_if'],
+ 'SAP':['Service Access Point，服务访问点。','管理类数据的入口，例如 SNMP、TFTP 这类报文。','rx_port_buf、snmp_lite、a615a_tftp'],
+ 'PPS':['Pulse Per Second，每秒脉冲。','外部时间同步信号，用于校准系统时基。','rtc_sync、timebase'],
+ 'RTL':['Register Transfer Level，寄存器传输级。','用 Verilog 描述硬件寄存器、组合逻辑和时钟行为。','全部 .v 文件'],
+ 'Testbench':['测试平台。','自动产生时钟和输入，检查 RTL 输出是否符合预期。','sim/tb'],
+ 'Golden Model':['黄金模型。','用 Python 写的参考答案，生成期望帧并和 RTL 逐字节比较。','sw/golden、T03'],
+ 'Scoreboard':['记分板。','自动比较实际输出和期望输出，发现差异。','规划中的系统级验证'],
+ 'VCD':['Value Change Dump，信号变化转储文件。','仿真波形文件，用于查看每个信号随时间的变化。','sim/out/*.vcd']
+};
+const nodesEl=document.getElementById('nodes'),detailEl=document.getElementById('detail'),stepTitle=document.getElementById('stepTitle'),stepText=document.getElementById('stepText'),stepMeta=document.getElementById('stepMeta'),packet=document.getElementById('packet'),path=document.getElementById('path'),playState=document.getElementById('playState'),termsEl=document.getElementById('terms'),termDetail=document.getElementById('termDetail');
+let current=0,timer=null;
+function renderNodes(){nodesEl.innerHTML=nodes.map((n,i)=>`<div class="node ${n.cls}" data-node="${i}"><div class="node-dot">${i+1}</div><b>${n.name}</b><small>${n.sub}</small></div>`).join('');nodesEl.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>showModule(Number(n.dataset.node))));}
+function setStep(i){current=(i+steps.length)%steps.length;const s=steps[current];stepTitle.textContent=s.title;stepText.textContent=s.text;stepMeta.textContent=s.meta;document.querySelectorAll('.node').forEach((n,j)=>n.classList.toggle('active',j===s.node));packet.style.left=(6+(s.node*88/(nodes.length-1)))+'%';path.style.setProperty('--progress',(6+(s.node*88/(nodes.length-1)))+'%');playState.textContent=`第 ${current+1} / ${steps.length} 步 · ${timer?'播放中':'已暂停'}`;}
+function showModule(i){const d=moduleDetails[i]||moduleDetails[0];detailEl.innerHTML=`<div class="detail-title">${d[0]}</div><span class="detail-tag ${d[5]==='ok'?'tag-ok':d[5]==='risk'?'tag-risk':'tag-plan'}">${d[5]==='ok'?'已实现并有测试':d[5]==='risk'?'尚未实现':'规划中/部分实现'}</span><div class="detail-row"><strong>作用</strong>${d[1]}</div><div class="detail-row"><strong>输入</strong>${d[2]}</div><div class="detail-row"><strong>输出</strong>${d[3]}</div><div class="detail-row"><strong>当前状态</strong>${d[4]}</div>`;}
+function renderTerms(query=''){const q=query.trim().toLowerCase();const keys=Object.keys(terms).filter(k=>(k+' '+terms[k].join(' ')).toLowerCase().includes(q));termsEl.innerHTML=keys.length?keys.map(k=>`<button class="term-btn" data-term="${k}">${k}</button>`).join(''):`<span class="detail-empty">没有找到匹配术语。</span>`;termsEl.querySelectorAll('.term-btn').forEach(b=>b.addEventListener('click',()=>showTerm(b.dataset.term)));}
+function showTerm(k){const d=terms[k];termDetail.innerHTML=`<b>${k}</b><p><strong>全称：</strong>${d[0]}</p><p><strong>白话：</strong>${d[1]}</p><p><strong>本项目：</strong>${d[2]}</p>`;termsEl.querySelectorAll('.term-btn').forEach(b=>b.classList.toggle('selected',b.dataset.term===k));}
+function togglePlay(){if(timer){clearInterval(timer);timer=null}else{timer=setInterval(()=>{setStep(current+1)},1800)}setStep(current)}
+document.getElementById('play').addEventListener('click',togglePlay);document.getElementById('next').addEventListener('click',()=>setStep(current+1));document.getElementById('prev').addEventListener('click',()=>setStep(current-1));document.getElementById('reset').addEventListener('click',()=>{if(timer){clearInterval(timer);timer=null}setStep(0)});document.getElementById('termSearch').addEventListener('input',e=>{document.getElementById('termSearch2').value=e.target.value;renderTerms(e.target.value)});document.getElementById('termSearch2').addEventListener('input',e=>{document.getElementById('termSearch').value=e.target.value;renderTerms(e.target.value)});renderNodes();renderTerms();setStep(0);showTerm('AFDX');
+</script>
+</body>
+</html>

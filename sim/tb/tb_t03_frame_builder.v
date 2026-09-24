@@ -7,7 +7,7 @@
 //   tx_sn_gen 真实例化（SN 由 host_override 预置为向量值），
 //   接收端 3 种 out_rdy 模式: (a) 10 拍/字节线速节拍 (b) 每拍 rdy=1 压力
 //   (c) 随机背压。每帧: 字节流 == 期望帧、长度 == max(60,43+L)、
-//   B 网字节仅偏移 10 低 4 位不同、blk_free 恰 1 次、done 恰 1 次、
+//   B 网字节仅偏移 11 不同（0x20→0x40，O-03）、pad 在 SN 前（O-02）、blk_free 恰 1 次、done 恰 1 次、
 //   p1_stall_cnt == 0（pass1 早于偏移 40 完成）。
 // 性能记录: 打印 start→首字节拍数、start→done 拍数（写入报告）。
 // 判据: 末行 "T03 BUILDER PASS" / "T03 BUILDER FAIL: n errors"
@@ -59,8 +59,9 @@ module tb_t03_frame_builder;
   reg  [3:0]  start_blk = 0;
   reg  [12:0] start_len = 0;
   reg  [15:0] h_vlid = 0, h_ident = 0, h_sport = 0, h_dport = 0;
-  reg  [7:0]  h_udi = 0, h_tos = 0, h_ttl = 0;
-  reg  [3:0]  h_ifid = 0;
+  reg  [15:0] h_udi = 0;
+  reg  [7:0]  h_tos = 0, h_ttl = 0;
+  reg  [2:0]  h_ifid_a = 1, h_ifid_b = 2;
   reg  [31:0] h_sip = 0, h_dip = 0;
   reg         h_csum_en = 1;
   wire        busy, done, len_err, out_vld, out_sof, out_eof, blk_free;
@@ -71,8 +72,8 @@ module tb_t03_frame_builder;
   tx_frame_builder #(.BYTE_SLOT_CYC(10)) dut (
     .clk(clk), .rst_sync(reset),
     .start_vld(start_vld), .start_vl(start_vl), .start_blk(start_blk), .start_len(start_len),
-    .busy(busy), .done(done), .len_err(len_err),
-    .hdr_vlid(h_vlid), .hdr_udi(h_udi), .hdr_ifid(h_ifid), .hdr_net_a(4'd1), .hdr_net_b(4'd2),
+    .busy(busy), .done(done), .cur_vl(), .len_err(len_err),
+    .hdr_vlid(h_vlid), .hdr_udi(h_udi), .hdr_ifid_a(h_ifid_a), .hdr_ifid_b(h_ifid_b),
     .hdr_tos(h_tos), .hdr_ttl(h_ttl), .hdr_ident(h_ident), .hdr_src_ip(h_sip), .hdr_dst_ip(h_dip),
     .hdr_sport(h_sport), .hdr_dport(h_dport), .hdr_udp_csum_en(h_csum_en),
     .snap_req(snap_req), .snap_vl(snap_vl), .snap(snap), .snap_ack(snap_ack),
@@ -144,7 +145,8 @@ module tb_t03_frame_builder;
       @(negedge clk); sn_ovr_we <= 1'b1; sn_ovr_vl <= fi[7:0]; sn_ovr_val <= sn[7:0];
       @(negedge clk); sn_ovr_we <= 1'b0;
       // 参数
-      h_vlid <= vec[base][31:16]; h_udi <= vec[base][15:8]; h_ifid <= vec[base][7:4];
+      h_vlid <= vec[base][31:16]; h_udi <= vec[base][15:0];
+      h_ifid_a <= vec[base+5][9:7]; h_ifid_b <= vec[base+5][6:4];
       h_sport <= vec[base+1][31:16]; h_dport <= vec[base+1][15:0];
       h_sip <= vec[base+2]; h_dip <= vec[base+3];
       h_ident <= vec[base+4][31:16]; h_tos <= vec[base+4][15:8]; h_ttl <= vec[base+4][7:0];
@@ -169,8 +171,8 @@ module tb_t03_frame_builder;
           if (err < 40) $display("  [err] f%0d mode%0d L=%0d byte[%0d] got=%02x want=%02x", fi, md, L, k, cap_a[k], eb);
           err = err + 1;
         end
-        if (k == 10) begin
-          if (cap_b[k] !== {eb[7:4], 4'd2}) begin $display("  [err] f%0d B-net smac[4]=%02x", fi, cap_b[k]); err = err + 1; end
+        if (k == 11) begin
+          if (cap_b[k] !== 8'h40) begin $display("  [err] f%0d B-net smac[5]=%02x want 40", fi, cap_b[k]); err = err + 1; end
         end else if (cap_b[k] !== cap_a[k]) begin
           $display("  [err] f%0d B-net byte[%0d] differs", fi, k); err = err + 1;
         end

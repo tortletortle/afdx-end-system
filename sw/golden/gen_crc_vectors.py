@@ -39,7 +39,7 @@ def main():
                                sport=5001, dport=5002,
                                payload=bytes(range(8)), sn=7)
     body = frame[:-4]
-    assert int.from_bytes(frame[-4:], "big") == fcs == m.crc32(body)
+    assert int.from_bytes(frame[-4:], "little") == fcs == m.crc32(body)
     print("FRAME len=%d fcs=0x%08X" % (len(body), fcs))
     print("HEX " + body.hex())
     return 0

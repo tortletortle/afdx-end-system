@@ -1,0 +1,31 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t22a_frontdoor_tx 
+# Start time: 00:41:39 on Sep 24,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t22a_frontdoor_tx(fast)
+# T22a FRONTDOOR-TX PASS (init + table/PMEM frontdoor + A/B FCS/SN/payload)
+# ** Note: $finish    : tb/tb_t22a_frontdoor_tx.v(177)
+#    Time: 211960 ns  Iteration: 1  Instance: /tb_t22a_frontdoor_tx
+# End time: 00:41:41 on Sep 24,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

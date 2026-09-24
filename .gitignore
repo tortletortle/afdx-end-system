@@ -15,13 +15,25 @@ __pycache__/
 elinx/prj/*.log
 !elinx/prj/bram_sdp_smoke.log
 !elinx/prj/_bram_mbram.log
+# logs referenced by sim/out/test_evidence_26_20260923.json (keep as evidence)
+!elinx/prj/rx_ic_smoke.log
+!elinx/prj/rx_ic_probe.log
+!elinx/prj/rx_lookup_smoke.log
+!elinx/prj/rx_lookup_probe.log
 # lint scratch
 _lint_gate.f
 # probe / conversion scratch (week-0 investigation)
 _*.txt
 _*.py
 _*.ps1
+# documented tool in README_tools.md (keep)
+!_conv.py
 # archives / binaries from organizers
 *.rar
 *.pdf
 *.xlsx
+# local AI-agent / editor state
+.mimosa/
+.zcode/
+# Windows device-name artifact
+NUL

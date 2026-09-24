@@ -1,0 +1,11 @@
+# Stop before technology mapping; verify that the unified PSN port survives
+# Yosys memory collection as ONE 8192x8 $mem instead of DFFE registers.
+read_verilog rtl/rx/rx_ic.v
+hierarchy -top rx_ic
+proc
+opt
+memory_dff
+opt_clean
+memory_collect
+stat
+select -assert-count 1 t:$mem

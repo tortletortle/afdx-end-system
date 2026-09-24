@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AFDX 端系统项目状态</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #162033;
+      --muted: #68758a;
+      --line: #dfe6f0;
+      --blue: #2563eb;
+      --blue-soft: #eaf1ff;
+      --green: #16845b;
+      --green-soft: #e8f7f0;
+      --amber: #b7791f;
+      --amber-soft: #fff6df;
+      --red: #c2414b;
+      --red-soft: #fff0f1;
+      --shadow: 0 12px 32px rgba(34, 58, 94, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 34px 22px 60px; }
+    header {
+      background: linear-gradient(135deg, #102a56 0%, #1d4e89 58%, #2d77bd 100%);
+      color: #fff;
+      border-radius: 22px;
+      padding: 34px 38px;
+      box-shadow: var(--shadow);
+    }
+    .eyebrow { opacity: .78; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 8px 0 8px; font-size: clamp(28px, 4vw, 44px); letter-spacing: -.03em; }
+    .subtitle { margin: 0; max-width: 780px; color: #dbeafe; font-size: 16px; }
+    .hero-grid { display: grid; grid-template-columns: 170px 1fr; gap: 28px; align-items: center; margin-top: 26px; }
+    .score { width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(#72b4ff 0 27%, rgba(255,255,255,.18) 27% 100%); position: relative; }
+    .score::after { content: ""; position: absolute; inset: 12px; border-radius: 50%; background: #15396b; }
+    .score strong, .score span { position: relative; z-index: 1; display: block; text-align: center; }
+    .score strong { font-size: 34px; line-height: 1; }
+    .score span { font-size: 12px; color: #dbeafe; margin-top: 7px; }
+    .hero-note { font-size: 16px; }
+    .hero-note b { color: #fff; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 20px 0; }
+    .card, section { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+    .stat { padding: 20px; }
+    .stat .label { color: var(--muted); font-size: 13px; }
+    .stat .value { margin-top: 5px; font-size: 28px; font-weight: 750; }
+    .stat .hint { color: var(--muted); font-size: 12px; }
+    section { padding: 25px 27px; margin-top: 18px; }
+    h2 { margin: 0 0 17px; font-size: 21px; }
+    h3 { margin: 20px 0 8px; font-size: 16px; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .module-list { display: grid; gap: 9px; }
+    .module { display: flex; justify-content: space-between; gap: 12px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: #fbfcfe; }
+    .module small { color: var(--muted); }
+    .pill { display: inline-flex; align-items: center; white-space: nowrap; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .done { background: var(--green-soft); color: var(--green); }
+    .partial { background: var(--amber-soft); color: var(--amber); }
+    .todo { background: var(--red-soft); color: var(--red); }
+    .evidence { margin-top: 14px; padding: 13px 15px; background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 8px; font-size: 14px; }
+    code { font-family: Consolas, "Courier New", monospace; color: #173b72; font-size: .92em; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 700; background: #f8fafc; }
+    tr:last-child td { border-bottom: 0; }
+    .progress { height: 9px; background: #e7edf5; border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .progress > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2563eb, #5aa7ff); }
+    .route { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .step { padding: 9px 12px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1e40af; border-radius: 9px; font-size: 13px; }
+    .arrow { color: #91a4bd; font-weight: 700; }
+    ul { padding-left: 21px; margin: 8px 0; }
+    li { margin: 5px 0; }
+    footer { color: var(--muted); text-align: center; font-size: 12px; margin-top: 28px; }
+    @media (max-width: 850px) { .cards { grid-template-columns: repeat(2, 1fr); } .columns, .hero-grid { grid-template-columns: 1fr; } .score { margin: 0 auto; } }
+    @media (max-width: 520px) { .cards { grid-template-columns: 1fr; } header, section { padding: 22px 18px; } .wrap { padding: 18px 12px 40px; } }
+  </style>
+</head>
+<body>
+<div style="background:#fff4e5;border:2px solid #d97706;color:#7c2d12;padding:10px 16px;margin:0;font:14px/1.6 'Microsoft YaHei',Arial,sans-serif;text-align:center">⚠ 历史快照（2026-09-22）：本页为早期展示资料，约 27% 完成度与 4 项阶段划分已过期，不代表当前实现或验收结论。最新状态见 <a href="doc/当前进度_20260923.md" style="color:#9a3412">doc/当前进度_20260923.md</a>。</div>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">AFDX End System · Project Review</div>
+      <h1>AFDX 端系统项目完成情况</h1>
+      <p class="subtitle">基于当前仓库源码、回归日志、测试平台和设计文档整理。该页面反映的是“完整 AFDX 端系统交付”口径下的完成度，而不是单纯代码行数。</p>
+      <div class="hero-grid">
+        <div class="score"><div><strong>约 27%</strong><span>整体完成度</span></div></div>
+        <div class="hero-note"><b>当前阶段：局部模块已完成，系统集成尚未开始。</b><br>公共模块、TX 缓存/SN/帧构建器已经有较完整的局部验证；顶层网络数据通路、RX 链路、BAG 调度、管理面和系统级指标仍未闭环。</div>
+      </div>
+    </header>
+
+    <div class="cards">
+      <div class="card stat"><div class="label">当前回归</div><div class="value">4 / 4</div><div class="hint">T00~T03 PASS</div></div>
+      <div class="card stat"><div class="label">Lint 记录</div><div class="value">12 / 12</div><div class="hint">有文档记录，独立日志待固化</div></div>
+      <div class="card stat"><div class="label">完整目标用例</div><div class="value">T00~T22</div><div class="hint">当前仅实现到 T03</div></div>
+      <div class="card stat"><div class="label">当前分支</div><div class="value">main</div><div class="hint">HEAD: 7d070de</div></div>
+    </div>
+
+    <section>
+      <h2>已经完成的部分</h2>
+      <div class="columns">
+        <div class="module-list">
+          <div class="module"><span><b>公共模块</b><br><small>CRC32、同步 FIFO、1W2R BRAM、复位同步、时基</small></span><span class="pill done">已实现</span></div>
+          <div class="module"><span><b>TX 序号生成</b><br><small>SN 递增、255→1 回绕、override、init、snapshot</small></span><span class="pill done">已实现</span></div>
+          <div class="module"><span><b>TX 端口缓存</b><br><small>采样/队列端口、块池、覆盖、满拒、pending</small></span><span class="pill done">已实现</span></div>
+          <div class="module"><span><b>TX 帧构建器</b><br><small>IP/UDP 首部、校验和、SN、padding、A/B SMAC</small></span><span class="pill done">已实现</span></div>
+        </div>
+        <div>
+          <h3>局部验证证据</h3>
+          <ul>
+            <li><b>T00</b>：CRC 向量、FIFO 随机压力、BRAM 扫描与并发。</li>
+            <li><b>T01</b>：复位、寄存器页、W1C、IRQ_SW、时基和 ALIVE。</li>
+            <li><b>T02</b>：SN 与 TX buffer，含 2000 事件随机参考模型对账。</li>
+            <li><b>T03</b>：16 个黄金帧、3 种 ready 模式、L=8~1471。</li>
+          </ul>
+          <div class="evidence">证据：<code>sim/out/regress.csv</code>、<code>sim/out/T00_console.txt</code> ~ <code>T03_console.txt</code>、<code>sim/out/*.vcd</code>。</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>模块完成度</h2>
+      <table>
+        <thead><tr><th>领域</th><th>估计完成度</th><th>当前状态</th><th>主要依据</th></tr></thead>
+        <tbody>
+          <tr><td>公共模块与基础设施</td><td>70%~80%</td><td><span class="pill done">基本可用</span></td><td>已实现并有 T00/T01，仍需补边界和参数化验证。</td></tr>
+          <tr><td>TX 单元模块</td><td>35%~45%</td><td><span class="pill partial">局部完成</span></td><td>SN、buffer、builder 已完成；scheduler、RM、MAC TX 未完成。</td></tr>
+          <tr><td>RX 数据通路</td><td>0%~5%</td><td><span class="pill todo">未开始</span></td><td><code>rtl/rx/*</code> 基本仍为空壳。</td></tr>
+          <tr><td>主机与寄存器完整功能</td><td>15%~25%</td><td><span class="pill partial">骨架</span></td><td>寄存器/两拍访问可运行，配置表、PMEM 搬运、统计尚未接入。</td></tr>
+          <tr><td>管理面</td><td>0%~5%</td><td><span class="pill todo">未开始</span></td><td>RTC、SNMP、TFTP 均未实现。</td></tr>
+          <tr><td>顶层系统集成</td><td>0%~10%</td><td><span class="pill todo">未完成</span></td><td><code>AFDX_top</code> 当前只有复位、时基和寄存器骨架。</td></tr>
+          <tr><td>系统级验证</td><td>20%~30%</td><td><span class="pill partial">局部完成</span></td><td>当前只有 T00~T03，T04~T22 尚未落地。</td></tr>
+        </tbody>
+      </table>
+      <div class="progress"><i style="width:27%"></i></div>
+    </section>
+
+    <section>
+      <h2>尚未完成的关键部分</h2>
+      <div class="columns">
+        <div>
+          <h3>TX 集成</h3>
+          <ul>
+            <li><code>tx_vl_scheduler</code>：BAG、到期仲裁、配置带宽判决。</li>
+            <li><code>tx_rm</code>：A/B 双网复制和网络选择。</li>
+            <li><code>mac_tx_if</code>：线速节拍、IFG、FCS、帧边界。</li>
+            <li>将 TX 链接入 <code>AFDX_top</code>。</li>
+          </ul>
+          <h3>RX 全链路</h3>
+          <ul>
+            <li>MAC 接收、过滤、VL 查找、IC、RM。</li>
+            <li>IP/UDP 解析、接收端口缓存、丢弃统计。</li>
+          </ul>
+        </div>
+        <div>
+          <h3>配置与管理</h3>
+          <ul>
+            <li><code>host_if</code>、配置表、PMEM 突发搬运。</li>
+            <li><code>stats_regs</code> 和真实事件中断。</li>
+            <li>RTC/PPS 同步、SNMP、ARINC 615A/TFTP。</li>
+          </ul>
+          <h3>交付证据</h3>
+          <ul>
+            <li>完整 T04~T22 回归与端到端闭环。</li>
+            <li>覆盖率、实际 SDC/EDC、STA slack/Fmax。</li>
+            <li>正式指标报告和最终提交包。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>审查发现的高优先级问题</h2>
+      <table>
+        <thead><tr><th>优先级</th><th>问题</th><th>影响</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill todo">P0</span></td><td>顶层 TX/RX/MGMT 未例化，网络输出固定为 0。</td><td>当前不能称为完整 AFDX 系统。</td></tr>
+          <tr><td><span class="pill todo">P0</span></td><td><code>host_irq</code> 使用 <code>int_st_r &amp; ~int_en_r</code>，需与寄存器规格确认。</td><td>可能导致中断屏蔽极性相反。</td></tr>
+          <tr><td><span class="pill todo">P0</span></td><td>大量状态寄存器恒为 0，真实事件未进入统计/中断。</td><td>软件不可观测，无法支撑系统级验证。</td></tr>
+          <tr><td><span class="pill partial">P1</span></td><td><code>timebase.tick_ctr</code> 未在复位分支清零。</td><td>部分 TICK_US 配置可能出现未定义/X 行为。</td></tr>
+          <tr><td><span class="pill partial">P1</span></td><td>对齐但未定义的写地址可能不会置 <code>ERR.ACC</code>。</td><td>寄存器协议与注释语义不一致。</td></tr>
+          <tr><td><span class="pill partial">P1</span></td><td>padding/SN 顺序和 ready/FCS 语义尚未完全冻结。</td><td>后续 MAC、RX 和黄金模型可能返工。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>建议的下一阶段路线</h2>
+      <p>优先完成一条可运行的 TX 纵向链路，不要先并行堆积管理面空壳：</p>
+      <div class="route">
+        <span class="step">修正基础协议问题</span><span class="arrow">→</span>
+        <span class="step">tx_port_buf</span><span class="arrow">→</span>
+        <span class="step">BAG scheduler</span><span class="arrow">→</span>
+        <span class="step">frame_builder</span><span class="arrow">→</span>
+        <span class="step">tx_rm</span><span class="arrow">→</span>
+        <span class="step">mac_tx_if/FCS</span><span class="arrow">→</span>
+        <span class="step">A/B GMII</span>
+      </div>
+      <p class="muted">对应优先新增 T04（BAG）、T05（带宽/抖动）和 T07（双网复制）端到端测试。完成后再展开 RX 链路与管理面。</p>
+    </section>
+
+    <section>
+      <h2>证据文件</h2>
+      <ul>
+        <li><code>rtl/top/AFDX_top.v</code>：当前顶层骨架与寄存器逻辑。</li>
+        <li><code>rtl/tx/tx_frame_builder.v</code>：当前最完整的 TX 单元。</li>
+        <li><code>sim/out/regress.csv</code>：T00~T03 回归汇总。</li>
+        <li><code>sim/run_regress.ps1</code>：ModelSim/Questa 回归入口。</li>
+        <li><code>tools_lint.ps1</code>：Verilator lint 门禁。</li>
+        <li><code>doc_第1周工作记录.md</code>：最近完成项与 T03 性能记录。</li>
+        <li><code>AFDX端系统_总体设计书.md</code>：总体规格、模块规划和 T00~T22 验证计划。</li>
+      </ul>
+    </section>
+
+    <footer>生成于当前仓库审查结果 · 状态基于 HEAD 7d070de · 完成度为工程判断值，不是正式验收结论</footer>
+  </div>
+</body>
+</html>

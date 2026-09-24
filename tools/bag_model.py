@@ -2,16 +2,20 @@
 # -*- coding: utf-8 -*-
 """AFDX 配置预算的唯一算法：从设计书 §8.2 的用例块解析配置，再按判决式算。
 
-判决式（与 RTL 的 Q20 累加器同式，§8.2）：
-    frame_bytes = 载荷 Lmax + 24（4 A664 + 20 IP + 8 UDP + 4 FCS 的近似）
-    util_j      = frame_bytes × 8 / (BAG_j × 12.5 MB/s)
+判决式（与 RTL 的 Q20 累加器同式，§8.2；O-01 口径，v0.5.5 起）：
+    Lmax        = A664P7 定义的以太帧长（DMAC 起算、含 FCS），64 ≤ Lmax ≤ 1518
+    载荷 L      = Lmax − 47（14 ETH + 20 IP + 8 UDP + 1 SN + 4 FCS）
+    wire_bytes  = Lmax + 20（7 前导 + 1 SFD + 12 IFG 的线上固定开销）
+    util_j      = wire_bytes × 8 / (BAG_j × 12.5 MB/s)
     CFG_SUM     = Σ_j util_j ≤ 1.0
 `tools/bag_budget.py` 与 `tools/check_doc_numbers.py` 都从这里取数，避免两份实现飘开。
 """
 import os, re, math
+from fractions import Fraction
 
 LINK_BPS = 100e6
-OH = 24
+OH = 20          # 线上固定开销：前导 7 + SFD 1 + IFG 12（O-01）
+HDR_OH = 47      # Lmax − 载荷：ETH 14 + IP 20 + UDP 8 + SN 1 + FCS 4
 Q20 = 2 ** 20
 NAME = "AFDX端系统_总体设计书.md"
 
@@ -41,7 +45,7 @@ BAG = re.compile(r"BAG\s*=\s*([\d.]+)\s*(ms|μs|us)")
 
 
 def cases(doc=None):
-    """解析 §8.2 的用例块 → [(名字, N, Lmax 载荷B, 帧长B, BAG_us, 该用例两行原文)]。"""
+    """解析 §8.2 的用例块 → [(名字, N, Lmax 帧长B, 线上字节B, BAG_us, 该用例两行原文)]。"""
     doc = doc if doc is not None else doc_text()
     seg = section(doc)
     out = []
@@ -66,12 +70,28 @@ def util(n, frame_bytes, bag_us):
 
 def metrics(n, frame_bytes, bag_us):
     u = util(n, frame_bytes, bag_us)
+    # 每 VL 的 Q20 份额必须先向上取整，再累加；不能对整个浮点总和四舍五入。
+    # Fraction 避免恰好整除时浮点误差把 ceil 错加 1。
+    bits_per_us = int(LINK_BPS / 1e6)
+    per_vl = math.ceil(Fraction(frame_bytes * 8 * Q20, 1) /
+                       (Fraction(str(bag_us)) * bits_per_us))
+    q20 = n * per_vl
     return {
-        "util": u, "mbps": u * LINK_BPS / 1e6, "q20": int(round(u * Q20)),
+        "util": u, "mbps": u * LINK_BPS / 1e6, "q20": q20, "q20_per_vl": per_vl,
         "t_frame_us": frame_bytes * 8 / LINK_BPS * 1e6,
-        "fps_total": n / (bag_us * 1e-6), "builder_MBps": n * frame_bytes / (bag_us * 1e-6) / 1e6,
-        "legal": u <= 1.0,
+        "fps_total": n / (bag_us * 1e-6),
+        # 旧字段名保留兼容：这里按 wire_bytes 算的是等效线上需求，不是 builder 的 RTL 吞吐实测。
+        "builder_MBps": n * frame_bytes / (bag_us * 1e-6) / 1e6,
+        "legal": q20 <= Q20,
     }
+
+
+def payload_of(lmax):
+    return lmax - HDR_OH
+
+
+def lmax_of(payload):
+    return payload + HDR_OH
 
 
 def sat_bag(n, frame_bytes, target=0.9984):

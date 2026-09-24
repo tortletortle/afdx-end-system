@@ -3,7 +3,7 @@
 """一条命令跑完所有机器校验：改文档/改地址表/改寄存器之后必须全绿再提交。
 
     python3 tools/run_all.py            # 5 个校验器
-    python3 tools/run_all.py --strict   # 顺带把 selfcheck_claims 的输出也打出来（它不改文档，只复核声称）
+    python3 tools/run_all.py --strict   # 额外运行 selfcheck_claims，失败时严格模式也失败
 
 每个校验器只做机器可判的事：结构、算术、交叉引用、同源对账。它们全绿不代表 RTL 正确，
 只代表「文档不自相矛盾、数字可复算」。RTL 的正确性归 §12 的用例。
@@ -50,11 +50,23 @@ def main():
                     print("       " + l.strip()[:150])
     if "--strict" in sys.argv:
         print()
-        subprocess.run([sys.executable, os.path.join(HERE, "selfcheck_claims.py")], cwd=ROOT)
+        sys.stdout.flush()  # 父进程被捕获输出时，确保五项 PASS 先于子进程的自查内容显示
+        script = os.path.join(HERE, "selfcheck_claims.py")
+        if not os.path.exists(script):
+            print("FAIL selfcheck_claims 缺自查脚本")
+            bad.append("selfcheck_claims(缺文件)")
+        else:
+            r = subprocess.run([sys.executable, script], cwd=ROOT)
+            if r.returncode:
+                print("FAIL selfcheck_claims 口径/数字自查未通过")
+                bad.append("selfcheck_claims")
+            else:
+                print("PASS selfcheck_claims 模型与文档一致（不代表 RTL 合规）")
     print("\n== 结论 ==")
     if bad:
         print("未通过：%s —— 先改文档，别改校验器来迁就它" % "、".join(bad)); return 1
-    print("5/5 全绿：文档自洽、数字可复算。RTL 与仿真仍需在 eLinx/ModelSim 里跑 §12 的用例。")
+    print("5/5 全绿%s：文档自洽、数字可复算。RTL 与仿真仍需在 eLinx/ModelSim 里跑 §12 的用例。" %
+          ("，自查通过" if "--strict" in sys.argv else ""))
     return 0
 
 

@@ -1,0 +1,62 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source {C:/Workspace/diansai/sim/out/t12_mut_7aycmc5d/run.tcl}
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 22:17:24 on Sep 23,2026
+# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t12_mut_7aycmc5d/lib C:/Workspace/diansai/sim/out/t12_mut_7aycmc5d/rx_vl_lookup.v C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rx_vl_lookup
+# -- Compiling module tb_t12_core
+# -- Compiling module tb_t12c_lookup
+# -- Compiling module tb_t12r_lookup
+# -- Compiling module tb_t12s_lookup
+# -- Compiling module tb_t12h_lookup
+# 
+# Top level modules:
+# 	tb_t12c_lookup
+# 	tb_t12r_lookup
+# 	tb_t12s_lookup
+# 	tb_t12h_lookup
+# End time: 22:17:24 on Sep 23,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+T12_MUTANT_COMPILED
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim -lib C:/Workspace/diansai/sim/out/t12_mut_7aycmc5d/lib tb_t12s_lookup 
+# Start time: 22:17:24 on Sep 23,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t12s_lookup(fast)
+#   [err] T12 case=2 tick=3 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=4 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=5 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=6 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=7 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=8 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=9 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=10 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=11 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=12 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=13 sent=1 out=0: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=14 sent=1 out=0: output differs from independent key->index scoreboard
+# T12 LOOKUP FAIL (case=2 errors=43737)
+# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v(341)
+#    Time: 1014840 ns  Iteration: 1  Instance: /tb_t12s_lookup/core
+# End time: 22:17:27 on Sep 23,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0

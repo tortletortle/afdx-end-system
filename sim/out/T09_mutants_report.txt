@@ -1,0 +1,6 @@
+T09ps isolated RTL mutants (each must FAIL; original RTL untouched)
+original RTL SHA-256: 57154ffe9e59058cee6fdb5b25cfcb7654ff756065b5f5a2717d42fa6eda4e27
+no_lost_one DETECTED (compiled=True, TB_FAIL=True, rc=0)
+commit_only_rejects DETECTED (compiled=True, TB_FAIL=True, rc=0)
+missing_b_bank DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T09 MUTATION SUMMARY: 3/3 detected

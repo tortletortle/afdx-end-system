@@ -33,8 +33,10 @@ for name, bits, dec, nb in rows:
     else: tot += calc; blk += add
 print("行数 %d | 不含 P2 %.0f Kbit = %.2f Mbit / %d 块 | 含 P2 %.0f Kbit = %.2f Mbit / %d 块 | 错误 %d"
       % (len(rows), tot, tot/1024, blk, tot+ptot, (tot+ptot)/1024, blk+pblk, bad))
-for want in ["| **合计** | 不含 P2（11 行） | | **%.2f Mbit**（%.0f Kbit） | **%d**" % (tot/1024, tot, blk),
+base_rows = sum(1 for name, _bits, _dec, _nb in rows if "P2" not in name)
+for want in ["| **合计** | 不含 P2（%d 行） | | **%.2f Mbit**（%.0f Kbit） | **%d**" % (base_rows,tot/1024,tot,blk),
              "%.2f Mbit / %d 块" % ((tot+ptot)/1024, blk+pblk)]:
     print(("ok   合计行含 " if want in s else "MISS 合计行缺 ") + want)
+    if want not in s: bad += 1
 sys.exit(1 if bad else 0)
 

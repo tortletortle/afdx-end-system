@@ -3,7 +3,7 @@
 # 用法: sim/ 目录下  .\\run_t01.ps1   或: vsim.exe -c -do "source run_t01.tcl"（需 SALT_LICENSE_SERVER，ps1 会自动补）
 # 产出: 控制台 PASS/FAIL + out/t01_smoke.vcd
 # =====================================================================
-onerror { exit 1 }
+onerror { quit -f -code 1 }
 file delete -force work
 vlib work
 vlog -sv +notimingcheck \
@@ -11,7 +11,12 @@ vlog -sv +notimingcheck \
   ../rtl/common/timebase.v \
   ../rtl/common/sync_fifo.v \
   ../rtl/common/crc32.v \
+  ../rtl/common/bram_sdp.v \
+  ../rtl/top/init_sweep.v \
   ../rtl/top/AFDX_top.v \
+  ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v \
+  ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v \
+  ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v \
   tb/tb_t01_reset_regs.v
 file mkdir out
 # -voptargs=+acc: T01 的 VCD 是正式产出（out/t01_smoke.vcd）。默认 vopt

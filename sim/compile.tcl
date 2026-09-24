@@ -5,12 +5,12 @@
 # =====================================================================
 if {![info exists env(VLOG_SRC)]} {
   puts "ERROR: VLOG_SRC env not set"
-  exit 1
+  quit -f -code 1
 }
 file delete -force work
 vlib work
 if {[catch {vlog -sv +notimingcheck {*}$env(VLOG_SRC)} msg]} {
   puts "VLOG-ERROR: $msg"
-  exit 1
+  quit -f -code 1
 }
 quit -f

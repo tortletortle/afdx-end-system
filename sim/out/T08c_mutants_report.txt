@@ -1,0 +1,6 @@
+T08c isolated top RTL faults: compile, then FAIL (a pass is MISSED)
+original top RTL SHA-256: C5497AA36609651D69B594CDCAB6BEAEBEDB3CDBF98BCC10CB2D3A1DC70BDAC6
+acks_before_write_port_available DETECTED (compiled=True, TB_FAIL=True, rc=0)
+pending_write_data_not_latched DETECTED (compiled=True, TB_FAIL=True, rc=0)
+pending_write_addr_not_latched DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T08c MUTATION SUMMARY: 3/3 detected

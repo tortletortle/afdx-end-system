@@ -9,7 +9,7 @@
 //       sync_fifo(32x4) 参数化抽查。
 // 检查 3: bram_sdp(32x8192, PMEM 规格, 1W2R)——A 口全地址扫描、
 //       B 口步长 97 抽样、覆写、1 拍读延迟（扫描隐含）、
-//       写/A读/B读 三口同拍并发。
+//       写/A读/B读 三口同拍并发；PMEM 字节使能尾字保留旧 lane。
 //       不测同地址同拍读写（O-20 第 3 条: 不做同拍读写假设）。
 // 波形: out/t00_common.vcd（$dumpvars(0, tb)——兼作踩坑#11 对照实验）
 // =====================================================================
@@ -56,10 +56,11 @@ module tb_t00_common;
   reg          b_we = 1'b0, b_re_a = 1'b0, b_re_b = 1'b0;
   reg  [12:0]  b_waddr = 13'd0, b_raddr_a = 13'd0, b_raddr_b = 13'd0;
   reg  [31:0]  b_wdata = 32'h0;
+  reg  [3:0]   b_be = 4'hF;
   wire [31:0]  b_rd_data_a, b_rd_data_b;
-  bram_sdp #(.W(32), .D(8192)) u_bram (
+  bram_sdp #(.W(32), .D(8192), .BYTE_EN(1)) u_bram (
     .clk(clk),
-    .wr_en(b_we), .wr_addr(b_waddr), .wr_data(b_wdata),
+    .wr_en(b_we), .wr_addr(b_waddr), .wr_data(b_wdata), .wr_be(b_be),
     .rd_en_a(b_re_a), .rd_addr_a(b_raddr_a), .rd_data_a(b_rd_data_a),
     .rd_en_b(b_re_b), .rd_addr_b(b_raddr_b), .rd_data_b(b_rd_data_b));
 
@@ -364,9 +365,24 @@ module tb_t00_common;
       $display("  [err] bram wr(100) not effective got=%h", b_rd_data_a); err = err + 1;
     end
 
+    // 3e) 字节使能：lane [3] 为高字节，lane [0] 为低字节；BE=0 无写。
+    @(negedge clk); b_we <= 1'b1; b_waddr <= 13'd101;
+    b_be <= 4'hF; b_wdata <= 32'h1122_3344;
+    @(negedge clk); b_be <= 4'b1000; b_wdata <= 32'hAB00_0000;
+    @(negedge clk); b_be <= 4'b0011; b_wdata <= 32'h0000_CDEF;
+    @(negedge clk); b_be <= 4'b0000; b_wdata <= 32'hFFFF_FFFF;
+    @(negedge clk); b_we <= 1'b0; b_be <= 4'hF;
+    b_re_a <= 1'b1; b_raddr_a <= 13'd101;
+    b_re_b <= 1'b1; b_raddr_b <= 13'd101;
+    @(negedge clk); b_re_a <= 1'b0; b_re_b <= 1'b0;
+    if (b_rd_data_a !== 32'hAB22_CDEF || b_rd_data_b !== 32'hAB22_CDEF) begin
+      $display("  [err] bram byte-enable A=%h B=%h want AB22CDEF",b_rd_data_a,b_rd_data_b);
+      err = err + 1;
+    end
+
     // ---- 结果 ----
     if (err == 0)
-      $display("T00 COMMON PASS (crc32 x9 vectors, sync_fifo full+random 4000, bram 1W2R sweep 8192)");
+      $display("T00 COMMON PASS (crc32 x9 vectors, fifo 4000, bram 1W2R 8192 + BE)");
     else
       $display("T00 COMMON FAIL: %0d errors", err);
     $finish;

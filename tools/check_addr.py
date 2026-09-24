@@ -39,8 +39,16 @@ print("\n校验到 %d 行；合计 %d 字（%.0f KB）/ 65536 字 = %.1f%%；错
       % (len(regions), tot, tot * 4 / 1024.0, tot / 655.36, bad))
 pmem=[r for r in regions if r[4].startswith("PMEM")]
 if pmem and pmem[0][0] % 0x200: print("PMEM 起始未 2KB 对齐（0x200 字）"); bad += 1
-if len(regions) < 14:
-    print("警告：只解析到 %d/14 行，正则可能没覆盖所有行" % len(regions))
+if len(regions) < 15:
+    print("警告：只解析到 %d/15 行，正则可能没覆盖所有行" % len(regions))
+    bad += 1
+# O-27: Q20 份额占原空洞首 128 字，原 TX/RX/PMEM 物理地址必须零位移。
+shares = [r for r in regions if r[0] == 0x0480]
+if len(shares) != 1 or shares[0][1] != 0x04FF or shares[0][2] != 128 or 'Q20' not in shares[0][4]:
+    print("Q20 份额区缺失/位移，需为 0x0480~0x04FF 共 128 字")
+    bad += 1
+if tot != 53536:
+    print("地址表合计应为 53536 字（原 53408 + 128）")
     bad += 1
 # PMEM 池子区间（§8.6）必须在 PMEM 行内、互不重叠、字数 = 块数 × 0x200（2 KB）
 m86 = re.search(r"### 8\.6.*?(?=^### |^## )", s, re.M | re.S)

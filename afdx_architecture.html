@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFDX 端系统总体架构图</title>
+<style>
+  :root{--navy:#102a56;--blue:#2563eb;--cyan:#0891b2;--green:#16845b;--amber:#b7791f;--red:#c2414b;--ink:#152238;--muted:#64748b;--line:#cbd5e1;--bg:#f1f5f9;--white:#fff}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif}
+  .page{max-width:1500px;margin:0 auto;padding:28px 30px 40px}
+  header{background:linear-gradient(135deg,#102a56,#1d4e89 65%,#2c79bd);color:#fff;border-radius:20px;padding:28px 34px;box-shadow:0 14px 38px #18335d22}
+  .eyebrow{font-size:12px;letter-spacing:.16em;opacity:.75;text-transform:uppercase}.title{margin:4px 0 4px;font-size:34px;letter-spacing:-.04em}.sub{margin:0;color:#dbeafe;font-size:15px}
+  .meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.tag{padding:5px 10px;border:1px solid #ffffff3d;border-radius:99px;color:#e0f2fe;font-size:12px;background:#ffffff14}
+  .board{margin-top:20px;background:#fff;border:1px solid #d9e2ee;border-radius:18px;padding:16px;box-shadow:0 12px 34px #2c4c7020;overflow:hidden}
+  svg{display:block;width:100%;height:auto;min-width:1080px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:14px 5px 3px;color:var(--muted);font-size:13px}.legend span{display:flex;gap:7px;align-items:center}.dot{width:13px;height:13px;border-radius:4px;display:inline-block;border:1px solid #0002}.done{background:#dff5ea;border-color:#7bc99e}.active{background:#e8f0ff;border-color:#8eb1fa}.plan{background:#fff5d8;border-color:#e4bb61}.boundary{background:#f5f7fa;border-color:#aebaca}
+  .notes{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;margin-top:18px}.note{background:#fff;border:1px solid #dfe6f0;border-radius:14px;padding:17px 18px;box-shadow:0 7px 20px #31557b12}.note h3{margin:0 0 8px;font-size:16px}.note p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}.note strong{color:var(--ink)}
+  .foot{margin-top:16px;color:#64748b;font-size:12px;text-align:center}
+  @media print{body{background:#fff}.page{max-width:none;padding:0}.board{box-shadow:none}.notes{break-inside:avoid}header{print-color-adjust:exact;-webkit-print-color-adjust:exact}.board{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+  @media(max-width:900px){.page{padding:15px}.notes{grid-template-columns:1fr}.title{font-size:28px}}
+</style>
+</head>
+<body>
+<div style="background:#fff4e5;border:2px solid #d97706;color:#7c2d12;padding:10px 16px;margin:0;font:14px/1.6 'Microsoft YaHei',Arial,sans-serif;text-align:center">⚠ 历史快照（2026-09-22）：本页为早期展示资料，模块着色与状态标签已过期，不代表当前实现或验收结论。最新状态见 <a href="doc/当前进度_20260923.md" style="color:#9a3412">doc/当前进度_20260923.md</a>。</div>
+<div class="page">
+<header>
+  <div class="eyebrow">AFDX End System · System Architecture</div>
+  <div class="title">基于以太网 MAC 总线的 AFDX 端系统总体架构</div>
+  <p class="sub">主机配置与管理面驱动收发数据面；发送侧按 BAG 调度并复制到双网，接收侧完成过滤、完整性检查、余度管理与端口投递。</p>
+  <div class="meta"><span class="tag">GMII · 125 MHz · 8 bit</span><span class="tag">TX VL 128 · RX VL 4096</span><span class="tag">PMEM 32 KB</span><span class="tag">当前：TX 单元级已验证，系统集成进行中</span></div>
+</header>
+
+<div class="board">
+<svg viewBox="0 0 1440 920" role="img" aria-label="AFDX端系统总体架构图">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#18335d" flood-opacity=".13"/></filter>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/></marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#16845b"/></marker>
+    <style>
+      .group{fill:#f8fafc;stroke:#b8c5d6;stroke-width:2;rx:18}.group-title{font:700 18px "Microsoft YaHei";fill:#17345f}.group-sub{font:12px "Microsoft YaHei";fill:#718096}.box{stroke-width:1.5;rx:10;filter:url(#shadow)}.box-title{font:700 15px "Microsoft YaHei";fill:#17243b}.box-sub{font:12px "Microsoft YaHei";fill:#61718a}.tiny{font:11px "Microsoft YaHei";fill:#64748b}.edge{fill:none;stroke-width:2.2;marker-end:url(#arrowBlue)}.edge-gray{fill:none;stroke:#64748b;stroke-width:1.8;stroke-dasharray:7 5;marker-end:url(#arrowGray)}.edge-green{fill:none;stroke:#16845b;stroke-width:2.4;marker-end:url(#arrowGreen)}.edge-label{font:12px "Microsoft YaHei";fill:#52647e}.port{font:700 12px Consolas,monospace;fill:#23426d}
+    </style>
+  </defs>
+
+  <!-- external boundaries -->
+  <rect x="24" y="238" width="155" height="420" class="group" fill="#f7fbff"/>
+  <text x="42" y="270" class="group-title">外部接口</text><text x="42" y="292" class="group-sub">系统边界</text>
+  <rect x="45" y="324" width="113" height="68" class="box" fill="#e8f0ff" stroke="#8eb1fa"/>
+  <text x="101" y="350" text-anchor="middle" class="box-title">主机 / CPU</text><text x="101" y="372" text-anchor="middle" class="box-sub">配置 · PMEM · 读回</text>
+  <rect x="45" y="445" width="113" height="74" class="box" fill="#e8f0ff" stroke="#8eb1fa"/>
+  <text x="101" y="471" text-anchor="middle" class="box-title">网络 A</text><text x="101" y="493" text-anchor="middle" class="box-sub">GMII 8 bit</text><text x="101" y="508" text-anchor="middle" class="tiny">TX / RX</text>
+  <rect x="45" y="555" width="113" height="74" class="box" fill="#e8f0ff" stroke="#8eb1fa"/>
+  <text x="101" y="581" text-anchor="middle" class="box-title">网络 B</text><text x="101" y="603" text-anchor="middle" class="box-sub">GMII 8 bit</text><text x="101" y="618" text-anchor="middle" class="tiny">TX / RX</text>
+  <text x="101" y="682" text-anchor="middle" class="tiny">PPS / 调试</text>
+
+  <!-- management -->
+  <rect x="215" y="44" width="1000" height="172" class="group" fill="#fbfdff"/>
+  <text x="239" y="76" class="group-title">管理面与主机接口</text><text x="239" y="98" class="group-sub">配置、状态、统计和网络管理共用端口/SAP 通道</text>
+  <rect x="239" y="121" width="142" height="66" class="box" fill="#dff5ea" stroke="#7bc99e"/>
+  <text x="310" y="147" text-anchor="middle" class="box-title">host_if</text><text x="310" y="169" text-anchor="middle" class="box-sub">两拍主机协议</text>
+  <rect x="404" y="121" width="142" height="66" class="box" fill="#dff5ea" stroke="#7bc99e"/>
+  <text x="475" y="147" text-anchor="middle" class="box-title">寄存器 / 配置表</text><text x="475" y="169" text-anchor="middle" class="box-sub">VL · 端口 · 参数</text>
+  <rect x="569" y="121" width="142" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/>
+  <text x="640" y="147" text-anchor="middle" class="box-title">stats_regs</text><text x="640" y="169" text-anchor="middle" class="box-sub">计数 / 中断</text>
+  <rect x="734" y="121" width="142" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/>
+  <text x="805" y="147" text-anchor="middle" class="box-title">rtc_sync</text><text x="805" y="169" text-anchor="middle" class="box-sub">PPS / μs 时基</text>
+  <rect x="899" y="121" width="142" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/>
+  <text x="970" y="147" text-anchor="middle" class="box-title">SNMP / TFTP</text><text x="970" y="169" text-anchor="middle" class="box-sub">管理 / 加载</text>
+  <rect x="1064" y="121" width="125" height="66" class="box" fill="#dff5ea" stroke="#7bc99e"/>
+  <text x="1126" y="147" text-anchor="middle" class="box-title">AFDX_top</text><text x="1126" y="169" text-anchor="middle" class="box-sub">顶层汇聚</text>
+
+  <!-- central system -->
+  <rect x="215" y="238" width="1000" height="420" class="group"/>
+  <text x="239" y="272" class="group-title">AFDX 端系统数据面</text><text x="239" y="294" class="group-sub">单时钟域 · 帧级判决 · PMEM 统一存储</text>
+
+  <!-- TX -->
+  <rect x="239" y="322" width="430" height="288" class="group" fill="#f5f9ff" stroke="#9fbce9"/>
+  <text x="262" y="352" class="group-title" fill="#1e4a91">TX 发送流水</text><text x="262" y="373" class="group-sub">消息 → AFDX 帧 → 双网输出</text>
+  <rect x="262" y="403" width="113" height="71" class="box" fill="#dff5ea" stroke="#7bc99e"/><text x="318" y="429" text-anchor="middle" class="box-title">tx_port_buf</text><text x="318" y="451" text-anchor="middle" class="box-sub">消息 / 块池</text>
+  <rect x="402" y="403" width="113" height="71" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="459" y="429" text-anchor="middle" class="box-title">VL Scheduler</text><text x="459" y="451" text-anchor="middle" class="box-sub">BAG / 仲裁</text>
+  <rect x="542" y="403" width="113" height="71" class="box" fill="#dff5ea" stroke="#7bc99e"/><text x="598" y="429" text-anchor="middle" class="box-title">frame_builder</text><text x="598" y="451" text-anchor="middle" class="box-sub">IP/UDP/SN/Pad</text>
+  <rect x="332" y="516" width="113" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="388" y="542" text-anchor="middle" class="box-title">tx_rm</text><text x="388" y="564" text-anchor="middle" class="box-sub">A/B 复制</text>
+  <rect x="478" y="516" width="142" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="549" y="542" text-anchor="middle" class="box-title">mac_tx_if</text><text x="549" y="564" text-anchor="middle" class="box-sub">节拍 / IFG / FCS</text>
+  <path d="M375 438 H402" class="edge"/><path d="M515 438 H542" class="edge"/><path d="M598 474 V500 H388 V516" class="edge-gray"/><path d="M445 549 H478" class="edge"/>
+
+  <!-- RX -->
+  <rect x="715" y="322" width="477" height="288" class="group" fill="#f5fbfa" stroke="#96c9bb"/>
+  <text x="738" y="352" class="group-title" fill="#136c56">RX 接收流水</text><text x="738" y="373" class="group-sub">MAC 字节流 → 判决 → 端口投递</text>
+  <rect x="738" y="403" width="105" height="71" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="790" y="429" text-anchor="middle" class="box-title">mac_rx_if</text><text x="790" y="451" text-anchor="middle" class="box-sub">帧接收 / PMEM</text>
+  <rect x="864" y="403" width="105" height="71" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="916" y="429" text-anchor="middle" class="box-title">rx_flt</text><text x="916" y="451" text-anchor="middle" class="box-sub">长度 / CRC</text>
+  <rect x="990" y="403" width="105" height="71" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="1042" y="429" text-anchor="middle" class="box-title">VL Lookup</text><text x="1042" y="451" text-anchor="middle" class="box-sub">VLID → 索引</text>
+  <rect x="790" y="516" width="105" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="842" y="542" text-anchor="middle" class="box-title">rx_ic</text><text x="842" y="564" text-anchor="middle" class="box-sub">SN 连续性</text>
+  <rect x="916" y="516" width="105" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="968" y="542" text-anchor="middle" class="box-title">rx_rm</text><text x="968" y="564" text-anchor="middle" class="box-sub">双网去重</text>
+  <rect x="1042" y="516" width="127" height="66" class="box" fill="#fff5d8" stroke="#e4bb61"/><text x="1105" y="542" text-anchor="middle" class="box-title">UDP Parser /</text><text x="1105" y="564" text-anchor="middle" class="box-sub">rx_port_buf</text>
+  <path d="M843 438 H864" class="edge-green"/><path d="M969 438 H990" class="edge-green"/><path d="M1042 474 V500 H842 V516" class="edge-gray"/><path d="M895 549 H916" class="edge-green"/><path d="M1021 549 H1042" class="edge-green"/>
+
+  <!-- PMEM / common -->
+  <rect x="330" y="682" width="770" height="128" class="group" fill="#fafafa" stroke="#aebaca"/>
+  <text x="354" y="713" class="group-title">公共资源与时序基础</text>
+  <rect x="354" y="735" width="170" height="53" class="box" fill="#e8f0ff" stroke="#8eb1fa"/><text x="439" y="758" text-anchor="middle" class="box-title">PMEM · bram_sdp</text><text x="439" y="777" text-anchor="middle" class="box-sub">32 KB · 1W2R</text>
+  <rect x="552" y="735" width="145" height="53" class="box" fill="#e8f0ff" stroke="#8eb1fa"/><text x="624" y="758" text-anchor="middle" class="box-title">timebase</text><text x="624" y="777" text-anchor="middle" class="box-sub">μs tick · RTC</text>
+  <rect x="725" y="735" width="145" height="53" class="box" fill="#e8f0ff" stroke="#8eb1fa"/><text x="797" y="758" text-anchor="middle" class="box-title">crc32 / FIFO</text><text x="797" y="777" text-anchor="middle" class="box-sub">校验 · 缓冲</text>
+  <rect x="898" y="735" width="178" height="53" class="box" fill="#e8f0ff" stroke="#8eb1fa"/><text x="987" y="758" text-anchor="middle" class="box-title">rst_sync / 单时钟域</text><text x="987" y="777" text-anchor="middle" class="box-sub">clk · reset</text>
+  <path d="M439 682 V610" class="edge-gray"/><path d="M797 682 V610" class="edge-gray"/><path d="M624 682 V610" class="edge-gray"/>
+
+  <!-- external links -->
+  <path d="M158 357 H215" class="edge"/><text x="172" y="347" class="edge-label">host_cs/we</text>
+  <path d="M215 480 H158" class="edge-green"/><text x="164" y="469" class="edge-label">TX/RX A</text>
+  <path d="M215 591 H158" class="edge-green"/><text x="164" y="580" class="edge-label">TX/RX B</text>
+  <path d="M310 216 V238" class="edge-gray"/><path d="M1126 187 V238" class="edge-gray"/>
+  <path d="M318 187 V403" class="edge-gray"/><text x="326" y="306" class="edge-label">消息提交</text>
+  <path d="M1126 610 V658" class="edge-gray"/><path d="M805 187 V238" class="edge-gray"/>
+
+  <!-- verification strip -->
+  <rect x="215" y="836" width="1000" height="60" class="group" fill="#f8fafc"/>
+  <text x="239" y="862" class="group-title" style="font-size:15px">验证与交付链</text>
+  <text x="405" y="862" class="tiny">Python 黄金模型</text><text x="550" y="862" class="tiny">→ Verilator lint</text><text x="685" y="862" class="tiny">→ Questa/ModelSim</text><text x="850" y="862" class="tiny">→ VCD / CSV / Log</text><text x="1035" y="862" class="tiny">→ eLinx 综合自证</text>
+  <text x="239" y="883" class="tiny">当前已验证：T00 公共模块 · T01 骨架 · T02 TX 缓存/SN · T03 帧构建器</text>
+
+  <!-- status labels -->
+  <text x="255" y="315" class="port">GREEN = 已实现并有局部验证</text><text x="740" y="315" class="port">AMBER = 规划 / 未完成 / 待集成</text>
+</svg>
+<div class="legend"><span><i class="dot done"></i>已实现并有局部验证</span><span><i class="dot active"></i>已定义接口/骨架</span><span><i class="dot plan"></i>规划中或尚未实现</span><span><i class="dot boundary"></i>公共资源/系统边界</span></div>
+</div>
+
+<div class="notes">
+  <div class="note"><h3>展示重点 01 · 端到端数据流</h3><p><strong>发送：</strong>主机提交消息后，经端口缓存、BAG 调度、帧构建和双网复制，最终输出到 A/B GMII。<br><strong>接收：</strong>网络帧进入后，依次经过过滤、VL 查找、IC/RM 判决、UDP 解析和端口投递。</p></div>
+  <div class="note"><h3>展示重点 02 · 统一 PMEM</h3><p>收发共用 32 KB PMEM。<code>bram_sdp</code> 采用 1 写 2 读，TX builder 的 pass1/pass2 分别使用两个读口；当前已完成 BRAM 冒烟与 T00/T03 局部验证。</p></div>
+  <div class="note"><h3>展示重点 03 · 当前里程碑</h3><p>目前已完成公共模块与 TX 三个基础单元，T00~T03 回归通过；下一阶段应优先打通 <strong>scheduler → RM → MAC TX → A/B GMII</strong> 的第一条端到端链路。</p></div>
+</div>
+<div class="foot">基于仓库 HEAD 7d070de 的当前实现状态绘制 · 适合浏览器展示或打印为 PDF</div>
+</div>
+</body>
+</html>

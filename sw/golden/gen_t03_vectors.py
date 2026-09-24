@@ -4,8 +4,9 @@
 用黄金模型 build_frame 生成 L=8/17/18/1471 + 若干随机长度的帧，
 输出 sim/vec/t03_frames.hex（$readmemh）。格式（每行一个 32 位字）:
   字 0        : N 帧数
-  每帧头 4 字 : {vlid16, udi8, ifid4|net4}, {sport16, dport16}, src_ip, dst_ip,
-  再 2 字     : {ident16, tos8, ttl8}, {L13, sn8, csum_en1, ...}
+  每帧头 4 字 : {vlid16, udi16}, {sport16, dport16}, src_ip, dst_ip,
+  再 2 字     : {ident16, tos8, ttl8}, {L13, sn8, csum_en1, ifid_a3, ifid_b3, 0...}
+  帧布局按 v0.5.5 §6.1（O-02/O-03）：pad 在 SN 之前，SN/pad 不计入长度字段，SMAC 末字节 0x20/0x40
   再 368 字   : 载荷（大端打包，PMEM 块内容）
   再 380 字   : 期望帧（不含 FCS，大端打包，frame_len 由 L 决定）
 """
@@ -19,22 +20,23 @@ def words(b, n):
 
 def main():
     random.seed(20260922)
-    cases = [8, 17, 18, 19, 1471, 1470, 9, 100]
+    cases = [8, 16, 17, 18, 1471, 1470, 9, 100]      # 16/17 是 pad 1 B / 0 B 的边界
     cases += [random.randint(8, 1471) for _ in range(8)]
     out = [len(cases)]
     for i, L in enumerate(cases):
-        vlid = random.randint(1, 0xFFFF); udi = random.randint(0, 255); ifid = random.randint(0, 15)
+        vlid = random.randint(1, 0xFFFF); udi = random.randint(0, 0xFFFF); ifid_a, ifid_b = 1, 2
         sport = random.randint(1024, 65535); dport = random.randint(1024, 65535)
         sip = ".".join(str(random.randint(1, 254)) for _ in range(4))
         dip = ".".join(str(random.randint(1, 254)) for _ in range(4))
         ident = random.randint(0, 0xFFFF); tos = random.randint(0, 255); ttl = random.randint(1, 255)
         sn = random.randint(1, 255); csum_en = 0 if i == 3 else 1
         payload = bytes(random.randint(0, 255) for _ in range(L))
-        frame, _ = build_frame(vlid, udi, ifid, 1, sip, dip, sport, dport, payload, sn,
+        frame, _ = build_frame(vlid, udi, ifid_a, 1, sip, dip, sport, dport, payload, sn,
                                ident=ident, tos=tos, ttl=ttl, fcs_mode=0, udp_csum_mode=csum_en)
         ip = lambda s: struct.unpack("!I", bytes(int(x) for x in s.split(".")))[0]
-        out += [(vlid << 16) | (udi << 8) | (ifid << 4) | 1, (sport << 16) | dport, ip(sip), ip(dip),
-                (ident << 16) | (tos << 8) | ttl, (L << 19) | (sn << 11) | (csum_en << 10)]
+        out += [(vlid << 16) | udi, (sport << 16) | dport, ip(sip), ip(dip),
+                (ident << 16) | (tos << 8) | ttl,
+                (L << 19) | (sn << 11) | (csum_en << 10) | (ifid_a << 7) | (ifid_b << 4)]
         out += words(payload, 368)
         out += words(frame, 380)
     here = os.path.dirname(os.path.abspath(__file__))

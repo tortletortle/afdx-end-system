@@ -14,10 +14,12 @@
 //      mux 直接产生，只保存两个校验和结果。省约 1 K FF。
 //   4) 载荷双字预取（cur/nxt）：允许 out_rdy 每拍连续（TB 压力用），
 //      正常 10 拍/字节时读口 B 占空比 2.5%。
-// 帧布局（按 §6.1 表 + 黄金模型 afdx_model.build_frame，与 §7.3 文字
-//   "填充在 SN 之前" 不一致——以可执行裁判为准，已记问题清单）:
-//   DMAC6 SMAC6 ET2 IP20 UDP8 | payload L | SN 1 | pad 0..(17-L) | (FCS 由 mac_tx_if)
-//   IP total = 28+L+1, UDP len = 8+L+1, 帧长(不含 FCS) = max(60, 43+L)。
+// 帧布局（设计书 v0.5.5 §6.1，O-02，XAPP1130 图 3；与黄金模型 build_frame 一致）:
+//   DMAC6 SMAC6 ET2 IP20 UDP8 | payload L | pad P=max(0,17-L) | SN 1 | (FCS 由 mac_tx_if)
+//   IP total = 28+L, UDP len = 8+L（pad/SN 不计入、不进 UDP 校验和），
+//   帧长(不含 FCS) = 42 + max(L,17) + 1 = max(60, 43+L)。
+// SMAC（§6.2，O-03）: 02 00 00 UDI[15:8] UDI[7:0] {IFID[2:0],5'b0}，A=0x20 / B=0x40，
+//   B 网副本只改偏移 11。
 // PMEM 字节序: 消息字节 j 在块内字 j/4 的 [31-8*(j%4) -: 8]（网络序，主机
 //   按大端打包）。读地址 = {blk[3:0], j[10:2]}（块 512 字，L≤1471 → ≤368 字）。
 // 握手: start_vld/busy（pulse+电平）；snap_req→snap_ack（tx_sn_gen）；
@@ -41,13 +43,13 @@ module tx_frame_builder #(
   input  wire [12:0] start_len,        // L 字节
   output reg         busy,
   output reg         done,             // 末字节被 mac 接收（1 拍）
+  output reg  [7:0]  cur_vl,           // 当前/最近一帧的 VL（start 拍锁存，供 tx_rm/sn commit）
   output reg         len_err,          // L 越界（1 拍）
   // ---- 首部参数（start_vld 拍有效）----
   input  wire [15:0] hdr_vlid,
-  input  wire [7:0]  hdr_udi,
-  input  wire [3:0]  hdr_ifid,
-  input  wire [3:0]  hdr_net_a,        // A 网 net_id（§6.2: 1）
-  input  wire [3:0]  hdr_net_b,        // B 网 net_id（2）
+  input  wire [15:0] hdr_udi,          // SMAC_CFG[31:16]（O-03：16 bit UDI）
+  input  wire [2:0]  hdr_ifid_a,       // A 网 Interface ID（001）
+  input  wire [2:0]  hdr_ifid_b,       // B 网 Interface ID（010）
   input  wire [7:0]  hdr_tos,
   input  wire [7:0]  hdr_ttl,
   input  wire [15:0] hdr_ident,
@@ -71,7 +73,7 @@ module tx_frame_builder #(
   // ---- 字节流输出（→ tx_rm → mac_tx_if）----
   output reg         out_vld,
   output wire [7:0]  out_byte_a,       // A 网字节
-  output wire [7:0]  out_byte_b,       // B 网字节（仅 SMAC[4] 低 4 位不同）
+  output wire [7:0]  out_byte_b,       // B 网字节（仅 SMAC 第 6 字节 = 偏移 11 不同）
   output wire        out_sof,
   output wire        out_eof,
   input  wire        out_rdy,
@@ -100,14 +102,15 @@ module tx_frame_builder #(
   reg [3:0]  blk;
   reg [12:0] L;
   reg [15:0] vlid, ident, sport, dport;
-  reg [7:0]  udi, tos, ttl, sn;
-  reg [3:0]  ifid, net_a, net_b;
+  reg [15:0] udi;
+  reg [7:0]  tos, ttl, sn;
+  reg [2:0]  ifid_a, ifid_b;
   reg [31:0] src_ip, dst_ip;
   reg        udp_csum_en;
-  wire [15:0] ip_total = 16'd29 + {3'b0, L};   // 20 + 8 + L + 1
-  wire [15:0] udp_len  = 16'd9  + {3'b0, L};   // 8 + L + 1
-  wire [10:0] body_len = HDR_LEN + L[10:0] + 11'd1;       // 42 + L + 1（含 SN）
-  wire [10:0] frame_len = (body_len < FRAME_MIN) ? FRAME_MIN : body_len;
+  wire [15:0] ip_total = 16'd28 + {3'b0, L};   // 20 + 8 + L（O-02：不含 pad/SN）
+  wire [15:0] udp_len  = 16'd8  + {3'b0, L};   // 8 + L
+  wire [10:0] body_len = HDR_LEN + L[10:0] + 11'd1;       // 42 + L + 1（含 SN，无 pad 时）
+  wire [10:0] frame_len = (body_len < FRAME_MIN) ? FRAME_MIN : body_len;  // = 42 + max(L,17) + 1
 
   // =====================================================================
   // SETUP: 顺序累加 IP 首部 10 个 16 位字 + UDP 伪首部/首部常量项，然后折叠
@@ -170,9 +173,8 @@ module tx_frame_builder #(
                           (p1_tail == 2'd1) ? 32'hFF00_0000 :
                           (p1_tail == 2'd2) ? 32'hFFFF_0000 : 32'hFFFF_FF00;
   wire [31:0] p1_word   = rd_data_a & p1_mask;
-  // SN 项: L 偶 → SN 在高字节；L 奇 → SN 在低字节（与 pass1 大端配对衔接）
-  wire [15:0] sn_term   = L[0] ? {8'h00, sn} : {sn, 8'h00};
-  wire [31:0] udp_sum   = udp_pre + p1_acc + {16'h0, sn_term};
+  // O-02：SN/pad 不进 UDP 校验和；奇数 L 的末字节由 p1_mask 高位对齐（RFC 768）
+  wire [31:0] udp_sum   = udp_pre + p1_acc;
   wire [31:0] udp_fold1 = {16'h0, udp_sum[31:16]} + {16'h0, udp_sum[15:0]};
   wire [15:0] udp_fold2 = udp_fold1[15:0] + {15'h0, udp_fold1[16]};
   wire [15:0] udp_csum  = udp_csum_en ? ~udp_fold2 : 16'h0000;
@@ -189,8 +191,8 @@ module tx_frame_builder #(
   wire        is_hdr   = (off < HDR_LEN);
   wire [10:0] pl_off   = off - HDR_LEN;                    // 载荷内偏移
   wire        is_pl    = !is_hdr && (pl_off < L[10:0]);
-  wire        is_sn    = (pl_off == L[10:0]);
   wire        is_last  = (off == frame_len - 11'd1);
+  wire        is_sn    = is_last;                          // SN = FCS 前 1 字节（pad 之后，O-02）
   wire        need_wait = (off == OFF_UDPCS) && !p1_done;  // 哨兵
   wire        xfer     = out_vld & out_rdy;
   wire        need_wait_next = (off == OFF_UDPCS - 11'd1) && !p1_done; // 传走 39 后若 pass1 未完，下拍不能 vld
@@ -203,8 +205,9 @@ module tx_frame_builder #(
     case (off[5:0])
       6'd0:  hb = 8'h03;  6'd1:  hb = 8'h00;  6'd2:  hb = 8'h00;  6'd3:  hb = 8'h00;
       6'd4:  hb = vlid[15:8];                 6'd5:  hb = vlid[7:0];
-      6'd6:  hb = 8'h02;  6'd7:  hb = 8'h00;  6'd8:  hb = 8'h00;  6'd9:  hb = udi;
-      6'd10: hb = {ifid, net_a};              6'd11: hb = 8'h00;
+      6'd6:  hb = 8'h02;  6'd7:  hb = 8'h00;  6'd8:  hb = 8'h00;
+      6'd9:  hb = udi[15:8];                  6'd10: hb = udi[7:0];
+      6'd11: hb = {ifid_a, 5'b00000};        // A 网 0x20
       6'd12: hb = 8'h08;  6'd13: hb = 8'h00;
       6'd14: hb = 8'h45;  6'd15: hb = tos;
       6'd16: hb = ip_total[15:8];             6'd17: hb = ip_total[7:0];
@@ -232,7 +235,7 @@ module tx_frame_builder #(
   end
   wire [7:0] byte_a = is_hdr ? hb : is_pl ? plb : is_sn ? sn : 8'h00;
   assign out_byte_a = byte_a;
-  assign out_byte_b = (off == 11'd10) ? {ifid, net_b} : byte_a;
+  assign out_byte_b = (off == 11'd11) ? {ifid_b, 5'b00000} : byte_a;   // B 网 0x40
   assign out_sof    = (off == 11'd0);
   assign out_eof    = is_last;
 
@@ -252,9 +255,9 @@ module tx_frame_builder #(
       st <= ST_IDLE;
       busy <= 1'b0; done <= 1'b0; len_err <= 1'b0;
       snap_req <= 1'b0; snap_vl <= 8'd0; snap_ack_seen <= 1'b0; sn <= 8'd0;
-      blk <= 4'd0; L <= 13'd0;
+      blk <= 4'd0; L <= 13'd0; cur_vl <= 8'd0;
       vlid <= 16'd0; ident <= 16'd0; sport <= 16'd0; dport <= 16'd0;
-      udi <= 8'd0; tos <= 8'd0; ttl <= 8'd0; ifid <= 4'd0; net_a <= 4'd1; net_b <= 4'd2;
+      udi <= 16'd0; tos <= 8'd0; ttl <= 8'd0; ifid_a <= 3'd1; ifid_b <= 3'd2;
       src_ip <= 32'd0; dst_ip <= 32'd0; udp_csum_en <= 1'b0;
       su_k <= 4'd0; ip_acc <= 32'd0; udp_acc <= 32'd0; ip_csum <= 16'd0; udp_pre <= 32'd0; su_done <= 1'b0;
       p1_run <= 1'b0; p1_done <= 1'b0; p1_widx <= 9'd0; p1_nw <= 9'd0; p1_tail <= 2'd0;
@@ -279,8 +282,8 @@ module tx_frame_builder #(
               len_err <= 1'b1;
             end else begin
               busy <= 1'b1;
-              blk <= start_blk; L <= start_len;
-              vlid <= hdr_vlid; udi <= hdr_udi; ifid <= hdr_ifid; net_a <= hdr_net_a; net_b <= hdr_net_b;
+              blk <= start_blk; L <= start_len; cur_vl <= start_vl;
+              vlid <= hdr_vlid; udi <= hdr_udi; ifid_a <= hdr_ifid_a; ifid_b <= hdr_ifid_b;
               tos <= hdr_tos; ttl <= hdr_ttl; ident <= hdr_ident; src_ip <= hdr_src_ip; dst_ip <= hdr_dst_ip;
               sport <= hdr_sport; dport <= hdr_dport; udp_csum_en <= hdr_udp_csum_en;
               snap_req <= 1'b1; snap_vl <= start_vl;

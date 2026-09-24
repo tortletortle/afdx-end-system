@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Rebuild the §7.14 host address map so that every region's declared size equals
 # 项数 × 每项字数, regions are laid out back-to-back (the intentional gap
-# 0x0480~0x1D7F is reserved for later tables), and the whole thing fits in the
+# 0x0500~0x1D7F is reserved for later tables), and the whole thing fits in the
 # 16-bit word address space. Then verify with tools/check_addr.py.
 #
 # Idempotent: re-running on an already-correct document leaves it unchanged.
@@ -22,11 +22,12 @@ s = io.open(P, encoding="utf-8").read()
 
 # (字数, 内容, 访问) —— 地址表唯一真值源
 LAYOUT = [
-    (256, "全局寄存器：`ID`、`REV`、`CTL`、`STATUS`、`ERR`、`INT_*`、`DROP_CNT[0..11]`、`TB_CNT`、`CFG_SUM`、`CFG_ERR`、`SMAC_CFG`、`IP_CFG`、`UDP_CFG`、`BURST_*`、`DBG_CTRL`", "R/W"),
+    (256, "全局寄存器：`ID`、`REV`、`CTL`、`STATUS`、`ERR`、`INT_*`、`DROP_CNT[0..11]`、`TB_CNT`、`CFG_SUM`、`CFG_ERR`、`SMAC_CFG`、`IP_CFG`、`UDP_CFG`、`TX_WR_BLK`、`DBG_CTRL`", "R/W"),
     (256, "全局统计：帧/字节/丢弃计数、抖动最大/均值、前 8 VL 直方图", "R / W1C"),
     (128 * 5, "TX VL 表：128 项 × 5 字（附录 B 的 w0~w4 静态配置；动态三项不在这张表里，见附录 B 说明）", "R/W（`CFG_MODE=1`）"),
+    (128, "TX Q20 份额表：128 项 × 1 字（[20:0] 为逐 VL ceil 带宽份额，地址 `0x0480 + VL`）", "R/W（写仅 `CFG_MODE=1`）"),
     (4096 * 2, "RX VL 配置表：4096 项 × 2 字", "R/W（`CFG_MODE=1`）"),
-    (16384, "RX 哈希表：4096 槽 × 2 way = 8192 表项，每 way 1 字：`{valid, vlid[15:0], idx[11:0]}` + 3 bit 填充（地址 = 槽基址 + way×4096）", "W（`CFG_MODE=1`）"),
+    (16384, "RX 哈希：2 表 × 2048 桶 × 2 way = 8192 表项，各 1 字 `{valid,vlid[15:0],idx[11:0]}` + 3 bit 填充；字地址 = `0x3D80 + table×4096 + bucket×2 + way`，低半区 `0x3D80~0x5D7F` 有效，上半区 `0x5D80~0x7D7F` 保留 P2（O-13，基址/区间不变）", "W（`CFG_MODE=1`）"),
     (256 * 4, "端口表：256 项 × 4 字", "R/W（`CFG_MODE=1`）"),
     (256, "端口描述符：256 项 × 1 字", "R"),
     (768, "端口消息操作：`MSG_WR[256]`、`MSG_RD[256]`、`MSG_CNT[256]`", "R/W"),
@@ -38,10 +39,10 @@ LAYOUT = [
     (8192, "TFTP 加载区：32 KB，`a615a_tftp` 独占", "R/W"),
 ]
 
-# 排布规则：前 3 行固定 0x0000/0x0100/0x0200；0x0480~0x1D7F 为故意留的空洞（放后来
-# 追加的表项）；第 4 行起连续排布；PMEM 固定 0x8800（2 KB 对齐且 16 KB 边界，v0.3.1 定案）；
+# 排布规则：前 4 行固定 0x0000/0x0100/0x0200/0x0480；0x0500~0x1D7F 为故意留的空洞（放后来
+# 追加的表项）；第 5 行起连续排布；PMEM 固定 0x8800（2 KB 对齐且 16 KB 边界，v0.3.1 定案）；
 # 若 PMEM 无锚点则自动 2 KB（= 0x200 字）对齐。
-ANCHORS = {0: 0x0000, 1: 0x0100, 2: 0x0200, 3: 0x1D80, 8: 0x8800}
+ANCHORS = {0: 0x0000, 1: 0x0100, 2: 0x0200, 3: 0x0480, 4: 0x1D80, 9: 0x8800}
 rows = []
 prev_hi = -1
 for i, (words, content, access) in enumerate(LAYOUT):
@@ -62,9 +63,9 @@ tail = 0x10000 - (prev_hi + 1)
 i0 = s.index("地址空间按 32 bit 字组织")
 i1 = s.index("两条约束：加载区紧跟保留区")
 new_intro = ("地址空间按 32 bit 字组织，`host_addr[15:0]` 是字地址，可寻址范围 64 K 字 = 256 KB。"
-             "下表 14 行（含空洞外的全部区段）合计 %d 字 = %.0f KB，占 %.1f%%，其中空洞 `0x0480~0x1D7F` 另计；"
+             "下表 15 行（含空洞外的全部区段）合计 %d 字 = %.1f KB，占 %.1f%%，其中空洞 `0x0500~0x1D7F` 另计；"
              "剩下 `0xEC20~0xFFFF`（%d 字）留给 P2 与将来。"
-             "下表按「项数 × 每项字数」连续排布（`0x0480`~`0x1D7F` 是故意留的空洞，放后来追加的表项；PMEM 起始自动 2 KB 对齐），"
+             "下表按「项数 × 每项字数」排布（`0x0500`~`0x1D7F` 留给将来表项，既有 RX/PMEM 基址不移动；PMEM 起始自动 2 KB 对齐），"
              "`tools/check_addr.py` 会逐行复核容量声明并检查重叠：\n\n"
              "| 区间（字地址） | 容量 | 内容 | 访问 |\n|---|---|---|---|\n"
              % (total, total * 4 / 1024.0, total / 65536 * 100, tail))

@@ -1,0 +1,15 @@
+# Standalone §7.9 lookup BRAM technology smoke, NOT top-level timing/resources.
+# Check BOTH memory collect (4 banks) and mapped altsyncram count.
+read_verilog rtl/rx/rx_vl_lookup.v
+hierarchy -top rx_vl_lookup
+proc
+opt
+memory_dff
+opt_clean
+memory_collect
+select -assert-count 4 t:$mem
+memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
+techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
+opt
+stat
+select -assert-count 64 t:altsyncram

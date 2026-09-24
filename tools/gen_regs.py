@@ -280,10 +280,12 @@ if __name__ == "__main__":
         new = ("### A.1 `CTL`（`0x0008`）位域\n\n%s\n\n### A.2 `STATUS`（`0x000C`）位域\n\n%s\n\n"
                "### A.3 `ERR`（`0x0010`）位域（W1C）\n\n%s\n\n") % (ctl_table(y["ctl_bits"]),
                    simple_table(y["status_bits"], "含义"), simple_table(y["err_bits"], "触发条件"))
-        head = seg[:seg.index("\n\n") + 2]
-        doc = doc.replace(seg, head + new + "\n", 1)
+        # `new` includes the A.1 heading.  Retaining `seg`'s old heading
+        # duplicates it on every --write, even if the tables were identical.
+        doc = doc.replace(seg, new, 1)
         io.open(DOC, "w", encoding="utf-8").write(doc)
         print("已回写附录 A.1~A.3")
-    sys.exit(1 if (probs or probs2 or d) else 0)
+    # --write repairs bitfield drift; still reject schema / main-table drift.
+    sys.exit(1 if (probs or probs2 or (d and "--write" not in sys.argv)) else 0)
 
 

@@ -24,6 +24,19 @@ $mem 有 RD_DATA/RD_DATA_B 双驱动 bug（CHECK 必炸，与 RTL 写法无关�
 路径含空格要加引号）。ELINX_SYNTH IP 分支（设计书 §7.19）不需要了。
 注意：128 M4K = 512 Kbit，EQ6HL45（437 Kbit）装不下——指标按赛方 EQ6HL130P 算。
 
+## RX IC 的 PSN RAM 冒烟（2026-09-23，独立单元）
+
+```bat
+"C:\Program Files (x86)\eHiWay\eLinx3.0\bin\shell\bin\eLinx_synthesis.exe" ^
+  -s elinx/prj/rx_ic_smoke.ys -l elinx/prj/rx_ic_smoke.log
+```
+
+结果：`rx_ic` 的 8192×8 bit PSN 表映成 **16 × altsyncram(M4K)**，脚本以
+`select -assert-count 16 t:altsyncram` 为硬判据，rc=0；`rx_ic_probe.ys` 可查
+`memory_collect` 是否仍有 1 个 `$mem`。旧 3 写口形式虽也 rc=0，但会展开
+24576 个 `$dffe`（失败证据 `rx_ic_smoke_ff_first.log`），不可当通过。
+本试验没有把 IC 接到顶层，也不证明顶层资源或 125 MHz 时序。
+
 ## 已有认识（详见 doc_eLinx3.0_拆解报告.md）
 - eLinx 仿真是 GUI 生成 ModelSim `.do` 再调 `modelsim.exe`；本 build（Questa
   2025.3 Starter）的 win64 目录**没有 modelsim.exe**（只有 vsim.exe）→ GUI

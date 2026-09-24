@@ -7,9 +7,10 @@
 # 2026-09-22). Set env VSIM_ACC=1 to add -voptargs=+acc when you need
 # real waveforms (about 2x sim time).
 # =====================================================================
+onerror { quit -f -code 1 }
 if {![info exists env(TEST_TB)]} {
   puts "ERROR: TEST_TB env not set"
-  exit 1
+  quit -f -code 1
 }
 if {[info exists env(VSIM_ACC)] && $env(VSIM_ACC) == "1"} {
   vsim -voptargs=+acc $env(TEST_TB)

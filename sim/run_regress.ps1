@@ -57,8 +57,39 @@ foreach ($line in (Get-Content (Join-Path $sim 'tests.manifest') -Encoding UTF8)
   $cfg = if ($p.Count -gt 2) { $p[2] } else { 'default' }
   $manifest += [pscustomobject]@{ Id = $p[0]; Tb = $p[1]; Cfg = $cfg }
 }
-if ($Tests.Count -gt 0) { $manifest = @($manifest | Where-Object { $Tests -contains $_.Id }) }
+# powershell -File passes "-Tests T00,T01" as one string (not a string[]).
+# Accept both that documented spelling and -Command's array spelling.
+if ($Tests.Count -gt 0) {
+  $selected = @($Tests | ForEach-Object { $_ -split ',' } |
+                ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+  $manifest = @($manifest | Where-Object { $selected -contains $_.Id })
+}
 if ($manifest.Count -eq 0) { Write-Output "ERROR: no tests selected"; exit 1 }
+if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -gt 0) {
+  # Generate the oracle before any T09 session; a failed model is a failed run.
+  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t09_vectors.py')
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "ERROR: T09 Python golden vector generation failed"
+    exit 1
+  }
+}
+if (@($manifest | Where-Object { $_.Id -like 'T08*' }).Count -gt 0) {
+  # T08a/b/c share independently FCS-checked real-frame golden vectors.
+  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t08a_vectors.py')
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "ERROR: T08 RX Python golden vector generation failed"
+    exit 1
+  }
+}
+if (@($manifest | Where-Object { $_.Id -like 'T12*' }).Count -gt 0) {
+  # Regenerate BOTH tables and independent key lists; offline rejection must
+  # fail the regression instead of running against an old partial image.
+  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t12_vectors.py')
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "ERROR: T12 offline hash image generation failed"
+    exit 1
+  }
+}
 if ($Acc) { $env:VSIM_ACC = '1' } else { $env:VSIM_ACC = '0' }
 
 # --- vsim batch helper: cmd-level redirect (byte-transparent, pitfall #4),
@@ -95,11 +126,32 @@ if (-not $KeepWork) {
   $rtl = @(
     '../rtl/common/rst_sync.v', '../rtl/common/timebase.v',
     '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
-    '../rtl/common/bram_sdp.v',  '../rtl/top/AFDX_top.v',
+    '../rtl/common/bram_sdp.v',  '../rtl/top/init_sweep.v', '../rtl/top/AFDX_top.v',
     '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
-    '../rtl/tx/tx_frame_builder.v'
+    '../rtl/tx/tx_frame_builder.v', '../rtl/tx/tx_vl_scheduler.v',
+    '../rtl/tx/tx_rm.v',            '../rtl/tx/tx_pace.v',
+    '../rtl/tx/mac_tx_if.v',   '../rtl/rx/mac_rx_if.v',
+    '../rtl/rx/rx_block_pool.v', '../rtl/rx/rx_pmem_queue.v',
+    '../rtl/rx/rx_ic.v', '../rtl/rx/rx_vl_lookup.v', '../rtl/rx/rx_flt.v'
   )
-  $tbs = @(); foreach ($m in $manifest) { $tbs += ('tb/' + $m.Tb + '.v') }
+  # TB file = tb/<tb>.v; a TB whose file hosts several top modules (e.g.
+  # tb_t04g_tx_chain lives in tb_t04_tx_chain.v) is mapped here.
+  $tbfile = @{ 'tb_t04g_tx_chain' = 'tb_t04_tx_chain';
+               'tb_t08ag_rx_ingress' = 'tb_t08a_rx_ingress';
+               'tb_t08bg_top_rx' = 'tb_t08b_top_rx';
+               'tb_t08cg_host_arb' = 'tb_t08c_host_arb';
+               'tb_t08dg_top_flt' = 'tb_t08d_top_flt';
+               'tb_t09s_rx_ic' = 'tb_t09_rx_ic';
+               'tb_t09ps_rx_ic' = 'tb_t09p_rx_ic';
+               'tb_t12c_lookup' = 'tb_t12_rx_lookup';
+               'tb_t12r_lookup' = 'tb_t12_rx_lookup';
+               'tb_t12s_lookup' = 'tb_t12_rx_lookup';
+               'tb_t12h_lookup' = 'tb_t12_rx_lookup';
+               'tb_t12fg_top_lookup' = 'tb_t12f_top_lookup' }
+  $tbs = @(); foreach ($m in $manifest) {
+    $f = if ($tbfile.ContainsKey($m.Tb)) { $tbfile[$m.Tb] } else { $m.Tb }
+    $tbs += ('tb/' + $f + '.v')
+  }
   $env:VLOG_SRC = (($rtl + ($tbs | Select-Object -Unique)) -join ' ')
   $sw = [Diagnostics.Stopwatch]::StartNew()
   $rc = Run-Vsim 'source compile.tcl' 'out/compile_console.txt' 300
