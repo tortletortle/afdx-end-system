@@ -9,8 +9,8 @@ module rx_block_pool (
   input wire free_a, free_b, free_pipe,
   input wire [3:0] free_id_a, free_id_b, free_id_pipe,
   // v0.5.16: rx_port_buf 释放口（主机 MSG_RD / 覆盖 / 队列满 / 解析丢弃），同拍至多 2 块
-  input wire free_pb0, free_pb1,
-  input wire [3:0] free_id_pb0, free_id_pb1,
+  input wire free_pb0, free_pb1, free_spill,
+  input wire [3:0] free_id_pb0, free_id_pb1, free_id_spill,
   output reg [15:0] free_map,
   output reg [15:0] exhaust_cnt,
   output reg [15:0] borrow_cnt
@@ -36,6 +36,7 @@ module rx_block_pool (
     if (free_pipe && free_id_pipe >= 4'd6) free_bits[free_id_pipe] = 1'b1;
     if (free_pb0 && free_id_pb0 >= 4'd6) free_bits[free_id_pb0] = 1'b1;
     if (free_pb1 && free_id_pb1 >= 4'd6) free_bits[free_id_pb1] = 1'b1;
+    if (free_spill && free_id_spill >= 4'd6) free_bits[free_id_spill] = 1'b1;
   end
   always @(posedge clk) begin
     if (rst_sync) begin

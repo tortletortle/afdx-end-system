@@ -1,0 +1,23 @@
+COMMAND: Test-Path rtl/mgmt/<file>; Get-Content rtl/mgmt/*.v; inspect AFDX_top ports and sim/tests.manifest
+SCOPE: release evidence only mgmt_sap_rx descriptor handoff, no BER/TFTP/PPS sync application
+rtl\mgmt\snmp_lite.v : exists=True
+// 状态: 第 0 周骨架 —— 仅模块壳，未例化（§13 第 5 周展开）
+module snmp_lite;
+  // TODO: 端口按 §7.16 信号表（与 TB 的唯一接口是顶层端口 + 附录 A 寄存器，§12.1）
+rtl\mgmt\a615a_tftp.v : exists=True
+// 状态: 第 0 周骨架 —— 仅模块壳，未例化（§13 第 5 周展开）
+module a615a_tftp;
+  // TODO: 端口按 §7.17 信号表（与 TB 的唯一接口是顶层端口 + 附录 A 寄存器，§12.1）
+rtl\mgmt\rtc_sync.v : exists=True
+// 状态: 第 0 周骨架 —— 仅模块壳，未例化（§13 第 5 周展开）
+module rtc_sync;
+  // TODO: 端口按 §7.15 信号表（与 TB 的唯一接口是顶层端口 + 附录 A 寄存器，§12.1）
+rtl\mgmt\stats_regs.v : exists=False
+rtl\mgmt\mgmt_sap_rx.v : exists=True
+module mgmt_sap_rx (
+T14/T15/T16 manifest matches:
+AFDX_top pps_out/pps_in:
+// 骨架期: pps_in/tick_us 尚未消费
+input  wire        pps_in,
+output wire        pps_out,
+assign pps_out = 1'b0;

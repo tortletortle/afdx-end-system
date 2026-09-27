@@ -1,0 +1,9 @@
+COMMAND: python out/arena-debug/finalize/make_patch.py
+PATCH: out/arena-debug/fixes.patch bytes=63662
+git apply -R --check rc=0
+
+isolated backup git apply --check rc=0
+
+isolated backup git apply rc=0
+
+byte-for-byte staged file mismatches: ['rtl/tx/tx_rm.v', 'sim/tb/tb_t23_sap_min.v', 'sim/tb/tb_t18_random_stress.v', 'README.md', 'doc/当前进度_20260923.md', 'doc/后续计划.md', 'out/arena-debug/DIANSAI-REPORT.md', 'elinx/sdc/AFDX_top.edc', 'out/arena-debug/finalize/coverage/README.md', 'out/arena-debug/finalize/coverage/compile_cov.tcl', 'out/arena-debug/finalize/coverage/run_cov.tcl', 'out/arena-debug/finalize/sta/README.md', 'out/arena-debug/finalize/sta/sta_probe.tcl', 'out/arena-debug/finalize/synth/README.md', 'out/arena-debug/finalize/tests/README.md', 'out/arena-debug/finalize/write_sha256.py', 'out/arena-debug/finalize/make_patch.py']

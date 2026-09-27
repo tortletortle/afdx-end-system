@@ -1,0 +1,58 @@
+Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Start time: 12:39:03 on Sep 25,2026
+vcover merge C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\full50.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T00.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T01.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T02.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T03.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T04.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T04g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T05b.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T05bg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T05c.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08a.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08ag.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08b.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08bg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08c.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08cg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08d.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08dg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08e.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08eg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08f.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08fg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09p.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09ps.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09s.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T10.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T10g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11i.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11ig.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12c.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12f.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12fg.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12h.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12r.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12s.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T13.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T13g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T17.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T17g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T18.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T18g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T21.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T21g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T22.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T22a.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T22g.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T23.ucdb C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T23g.ucdb 
+Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T00.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T01.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T02.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T03.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T04.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T04g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T05b.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T05bg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T05c.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08a.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08ag.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08b.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08bg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08c.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08cg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08d.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08dg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08e.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08eg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08f.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T08fg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09p.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09ps.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T09s.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T10.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T10g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11i.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T11ig.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12c.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12f.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12fg.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12h.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12r.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T12s.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T13.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T13g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T17.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T17g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T18.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T18g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T21.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T21g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T22.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T22a.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T22g.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T23.ucdb
+Merging file C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\T23g.ucdb
+Writing merged result to C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\full50.ucdb
+
+End time: 12:39:03 on Sep 25,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0

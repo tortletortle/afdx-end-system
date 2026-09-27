@@ -1,0 +1,31 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t12s_lookup 
+# Start time: 14:20:42 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t12s_lookup(fast)
+# T12 LOOKUP PASS (case=2, N=16, buckets=32, image=16/128, lookups=20000, hits=12006 misses=7994, all_idx=16 ways=1111, in_stall=106300 out_stall=66303 max_hold=73, seed=172d/ab61)
+# ** Note: $finish    : tb/tb_t12_rx_lookup.v(341)
+#    Time: 1014840 ns  Iteration: 1  Instance: /tb_t12s_lookup/core
+# End time: 14:20:44 on Sep 25,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

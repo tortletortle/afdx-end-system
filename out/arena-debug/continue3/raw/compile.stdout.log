@@ -1,0 +1,49 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source compile.tcl
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 17:47:06 on Sep 25,2026
+# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v ../rtl/rx/rx_rm.v ../rtl/rx/rx_ip_udp_parse.v ../rtl/rx/rx_port_buf.v ../rtl/mgmt/mgmt_sap_rx.v ../rtl/top/AFDX_top.v tb/tb_reset_copy.v tb/tb_t01_reset_regs.v tb/tb_t11_top_port.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rst_sync
+# -- Compiling module timebase
+# -- Compiling module sync_fifo
+# -- Compiling module crc32
+# -- Compiling module bram_sdp
+# -- Compiling module bram_1w1r
+# -- Compiling module bram_sdp_core
+# -- Compiling module init_sweep
+# -- Compiling module tx_sn_gen
+# -- Compiling module tx_port_buf
+# -- Compiling module tx_frame_builder
+# -- Compiling module tx_vl_scheduler
+# -- Compiling module tx_rm
+# -- Compiling module tx_pace
+# -- Compiling module mac_tx_if
+# -- Compiling module mac_rx_if
+# -- Compiling module rx_block_pool
+# -- Compiling module rx_pmem_queue
+# -- Compiling module rx_ic
+# -- Compiling module rx_vl_lookup
+# -- Compiling module rx_flt
+# -- Compiling module rx_rm
+# -- Compiling module rx_ip_udp_parse
+# -- Compiling module rx_port_buf
+# -- Compiling module mgmt_sap_rx
+# -- Compiling module AFDX_top
+# -- Compiling module tb_reset_copy
+# -- Compiling module tb_t01_reset_regs
+# -- Compiling module tb_t11_core
+# -- Compiling module tb_t11_top_port
+# -- Compiling module tb_t11g_top_port
+# 
+# Top level modules:
+# 	sync_fifo
+# 	tb_reset_copy
+# 	tb_t01_reset_regs
+# 	tb_t11_top_port
+# 	tb_t11g_top_port
+# End time: 17:47:06 on Sep 25,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0

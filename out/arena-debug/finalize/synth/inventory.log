@@ -1,0 +1,1161 @@
+
+
+ eLinx synthesis tool v1.0 (Windows Visual Studio)
+
+
+-- Executing script file `C:\Workspace\diansai\out\arena-debug\finalize\synth\inventory.ys' --
+
+1. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/rst_sync.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/rst_sync.v' to AST representation.
+Generating RTLIL representation for module `\rst_sync'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+2. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/timebase.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/timebase.v' to AST representation.
+Generating RTLIL representation for module `\timebase'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+3. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/sync_fifo.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/sync_fifo.v' to AST representation.
+Generating RTLIL representation for module `\sync_fifo'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+4. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/crc32.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/crc32.v' to AST representation.
+Generating RTLIL representation for module `\crc32'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+5. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/bram_sdp.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/bram_sdp.v' to AST representation.
+Generating RTLIL representation for module `\bram_sdp'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+6. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/top/init_sweep.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/top/init_sweep.v' to AST representation.
+Generating RTLIL representation for module `\init_sweep'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+7. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_sn_gen.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_sn_gen.v' to AST representation.
+Generating RTLIL representation for module `\tx_sn_gen'.
+mem has MEM2REG_FL_CONST_LHS in file C:/Workspace/diansai/rtl/tx/tx_sn_gen.v,line 25 
+Note: Replacing memory \sn_cur with list of registers (flags=0x00004400).
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 78 ms ......
+
+8. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_port_buf.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_port_buf.v' to AST representation.
+Generating RTLIL representation for module `\tx_port_buf'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 109 ms ......
+
+9. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_frame_builder.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_frame_builder.v' to AST representation.
+Generating RTLIL representation for module `\tx_frame_builder'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+10. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v' to AST representation.
+Generating RTLIL representation for module `\tx_vl_scheduler'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 47 ms ......
+
+11. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_rm.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_rm.v' to AST representation.
+Generating RTLIL representation for module `\tx_rm'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+12. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_pace.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_pace.v' to AST representation.
+Generating RTLIL representation for module `\tx_pace'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+13. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/mac_tx_if.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/mac_tx_if.v' to AST representation.
+Generating RTLIL representation for module `\mac_tx_if'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+14. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/mac_rx_if.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/mac_rx_if.v' to AST representation.
+Generating RTLIL representation for module `\mac_rx_if'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+15. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_block_pool.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_block_pool.v' to AST representation.
+Generating RTLIL representation for module `\rx_block_pool'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+16. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v' to AST representation.
+Generating RTLIL representation for module `\rx_pmem_queue'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+17. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_ic.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_ic.v' to AST representation.
+Generating RTLIL representation for module `\rx_ic'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+18. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v' to AST representation.
+Generating RTLIL representation for module `\rx_vl_lookup'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+19. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_flt.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_flt.v' to AST representation.
+Generating RTLIL representation for module `\rx_flt'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+20. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_rm.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_rm.v' to AST representation.
+Generating RTLIL representation for module `\rx_rm'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+21. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v' to AST representation.
+Generating RTLIL representation for module `\rx_ip_udp_parse'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+22. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_port_buf.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_port_buf.v' to AST representation.
+Generating RTLIL representation for module `\rx_port_buf'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+23. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v' to AST representation.
+Generating RTLIL representation for module `\mgmt_sap_rx'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 15 ms ......
+
+24. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/top/AFDX_top.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/top/AFDX_top.v' to AST representation.
+Generating RTLIL representation for module `\AFDX_top'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 47 ms ......
+
+Pass[read_verilog] runtime is 437 ms ......
+
+25. Executing HIERARCHY pass (managing design hierarchy).
+
+25.1. Analyzing design hierarchy..
+
+25.2. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_tx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \IFG_BYTES = 12
+Generating RTLIL representation for module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+
+25.3. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_tx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \IFG_BYTES = 12
+Found cached RTLIL representation for module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+
+25.4. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_pace'.
+Parameter \IF_MODE = 0
+Parameter \BYTE_SLOT_CYC = 10
+Generating RTLIL representation for module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+
+25.5. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_frame_builder'.
+Parameter \BYTE_SLOT_CYC = 10
+Generating RTLIL representation for module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+
+25.6. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_sn_gen'.
+Parameter \NUM_TX_VL = 128
+Generating RTLIL representation for module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+mem has MEM2REG_FL_CONST_LHS in file C:/Workspace/diansai/rtl/tx/tx_sn_gen.v,line 25 
+Note: Replacing memory \sn_cur with list of registers (flags=0x00004400).
+
+25.7. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_vl_scheduler'.
+Parameter \NUM_TX_VL = 128
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+
+25.8. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_port_buf'.
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\rx_port_buf\NUM_PORTS=256'.
+
+25.9. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_ip_udp_parse'.
+Parameter \DW = 174
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+
+25.10. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_rm'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+
+25.11. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_ic'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+
+25.12. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_flt'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+
+25.13. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_vl_lookup'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Parameter \HASH_BUCKETS = 2048
+Generating RTLIL representation for module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+
+25.14. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_pmem_queue'.
+Parameter \DW = 174
+Generating RTLIL representation for module `$paramod\rx_pmem_queue\DW=174'.
+
+25.15. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_pmem_queue'.
+Parameter \DW = 174
+Found cached RTLIL representation for module `$paramod\rx_pmem_queue\DW=174'.
+
+25.16. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_rx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \MAX_FRAME = 1518
+Parameter \NET_ID = 1
+Generating RTLIL representation for module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+
+25.17. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_rx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \MAX_FRAME = 1518
+Parameter \NET_ID = 0
+Generating RTLIL representation for module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+
+25.18. Executing AST frontend in derive mode using pre-parsed AST for module `\bram_sdp'.
+Parameter \W = 32
+Parameter \D = 8192
+Parameter \BYTE_EN = 1
+Generating RTLIL representation for module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+
+25.19. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_port_buf'.
+Parameter \NUM_PORTS = 256
+Parameter \TX_BLK_LO = 0
+Parameter \TX_BLK_N = 6
+Generating RTLIL representation for module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+
+25.20. Executing AST frontend in derive mode using pre-parsed AST for module `\timebase'.
+Parameter \TICK_US = 1
+Generating RTLIL representation for module `$paramod\timebase\TICK_US=1'.
+
+25.21. Executing AST frontend in derive mode using pre-parsed AST for module `\init_sweep'.
+Parameter \NUM_RX_VL = 4096
+Parameter \NUM_TX_VL = 128
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+
+25.22. Analyzing design hierarchy..
+
+25.23. Analyzing design hierarchy..
+
+Pass[hierarchy] runtime is 297 ms ......
+
+26. Executing PROC pass (convert processes to netlists).
+
+26.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 0 ms ......
+
+26.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+
+Pass[proc_rmdead] runtime is 31 ms ......
+
+26.3. Executing PROC_INIT pass (extract init attributes).
+
+Pass[proc_init] runtime is 0 ms ......
+
+26.4. Executing PROC_ARST pass (detect async resets in processes).
+
+Pass[proc_arst] runtime is 0 ms ......
+
+26.5. Executing PROC_ROM pass (convert switches to ROMs).
+
+Pass[proc_rom] runtime is 0 ms ......
+
+26.6. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+Pass[proc_mux] runtime is 453 ms ......
+
+26.7. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+Pass[proc_dlatch] runtime is 125 ms ......
+
+26.8. Executing PROC_DFF pass (convert process syncs to FFs).
+
+Pass[proc_dff] runtime is 47 ms ......
+
+26.9. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 16 ms ......
+
+Pass[proc] runtime is 672 ms ......
+
+27. Executing OPT pass (performing simple optimizations).
+
+27.1. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 234 ms ......
+
+27.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `\tx_rm'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `\rst_sync'.
+Removed a total of 3239 cells.
+
+Pass[opt_merge] runtime is 110 ms ......
+
+27.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 140 ms ......
+
+27.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 172 ms ......
+
+27.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `\tx_rm'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `\rst_sync'.
+Removed a total of 576 cells.
+
+Pass[opt_merge] runtime is 141 ms ......
+
+27.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 31 ms ......
+
+27.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 281 ms ......
+
+27.8. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 188 ms ......
+
+27.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+27.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 140 ms ......
+
+27.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 63 ms ......
+
+27.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `\rst_sync'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `\tx_rm'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 156 ms ......
+
+27.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 16 ms ......
+
+27.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 187 ms ......
+
+27.15. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 172 ms ......
+
+27.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+27.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 78 ms ......
+
+27.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 47 ms ......
+
+27.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `\rst_sync'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `\tx_rm'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 110 ms ......
+
+27.20. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 15 ms ......
+
+27.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 188 ms ......
+
+27.22. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 109 ms ......
+
+27.23. Finished OPT passes. (There is nothing left to do.)
+
+Pass[opt] runtime is 2594 ms ......
+
+28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).
+
+Pass[memory_dff] runtime is 140 ms ......
+
+Pass[select] runtime is 0 ms ......
+
+Pass[select] runtime is 0 ms ......
+
+Pass[select] runtime is 0 ms ......
+
+29. Printing statistics.
+
+=== $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1 ===
+
+   Number of wires:                 53
+   Number of wire bits:           1259
+   Number of public wires:          11
+   Number of public wire bits:     143
+   Number of memories:               1
+   Number of memory bits:       262144
+   Number of processes:              0
+   Number of cells:                 46
+     $dff                           14
+     $memrd                          2
+     $memwr                          4
+     $mux                           26
+
+=== $paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256 ===
+
+   Number of wires:                 40
+   Number of wire bits:            124
+   Number of public wires:           8
+   Number of public wire bits:      34
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 34
+     $add                            2
+     $and                            2
+     $dff                            4
+     $eq                             7
+     $logic_not                      1
+     $mux                           14
+     $pmux                           1
+     $reduce_or                      3
+
+=== $paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0 ===
+
+   Number of wires:                635
+   Number of wire bits:           7272
+   Number of public wires:          80
+   Number of public wire bits:     833
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                619
+     $add                           21
+     $dff                           59
+     $eq                            34
+     $ge                             5
+     $gt                             2
+     $le                             2
+     $logic_and                     21
+     $logic_not                      7
+     $logic_or                       6
+     $lt                             7
+     $mux                          416
+     $ne                            11
+     $pmux                           4
+     $reduce_bool                    2
+     $reduce_or                      1
+     $sub                            3
+     $xor                           18
+
+=== $paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1 ===
+
+   Number of wires:                635
+   Number of wire bits:           7272
+   Number of public wires:          80
+   Number of public wire bits:     833
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                619
+     $add                           21
+     $dff                           59
+     $eq                            34
+     $ge                             5
+     $gt                             2
+     $le                             2
+     $logic_and                     21
+     $logic_not                      7
+     $logic_or                       6
+     $lt                             7
+     $mux                          416
+     $ne                            11
+     $pmux                           4
+     $reduce_bool                    2
+     $reduce_or                      1
+     $sub                            3
+     $xor                           18
+
+=== $paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12 ===
+
+   Number of wires:                148
+   Number of wire bits:            614
+   Number of public wires:          41
+   Number of public wire bits:     159
+   Number of memories:               1
+   Number of memory bits:          576
+   Number of processes:              0
+   Number of cells:                131
+     $add                            7
+     $and                            2
+     $dff                           20
+     $eq                             9
+     $ge                             2
+     $logic_and                      3
+     $logic_not                      4
+     $memrd                          1
+     $memwr                          1
+     $mux                           71
+     $ne                             1
+     $or                             1
+     $pmux                           6
+     $reduce_bool                    1
+     $sub                            1
+     crc32                           1
+
+=== $paramod\rx_flt\DW=174\NUM_RX_VL=4096 ===
+
+   Number of wires:                 66
+   Number of wire bits:           1090
+   Number of public wires:          25
+   Number of public wire bits:     483
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 52
+     $dff                            6
+     $ge                             1
+     $gt                             1
+     $logic_and                      3
+     $logic_not                      8
+     $logic_or                       6
+     $mux                           26
+     $ne                             1
+
+=== $paramod\rx_ic\DW=174\NUM_RX_VL=4096 ===
+
+   Number of wires:                147
+   Number of wire bits:           1730
+   Number of public wires:          44
+   Number of public wire bits:     544
+   Number of memories:               1
+   Number of memory bits:        65536
+   Number of processes:              0
+   Number of cells:                129
+     $add                            4
+     $dff                           16
+     $eq                             7
+     $ge                             1
+     $logic_and                     16
+     $logic_not                      6
+     $logic_or                       3
+     $lt                             3
+     $memrd                          1
+     $memwr                          1
+     $mux                           68
+     $pmux                           2
+     $sub                            1
+
+=== $paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256 ===
+
+   Number of wires:                 60
+   Number of wire bits:            530
+   Number of public wires:          23
+   Number of public wire bits:     382
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 48
+     $dff                            9
+     $eq                             2
+     $logic_and                      3
+     $logic_not                      4
+     $logic_or                       1
+     $lt                             1
+     $mux                           26
+     $ne                             1
+     $reduce_bool                    1
+
+=== $paramod\rx_pmem_queue\DW=174 ===
+
+   Number of wires:                 82
+   Number of wire bits:           2139
+   Number of public wires:          28
+   Number of public wire bits:     481
+   Number of memories:               3
+   Number of memory bits:         1104
+   Number of processes:              0
+   Number of cells:                 68
+     $add                            5
+     $dff                           13
+     $eq                             1
+     $logic_and                      8
+     $logic_not                      2
+     $logic_or                       1
+     $lt                             2
+     $memrd                          3
+     $memwr                          3
+     $mux                           24
+     $ne                             4
+     $sub                            2
+
+=== $paramod\rx_port_buf\NUM_PORTS=256 ===
+
+   Number of wires:                556
+   Number of wire bits:           3128
+   Number of public wires:          40
+   Number of public wire bits:     266
+   Number of memories:              10
+   Number of memory bits:         5360
+   Number of processes:              0
+   Number of cells:                568
+     $add                            5
+     $dff                           68
+     $ge                             1
+     $gt                             1
+     $logic_and                      4
+     $logic_not                     24
+     $logic_or                       1
+     $lt                             1
+     $memrd                         15
+     $memwr                         32
+     $mux                          413
+     $reduce_bool                    2
+     $sub                            1
+
+=== $paramod\rx_rm\DW=174\NUM_RX_VL=4096 ===
+
+   Number of wires:                142
+   Number of wire bits:           2100
+   Number of public wires:          46
+   Number of public wire bits:     670
+   Number of memories:               1
+   Number of memory bits:       135168
+   Number of processes:              0
+   Number of cells:                122
+     $add                            1
+     $dff                           17
+     $eq                             5
+     $le                             1
+     $logic_and                     24
+     $logic_not                      6
+     $logic_or                       2
+     $lt                             3
+     $memrd                          1
+     $memwr                          1
+     $mux                           57
+     $pmux                           2
+     $shl                            1
+     $sub                            1
+
+=== $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048 ===
+
+   Number of wires:                199
+   Number of wire bits:           2749
+   Number of public wires:          65
+   Number of public wire bits:     790
+   Number of memories:               4
+   Number of memory bits:       262144
+   Number of processes:              0
+   Number of cells:                172
+     $add                            4
+     $and                            2
+     $dff                           24
+     $eq                             8
+     $logic_and                     41
+     $logic_not                     14
+     $logic_or                       8
+     $lt                             6
+     $memrd                          4
+     $memwr                          4
+     $mul                            2
+     $mux                           48
+     $pmux                           2
+     $xor                            5
+
+=== $paramod\timebase\TICK_US=1 ===
+
+   Number of wires:                 27
+   Number of wire bits:            562
+   Number of public wires:          12
+   Number of public wire bits:     159
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 20
+     $add                            4
+     $and                            1
+     $dff                            4
+     $eq                             1
+     $logic_not                      1
+     $mux                            9
+
+=== $paramod\tx_frame_builder\BYTE_SLOT_CYC=10 ===
+
+   Number of wires:                461
+   Number of wire bits:           4126
+   Number of public wires:         106
+   Number of public wire bits:    1145
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                430
+     $add                           19
+     $and                            2
+     $dff                           53
+     $eq                            60
+     $ge                             1
+     $gt                             1
+     $le                             2
+     $logic_and                     13
+     $logic_not                     12
+     $logic_or                       3
+     $lt                             6
+     $mux                          239
+     $ne                             1
+     $pmux                          13
+     $reduce_or                      2
+     $sub                            3
+
+=== $paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10 ===
+
+   Number of wires:                  8
+   Number of wire bits:             36
+   Number of public wires:           4
+   Number of public wire bits:      11
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  5
+     $add                            1
+     $dff                            1
+     $eq                             1
+     $mux                            2
+
+=== $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6 ===
+
+   Number of wires:               3064
+   Number of wire bits:           6533
+   Number of public wires:          79
+   Number of public wire bits:    1689
+   Number of memories:               4
+   Number of memory bits:         9488
+   Number of processes:              0
+   Number of cells:               3811
+     $add                            4
+     $and                           18
+     $dff                           39
+     $eq                           257
+     $ge                             2
+     $le                             1
+     $logic_and                      5
+     $logic_not                      6
+     $logic_or                       1
+     $memrd                          5
+     $memwr                          4
+     $mux                         3450
+     $ne                             3
+     $or                             8
+     $reduce_or                      1
+     $shiftx                         2
+     $shl                            4
+     $sub                            1
+
+=== $paramod\tx_sn_gen\NUM_TX_VL=128 ===
+
+   Number of wires:               1210
+   Number of wire bits:           4950
+   Number of public wires:         149
+   Number of public wire bits:    1123
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1200
+     $add                            2
+     $dff                          134
+     $eq                           385
+     $logic_and                    260
+     $logic_not                      5
+     $logic_or                       1
+     $mux                          410
+     $pmux                           1
+     $reduce_bool                    1
+     $sub                            1
+
+=== $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256 ===
+
+   Number of wires:               1543
+   Number of wire bits:           5779
+   Number of public wires:          54
+   Number of public wire bits:     871
+   Number of memories:               4
+   Number of memory bits:         7280
+   Number of processes:              0
+   Number of cells:               1795
+     $add                          135
+     $and                            6
+     $dff                           59
+     $eq                           385
+     $ge                             2
+     $gt                             1
+     $logic_and                      2
+     $logic_not                      5
+     $memrd                          5
+     $memwr                         21
+     $mux                         1164
+     $ne                             1
+     $or                             3
+     $pmux                           2
+     $shiftx                         3
+     $sub                            1
+
+=== AFDX_top ===
+
+   Number of wires:               1833
+   Number of wire bits:          13812
+   Number of public wires:         418
+   Number of public wire bits:    5787
+   Number of memories:               5
+   Number of memory bits:       322176
+   Number of processes:              0
+   Number of cells:               1729
+     $add                           48
+     $and                           16
+     $dff                           65
+     $div                            1
+     $eq                           294
+     $ge                            16
+     $gt                             1
+     $le                            15
+     $logic_and                    177
+     $logic_not                     56
+     $logic_or                      85
+     $lt                             7
+     $memrd                         27
+     $memwr                          8
+     $mod                            1
+     $mul                            5
+     $mux                          844
+     $ne                             1
+     $or                             7
+     $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1      1
+     $paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256      1
+     $paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0      1
+     $paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1      1
+     $paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12      2
+     $paramod\rx_flt\DW=174\NUM_RX_VL=4096      1
+     $paramod\rx_ic\DW=174\NUM_RX_VL=4096      1
+     $paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256      1
+     $paramod\rx_pmem_queue\DW=174      2
+     $paramod\rx_port_buf\NUM_PORTS=256      1
+     $paramod\rx_rm\DW=174\NUM_RX_VL=4096      1
+     $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048      1
+     $paramod\timebase\TICK_US=1      1
+     $paramod\tx_frame_builder\BYTE_SLOT_CYC=10      1
+     $paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10      1
+     $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6      1
+     $paramod\tx_sn_gen\NUM_TX_VL=128      1
+     $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256      1
+     $pmux                           1
+     $reduce_bool                    3
+     $reduce_or                      5
+     $shiftx                         3
+     $sub                           19
+     mgmt_sap_rx                     1
+     rst_sync                        1
+     rx_block_pool                   1
+     tx_rm                           1
+
+=== crc32 ===
+
+   Number of wires:                 30
+   Number of wire bits:            812
+   Number of public wires:          18
+   Number of public wire bits:     428
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 22
+     $dff                            1
+     $mux                           11
+     $xor                           10
+
+=== mgmt_sap_rx ===
+
+   Number of wires:                 33
+   Number of wire bits:            406
+   Number of public wires:          15
+   Number of public wire bits:     134
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 23
+     $add                            2
+     $dff                            5
+     $logic_and                      3
+     $logic_not                      2
+     $mux                           11
+
+=== rst_sync ===
+
+   Number of wires:                  4
+   Number of wire bits:              6
+   Number of public wires:           4
+   Number of public wire bits:       6
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $dff                            1
+
+=== rx_block_pool ===
+
+   Number of wires:                459
+   Number of wire bits:            934
+   Number of public wires:          26
+   Number of public wire bits:     156
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                537
+     $add                            4
+     $dff                            3
+     $eq                            90
+     $ge                             8
+     $logic_and                     48
+     $logic_not                     26
+     $mux                          165
+     $or                             1
+     $pmux                          96
+     $reduce_or                     96
+
+=== tx_rm ===
+
+   Number of wires:                140
+   Number of wire bits:           1446
+   Number of public wires:          44
+   Number of public wire bits:     140
+   Number of memories:               2
+   Number of memory bits:          160
+   Number of processes:              0
+   Number of cells:                141
+     $add                            6
+     $and                           10
+     $dff                           34
+     $logic_not                      1
+     $memrd                          2
+     $memwr                         34
+     $mux                           44
+     $ne                             1
+     $or                             5
+     $reduce_bool                    2
+     $sub                            2
+
+=== design hierarchy ===
+
+   AFDX_top                          1
+     $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1      1
+     $paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256      1
+     $paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0      1
+     $paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1      1
+     $paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12      2
+       crc32                         1
+     $paramod\rx_flt\DW=174\NUM_RX_VL=4096      1
+     $paramod\rx_ic\DW=174\NUM_RX_VL=4096      1
+     $paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256      1
+     $paramod\rx_pmem_queue\DW=174      2
+     $paramod\rx_port_buf\NUM_PORTS=256      1
+     $paramod\rx_rm\DW=174\NUM_RX_VL=4096      1
+     $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048      1
+     $paramod\timebase\TICK_US=1      1
+     $paramod\tx_frame_builder\BYTE_SLOT_CYC=10      1
+     $paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10      1
+     $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6      1
+     $paramod\tx_sn_gen\NUM_TX_VL=128      1
+     $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256      1
+     mgmt_sap_rx                     1
+     rst_sync                        1
+     rx_block_pool                   1
+     tx_rm                           1
+
+   Number of wires:              11835
+   Number of wire bits:          72974
+   Number of public wires:        1507
+   Number of public wire bits:   18335
+   Number of memories:              40
+   Number of memory bits:       1072816
+   Number of processes:              0
+   Number of cells:              12517
+     $add                          307
+     $and                           61
+     $dff                          742
+     $div                            1
+     $eq                          1590
+     $ge                            46
+     $gt                             9
+     $le                            23
+     $logic_and                    663
+     $logic_not                    203
+     $logic_or                     125
+     $lt                            45
+     $memrd                         70
+     $memwr                        117
+     $mod                            1
+     $mul                            7
+     $mux                         8060
+     $ne                            41
+     $or                            26
+     $pmux                         140
+     $reduce_bool                   15
+     $reduce_or                    109
+     $shiftx                         8
+     $shl                            5
+     $sub                           42
+     $xor                           61
+
+
+Pass[stat] runtime is 16 ms ......
+
+End of script. Logfile hash: db3414a5d8
+eLinx synthesis tool v1.0 (Windows Visual Studio)
+Time spent: 4% 25x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...
+Yosys execute success!

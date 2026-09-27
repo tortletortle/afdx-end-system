@@ -1,0 +1,31 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t11g_top_port 
+# Start time: 12:42:01 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t11g_top_port(fast)
+# T11 TOP PORT PASS (IF_MODE=1 deliver=14 ovr=4 qovf=2 port_drop=4 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)
+# ** Note: $finish    : tb/tb_t11_top_port.v(345)
+#    Time: 444920 ns  Iteration: 1  Instance: /tb_t11g_top_port/core
+# End time: 12:42:04 on Sep 25,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0

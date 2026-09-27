@@ -33,6 +33,11 @@ module timebase #(
       beat_cnt <= 24'd0;
       frac     <= 16'd0;
       rtc64    <= 64'd0;
+      // continue4 修复：tick_ctr 原先没有复位项，仿真里恒为 X，
+      // 于是 tick_us = us_inc & (tick_ctr==0) 永远不出脉冲。改造前
+      // 没有模块消费 tick_us（BAG 直接用 rtc64），所以一直没有暴露；
+      // rtc_sync / a615a_tftp 接上 tick_us 后必须修掉。
+      tick_ctr <= 16'd0;
     end else begin
       beat_cnt <= beat_cnt + 24'd1;                       // 2^24 拍 → ALIVE
       if (!rtc_hold) begin

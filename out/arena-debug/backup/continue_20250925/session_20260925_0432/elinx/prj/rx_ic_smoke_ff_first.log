@@ -1,0 +1,241 @@
+
+
+ eLinx synthesis tool v1.0 (Windows Visual Studio)
+
+
+-- Executing script file `elinx/prj/rx_ic_smoke.ys' --
+
+1. Executing Verilog-2005 frontend: rtl/rx/rx_ic.v
+Parsing Verilog input from `rtl/rx/rx_ic.v' to AST representation.
+Generating RTLIL representation for module `\rx_ic'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 15 ms ......
+
+Pass[read_verilog] runtime is 15 ms ......
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+
+2.2. Analyzing design hierarchy..
+
+Pass[hierarchy] runtime is 0 ms ......
+
+3. Executing PROC pass (convert processes to netlists).
+
+3.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 0 ms ......
+
+3.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+
+Pass[proc_rmdead] runtime is 0 ms ......
+
+3.3. Executing PROC_INIT pass (extract init attributes).
+
+Pass[proc_init] runtime is 0 ms ......
+
+3.4. Executing PROC_ARST pass (detect async resets in processes).
+
+Pass[proc_arst] runtime is 0 ms ......
+
+3.5. Executing PROC_ROM pass (convert switches to ROMs).
+
+Pass[proc_rom] runtime is 0 ms ......
+
+3.6. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+Pass[proc_mux] runtime is 16 ms ......
+
+3.7. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+Pass[proc_dlatch] runtime is 0 ms ......
+
+3.8. Executing PROC_DFF pass (convert process syncs to FFs).
+
+Pass[proc_dff] runtime is 0 ms ......
+
+3.9. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 0 ms ......
+
+Pass[proc] runtime is 16 ms ......
+
+4. Executing OPT pass (performing simple optimizations).
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 16 ms ......
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rx_ic'.
+Removed a total of 22 cells.
+
+Pass[opt_merge] runtime is 0 ms ......
+
+4.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 15 ms ......
+
+4.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 0 ms ......
+
+4.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rx_ic'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 0 ms ......
+
+4.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 16 ms ......
+
+4.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 0 ms ......
+
+4.8. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 16 ms ......
+
+4.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+4.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 0 ms ......
+
+4.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 0 ms ......
+
+4.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rx_ic'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 0 ms ......
+
+4.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 0 ms ......
+
+4.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 15 ms ......
+
+4.15. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 0 ms ......
+
+4.16. Finished OPT passes. (There is nothing left to do.)
+
+Pass[opt] runtime is 78 ms ......
+
+5. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).
+
+Pass[memory_dff] runtime is 0 ms ......
+
+6. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 16 ms ......
+
+7. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+Pass[memory_collect] runtime is 1984 ms ......
+
+8. Executing MEMORY_BRAM pass (mapping $mem cells to block memories).
+
+Pass[memory_bram] runtime is 31 ms ......
+
+9. Executing TECHMAP pass (map to technology primitives).
+
+9.1. Executing Verilog-2005 frontend: C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v
+Parsing Verilog input from `C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v' to AST representation.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_DUALPORT_FULL'.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_SINGLEPORT_FULL'.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_ROM_FULL'.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_BIDIRDUALPORT_FULL'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+9.2. Continuing TECHMAP pass.
+
+Pass[techmap] runtime is 204 ms ......
+
+10. Executing OPT pass (performing simple optimizations).
+
+10.1. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 3546 ms ......
+
+10.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rx_ic'.
+Removed a total of 16384 cells.
+
+Pass[opt_merge] runtime is 3985 ms ......
+
+10.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 26172 ms ......
+
+10.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 55453 ms ......
+
+10.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rx_ic'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 2812 ms ......
+
+10.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 297 ms ......
+
+10.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 4438 ms ......
+
+10.8. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 2390 ms ......
+
+10.9. Finished OPT passes. (There is nothing left to do.)
+
+Pass[opt] runtime is 99640 ms ......
+
+11. Printing statistics.
+
+=== rx_ic ===
+
+   Number of wires:              82090
+   Number of wire bits:         256065
+   Number of public wires:          37
+   Number of public wire bits:     484
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              82074
+     $add                            4
+     $and                        24576
+     $dff                           13
+     $dffe                       24576
+     $eq                         32771
+     $ge                             1
+     $logic_and                      6
+     $logic_not                      9
+     $logic_or                       1
+     $lt                             3
+     $mux                          108
+     $pmux                           5
+     $sub                            1
+
+
+Pass[stat] runtime is 47 ms ......
+
+End of script. Logfile hash: e78dd46753
+eLinx synthesis tool v1.0 (Windows Visual Studio)
+Time spent: 4% 5x opt_merge (0 sec), 4% 5x opt_expr (0 sec), ...
+Yosys execute success!

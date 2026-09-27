@@ -1,0 +1,924 @@
+{
+  "sha": "0fd783bd6426b5c5cc2b3ef721ef957f83bf3043",
+  "url": "https://api.github.com/repos/omnetpp-models/afdx/git/trees/0fd783bd6426b5c5cc2b3ef721ef957f83bf3043",
+  "tree": [
+    {
+      "path": ".cproject",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f6999ef7b6d43fb9598a09c718539508a591e99b",
+      "size": 16405,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/f6999ef7b6d43fb9598a09c718539508a591e99b"
+    },
+    {
+      "path": ".nedfolders",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d52dbe65b168200d0d7ca9778a3650d21c3a186d",
+      "size": 16,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d52dbe65b168200d0d7ca9778a3650d21c3a186d"
+    },
+    {
+      "path": ".oppbuildspec",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "982723c069aecfb794f679621c61f0716384b112",
+      "size": 444,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/982723c069aecfb794f679621c61f0716384b112"
+    },
+    {
+      "path": ".project",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dff4f5c38435613fc93b3f2c44c4374673a17488",
+      "size": 2907,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/dff4f5c38435613fc93b3f2c44c4374673a17488"
+    },
+    {
+      "path": "README",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f2f5fcc4ed3933e79f9f441be2a39e7007c16aa8",
+      "size": 252,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/f2f5fcc4ed3933e79f9f441be2a39e7007c16aa8"
+    },
+    {
+      "path": "simulations",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "2ed399f0a0300eb17285075bb9370d9bd67d0474",
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/trees/2ed399f0a0300eb17285075bb9370d9bd67d0474"
+    },
+    {
+      "path": "simulations/AFDXExampleNetwork.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "80d7cb5719df2cbc63e07283d36de7614922ab9f",
+      "size": 1782,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/80d7cb5719df2cbc63e07283d36de7614922ab9f"
+    },
+    {
+      "path": "simulations/omnetpp.ini",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "61df7797a1e955aef289bcf406bcba1b33a34838",
+      "size": 517,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/61df7797a1e955aef289bcf406bcba1b33a34838"
+    },
+    {
+      "path": "simulations/package.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cf09fab3e2c25b66d4845fdc088cc9d9580fa5df",
+      "size": 16,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/cf09fab3e2c25b66d4845fdc088cc9d9580fa5df"
+    },
+    {
+      "path": "simulations/run",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "12c197542ca73609e78f908737141d10958f8578",
+      "size": 114,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/12c197542ca73609e78f908737141d10958f8578"
+    },
+    {
+      "path": "src",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "73493820a036d09d4d40904359e63d0ffcde275d",
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/trees/73493820a036d09d4d40904359e63d0ffcde275d"
+    },
+    {
+      "path": "src/AFDXDefs.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "531932ddaa208d103b32d5913f3603d4126c723d",
+      "size": 346,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/531932ddaa208d103b32d5913f3603d4126c723d"
+    },
+    {
+      "path": "src/AFDXMessage.msg",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b817120baf865703ced4c87a2c52d0dfe04031c4",
+      "size": 2056,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/b817120baf865703ced4c87a2c52d0dfe04031c4"
+    },
+    {
+      "path": "src/AFDXMessageSource.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "370a878b474f8775db12dc9dd5fb806e45031db6",
+      "size": 1544,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/370a878b474f8775db12dc9dd5fb806e45031db6"
+    },
+    {
+      "path": "src/AFDXMessageSource.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e9e05571a74a176ccf4826e308d0b704fecc5376",
+      "size": 976,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/e9e05571a74a176ccf4826e308d0b704fecc5376"
+    },
+    {
+      "path": "src/AFDXMessageSource.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d6923cb84f5200d09a62a28b81af497f18ebb15e",
+      "size": 1327,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d6923cb84f5200d09a62a28b81af497f18ebb15e"
+    },
+    {
+      "path": "src/EndSystem.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2fa7f024219a9cb13187381f894772962fcc5c6d",
+      "size": 2619,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/2fa7f024219a9cb13187381f894772962fcc5c6d"
+    },
+    {
+      "path": "src/FrameFilter.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5fe953990d8fbd4550fa7d53b86364a58590d203",
+      "size": 907,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/5fe953990d8fbd4550fa7d53b86364a58590d203"
+    },
+    {
+      "path": "src/FrameFilter.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "797475c005f699e70dc81b4a7b84dfcd7bad1f36",
+      "size": 970,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/797475c005f699e70dc81b4a7b84dfcd7bad1f36"
+    },
+    {
+      "path": "src/FrameFilter.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "772b229447f7bc4a5a43023688492f5febaa2a89",
+      "size": 1241,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/772b229447f7bc4a5a43023688492f5febaa2a89"
+    },
+    {
+      "path": "src/IntegrityChecker.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7266d0544eb38559ce5cfbbad2931d1a2edbaf7e",
+      "size": 1540,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/7266d0544eb38559ce5cfbbad2931d1a2edbaf7e"
+    },
+    {
+      "path": "src/IntegrityChecker.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "493eb7eb83a0e92114ce274735c4917594464545",
+      "size": 1012,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/493eb7eb83a0e92114ce274735c4917594464545"
+    },
+    {
+      "path": "src/IntegrityChecker.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d0845c27e3d7d3ac03ae204b4bb21dff5cea14c4",
+      "size": 869,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d0845c27e3d7d3ac03ae204b4bb21dff5cea14c4"
+    },
+    {
+      "path": "src/MAC.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "17a7bb4ad0cb012df5232d16f3f19487345e3992",
+      "size": 4827,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/17a7bb4ad0cb012df5232d16f3f19487345e3992"
+    },
+    {
+      "path": "src/MAC.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b62270aa3757238c6b79446f95e0ed71de893d42",
+      "size": 1282,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/b62270aa3757238c6b79446f95e0ed71de893d42"
+    },
+    {
+      "path": "src/MAC.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "89a9cd9f85ed14ef08ea72fa34dc72afddcf1d98",
+      "size": 1356,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/89a9cd9f85ed14ef08ea72fa34dc72afddcf1d98"
+    },
+    {
+      "path": "src/RedundancyChecker.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a51cca37eb1d522cc26ed54c20b4462ea5149b35",
+      "size": 1771,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/a51cca37eb1d522cc26ed54c20b4462ea5149b35"
+    },
+    {
+      "path": "src/RedundancyChecker.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cd7bf5f27edbc14cb44e0486727561a39f125743",
+      "size": 1083,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/cd7bf5f27edbc14cb44e0486727561a39f125743"
+    },
+    {
+      "path": "src/RedundancyChecker.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e097c62ac3c9fa60eec834c8e44def646bfaa2eb",
+      "size": 985,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/e097c62ac3c9fa60eec834c8e44def646bfaa2eb"
+    },
+    {
+      "path": "src/RedundancyController.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2a7b924f02bd0e9e7a6f78cd0063b7db71c6436b",
+      "size": 1742,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/2a7b924f02bd0e9e7a6f78cd0063b7db71c6436b"
+    },
+    {
+      "path": "src/RedundancyController.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a964701485dce224fb4976903437ac484aef9a16",
+      "size": 1181,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/a964701485dce224fb4976903437ac484aef9a16"
+    },
+    {
+      "path": "src/RedundancyController.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1130a4ccf1c0608406d9e4b4e70d32d4fa10b00c",
+      "size": 937,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/1130a4ccf1c0608406d9e4b4e70d32d4fa10b00c"
+    },
+    {
+      "path": "src/RegulatorLogic.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9e6b4b7300edd137872802699b438498f6a3fa28",
+      "size": 918,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/9e6b4b7300edd137872802699b438498f6a3fa28"
+    },
+    {
+      "path": "src/RegulatorLogic.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "99a081b7ebabf08f2a390aedc02627fd222b36ba",
+      "size": 979,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/99a081b7ebabf08f2a390aedc02627fd222b36ba"
+    },
+    {
+      "path": "src/RegulatorLogic.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5cdd9abf36a32a5270c04557feaeb9e68e6516de",
+      "size": 1214,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/5cdd9abf36a32a5270c04557feaeb9e68e6516de"
+    },
+    {
+      "path": "src/Switch.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "251871f3c053e1adb9d097031e7bc5098b26f121",
+      "size": 1516,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/251871f3c053e1adb9d097031e7bc5098b26f121"
+    },
+    {
+      "path": "src/SwitchFabric.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c6515495e48fbe5920ab8b62b39b9010453d7ce5",
+      "size": 2242,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/c6515495e48fbe5920ab8b62b39b9010453d7ce5"
+    },
+    {
+      "path": "src/SwitchPort.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8fbb286279abf6ae678ae9c051897ca40243902a",
+      "size": 1709,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/8fbb286279abf6ae678ae9c051897ca40243902a"
+    },
+    {
+      "path": "src/TrafficPolicy.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "05d14635a8b97e721e46e262694f50a6db9d5e0a",
+      "size": 915,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/05d14635a8b97e721e46e262694f50a6db9d5e0a"
+    },
+    {
+      "path": "src/TrafficPolicy.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3da20b0804066270c721147cd3cb586210ce322b",
+      "size": 976,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/3da20b0804066270c721147cd3cb586210ce322b"
+    },
+    {
+      "path": "src/TrafficPolicy.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9bfc0e7eecc5496604dc4d031943ed586c525b79",
+      "size": 1120,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/9bfc0e7eecc5496604dc4d031943ed586c525b79"
+    },
+    {
+      "path": "src/VLRouter.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1fe29bd2300134f4de20241468b016146afdc7ff",
+      "size": 1437,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/1fe29bd2300134f4de20241468b016146afdc7ff"
+    },
+    {
+      "path": "src/VLRouter.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bd6732950044e794cc177deafd4cf7cc76c035eb",
+      "size": 961,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/bd6732950044e794cc177deafd4cf7cc76c035eb"
+    },
+    {
+      "path": "src/VLRouter.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cf5389f2f0e37ca12b7fa109ff35823318efa884",
+      "size": 930,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/cf5389f2f0e37ca12b7fa109ff35823318efa884"
+    },
+    {
+      "path": "src/package.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fd120e2d8b0a076817f988b34532f754b8d5847d",
+      "size": 488,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/fd120e2d8b0a076817f988b34532f754b8d5847d"
+    },
+    {
+      "path": "src/queueinglib",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "e67c340429fc306d99dcf33a9fd5d6758db18637",
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/trees/e67c340429fc306d99dcf33a9fd5d6758db18637"
+    },
+    {
+      "path": "src/queueinglib/Allocate.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d5be157437d96b585826e5b239f267cbdd56a5b7",
+      "size": 2989,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d5be157437d96b585826e5b239f267cbdd56a5b7"
+    },
+    {
+      "path": "src/queueinglib/Allocate.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "386f9c64a237758115345a5e4d7b91a9ba2c1793",
+      "size": 1565,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/386f9c64a237758115345a5e4d7b91a9ba2c1793"
+    },
+    {
+      "path": "src/queueinglib/Allocate.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e5b7bc7a8d1eede08fff4d7dd0b4e366f82a0d88",
+      "size": 1033,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/e5b7bc7a8d1eede08fff4d7dd0b4e366f82a0d88"
+    },
+    {
+      "path": "src/queueinglib/ChangeLog",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1bab9e4b1eb40affcc64baef0677c0031b2a3a68",
+      "size": 878,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/1bab9e4b1eb40affcc64baef0677c0031b2a3a68"
+    },
+    {
+      "path": "src/queueinglib/Classifier.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "42a7ac9b8eaeeaed5d39183017c98033dd3f4767",
+      "size": 947,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/42a7ac9b8eaeeaed5d39183017c98033dd3f4767"
+    },
+    {
+      "path": "src/queueinglib/Classifier.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "62eb86e22eeec944dced8bace33067cfff5404f3",
+      "size": 691,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/62eb86e22eeec944dced8bace33067cfff5404f3"
+    },
+    {
+      "path": "src/queueinglib/Classifier.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "60d62f26d8c1c7d3ff35820673b64e74b9306dcc",
+      "size": 779,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/60d62f26d8c1c7d3ff35820673b64e74b9306dcc"
+    },
+    {
+      "path": "src/queueinglib/Clone.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ac0795d9833b7a267caa379d3b2a480c2a0a6a75",
+      "size": 1169,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/ac0795d9833b7a267caa379d3b2a480c2a0a6a75"
+    },
+    {
+      "path": "src/queueinglib/Clone.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "df68102f721cd4abd18d6443da56ebce0b5263e3",
+      "size": 676,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/df68102f721cd4abd18d6443da56ebce0b5263e3"
+    },
+    {
+      "path": "src/queueinglib/Clone.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d629ff2956a46c27b87bbde21c6d1764e38fbd1f",
+      "size": 698,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d629ff2956a46c27b87bbde21c6d1764e38fbd1f"
+    },
+    {
+      "path": "src/queueinglib/Deallocate.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8e3273e58021809e0b86347b1e96db8555664916",
+      "size": 804,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/8e3273e58021809e0b86347b1e96db8555664916"
+    },
+    {
+      "path": "src/queueinglib/Deallocate.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c611c506e760eb38a92cd89177c593b1098458ad",
+      "size": 752,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/c611c506e760eb38a92cd89177c593b1098458ad"
+    },
+    {
+      "path": "src/queueinglib/Deallocate.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2422ed86f35a5baaf4bfbb9b74a503dfc93867a5",
+      "size": 716,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/2422ed86f35a5baaf4bfbb9b74a503dfc93867a5"
+    },
+    {
+      "path": "src/queueinglib/Delay.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b34bbefe642f9d7afaa31502031f537dfc1febec",
+      "size": 1282,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/b34bbefe642f9d7afaa31502031f537dfc1febec"
+    },
+    {
+      "path": "src/queueinglib/Delay.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d9e3e1ef73b65aebc6b63911dae62ed90db49b23",
+      "size": 632,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d9e3e1ef73b65aebc6b63911dae62ed90db49b23"
+    },
+    {
+      "path": "src/queueinglib/Delay.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e750d26d60e11c1c738d21306c03d50c73610b27",
+      "size": 869,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/e750d26d60e11c1c738d21306c03d50c73610b27"
+    },
+    {
+      "path": "src/queueinglib/Dot.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fdb3e5233c848b900bb4e4e40c64e2c6200cef85",
+      "size": 197,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/fdb3e5233c848b900bb4e4e40c64e2c6200cef85"
+    },
+    {
+      "path": "src/queueinglib/Fork.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "edba57e65681f7fe656ea41774f0893302dd77ee",
+      "size": 1006,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/edba57e65681f7fe656ea41774f0893302dd77ee"
+    },
+    {
+      "path": "src/queueinglib/Fork.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "44358923a14a284f9c0ce210e11cf6447bd2c320",
+      "size": 564,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/44358923a14a284f9c0ce210e11cf6447bd2c320"
+    },
+    {
+      "path": "src/queueinglib/Fork.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c50f0d2bfb80ef8df16c006aa8dbc2b55b53c145",
+      "size": 509,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/c50f0d2bfb80ef8df16c006aa8dbc2b55b53c145"
+    },
+    {
+      "path": "src/queueinglib/IPassiveQueue.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2464fdd1f54acf21ddc5d8ee37e9934359dbeb7b",
+      "size": 864,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/2464fdd1f54acf21ddc5d8ee37e9934359dbeb7b"
+    },
+    {
+      "path": "src/queueinglib/IResourcePool.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2506442b07fff339d11e1074c56e2fb6af01ed24",
+      "size": 1089,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/2506442b07fff339d11e1074c56e2fb6af01ed24"
+    },
+    {
+      "path": "src/queueinglib/IServer.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8b95ae0179694a3daa56aeaf63643c85d5080d77",
+      "size": 1126,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/8b95ae0179694a3daa56aeaf63643c85d5080d77"
+    },
+    {
+      "path": "src/queueinglib/Job.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "51983cae54c82c363a0271c642cdaffa304031c1",
+      "size": 2039,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/51983cae54c82c363a0271c642cdaffa304031c1"
+    },
+    {
+      "path": "src/queueinglib/Job.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "412b00900abfdbba9de34e6861cf21ecc75fed9c",
+      "size": 3066,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/412b00900abfdbba9de34e6861cf21ecc75fed9c"
+    },
+    {
+      "path": "src/queueinglib/Job.msg",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9fe27b5c30ce33ac3a211772f310b42cdb9795bb",
+      "size": 905,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/9fe27b5c30ce33ac3a211772f310b42cdb9795bb"
+    },
+    {
+      "path": "src/queueinglib/JobList.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "485982d602fbbdf7caf37afc6dc71ef3d7079081",
+      "size": 1175,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/485982d602fbbdf7caf37afc6dc71ef3d7079081"
+    },
+    {
+      "path": "src/queueinglib/JobList.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "14609c9d938838d73a2cc8ac15331f305fd43b42",
+      "size": 1253,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/14609c9d938838d73a2cc8ac15331f305fd43b42"
+    },
+    {
+      "path": "src/queueinglib/JobList.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b313a269f1e0778d831e47a2e300f283252b6ee3",
+      "size": 385,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/b313a269f1e0778d831e47a2e300f283252b6ee3"
+    },
+    {
+      "path": "src/queueinglib/Join.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0213d4927b0532d34247fdd4b8fa270577692ad3",
+      "size": 1514,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/0213d4927b0532d34247fdd4b8fa270577692ad3"
+    },
+    {
+      "path": "src/queueinglib/Join.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6b69c7f5efb48f9176935e30007623c586d4b9d3",
+      "size": 690,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/6b69c7f5efb48f9176935e30007623c586d4b9d3"
+    },
+    {
+      "path": "src/queueinglib/Join.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "91d2a84878b21ff127fb03f2738b55e366ff1d31",
+      "size": 487,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/91d2a84878b21ff127fb03f2738b55e366ff1d31"
+    },
+    {
+      "path": "src/queueinglib/Makefile",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5f45ac6ff30522103dae8d834b58b0bd978c48c1",
+      "size": 5314,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/5f45ac6ff30522103dae8d834b58b0bd978c48c1"
+    },
+    {
+      "path": "src/queueinglib/Merge.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f564f252fddd5aeaec78447e2abbc4a6cce6eaa7",
+      "size": 385,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/f564f252fddd5aeaec78447e2abbc4a6cce6eaa7"
+    },
+    {
+      "path": "src/queueinglib/Merge.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e30d975d77cd8fc95fb7f786b308ac22673db3cc",
+      "size": 571,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/e30d975d77cd8fc95fb7f786b308ac22673db3cc"
+    },
+    {
+      "path": "src/queueinglib/Merge.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "83a408e2336f0feda495705632e8db068e340563",
+      "size": 526,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/83a408e2336f0feda495705632e8db068e340563"
+    },
+    {
+      "path": "src/queueinglib/PassiveQueue.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fd7b558113becef594899acf2f9a7393cd4346f9",
+      "size": 4027,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/fd7b558113becef594899acf2f9a7393cd4346f9"
+    },
+    {
+      "path": "src/queueinglib/PassiveQueue.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d6123abab439df709c4f6f3f68df26bbde43d8e5",
+      "size": 1493,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d6123abab439df709c4f6f3f68df26bbde43d8e5"
+    },
+    {
+      "path": "src/queueinglib/PassiveQueue.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "820c7a96141bd00392665ad650d8a35d48822fc7",
+      "size": 1011,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/820c7a96141bd00392665ad650d8a35d48822fc7"
+    },
+    {
+      "path": "src/queueinglib/Queue.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f68df6e087ac26d77c2bbdb05e11a26b1b341ff3",
+      "size": 4218,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/f68df6e087ac26d77c2bbdb05e11a26b1b341ff3"
+    },
+    {
+      "path": "src/queueinglib/Queue.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3777b9a7e42ac3512965735ae3ee64c55e984abe",
+      "size": 1579,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/3777b9a7e42ac3512965735ae3ee64c55e984abe"
+    },
+    {
+      "path": "src/queueinglib/Queue.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b3e3ccc76be00e7c2f0b9043e46d245871ef25fa",
+      "size": 698,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/b3e3ccc76be00e7c2f0b9043e46d245871ef25fa"
+    },
+    {
+      "path": "src/queueinglib/QueueingDefs.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "648423c268bc9c7cd847a29984c3646b5243a4ac",
+      "size": 625,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/648423c268bc9c7cd847a29984c3646b5243a4ac"
+    },
+    {
+      "path": "src/queueinglib/QueueingUtils.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3b756b8d98fda5436427fd0095d53d601237c9a1",
+      "size": 1241,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/3b756b8d98fda5436427fd0095d53d601237c9a1"
+    },
+    {
+      "path": "src/queueinglib/QueueingUtils.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d7a6df79fcc212ce84d07d873b830c6cd9056fa0",
+      "size": 583,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d7a6df79fcc212ce84d07d873b830c6cd9056fa0"
+    },
+    {
+      "path": "src/queueinglib/README.txt",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "66a9dff792b3877568d0ccf05e4ec5114affba3a",
+      "size": 148,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/66a9dff792b3877568d0ccf05e4ec5114affba3a"
+    },
+    {
+      "path": "src/queueinglib/ResourceBasedQueue.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1a70847184ee6bcfa610508b976d67d77a925f63",
+      "size": 6328,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/1a70847184ee6bcfa610508b976d67d77a925f63"
+    },
+    {
+      "path": "src/queueinglib/ResourceBasedQueue.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "756f76eca7bc0d7b42c95e4c06e503f0eec0e54a",
+      "size": 2362,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/756f76eca7bc0d7b42c95e4c06e503f0eec0e54a"
+    },
+    {
+      "path": "src/queueinglib/ResourceBasedQueue.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a2ba578ce1905626aebacb2278d0f3bb5fa207a2",
+      "size": 1148,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/a2ba578ce1905626aebacb2278d0f3bb5fa207a2"
+    },
+    {
+      "path": "src/queueinglib/ResourcePool.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e481e742ae28a99c638f510dabff57f030d571ca",
+      "size": 2749,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/e481e742ae28a99c638f510dabff57f030d571ca"
+    },
+    {
+      "path": "src/queueinglib/ResourcePool.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0ceb80d3089acdbb92f02cc6eecdaee41ea70262",
+      "size": 1528,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/0ceb80d3089acdbb92f02cc6eecdaee41ea70262"
+    },
+    {
+      "path": "src/queueinglib/ResourcePool.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c342448a36c4141eb80c73e018942493330bb7be",
+      "size": 740,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/c342448a36c4141eb80c73e018942493330bb7be"
+    },
+    {
+      "path": "src/queueinglib/Router.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "10bc0f7d9dea91096d02f5194045d30395b0f6dd",
+      "size": 1945,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/10bc0f7d9dea91096d02f5194045d30395b0f6dd"
+    },
+    {
+      "path": "src/queueinglib/Router.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d30fcc4d9d77e03d6a1411ddde7e774b4df82363",
+      "size": 902,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/d30fcc4d9d77e03d6a1411ddde7e774b4df82363"
+    },
+    {
+      "path": "src/queueinglib/Router.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cecb19546498ee526ef034a62d8617d9134dfa0f",
+      "size": 788,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/cecb19546498ee526ef034a62d8617d9134dfa0f"
+    },
+    {
+      "path": "src/queueinglib/SelectionStrategies.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "27f3eedaa6f903831e1cf4a429230918b4cc117c",
+      "size": 5476,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/27f3eedaa6f903831e1cf4a429230918b4cc117c"
+    },
+    {
+      "path": "src/queueinglib/SelectionStrategies.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3d94c2ef0a531ce75de29f07f29e8721c6d98421",
+      "size": 3173,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/3d94c2ef0a531ce75de29f07f29e8721c6d98421"
+    },
+    {
+      "path": "src/queueinglib/Server.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c5ed5130e8e0f5279ad2d4d675c57e51d3c2bbd0",
+      "size": 2761,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/c5ed5130e8e0f5279ad2d4d675c57e51d3c2bbd0"
+    },
+    {
+      "path": "src/queueinglib/Server.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f8eac47545d5521593a5ed135d1f0bd889233335",
+      "size": 1176,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/f8eac47545d5521593a5ed135d1f0bd889233335"
+    },
+    {
+      "path": "src/queueinglib/Server.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "69a094c9872b184e07397ee938e3626a6fdebaf4",
+      "size": 826,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/69a094c9872b184e07397ee938e3626a6fdebaf4"
+    },
+    {
+      "path": "src/queueinglib/Sink.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8842cebd5305d2d47bf595079e7c66623379451b",
+      "size": 1346,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/8842cebd5305d2d47bf595079e7c66623379451b"
+    },
+    {
+      "path": "src/queueinglib/Sink.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "70833b939c3fdb39a2c52f8995359ed05bcdc1b9",
+      "size": 839,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/70833b939c3fdb39a2c52f8995359ed05bcdc1b9"
+    },
+    {
+      "path": "src/queueinglib/Sink.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4c95fdc9b00042dd616e3c81874e2e275772fc3c",
+      "size": 566,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/4c95fdc9b00042dd616e3c81874e2e275772fc3c"
+    },
+    {
+      "path": "src/queueinglib/Source.cc",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1b6b5a09123f20dba8bc76c7e73acaf45d962169",
+      "size": 1890,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/1b6b5a09123f20dba8bc76c7e73acaf45d962169"
+    },
+    {
+      "path": "src/queueinglib/Source.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "667dd2ec9e1cde7e7c5c29deb3a8c687ce84cb2c",
+      "size": 1197,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/667dd2ec9e1cde7e7c5c29deb3a8c687ce84cb2c"
+    },
+    {
+      "path": "src/queueinglib/Source.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0bbda75bd59ba52acd50ccb076e655f71a8cf0bc",
+      "size": 1450,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/0bbda75bd59ba52acd50ccb076e655f71a8cf0bc"
+    },
+    {
+      "path": "src/queueinglib/SourceOnce.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3efe53572251fbf74ff6efe6fc52b2e93bc824a9",
+      "size": 1074,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/3efe53572251fbf74ff6efe6fc52b2e93bc824a9"
+    },
+    {
+      "path": "src/queueinglib/__TODO",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "badf81064128124356e8d63967afbf9e061565d5",
+      "size": 4810,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/badf81064128124356e8d63967afbf9e061565d5"
+    },
+    {
+      "path": "src/queueinglib/package.ned",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3728c87c31be40d0020c050b16202198d198675d",
+      "size": 564,
+      "url": "https://api.github.com/repos/omnetpp-models/afdx/git/blobs/3728c87c31be40d0020c050b16202198d198675d"
+    }
+  ],
+  "truncated": false
+}

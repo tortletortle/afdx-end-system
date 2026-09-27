@@ -1,0 +1,5 @@
+MCP tool: run_command
+Command id: cmd_1790417503553_1
+Execution status: failed before command launch
+Error: [bridge] failed to start the command: spawn C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ENOENT
+Consequences: host/process/license checks did not run; regression and STA were not attempted; no EDA process was launched by this task.

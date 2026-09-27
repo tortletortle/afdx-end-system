@@ -1,0 +1,5 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T04,default,tb_t04_tx_chain,PASS,na,9.1,# T04 TXCHAIN PASS (IF_MODE=0; 138 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4220..4360 cyc)
+T04g,gmii,tb_t04g_tx_chain,PASS,na,7.8,# T04 TXCHAIN PASS (IF_MODE=1; 140 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4229..4674 cyc)
+T23,sap-minimal,tb_t23_sap_min,FAIL,na,3.8,# T23 SAP MINIMAL FAIL (IF_MODE=0 errors=1)
+T23g,sap-minimal-gmii,tb_t23g_sap_min,PASS,na,3.3,# T23 SAP MINIMAL PASS (IF_MODE=1 accept=2 return=2 SN=0;1 port=5 plen=8 pmem=8B pb1_collisions=2 overlap=1 max_wait=0 disabled_rsap=1)

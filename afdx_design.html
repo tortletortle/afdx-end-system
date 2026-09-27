@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AFDX 端系统 · 架构与设计图</title>
+  <style>
+    :root {
+      --bg: #eef2f8;
+      --card: #ffffff;
+      --ink: #162033;
+      --muted: #68758a;
+      --line: #dbe3ef;
+      --navy: #102a56;
+      --blue: #2563eb;
+      --blue-soft: #eaf1ff;
+      --green: #16845b;
+      --green-soft: #e7f7ef;
+      --amber: #b7791f;
+      --amber-soft: #fff6df;
+      --red: #c2414b;
+      --red-soft: #fff0f1;
+      --violet: #6d5bd0;
+      --violet-soft: #f1eeff;
+      --shadow: 0 10px 28px rgba(34,58,94,.08);
+      --mono: Consolas, "Courier New", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--bg); font-family: "Microsoft YaHei","PingFang SC",Arial,sans-serif; line-height: 1.6; }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 30px 22px 64px; }
+
+    header { background: linear-gradient(135deg,#0f2a55 0%,#1b4782 55%,#2b6fb3 100%); color:#fff; border-radius: 22px; padding: 34px 40px; box-shadow: var(--shadow); }
+    .eyebrow { opacity:.8; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin: 8px 0 6px; font-size: clamp(26px,4vw,40px); letter-spacing:-.02em; }
+    .subtitle { margin:0; max-width:840px; color:#dbeafe; font-size:15px; }
+    .hero-grid { display:grid; grid-template-columns:180px 1fr; gap:26px; align-items:center; margin-top:22px; }
+    .score { width:160px; height:160px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(#72b4ff 0 62%, rgba(255,255,255,.16) 62% 100%); position:relative; }
+    .score::after { content:""; position:absolute; inset:13px; border-radius:50%; background:#143a6d; }
+    .score div { position:relative; z-index:1; text-align:center; }
+    .score strong { font-size:38px; line-height:1; }
+    .score span { font-size:12px; color:#cfe2ff; }
+    .hero-note b { color:#fff; }
+    .hero-note { font-size:15px; }
+
+    .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:20px 0; }
+    .stat { background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:18px 20px; }
+    .stat .label { color:var(--muted); font-size:12px; }
+    .stat .value { margin-top:4px; font-size:26px; font-weight:750; }
+    .stat .hint { color:var(--muted); font-size:12px; }
+
+    section { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:24px 27px; margin-top:18px; }
+    h2 { margin:0 0 16px; font-size:21px; }
+    h3 { margin:20px 0 8px; font-size:16px; }
+    .muted { color:var(--muted); }
+    code { font-family:var(--mono); color:#173b72; font-size:.92em; }
+
+    .pill { display:inline-flex; align-items:center; white-space:nowrap; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; }
+    .done { background:var(--green-soft); color:var(--green); }
+    .partial { background:var(--amber-soft); color:var(--amber); }
+    .open { background:var(--red-soft); color:var(--red); }
+    .info { background:var(--blue-soft); color:var(--blue); }
+
+    /* 数据流图 */
+    .flow { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .node { padding:11px 14px; border:1.5px solid var(--line); border-radius:10px; background:#fbfcfe; font-size:13px; line-height:1.35; min-width:86px; }
+    .node b { display:block; font-size:13px; }
+    .node small { color:var(--muted); }
+    .node.tx { border-color:#93c5fd; background:#eff6ff; }
+    .node.rx { border-color:#a7d8bd; background:#eef8f2; }
+    .node.host { border-color:#c4b5fd; background:#f4f1ff; }
+    .node.mgmt { border-color:#fcd9a8; background:#fff7e8; }
+    .arrow { color:#8aa3bf; font-weight:800; }
+    .sub-flow { margin-top:10px; padding:13px 14px; border:1px dashed #c7d3e4; border-radius:10px; background:#fafcff; }
+    .lane-label { font-size:11px; letter-spacing:.12em; color:var(--muted); margin-bottom:7px; }
+
+    /* 需求/决策表 */
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th,td { padding:10px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-weight:700; background:#f7f9fd; }
+    tr:last-child td { border-bottom:0; }
+
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .dec-card { border:1px solid var(--line); border-radius:12px; padding:15px 16px; background:#fbfcfe; }
+    .dec-card h4 { margin:0 0 7px; font-size:15px; }
+    .dec-card .stat-line { font-size:12px; color:var(--muted); }
+
+    .note { padding:12px 15px; border-left:4px solid var(--blue); background:var(--blue-soft); border-radius:8px; font-size:13.5px; margin:10px 0; }
+    .note.warn { border-color:#d97706; background:#fff7e8; }
+    ul { padding-left:20px; margin:8px 0; }
+    li { margin:5px 0; }
+
+    @media (max-width:880px){ .cards,.grid2,.grid3{grid-template-columns:1fr 1fr;} .hero-grid{grid-template-columns:1fr;} .score{margin:0 auto;} }
+    @media (max-width:540px){ .cards,.grid2,.grid3{grid-template-columns:1fr;} .flow{flex-direction:column; align-items:stretch;} .arrow{transform:rotate(90deg); text-align:center;} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">AFDX End System · Architecture &amp; Design Map</div>
+  <h1>AFDX 端系统 架构与设计图</h1>
+  <p class="subtitle">依据《AFDX项目应用追踪》整理：赛方约束 → 数据流 → 架构决策 → 需求追踪 → 证据边界。当前以 RTL、Quest/ModelSim 仿真、综合与 STA 报告为最终证据。</p>
+  <div class="hero-grid">
+    <div class="score"><div><strong>50/50</strong><span>manifest 回归</span></div></div>
+    <div class="hero-note">
+      <b>当前阶段：TX/RX 主数据路径已闭环并有定向验证。</b><br>
+      已具备：帧构造、双网 MAC、PMEM、VL 哈希、FLT、IC、RM、解析、采样/队列端口、主机读回和最小 SAP handoff。
+      仍缺：完整 T08/T22 逐帧 scoreboard、完整管理协议、当前顶层综合与 125 MHz STA。
+    </div>
+  </div>
+</header>
+
+<div class="cards">
+  <div class="stat"><div class="label">仿真回归</div><div class="value">50 / 50</div><div class="hint">manifest PASS 快照</div></div>
+  <div class="stat"><div class="label">TX VL</div><div class="value">128</div><div class="hint">发送虚拟链路</div></div>
+  <div class="stat"><div class="label">RX VL</div><div class="value">4096</div><div class="hint">哈希查找规模</div></div>
+  <div class="stat"><div class="label">主接口</div><div class="value">GMII</div><div class="hint">125 MHz · 8 bit</div></div>
+</div>
+
+<!-- ===== 发送路径 ===== -->
+<section>
+  <h2>发送数据通路 (TX)</h2>
+  <div class="sub-flow">
+    <div class="lane-label">主机 → 帧构建 → 冗余 → MAC</div>
+    <div class="flow">
+      <div class="node host"><b>主机/应用</b><small>配置 · 端口 · 数据</small></div>
+      <span class="arrow">→</span>
+      <div class="node tx"><b>tx_port_buf</b><small>采样/队列 · 块池</small></div>
+      <span class="arrow">→</span>
+      <div class="node tx"><b>tx_vl_scheduler</b><small>BAG 整形 · 128 VL</small></div>
+      <span class="arrow">→</span>
+      <div class="node tx"><b>tx_frame_builder</b><small>IP/UDP · 校验和 · SN</small></div>
+      <span class="arrow">→</span>
+      <div class="node tx"><b>tx_sn_gen</b><small>1–255 回绕</small></div>
+      <span class="arrow">→</span>
+      <div class="node tx"><b>tx_rm</b><small>A/B 复制 · SMAC</small></div>
+      <span class="arrow">→</span>
+      <div class="node tx"><b>mac_tx_if</b><small>GMII · 帧包络</small></div>
+    </div>
+  </div>
+  <p class="muted">支持 A/B 双网、载荷填充、UDP/IP 校验、SN、FCS 与双源 MAC。BAG 档位：1/2/4/…/128 ms（项目目标）。</p>
+</section>
+
+<!-- ===== 接收路径 ===== -->
+<section>
+  <h2>接收数据通路 (RX)</h2>
+  <div class="sub-flow">
+    <div class="lane-label">双网入口 → 存储 → 查找/过滤 → IC → RM → 解析 → 端口</div>
+    <div class="flow">
+      <div class="node rx"><b>mac_rx_if</b><small>CRC/IP/UDP · PMEM 写</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_pmem_queue</b><small>descriptor FIFO</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_vl_lookup</b><small>双表双 way · 4096 VL</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_flt</b><small>UNCONF/VLID/NET/LMAX</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_ic</b><small>PSN · 连续/丢/乱序</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_rm</b><small>A/B 去重 · SkewMax</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_ip_udp_parse</b><small>端口映射</small></div>
+      <span class="arrow">→</span>
+      <div class="node rx"><b>rx_port_buf</b><small>采样/队列端口</small></div>
+      <span class="arrow">→</span>
+      <div class="node host"><b>主机读回</b><small>descriptor · payload</small></div>
+    </div>
+  </div>
+  <div class="note"><b>可靠性要求：</b>坏帧不更新 PSN/RM；A/B duplicate 只保留首个合法副本；block 守恒，耗尽后释放可恢复。</div>
+</section>
+
+<!-- ===== 架构决策 ===== -->
+<section>
+  <h2>架构决策状态 (D10–D13)</h2>
+  <div class="grid2">
+    <div class="dec-card">
+      <h4>D10 · 发送起始错相</h4>
+      <div class="stat-line"><span class="pill done">IMPLEMENTED / TOP-LEVEL VERIFIED</span></div>
+      <p>按 VL/BAG 错相提交，T05b 特定压力下已测。<br>未覆盖：全 BAG 档、STA、官方认证。</p>
+    </div>
+    <div class="dec-card">
+      <h4>D11 · 块所有权与释放</h4>
+      <div class="stat-line"><span class="pill done">IMPLEMENTED / VERIFIED</span></div>
+      <p>块池、端口读回、耗尽恢复、SAP handoff 已有局部证据。<br>未覆盖：完整 T08 全链路长期守恒。</p>
+    </div>
+    <div class="dec-card">
+      <h4>D12 · 双网 RM 仲裁</h4>
+      <div class="stat-line"><span class="pill done">IMPLEMENTED / VERIFIED</span></div>
+      <p>IC 后 RM，A/B 去重、SkewMax/seen。<br>未覆盖：多帧迟到历史、network babbling、形式化验证。</p>
+    </div>
+    <div class="dec-card">
+      <h4>D13 · PMEM/主机仲裁</h4>
+      <div class="stat-line"><span class="pill done">IMPLEMENTED / VERIFIED</span></div>
+      <p>RX 优先、pending/延迟 ACK、主机写读回。<br>未覆盖：无限时长公平性、完整混合事务。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 需求追踪 ===== -->
+<section>
+  <h2>需求追踪（REQ 总览）</h2>
+  <table>
+    <tr><th>需求域</th><th>ID 范围</th><th>代表内容</th><th>状态</th></tr>
+    <tr><td>帧格式 / GMII</td><td><code>REQ-FRAME-*</code></td><td>64–1518 B、FCS、UDP/IP、padding、SN 位置、GMII/125MHz</td><td><span class="pill done">已实现并验证</span></td></tr>
+    <tr><td>发送 / BAG</td><td><code>REQ-TX-*</code></td><td>128 TX VL、BAG 整形、SN 回绕、双网复制、Q20 判决</td><td><span class="pill done">已实现；全档 BAG 待统一报告</span></td></tr>
+    <tr><td>接收 / 过滤</td><td><code>REQ-RX-*</code></td><td>4096 RX VL、哈希提交、FLT 四类、端口交付、块池耗尽恢复</td><td><span class="pill partial">切片已验；全表逐帧未闭环</span></td></tr>
+    <tr><td>可靠性 / 余度</td><td><code>REQ-REL-*</code></td><td>IC PSN、RM A/B 去重、SkewMax、坏帧不污染状态</td><td><span class="pill partial">已实现；迟到副本边界待复核</span></td></tr>
+    <tr><td>主机接口</td><td><code>REQ-HOST-*</code></td><td>PMEM 争用、延迟 ACK、块守恒、descriptor 读回</td><td><span class="pill done">已实现；长时等待上界待验证</span></td></tr>
+    <tr><td>管理面子集</td><td><code>REQ-MGMT-*</code></td><td>SAP handoff；SNMP/615A/RTC 项目子集</td><td><span class="pill open">SAP 已验；完整协议 OPEN</span></td></tr>
+    <tr><td>性能 / 指标</td><td><code>REQ-PERF-*</code></td><td>合法 BAG 抖动、端到端时延、长时压力</td><td><span class="pill partial">T05b/T13/T17/T18 已验；外推受限</span></td></tr>
+    <tr><td>实现 / 签核</td><td><code>REQ-IMPL-*</code></td><td>当前顶层综合、CDC、复位、125 MHz STA</td><td><span class="pill open">OPEN</span></td></tr>
+    <tr><td>质量 / 复现</td><td><code>REQ-QUAL-*</code></td><td>lint、覆盖率、回归、日志与哈希可复现</td><td><span class="pill partial">lint/文档门全绿；覆盖率含 TB</span></td></tr>
+  </table>
+</section>
+
+<!-- ===== 证据边界 ===== -->
+<section>
+  <h2>证据边界与下一步</h2>
+  <div class="grid3">
+    <div>
+      <h3>可直接用于项目 / 答辩</h3>
+      <ul>
+        <li>赛方明确 GMII、自建激励/回环/检查器；</li>
+        <li>TX/RX 主数据路径与 50/50 回归快照；</li>
+        <li>IC/RM/SkewMax 论文与形式化建模参考；</li>
+        <li>GMII/RGMII/PHY/STA 接口资料。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>尚不能宣称完成</h3>
+      <ul>
+        <li>完整 ARINC 664/615A 官方认证；</li>
+        <li>官方一致性测试套件 / golden vector；</li>
+        <li>全表逐帧 T08/T22、10 万帧长时压力；</li>
+        <li>当前顶层综合与 125 MHz STA。</li>
+      </ul>
+    </div>
+    <div>
+      <h3>下一步</h3>
+      <ol>
+        <li>冻结 SNMP/615A/RTC 项目子集；</li>
+        <li>完成完整 T08/T22 逐帧 scoreboard；</li>
+        <li>复核 RM 多帧迟到历史与 network babbling；</li>
+        <li>建立顶层综合 active revision 与 125 MHz STA。</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<p class="muted" style="text-align:center;margin-top:26px;font-size:12px">
+  数据来源：<a href="doc/AFDX项目应用追踪.md">doc/AFDX项目应用追踪.md</a> · <a href="doc/README.md">文档索引</a> ·
+  本页为设计图展示，不替代源码、测试日志、综合与 STA 报告。
+</p>
+</div>
+</body>
+</html>

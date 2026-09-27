@@ -1,0 +1,33 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t18_random_stress 
+# Start time: 11:27:30 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t18_random_stress(fast)
+#   [T18 PAIR] mode=0 TX=158/158 lengths=94,64 MAC_good_delta=2,2 MAC_drop_delta=0,0 reasons=00,00 parser_stall=755 delivered=0 free=fe00
+#   [T18 INFO] seed=51c0ffee first=388ebd6a min=17 max=1471 stalled=97 spaced=100 pair_len=47,17 pair_tx_overlap=1 pair_rx_stall=756
+# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=102 pair_inflight=2 seed=51c0ffee min=17 max=1471 stalls=97 spaced=100 tx_overlap=1 rx_stall=756)
+# ** Note: $finish    : tb/tb_t18_random_stress.v(502)
+#    Time: 15425088 ns  Iteration: 0  Instance: /tb_t18_random_stress/core
+# End time: 11:27:51 on Sep 25,2026, Elapsed time: 0:00:21
+# Errors: 0, Warnings: 0

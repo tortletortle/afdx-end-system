@@ -1,0 +1,36 @@
+﻿Info: *******************************************************************
+Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
+    Info: Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Full Version
+    Info: Copyright (C) 1991-2013 Altera Corporation. All rights reserved.
+    Info: Your use of Altera Corporation's design tools, logic functions 
+    Info: and other software and tools, and its AMPP partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Altera Program License 
+    Info: Subscription Agreement, Altera MegaCore Function License 
+    Info: Agreement, or other applicable license agreement, including, 
+    Info: without limitation, that your use is for the sole purpose of 
+    Info: programming logic devices manufactured by Altera and sold by 
+    Info: Altera or its authorized distributors.  Please refer to the 
+    Info: applicable agreement for further details.
+    Info: Processing started: Sun Sep 27 00:11:43 2026
+Info: Command: quartus_sta -t C:\Workspace\diansai\out\arena-debug\continue7\tns_step1.tcl
+Info (119006): Selected device EP4SGX230HF35C2 for design "AFDX_top"
+Info (20030): Parallel compilation is enabled and will use 16 of the 20 processors detected
+Info (21076): High junction temperature operating condition is not set. Assuming a default value of '85'.
+Info (21076): Low junction temperature operating condition is not set. Assuming a default value of '0'.
+Info (332104): Reading SDC File: '../../sdc/AFDX_top.sdc'
+Info (332154): The derive_clock_uncertainty command did not apply clock uncertainty to any clock-to-clock transfers.
+SDC_GUARD_OK: clk=8.000 ns
+Critical Warning (332148): Timing requirements not met
+    Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the TimeQuest Timing Analyzer.
+Info (332102): Design is not fully constrained for setup requirements
+Info (332102): Design is not fully constrained for hold requirements
+TNS_SUMMARY_DONE
+Info (23030): Evaluation of Tcl script C:\Workspace\diansai\out\arena-debug\continue7\tns_step1.tcl was successful
+Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 1 warning
+    Info: Peak virtual memory: 6920 megabytes
+    Info: Processing ended: Sun Sep 27 00:16:44 2026
+    Info: Elapsed time: 00:05:01
+    Info: Total CPU time (on all processors): 00:06:33

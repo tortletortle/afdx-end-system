@@ -1,0 +1,13 @@
+T11i isolated RTL faults: compile, then FAIL (a pass is MISSED)
+original rtl/top/AFDX_top.v SHA-256: 0319B453006709B2730940AD9570527214D953594269FB72E10101321C5A91C2
+original rtl/rx/rx_port_buf.v SHA-256: 5F3B6025248BCCCA98878348B3F7883C6E423E08F5E03FF9A4BB3900B23AFEE7
+int_bit0_never_set DETECTED (compiled=True, TB_FAIL=True, rc=0)
+int_bit1_bit2_swapped DETECTED (compiled=True, TB_FAIL=True, rc=0)
+int_crc_bit_net_a_only DETECTED (compiled=True, TB_FAIL=True, rc=0)
+int_w1c_wins_over_event DETECTED (compiled=True, TB_FAIL=True, rc=0)
+int_enable_not_masked DETECTED (compiled=True, TB_FAIL=True, rc=0)
+irq_ignores_int_enable DETECTED (compiled=True, TB_FAIL=True, rc=0)
+irq_ignores_sw_bit DETECTED (compiled=True, TB_FAIL=True, rc=0)
+sample_event_sticky DETECTED (compiled=True, TB_FAIL=True, rc=0)
+queue_overflow_no_event DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T11i MUTATION SUMMARY: 9/9 detected

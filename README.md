@@ -7,19 +7,59 @@
 | 你要了解什么 | 入口 |
 |---|---|
 | 所有文档、阅读顺序与维护规则 | [文档索引](doc/README.md) |
-| 现在做到了哪里、证据是什么 | [当前进度](doc/当前进度_20260923.md)（旧 [项目现状](doc/项目现状.md) 是 14/16 项历史快照） |
-| 下一步做什么、怎样算完成 | [后续计划](doc/后续计划.md) |
+| **正式测试（仿真）报告：56 项逐项判据与证据哈希** | **[测试仿真报告](doc/AFDX端系统_测试仿真报告.md)** |
 | 协议、架构、地址、寄存器与目标用例 | [总体设计书](AFDX端系统_总体设计书.md)（规格基线 v0.5.12） |
 | 怎么运行工具和验证 | [工具与验证说明](README_tools.md) |
-| 本轮整理及检查结果 | [2026-09-23 检查记录](doc/检查记录_20260923.md) |
+| 时序重设计的基线与决策 | `out/arena-debug/continue8/` |
+| 历史快照（**均已过期，仅供溯源**） | [当前进度](doc/当前进度_20260923.md) · [项目现状](doc/项目现状.md) · [状态核查](doc/项目状态核查_20260924.md) |
 
-## 当前阶段（2026-09-24 最新 36 项快照）
+## 当前阶段（2026-09-27）
 
-- **TX**：顶层主机前门、初始化扫描、发送链和 Q20 配置判决已有实现及阶段性仿真证据。
-- **RX**：双网入口、块池、PMEM 写仲裁、顶层哈希查表、FLT 语义过滤、**IC 完整性检查（v0.5.14）与 RM 双网去重（v0.5.15）** 已接线，IC/RM 各独占唯一状态 RAM；`T08d/T08dg` 取证四类过滤拒绝，`T08e/T08eg` 取证 IC 判决/PSN/块守恒（故障注入 7/7），`T10/T10g` 取证 A/B 副本只转发一次、SkewMax 窗口内外、RM 开关、IC 拒绝不污染 RM（故障注入 7/7）。**v0.5.16 起 RM 转发帧经 `rx_ip_udp_parse` → `rx_port_buf` 投递到 RX 采样/队列端口**，主机经前门读 `PORT_DESC`/`MSG_CNT`、运行期读 PMEM 载荷、写 `MSG_RD` 释放；`T11/T11g` 取证逐字节载荷读回、覆盖/pin、队列序与溢出、五类解析丢弃（故障注入 13/13）。**v0.5.17 补两件**：① RX 事件中断——`INT_STATUS`（0x0018，W1C）低 4 位 = 新采样消息 / 队列入队 / 采样覆盖或队列满 / CRC 错帧（双网 `mac_rx_if.crc_err`），同拍新事件优先于 W1C，`INT_ENABLE`（0x0014）只存低 8 位，`host_irq` = `CTL[14]` 或（`INT_ENABLE & INT_STATUS`）为电平式；`T11i/T11ig` 覆盖屏蔽期间仍登记、使能即拉高、软件中断、采样/入队/覆盖/满、A/B 网坏 FCS 只置 bit3 且不投递、同拍竞争（故障注入 9/9）。② `T22/T22g` TX→RX 冷启动真回环——一次 `CFG_MODE` 配好 TX VL0 与 RX（种子/哈希项/RX_VL_CFG/端口表 + 映像提交）后，主机 PMEM 写 → `MSG_WR` → 抓取 DUT 在线的 A/B 字节流回灌 RX 入口（两帧、保留真实 BAG 1000 μs），描述符/`MSG_CNT`/PMEM 载荷与发出帧逐字节一致、SN 连续、IC 去重、块守恒、`INT_STATUS[0]` 置位（故障注入 6/6）。SAP/管理面未接。
-- **验证**：一次重新编译/36 次独立 Questa 会话 **36/36 PASS**；[归档 CSV](sim/out/regress_full_36_20260924.csv) SHA-256 `7D5D1FB487FA6ABEDBC9D3A0228D9ECA28820772B1EA91773F6141D4EDA2F77C`，对应[源码/日志哈希索引](sim/out/test_evidence_36_20260924.json)。局部通过不等于 T00–T22 目标矩阵全部实现。
-- **当前检查**：严格文档门 5/5 + 自查，Verilator lint 0 `%Error`；顶层故障注入 T11 13/13、T10 7/7、T11i 9/9、T22 6/6、T08e 5/5、T08c 3/3、T12 顶层 5/5 检出。详见[当前进度](doc/当前进度_20260923.md)。
-- **未验收**：完整 T08（全表灌装 + 逐笔 scoreboard）、块池耗尽反压 T21、SAP/管理面投递；T05b 合法满载抖动、T13/T17/T18、长期主机等待/混合读写、IC/RM 调试窗口、管理面和整机 STA。若必须报进度，按[当前进度所定义的 8 个等权 P0 里程碑](doc/当前进度_20260923.md)粗估约 75%（6/8），不是整机验收率。
+### 功能验证：已完成
+
+- **全量回归 56/56 PASS**，累计仿真墙钟 613.5 s，编译 0 errors。数据源 `sim/out/regress.csv`
+  （SHA-256 `F4EEE57D0A4F266DCAC482F44A16EB332566802FAA8DA90505345E073A8A9B0C`），
+  清单 `sim/tests.manifest` 56 项（SHA-256 `659F8D30920BF7F979C97BE6A74B6DC6E7684F0B62BEB59B179B094EF5F92F1B`）。
+- **设计书测试矩阵 T00–T23 全部覆盖并通过**。每个顶层用例在 `IF_MODE=0`（100 Mbps，选题指南指标）
+  与 `IF_MODE=1`（GMII，约 1 Gbps）两档各跑一遍。
+- **管理面已实现并取证**（此前文档所称"空壳"结论已作废）：
+  `snmp_lite.v`(622 行) / `a615a_tftp.v`(336) / `rtc_sync.v`(132) / `stats_regs.v`(288) / `mgmt_sap_rx.v`(165)
+  均为真实实现并在顶层例化，对应 **T14 统计 / T15 SNMP / T16 TFTP+RTC** 各含单元级与顶层在线 SAP 帧证据。
+- **此前列为缺口的 T05b 满载抖动、T13 端到端时延、T17 线速最小帧冲击、T18 长时随机回归均已补齐并 PASS。**
+- **故障注入 9 套全数检出**（T11 13/13、T11i 9/9、T10 7/7、T08e 7/7、T22 6/6 等），证明测试具备发现缺陷的能力。
+- 逐项判据、实测摘要与证据索引见[测试仿真报告](doc/AFDX端系统_测试仿真报告.md)。
+
+### 综合与时序：唯一未收敛项
+
+- **顶层综合通过**：eLinx/Yosys `AFDX_top_synth.ys` rc=0；BRAM 映射流程 rc=0（47,041 cells 含 439 `altsyncram`）。
+  Quartus II 13.0.1 `quartus_map` rc=0，器件 **EP4SGX230HF35C2（Stratix IV）**，139,607 logic cells（**map 估计值，未经 Fit 验证**）。
+- **post-map STA 实测**：**Fmax 45.84 MHz / Setup WNS −13.815 ns / Endpoint TNS −700,108.256 ns**，
+  最差路径 `tx_port_buf:u_txbuf|s1_vld → s1_desc[*]`（数据延迟 21.292 ns）。
+- **未达成 125 MHz 内部时钟目标。** 注意：选题指南要求的技术指标是**线速 100 Mbps**，
+  125 MHz 是本项目自设的内部时钟；时钟频率与 `BYTE_SLOT_CYC` 的取值组合仍有重新权衡空间，
+  该权衡尚未完成，**不得据此宣称指标已满足**。
+- **未跑 `quartus_fit`**，因此无布线延迟、无 post-fit setup/hold，**不是时序签核**。
+  71 个输入、121 个输出端口未约束，整机 I/O 时序未闭合。
+- Continue7 的 `tx_port_buf` 四银行实验为负收益（45.85 → 45.84 MHz）并已按纪律回滚，
+  回滚后文件 SHA-256 与备份一致。重设计方案见 `out/arena-debug/continue8/REDESIGN-ARCHITECTURE.md`。
+
+### 覆盖率：部分
+
+Questa `+cover=sb` 合并 50 份 UCDB，1440 instances：分支 36788/58849 = **62.51%**，
+语句 65555/89642 = **73.12%**，合计 **67.82%**。
+**含 TB 实例、仅分支+语句；不是 RTL-only，不是功能（covergroup）覆盖率，不是认证指标。**
+
+### 门禁
+
+`tools_lint.ps1` rc=0（`LINT GATE: PASS, all gates 0 %Error`）；
+`python tools/run_all.py --strict` rc=0（5/5 + selfcheck）。
+
+### 剩余工作
+
+1. 时序：先确定 100 Mbps 所需的真实内部时钟与 `.sdc` 约束，再决定是否投入 `tx_port_buf` 关键路径重构。
+2. `quartus_fit` + post-fit STA，取得真实资源占用与签核口径。
+3. 目标板引脚与 IO 预算，补 `set_input_delay/set_output_delay`。
+4. 覆盖率加 RTL-only 过滤与 covergroup 功能覆盖率。
 
 ## 常用命令
 
@@ -29,36 +69,40 @@
 # 文档、地址、寄存器与模型算术检查，不等于 RTL 验收
 python tools/run_all.py --strict
 
-# RTL 静态检查；本轮最新复核通过
+# RTL 静态检查
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools_lint.ps1
 
-# 全量：一次重新编译，按当前 manifest 运行
+# 全量：一次重新编译，按当前 manifest 运行 56 项
 powershell -NoProfile -ExecutionPolicy Bypass -File .\sim\run_regress.ps1
 
 # 子集：会覆盖 sim/out/regress.csv，不能称为全量结果
 powershell -NoProfile -ExecutionPolicy Bypass -File .\sim\run_regress.ps1 -Tests T08c,T08cg
-python sim/test_t08c_mutants.py   # 故障注入与回归串行运行（会抢占同一套 Questa 许可）
-python sim/test_t11i_mutants.py   # RX 事件中断故障注入
-python sim/test_t22_mutants.py    # TX→RX 回环故障注入
+
+# 故障注入（与回归串行运行，会抢占同一套 Questa 许可）
+python sim/test_t11_mutants.py
+python sim/test_t10_mutants.py
+python sim/test_t22_mutants.py
 ```
 
-更多脚本见 [README_tools.md](README_tools.md)（09-24 已按真实根目录布局修订）；**当前设计书与本 README 均在仓库根，不要执行旧的批量 Move-Item 命令**。文档定位和剩余归并项见[文档索引](doc/README.md)。**回归脚本会停止同名仿真器进程；运行前确认没有其他仿真任务，且不要并行跑两份回归。**
+更多脚本见 [README_tools.md](README_tools.md)。**回归脚本会停止同名仿真器进程；运行前确认没有其他仿真任务，且不要并行跑两份回归。**
 
 ## 仓库布局
 
 ```text
-rtl/          公共模块、顶层、TX、RX、管理面；部分模块仍是占位
+rtl/          公共模块、顶层、TX、RX、管理面（均已实现）
 sim/          测试清单、TB、向量、回归脚本及 out/ 证据
 sw/golden/    黄金模型与向量生成器
-elinx/        工程/综合冒烟材料，不能视作当前整机综合验收
+elinx/        eLinx 工程与综合材料
 tools/        文档与配置校验脚本
-doc/          文档导航、现状、计划、检查记录、寄存器 YAML/生成头
+doc/          文档导航、测试报告、寄存器 YAML/生成头、历史快照
+out/arena-debug/  分轮次工作记录、综合/STA/覆盖率原始证据与备份
 ```
 
-根目录 `doc_*.md` 是保留原路径的设计评审、答复和工作记录；早期结论按日期查看，最新状态见 `doc/当前进度_20260923.md`。旧文档和赛方材料不迁移，以免破坏脚本路径与交叉引用。`competition_case/` 属选题二材料，不纳入本 AFDX 主线验收。
+根目录 `doc_*.md` 是保留原路径的设计评审、答复和工作记录。`competition_case/` 属选题二材料，不纳入本 AFDX 主线验收。
 
 ## 变更约定
 
 1. 改协议/地址/寄存器先核对设计书、`doc/regs.yaml` 与相关生成器；不要手改生成结果掩盖不一致。
 2. 修改后跑相应检查；记录**源版本、测试清单、命令、配置、结果和覆盖边界**。
-3. 当前状态写入 `doc/当前进度_20260923.md`，下一步写入 `doc/后续计划.md`，过程追加到工作记录。`doc/项目现状.md` 和 HTML 演示是旧快照，不作最新验收清单。
+3. 任何 RTL 变更后串行重跑 56 项回归 + lint + 严格文档门，保留失败原件、真实 rc、命令与哈希。
+4. **不得以功能仿真 PASS 宣称综合/时序/认证完成。** 功能、综合、时序、覆盖率四类结果分开列示。

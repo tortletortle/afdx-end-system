@@ -1,0 +1,13 @@
+Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Start time: 11:19:14 on Sep 25,2026
+vcover merge out/arena-debug/finalize/coverage/T18_T23_4cases.ucdb out/arena-debug/finalize/coverage/T23.ucdb out/arena-debug/finalize/coverage/T23g.ucdb out/arena-debug/finalize/coverage/T18.ucdb out/arena-debug/finalize/coverage/T18g.ucdb 
+Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Merging file out/arena-debug/finalize/coverage/T23.ucdb
+Merging file out/arena-debug/finalize/coverage/T23g.ucdb
+Merging file out/arena-debug/finalize/coverage/T18.ucdb
+Merging file out/arena-debug/finalize/coverage/T18g.ucdb
+Writing merged result to out/arena-debug/finalize/coverage/T18_T23_4cases.ucdb
+
+End time: 11:19:14 on Sep 25,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0
+EXIT_CODE=0

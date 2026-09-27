@@ -1,0 +1,3 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T08f,full-table-scoreboard,tb_t08f_full_scoreboard,PASS,na,5.1,# T08 FULL SCOREBOARD PASS (IF_MODE=0 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+T08fg,full-table-scoreboard-gmii,tb_t08fg_full_scoreboard,PASS,na,4.1,# T08 FULL SCOREBOARD PASS (IF_MODE=1 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)

@@ -1,0 +1,4 @@
+﻿out/arena-debug/fixes.patch: 27 files, 92456 bytes, sha256=B37E678CB3B77D3281DAB32A9EE106F0753F4280708FA7D7C1D16D66E82A2A12
+out/arena-debug/continue2/continue2_full_rtl.patch: 3 files, 23429 bytes, sha256=271FB173E4064E248D5E06AF2B1D8AC8C572EF76856B99184A6BF0A49A381B34
+verify_A: git_apply_rc=0 (0=applied) byte_identical_to_after_rc=0 (0=identical)
+verify_B: git_apply_rc=0 (0=applied) byte_identical_to_after_rc=0 (0=identical)

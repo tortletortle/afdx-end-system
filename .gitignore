@@ -37,3 +37,33 @@ _*.ps1
 .zcode/
 # Windows device-name artifact
 NUL
+
+# ==== 2026-09-27 基线整理：排除重型生成物（源码/文档/轻量证据仍纳入版本管理）====
+# Quartus / TimeQuest 生成物
+elinx/prj/quartus/db/
+elinx/prj/quartus/incremental_db/
+elinx/prj/quartus/output_files/
+*.tdb
+*.qws
+# 超大 STA 报告（未约束端口清单可由 quartus_sta 重新生成）
+**/post_map_unconstrained.rpt
+# 综合网表（可由 .ys / quartus_map 重新生成）
+**/*_netlist.v
+**/AFDX_top_bram_netlist.v
+# 覆盖率数据库与明细（可由 +cover=sb 重采）
+**/*.ucdb
+**/vcover_details*.txt
+# 波形与仿真库
+**/*.wlf
+**/*.vcd
+**/*.dbg
+# 大体积 Quartus 中间报告
+elinx/prj/quartus/*.rpt
+elinx/prj/quartus/*.smsg
+
+# Quartus 工程中间库（任意位置）
+**/db/
+**/incremental_db/
+*.cdb
+*.qmsg
+**/output_files/

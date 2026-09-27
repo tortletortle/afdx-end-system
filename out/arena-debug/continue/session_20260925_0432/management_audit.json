@@ -1,0 +1,52 @@
+{
+  "snmp_lite": {
+    "files": [
+      "rtl\\mgmt\\snmp_lite.v"
+    ],
+    "noncomment_references": [
+      [
+        "rtl\\mgmt\\snmp_lite.v",
+        7,
+        "module snmp_lite;"
+      ]
+    ]
+  },
+  "a615a_tftp": {
+    "files": [
+      "rtl\\mgmt\\a615a_tftp.v"
+    ],
+    "noncomment_references": [
+      [
+        "rtl\\mgmt\\a615a_tftp.v",
+        7,
+        "module a615a_tftp;"
+      ]
+    ]
+  },
+  "rtc_sync": {
+    "files": [
+      "rtl\\mgmt\\rtc_sync.v"
+    ],
+    "noncomment_references": [
+      [
+        "rtl\\mgmt\\rtc_sync.v",
+        7,
+        "module rtc_sync;"
+      ]
+    ]
+  },
+  "stats_regs": {
+    "files": [
+      "rtl\\top\\stats_regs.v"
+    ],
+    "noncomment_references": [
+      [
+        "rtl\\top\\stats_regs.v",
+        7,
+        "module stats_regs;"
+      ]
+    ]
+  },
+  "T14_T16_manifest": [],
+  "status": "OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP; no requirements waiver; overall design incomplete"
+}

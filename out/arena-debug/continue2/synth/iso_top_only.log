@@ -1,0 +1,570 @@
+
+
+ eLinx synthesis tool v1.0 (Windows Visual Studio)
+
+
+-- Executing script file `out/arena-debug/continue2/synth/iso_top_only.ys' --
+
+1. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/rst_sync.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/rst_sync.v' to AST representation.
+Generating RTLIL representation for module `\rst_sync'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+2. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/timebase.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/timebase.v' to AST representation.
+Generating RTLIL representation for module `\timebase'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+3. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/sync_fifo.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/sync_fifo.v' to AST representation.
+Generating RTLIL representation for module `\sync_fifo'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+4. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/crc32.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/crc32.v' to AST representation.
+Generating RTLIL representation for module `\crc32'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+5. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/bram_sdp.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/bram_sdp.v' to AST representation.
+Generating RTLIL representation for module `\bram_sdp'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+6. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/top/init_sweep.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/top/init_sweep.v' to AST representation.
+Generating RTLIL representation for module `\init_sweep'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+7. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_sn_gen.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_sn_gen.v' to AST representation.
+Generating RTLIL representation for module `\tx_sn_gen'.
+mem has MEM2REG_FL_CONST_LHS in file C:/Workspace/diansai/rtl/tx/tx_sn_gen.v,line 25 
+Note: Replacing memory \sn_cur with list of registers (flags=0x00004400).
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 63 ms ......
+
+8. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_port_buf.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_port_buf.v' to AST representation.
+Generating RTLIL representation for module `\tx_port_buf'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 109 ms ......
+
+9. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_frame_builder.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_frame_builder.v' to AST representation.
+Generating RTLIL representation for module `\tx_frame_builder'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+10. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v' to AST representation.
+Generating RTLIL representation for module `\tx_vl_scheduler'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 63 ms ......
+
+11. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_rm.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_rm.v' to AST representation.
+Generating RTLIL representation for module `\tx_rm'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+12. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_pace.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_pace.v' to AST representation.
+Generating RTLIL representation for module `\tx_pace'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+13. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/mac_tx_if.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/mac_tx_if.v' to AST representation.
+Generating RTLIL representation for module `\mac_tx_if'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+14. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/mac_rx_if.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/mac_rx_if.v' to AST representation.
+Generating RTLIL representation for module `\mac_rx_if'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+15. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_block_pool.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_block_pool.v' to AST representation.
+Generating RTLIL representation for module `\rx_block_pool'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 15 ms ......
+
+16. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v' to AST representation.
+Generating RTLIL representation for module `\rx_pmem_queue'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+17. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_ic.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_ic.v' to AST representation.
+Generating RTLIL representation for module `\rx_ic'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+18. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v' to AST representation.
+Generating RTLIL representation for module `\rx_vl_lookup'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+19. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_flt.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_flt.v' to AST representation.
+Generating RTLIL representation for module `\rx_flt'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+20. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_rm.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_rm.v' to AST representation.
+Generating RTLIL representation for module `\rx_rm'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+21. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v' to AST representation.
+Generating RTLIL representation for module `\rx_ip_udp_parse'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+22. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_port_buf.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_port_buf.v' to AST representation.
+Generating RTLIL representation for module `\rx_port_buf'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+23. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v' to AST representation.
+Generating RTLIL representation for module `\mgmt_sap_rx'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+24. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/top/AFDX_top.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/top/AFDX_top.v' to AST representation.
+Generating RTLIL representation for module `\AFDX_top'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 109 ms ......
+
+Pass[read_verilog] runtime is 578 ms ......
+
+25. Executing HIERARCHY pass (managing design hierarchy).
+
+25.1. Analyzing design hierarchy..
+
+25.2. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_tx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \IFG_BYTES = 12
+Generating RTLIL representation for module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+
+25.3. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_tx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \IFG_BYTES = 12
+Found cached RTLIL representation for module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+
+25.4. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_pace'.
+Parameter \IF_MODE = 0
+Parameter \BYTE_SLOT_CYC = 10
+Generating RTLIL representation for module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+
+25.5. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_frame_builder'.
+Parameter \BYTE_SLOT_CYC = 10
+Generating RTLIL representation for module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+
+25.6. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_sn_gen'.
+Parameter \NUM_TX_VL = 128
+Generating RTLIL representation for module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+mem has MEM2REG_FL_CONST_LHS in file C:/Workspace/diansai/rtl/tx/tx_sn_gen.v,line 25 
+Note: Replacing memory \sn_cur with list of registers (flags=0x00004400).
+
+25.7. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_vl_scheduler'.
+Parameter \NUM_TX_VL = 128
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+
+25.8. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_port_buf'.
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\rx_port_buf\NUM_PORTS=256'.
+
+25.9. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_ip_udp_parse'.
+Parameter \DW = 174
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+
+25.10. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_rm'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+
+25.11. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_ic'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+
+25.12. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_flt'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+
+25.13. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_vl_lookup'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Parameter \HASH_BUCKETS = 2048
+Generating RTLIL representation for module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+
+25.14. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_pmem_queue'.
+Parameter \DW = 174
+Generating RTLIL representation for module `$paramod\rx_pmem_queue\DW=174'.
+
+25.15. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_pmem_queue'.
+Parameter \DW = 174
+Found cached RTLIL representation for module `$paramod\rx_pmem_queue\DW=174'.
+
+25.16. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_rx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \MAX_FRAME = 1518
+Parameter \NET_ID = 1
+Generating RTLIL representation for module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+
+25.17. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_rx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \MAX_FRAME = 1518
+Parameter \NET_ID = 0
+Generating RTLIL representation for module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+
+25.18. Executing AST frontend in derive mode using pre-parsed AST for module `\bram_sdp'.
+Parameter \W = 32
+Parameter \D = 8192
+Parameter \BYTE_EN = 1
+Generating RTLIL representation for module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+
+25.19. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_port_buf'.
+Parameter \NUM_PORTS = 256
+Parameter \TX_BLK_LO = 0
+Parameter \TX_BLK_N = 6
+Generating RTLIL representation for module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+
+25.20. Executing AST frontend in derive mode using pre-parsed AST for module `\timebase'.
+Parameter \TICK_US = 1
+Generating RTLIL representation for module `$paramod\timebase\TICK_US=1'.
+
+25.21. Executing AST frontend in derive mode using pre-parsed AST for module `\init_sweep'.
+Parameter \NUM_RX_VL = 4096
+Parameter \NUM_TX_VL = 128
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+
+25.22. Analyzing design hierarchy..
+
+25.23. Analyzing design hierarchy..
+
+Pass[hierarchy] runtime is 547 ms ......
+
+Pass[blackbox] runtime is 0 ms ......
+
+26. Executing PROC pass (convert processes to netlists).
+
+26.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 0 ms ......
+
+26.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+
+Pass[proc_rmdead] runtime is 47 ms ......
+
+26.3. Executing PROC_INIT pass (extract init attributes).
+
+Pass[proc_init] runtime is 0 ms ......
+
+26.4. Executing PROC_ARST pass (detect async resets in processes).
+
+Pass[proc_arst] runtime is 16 ms ......
+
+26.5. Executing PROC_ROM pass (convert switches to ROMs).
+
+Pass[proc_rom] runtime is 0 ms ......
+
+26.6. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+Pass[proc_mux] runtime is 390 ms ......
+
+26.7. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+Pass[proc_dlatch] runtime is 78 ms ......
+
+26.8. Executing PROC_DFF pass (convert process syncs to FFs).
+
+Pass[proc_dff] runtime is 47 ms ......
+
+26.9. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 16 ms ......
+
+Pass[proc] runtime is 594 ms ......
+
+27. Executing OPT pass (performing simple optimizations).
+
+27.1. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 266 ms ......
+
+27.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Removed a total of 1798 cells.
+
+Pass[opt_merge] runtime is 78 ms ......
+
+27.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 125 ms ......
+
+27.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 156 ms ......
+
+27.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Removed a total of 418 cells.
+
+Pass[opt_merge] runtime is 141 ms ......
+
+27.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 46 ms ......
+
+27.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 297 ms ......
+
+27.8. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 141 ms ......
+
+27.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+27.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 94 ms ......
+
+27.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 31 ms ......
+
+27.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 94 ms ......
+
+27.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 31 ms ......
+
+27.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 187 ms ......
+
+27.15. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 125 ms ......
+
+27.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+27.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 109 ms ......
+
+27.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 32 ms ......
+
+27.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 93 ms ......
+
+27.20. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 16 ms ......
+
+27.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 141 ms ......
+
+27.22. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 140 ms ......
+
+27.23. Finished OPT passes. (There is nothing left to do.)
+
+Pass[opt] runtime is 2359 ms ......
+
+28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).
+
+Pass[memory_dff] runtime is 94 ms ......
+
+29. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 203 ms ......
+
+30. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+Pass[memory_collect] runtime is 8344 ms ......
+
+31. Executing MEMORY_BRAM pass (mapping $mem cells to block memories).
+
+Pass[memory_bram] runtime is 78 ms ......
+
+32. Executing TECHMAP pass (map to technology primitives).
+
+32.1. Executing Verilog-2005 frontend: C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v
+Parsing Verilog input from `C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v' to AST representation.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_DUALPORT_FULL'.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_SINGLEPORT_FULL'.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_ROM_FULL'.
+Generating RTLIL representation for module `\$__M4K_ALTSYNCRAM_BIDIRDUALPORT_FULL'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 15 ms ......
+
+32.2. Continuing TECHMAP pass.
+
+Pass[techmap] runtime is 1234 ms ......
+
+33. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).
+
+Pass[memory_map] runtime is 63 ms ......
+
+34. Executing OPT pass (performing simple optimizations).
+
+34.1. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 17250 ms ......
+
+34.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+ERROR: bad allocation

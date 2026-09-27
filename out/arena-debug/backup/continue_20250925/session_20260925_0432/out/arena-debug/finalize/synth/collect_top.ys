@@ -1,0 +1,32 @@
+# eLinx synthesis script for AFDX_top
+read_verilog \
+  C:/Workspace/diansai/rtl/common/rst_sync.v \
+  C:/Workspace/diansai/rtl/common/timebase.v \
+  C:/Workspace/diansai/rtl/common/sync_fifo.v \
+  C:/Workspace/diansai/rtl/common/crc32.v \
+  C:/Workspace/diansai/rtl/common/bram_sdp.v \
+  C:/Workspace/diansai/rtl/top/init_sweep.v \
+  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
+  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
+  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
+  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
+  C:/Workspace/diansai/rtl/tx/tx_rm.v \
+  C:/Workspace/diansai/rtl/tx/tx_pace.v \
+  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
+  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
+  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
+  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
+  C:/Workspace/diansai/rtl/rx/rx_ic.v \
+  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
+  C:/Workspace/diansai/rtl/rx/rx_flt.v \
+  C:/Workspace/diansai/rtl/rx/rx_rm.v \
+  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
+  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
+  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
+  C:/Workspace/diansai/rtl/top/AFDX_top.v
+hierarchy -top AFDX_top
+proc
+opt
+memory_dff
+memory_collect AFDX_top
+stat

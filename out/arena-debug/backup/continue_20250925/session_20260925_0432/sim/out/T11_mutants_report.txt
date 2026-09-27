@@ -1,0 +1,18 @@
+T11 isolated RTL faults: compile, then FAIL (a pass is MISSED)
+original rtl/top/AFDX_top.v SHA-256: 87BF747E5801BE9B7ACCD3EAAA4D481BAECD080E76B67C8315E1529DE1F0E421
+original rtl/rx/rx_ip_udp_parse.v SHA-256: 5A6720B93BED0EAD14DFAA199526489E246A1CD60CBC6062F7DC09FC51D99661
+original rtl/rx/rx_port_buf.v SHA-256: A753525C74C99E8D676D0606F2C984449284EC21BE3307D4A15B200F8A380044
+fresh_not_read_cleared DETECTED (compiled=True, TB_FAIL=True, rc=0)
+seen_overwrite_not_pinned DETECTED (compiled=True, TB_FAIL=True, rc=0)
+older_pin_leaked DETECTED (compiled=True, TB_FAIL=True, rc=0)
+queue_depth_ignored DETECTED (compiled=True, TB_FAIL=True, rc=0)
+queue_pop_keeps_head DETECTED (compiled=True, TB_FAIL=True, rc=0)
+init_sweep_keeps_count DETECTED (compiled=True, TB_FAIL=True, rc=0)
+dport_check_missing DETECTED (compiled=True, TB_FAIL=True, rc=0)
+direction_check_missing DETECTED (compiled=True, TB_FAIL=True, rc=0)
+plen_from_frame_len DETECTED (compiled=True, TB_FAIL=True, rc=0)
+desc_read_returns_post_clear DETECTED (compiled=True, TB_FAIL=True, rc=0)
+port_drop_missing_from_total DETECTED (compiled=True, TB_FAIL=True, rc=0)
+runtime_rx_pmem_read_missing DETECTED (compiled=True, TB_FAIL=True, rc=0)
+msg_rd_accepts_non_rx_port DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T11 MUTATION SUMMARY: 13/13 detected

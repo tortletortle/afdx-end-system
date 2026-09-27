@@ -1,0 +1,48 @@
+// =====================================================================
+// timebase.v —— 时基（设计书 §7.18）
+// 时钟/复位: clk(125 MHz) / rst_sync
+// - rtc64 : 64 bit μs 计数器（分数累加器 frac + FREQ_ADJ 微调，±200 ppm）
+// - alive : 每 2^24 拍翻转（STATUS.ALIVE，§7.14 健康检查与 SNMP sysUpTime）
+// - tick_us: 1 μs 节拍（TICK_US>1 时每 TICK_US μs 一拍，仿真加速用，§13 R5）
+// - rtc_hold: 冻结 μs 计数（CTL bit11，§7.14）；alive 不冻结（健康检查常走）
+// FREQ_ADJ 名义值 = 2^16 × 1e6/CLK_FREQ_HZ（rtc64 计 μs）。
+// 注: 文档 §7.18 写 2^16 × (100e6/CLK_FREQ_HZ)，在 125 MHz 下给 10 ns/拍，
+//     与 "rtc64（μs）" 注释矛盾，疑 100 倍笔误 —— 已列 doc_第0周问题清单 内部项。
+// =====================================================================
+`timescale 1 ns / 1 ps
+module timebase #(
+  parameter integer TICK_US     = 1          // 仿真缩放：每 TICK_US μs 出一个 tick（1/2/4/8/16/32）
+) (
+  input  wire        clk,
+  input  wire        rst,
+  input  wire        rtc_hold,
+  input  wire [15:0] freq_adj,
+  output reg  [63:0] rtc64,
+  output wire        tick_us,
+  output wire        alive
+);
+  // TICK_US 为 1/2/4/8/16/32；每 TICK_US μs 出一次 tick（计数器取模，避免计算位选）
+  reg [15:0] tick_ctr;
+  reg [23:0] beat_cnt;
+  reg [15:0] frac;
+  wire [16:0] frac_sum = frac + {1'b0, freq_adj};   // [17] 恒 0，不保留
+  wire us_inc = frac_sum[16];
+
+  always @(posedge clk) begin
+    if (rst) begin
+      beat_cnt <= 24'd0;
+      frac     <= 16'd0;
+      rtc64    <= 64'd0;
+    end else begin
+      beat_cnt <= beat_cnt + 24'd1;                       // 2^24 拍 → ALIVE
+      if (!rtc_hold) begin
+        frac  <= frac_sum[15:0];
+        rtc64 <= rtc64 + (us_inc ? 64'd1 : 64'd0);
+        tick_ctr <= ((tick_ctr + 16'd1) == TICK_US[15:0]) ? 16'd0 : (tick_ctr + 16'd1);
+      end
+    end
+  end
+
+  assign alive   = beat_cnt[23];
+  assign tick_us = us_inc & (tick_ctr == 16'd0);
+endmodule

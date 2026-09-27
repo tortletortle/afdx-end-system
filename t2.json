@@ -1,0 +1,406 @@
+{
+  "sha": "7924fb8835444db7c96b4bb6a446663be0c800c7",
+  "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/7924fb8835444db7c96b4bb6a446663be0c800c7",
+  "tree": [
+    {
+      "path": "AFDX",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "b543f877080bd8a0055104db55553a98d4ebfa18",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/b543f877080bd8a0055104db55553a98d4ebfa18"
+    },
+    {
+      "path": "AFDX/afdx.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ece16a942b867f5d43e52f30ef7b9d7bdb5507e6",
+      "size": 10086,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/ece16a942b867f5d43e52f30ef7b9d7bdb5507e6"
+    },
+    {
+      "path": "AFDX/afdx.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d36e77e13287359348a8d7b72ce20545486de207",
+      "size": 3009,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/d36e77e13287359348a8d7b72ce20545486de207"
+    },
+    {
+      "path": "CITATION.cff",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "aa35226603419e539733b80e77316e0a6672d73c",
+      "size": 420,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/aa35226603419e539733b80e77316e0a6672d73c"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7529ff98f412ae36d9126f0038715a9390fa4eca",
+      "size": 35173,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/7529ff98f412ae36d9126f0038715a9390fa4eca"
+    },
+    {
+      "path": "NetworkCalculus",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "13898493d6fc1242f6b666576c9fb74537e327b5",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/13898493d6fc1242f6b666576c9fb74537e327b5"
+    },
+    {
+      "path": "NetworkCalculus/DRR",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "967baa5a8905d060ab07e347bcce268e6a725249",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/967baa5a8905d060ab07e347bcce268e6a725249"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "110bcfa5468e8e294b772fba0dd8a8ab39e15089",
+      "size": 2398,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/110bcfa5468e8e294b772fba0dd8a8ab39e15089"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4d629abd32028192d3673795fa023ecfc76cfe7b",
+      "size": 2126,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/4d629abd32028192d3673795fa023ecfc76cfe7b"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_classic.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "32d0bd45cd2af171139dce380d4ddbee1d3f4504",
+      "size": 18995,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/32d0bd45cd2af171139dce380d4ddbee1d3f4504"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_classic.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7a69c3fc425e6c416f950a9715cd0d42017c8739",
+      "size": 2342,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/7a69c3fc425e6c416f950a9715cd0d42017c8739"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_optimised.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "979e0e4459450521fb6893294b400953e1a2c865",
+      "size": 32740,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/979e0e4459450521fb6893294b400953e1a2c865"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_optimised.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4870b96e84b8be16839d5a4f187b150ead6e6490",
+      "size": 2848,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/4870b96e84b8be16839d5a4f187b150ead6e6490"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_quantumassignment.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fef0f5f0dc2d3eca2359204dc357d4f90f9d14e2",
+      "size": 32601,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/fef0f5f0dc2d3eca2359204dc357d4f90f9d14e2"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_quantumassignment.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "28a8ac231c527189a8a2a8cfa2e9b8810543e315",
+      "size": 4136,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/28a8ac231c527189a8a2a8cfa2e9b8810543e315"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_quantumassignmentimproved.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "272284e63ed516bb5e357b6f45d63a265b508166",
+      "size": 72043,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/272284e63ed516bb5e357b6f45d63a265b508166"
+    },
+    {
+      "path": "NetworkCalculus/DRR/nc_drr_quantumassignmentimproved.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "838bccbeb65b66c6c679df12049481f9a82ada72",
+      "size": 5270,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/838bccbeb65b66c6c679df12049481f9a82ada72"
+    },
+    {
+      "path": "NetworkCalculus/FIFO",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "4618abbbf4d973cf048b0f6063967132852a5a47",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/4618abbbf4d973cf048b0f6063967132852a5a47"
+    },
+    {
+      "path": "NetworkCalculus/FIFO/nc_fifo.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fd372faadf7ba2df95fbb318385f54369100225f",
+      "size": 14340,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/fd372faadf7ba2df95fbb318385f54369100225f"
+    },
+    {
+      "path": "NetworkCalculus/FIFO/nc_fifo.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1c2d65ec52bc82c9fc37c83ddd40abbb7b2c1e07",
+      "size": 2357,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/1c2d65ec52bc82c9fc37c83ddd40abbb7b2c1e07"
+    },
+    {
+      "path": "NetworkCalculus/FIFO/nc_fifo_offset.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "145d7cc3a2334e9cce307b1237757a81ef5bbab6",
+      "size": 37511,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/145d7cc3a2334e9cce307b1237757a81ef5bbab6"
+    },
+    {
+      "path": "NetworkCalculus/FIFO/nc_fifo_offset.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6d5834ea940debfe017a4080ba2265042b23bb6e",
+      "size": 4320,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/6d5834ea940debfe017a4080ba2265042b23bb6e"
+    },
+    {
+      "path": "NetworkCalculus/SPQ",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "b42b98ee06a394c7903fcd2883a25a127ae204e0",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/b42b98ee06a394c7903fcd2883a25a127ae204e0"
+    },
+    {
+      "path": "NetworkCalculus/SPQ/nc_spq.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "64738915d1d3bb04339111cdfd6431e1c7be52cd",
+      "size": 20182,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/64738915d1d3bb04339111cdfd6431e1c7be52cd"
+    },
+    {
+      "path": "NetworkCalculus/SPQ/nc_spq.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bfe5abc8f2ef82eb3b1365c8c47e228487524f18",
+      "size": 2185,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/bfe5abc8f2ef82eb3b1365c8c47e228487524f18"
+    },
+    {
+      "path": "NetworkCalculus/UnderBound",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "3f111240cda4d964c84a33e664596f92b78c5ca3",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/3f111240cda4d964c84a33e664596f92b78c5ca3"
+    },
+    {
+      "path": "NetworkCalculus/UnderBound/nc_underbound.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f1866bd75697673800cdfce6ecf06022857b4fa7",
+      "size": 15141,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/f1866bd75697673800cdfce6ecf06022857b4fa7"
+    },
+    {
+      "path": "NetworkCalculus/UnderBound/nc_underbound.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4eed1ce246f704142125021ca17fa221bea71369",
+      "size": 2757,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/4eed1ce246f704142125021ca17fa221bea71369"
+    },
+    {
+      "path": "NetworkCalculus/WRR",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "fabb15f32fdf9df2707ef9f803382fc4126cb4fc",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/fabb15f32fdf9df2707ef9f803382fc4126cb4fc"
+    },
+    {
+      "path": "NetworkCalculus/WRR/nc_wrr.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2e476990b7a5bf14ca426625d5ecf3a0c3b154ea",
+      "size": 2409,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/2e476990b7a5bf14ca426625d5ecf3a0c3b154ea"
+    },
+    {
+      "path": "NetworkCalculus/WRR/nc_wrr.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b23089d3a6f2ce3c35c300858aa38533074bd7db",
+      "size": 2225,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/b23089d3a6f2ce3c35c300858aa38533074bd7db"
+    },
+    {
+      "path": "NetworkCalculus/WRR/nc_wrr_optimised.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d8f1a877f7196546db2ae4d5b40a1aab211f89bf",
+      "size": 33503,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/d8f1a877f7196546db2ae4d5b40a1aab211f89bf"
+    },
+    {
+      "path": "NetworkCalculus/WRR/nc_wrr_optimised.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "051829543afdd91894221d0b512ee0f6aa9ebc1c",
+      "size": 2692,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/051829543afdd91894221d0b512ee0f6aa9ebc1c"
+    },
+    {
+      "path": "NetworkCalculus/nc_scheduling.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d10725f1a1904e16cac6ac9348d931e4236b8758",
+      "size": 989,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/d10725f1a1904e16cac6ac9348d931e4236b8758"
+    },
+    {
+      "path": "NetworkCalculus/nc_scheduling.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4f8fdec6d87f8f730148ab931e54161390395836",
+      "size": 1436,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/4f8fdec6d87f8f730148ab931e54161390395836"
+    },
+    {
+      "path": "NetworkCalculus/nccurves.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "da81b727f83241c97a8a92b845599a09297756d8",
+      "size": 53912,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/da81b727f83241c97a8a92b845599a09297756d8"
+    },
+    {
+      "path": "NetworkCalculus/nccurves.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7a6b59d796c90b51df2bef0503de5a10b7efe49d",
+      "size": 14121,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/7a6b59d796c90b51df2bef0503de5a10b7efe49d"
+    },
+    {
+      "path": "NetworkCalculus/ncdata.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "31e4a4b5ae5fc37ad489fcd20b0f528dbc91de1c",
+      "size": 1829,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/31e4a4b5ae5fc37ad489fcd20b0f528dbc91de1c"
+    },
+    {
+      "path": "NetworkCalculus/ncdata.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3027597fcf805afa3dcd5462e16f394fca4d1001",
+      "size": 9290,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/3027597fcf805afa3dcd5462e16f394fca4d1001"
+    },
+    {
+      "path": "NetworkCalculus/networkcalculus.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a0bcd8403e743d83657d1894b93f5da79edf9170",
+      "size": 6558,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/a0bcd8403e743d83657d1894b93f5da79edf9170"
+    },
+    {
+      "path": "NetworkCalculus/networkcalculus.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cd79e4e8b1b34db91151cecf65b28824e11c832f",
+      "size": 5125,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/cd79e4e8b1b34db91151cecf65b28824e11c832f"
+    },
+    {
+      "path": "Performance_Analysis_Tools.pro",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ddf014a798ff4e8d01478b4bc0a02c380f2c611f",
+      "size": 2164,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/ddf014a798ff4e8d01478b4bc0a02c380f2c611f"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8567e89cb13290b25b56e33c976503a675af03ac",
+      "size": 1955,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/8567e89cb13290b25b56e33c976503a675af03ac"
+    },
+    {
+      "path": "SharedData",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "43f99f6d82f43193b039e2a008521682a4f83aca",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/43f99f6d82f43193b039e2a008521682a4f83aca"
+    },
+    {
+      "path": "SharedData/global_typedef.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cd9ad91ed97de177810ea1fc05f8aa984243e34a",
+      "size": 5088,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/cd9ad91ed97de177810ea1fc05f8aa984243e34a"
+    },
+    {
+      "path": "SharedData/global_typedef.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dd8f396707d260e0111e974399bd9f7ebd4a66cf",
+      "size": 8370,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/dd8f396707d260e0111e974399bd9f7ebd4a66cf"
+    },
+    {
+      "path": "SharedData/printer.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "64f0c76f0d6d0b0b8b21c6e077b85fa30e7d50f7",
+      "size": 32,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/64f0c76f0d6d0b0b8b21c6e077b85fa30e7d50f7"
+    },
+    {
+      "path": "SharedData/printer.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "57e7e03ed90baa3c41680056ff483b8c48fffee9",
+      "size": 58,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/57e7e03ed90baa3c41680056ff483b8c48fffee9"
+    },
+    {
+      "path": "config",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "0210a8ea1157e40ce150176336d6060814ce7905",
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/trees/0210a8ea1157e40ce150176336d6060814ce7905"
+    },
+    {
+      "path": "config/sample.mod",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b92101036378a5dff17885a86fb113405c98d6f1",
+      "size": 348,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/b92101036378a5dff17885a86fb113405c98d6f1"
+    },
+    {
+      "path": "main.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b5fed4aa0645c4a2a289d6ca8ed23dd94c98095f",
+      "size": 1340,
+      "url": "https://api.github.com/repos/soniaakash/Performance-Analysis-and-Optimisation-Tools-for-AFDX-network/git/blobs/b5fed4aa0645c4a2a289d6ca8ed23dd94c98095f"
+    }
+  ],
+  "truncated": false
+}

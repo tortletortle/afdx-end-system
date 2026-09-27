@@ -1,0 +1,63 @@
+{
+  "final_change": "STA evidence gap: fail closed unless actual report_sdc clk period is 8.000 ns",
+  "source_files_changed_after_rollback": [
+    "elinx/prj/quartus/sta_post_map.tcl",
+    "elinx/prj/quartus/check_sdc_8ns.tcl"
+  ],
+  "candidate_timing_experiment": {
+    "baseline_post_map": {
+      "device": "EP4SGX230HF35C2",
+      "stage": "post-map; not post-fit/sign-off",
+      "sdc_period_ns": 8.0,
+      "fmax_mhz": 42.56,
+      "setup_wns_ns": -15.498,
+      "setup_endpoint_tns_ns": -567451.74,
+      "worst_from": "rst_sync:u_rstsync|r[2]",
+      "worst_to": "rx_port_buf:u_rxpb|p_cnt~508",
+      "worst_data_delay_ns": 22.975,
+      "paths_reported": 20
+    },
+    "rejected_candidate_post_map": {
+      "device": "EP4SGX230HF35C2",
+      "stage": "post-map; not post-fit/sign-off",
+      "sdc_period_ns": 8.0,
+      "fmax_mhz": 41.49,
+      "setup_wns_ns": -16.103,
+      "setup_endpoint_tns_ns": -639993.268,
+      "worst_from": "rst_sync:u_rstsync|r[2]",
+      "worst_to": "rx_port_buf:u_rxpb|p_pin[127]",
+      "worst_data_delay_ns": 23.58,
+      "paths_reported": 20
+    },
+    "delta": {
+      "fmax_delta_mhz": -1.07,
+      "wns_delta_ns": -0.605,
+      "meets_125_mhz": false
+    },
+    "rolled_back_byte_identical": true,
+    "tests_and_netlist_belong_to": "rejected RTL candidate, not final live RTL"
+  },
+  "official_guard_verification": {
+    "timequest_positive_rc": 0,
+    "negative_fixture_rc": 0,
+    "report_period_ns": 8,
+    "netlist": "rejected-candidate post-map snapshot; reused before RTL rollback"
+  },
+  "artifact_integrity_checks": {
+    "timing_attempt_13_checks_recorded": true,
+    "timing_attempt_worse_and_125_mhz_unmet": true,
+    "rtl_restored_to_prechange_backups": true,
+    "sta_script_backup_matches_before_change": true,
+    "tested_sta_guard_script_unchanged": true,
+    "report_sdc_and_guard_before_setup_fmax": true,
+    "official_script_positive_timequest_rc0": true,
+    "positive_report_contains_8ns_clk": true,
+    "negative_fixture_contains_default_1ns_clk": true,
+    "production_helper_rejects_1ns_in_selftest": true,
+    "final_patch_only_sta_sources": true,
+    "patch_forward_reverse_byte_identical": true,
+    "map_reports_retained_after_db_cleanup": true
+  },
+  "artifact_integrity_checks_all_passed": true,
+  "limits": "125 MHz not achieved. Post-map is not post-fit; IO delays are incomplete. No whole-system 50-test regression or post-rollback resynthesis/STA was run."
+}

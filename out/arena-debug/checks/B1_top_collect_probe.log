@@ -1,0 +1,854 @@
+
+
+ eLinx synthesis tool v1.0 (Windows Visual Studio)
+
+
+-- Executing script file `out/arena-debug/checks/B1_top_collect_probe.ys' --
+
+1. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/rst_sync.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/rst_sync.v' to AST representation.
+Generating RTLIL representation for module `\rst_sync'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+2. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/timebase.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/timebase.v' to AST representation.
+Generating RTLIL representation for module `\timebase'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+3. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/sync_fifo.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/sync_fifo.v' to AST representation.
+Generating RTLIL representation for module `\sync_fifo'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 32 ms ......
+
+4. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/crc32.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/crc32.v' to AST representation.
+Generating RTLIL representation for module `\crc32'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+5. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/common/bram_sdp.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/common/bram_sdp.v' to AST representation.
+Generating RTLIL representation for module `\bram_sdp'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+6. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/top/init_sweep.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/top/init_sweep.v' to AST representation.
+Generating RTLIL representation for module `\init_sweep'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+7. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_sn_gen.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_sn_gen.v' to AST representation.
+Generating RTLIL representation for module `\tx_sn_gen'.
+mem has MEM2REG_FL_CONST_LHS in file C:/Workspace/diansai/rtl/tx/tx_sn_gen.v,line 25 
+Note: Replacing memory \sn_cur with list of registers (flags=0x00004400).
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 93 ms ......
+
+8. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_port_buf.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_port_buf.v' to AST representation.
+Generating RTLIL representation for module `\tx_port_buf'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 110 ms ......
+
+9. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_frame_builder.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_frame_builder.v' to AST representation.
+Generating RTLIL representation for module `\tx_frame_builder'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+10. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v' to AST representation.
+Generating RTLIL representation for module `\tx_vl_scheduler'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 47 ms ......
+
+11. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_rm.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_rm.v' to AST representation.
+Generating RTLIL representation for module `\tx_rm'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 15 ms ......
+
+12. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/tx_pace.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/tx_pace.v' to AST representation.
+Generating RTLIL representation for module `\tx_pace'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+13. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/tx/mac_tx_if.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/tx/mac_tx_if.v' to AST representation.
+Generating RTLIL representation for module `\mac_tx_if'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+14. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/mac_rx_if.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/mac_rx_if.v' to AST representation.
+Generating RTLIL representation for module `\mac_rx_if'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 47 ms ......
+
+15. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_block_pool.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_block_pool.v' to AST representation.
+Generating RTLIL representation for module `\rx_block_pool'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+16. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v' to AST representation.
+Generating RTLIL representation for module `\rx_pmem_queue'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+17. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_ic.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_ic.v' to AST representation.
+Generating RTLIL representation for module `\rx_ic'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 15 ms ......
+
+18. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v' to AST representation.
+Generating RTLIL representation for module `\rx_vl_lookup'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+19. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_flt.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_flt.v' to AST representation.
+Generating RTLIL representation for module `\rx_flt'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+20. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_rm.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_rm.v' to AST representation.
+Generating RTLIL representation for module `\rx_rm'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 16 ms ......
+
+21. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v' to AST representation.
+Generating RTLIL representation for module `\rx_ip_udp_parse'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+22. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/rx/rx_port_buf.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/rx/rx_port_buf.v' to AST representation.
+Generating RTLIL representation for module `\rx_port_buf'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 31 ms ......
+
+23. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v' to AST representation.
+Generating RTLIL representation for module `\mgmt_sap_rx'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 0 ms ......
+
+24. Executing Verilog-2005 frontend: C:/Workspace/diansai/rtl/top/AFDX_top.v
+Parsing Verilog input from `C:/Workspace/diansai/rtl/top/AFDX_top.v' to AST representation.
+Generating RTLIL representation for module `\AFDX_top'.
+Successfully finished Verilog frontend.
+
+Pass[read_verilog] runtime is 125 ms ......
+
+Pass[read_verilog] runtime is 563 ms ......
+
+25. Executing HIERARCHY pass (managing design hierarchy).
+
+25.1. Analyzing design hierarchy..
+
+25.2. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_tx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \IFG_BYTES = 12
+Generating RTLIL representation for module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+
+25.3. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_tx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \IFG_BYTES = 12
+Found cached RTLIL representation for module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+
+25.4. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_pace'.
+Parameter \IF_MODE = 0
+Parameter \BYTE_SLOT_CYC = 10
+Generating RTLIL representation for module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+
+25.5. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_frame_builder'.
+Parameter \BYTE_SLOT_CYC = 10
+Generating RTLIL representation for module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+
+25.6. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_sn_gen'.
+Parameter \NUM_TX_VL = 128
+Generating RTLIL representation for module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+mem has MEM2REG_FL_CONST_LHS in file C:/Workspace/diansai/rtl/tx/tx_sn_gen.v,line 25 
+Note: Replacing memory \sn_cur with list of registers (flags=0x00004400).
+
+25.7. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_vl_scheduler'.
+Parameter \NUM_TX_VL = 128
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+
+25.8. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_port_buf'.
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\rx_port_buf\NUM_PORTS=256'.
+
+25.9. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_ip_udp_parse'.
+Parameter \DW = 174
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+
+25.10. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_rm'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+
+25.11. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_ic'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+
+25.12. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_flt'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Generating RTLIL representation for module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+
+25.13. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_vl_lookup'.
+Parameter \DW = 174
+Parameter \NUM_RX_VL = 4096
+Parameter \HASH_BUCKETS = 2048
+Generating RTLIL representation for module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+
+25.14. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_pmem_queue'.
+Parameter \DW = 174
+Generating RTLIL representation for module `$paramod\rx_pmem_queue\DW=174'.
+
+25.15. Executing AST frontend in derive mode using pre-parsed AST for module `\rx_pmem_queue'.
+Parameter \DW = 174
+Found cached RTLIL representation for module `$paramod\rx_pmem_queue\DW=174'.
+
+25.16. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_rx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \MAX_FRAME = 1518
+Parameter \NET_ID = 1
+Generating RTLIL representation for module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+
+25.17. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_rx_if'.
+Parameter \IF_MODE = 0
+Parameter \FCS_MODE = 2
+Parameter \MAX_FRAME = 1518
+Parameter \NET_ID = 0
+Generating RTLIL representation for module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+
+25.18. Executing AST frontend in derive mode using pre-parsed AST for module `\bram_sdp'.
+Parameter \W = 32
+Parameter \D = 8192
+Parameter \BYTE_EN = 1
+Generating RTLIL representation for module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+
+25.19. Executing AST frontend in derive mode using pre-parsed AST for module `\tx_port_buf'.
+Parameter \NUM_PORTS = 256
+Parameter \TX_BLK_LO = 0
+Parameter \TX_BLK_N = 6
+Generating RTLIL representation for module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+
+25.20. Executing AST frontend in derive mode using pre-parsed AST for module `\timebase'.
+Parameter \TICK_US = 1
+Generating RTLIL representation for module `$paramod\timebase\TICK_US=1'.
+
+25.21. Executing AST frontend in derive mode using pre-parsed AST for module `\init_sweep'.
+Parameter \NUM_RX_VL = 4096
+Parameter \NUM_TX_VL = 128
+Parameter \NUM_PORTS = 256
+Generating RTLIL representation for module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+
+25.22. Analyzing design hierarchy..
+
+25.23. Analyzing design hierarchy..
+
+Pass[hierarchy] runtime is 500 ms ......
+
+26. Executing PROC pass (convert processes to netlists).
+
+26.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 0 ms ......
+
+26.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+
+Pass[proc_rmdead] runtime is 47 ms ......
+
+26.3. Executing PROC_INIT pass (extract init attributes).
+
+Pass[proc_init] runtime is 0 ms ......
+
+26.4. Executing PROC_ARST pass (detect async resets in processes).
+
+Pass[proc_arst] runtime is 15 ms ......
+
+26.5. Executing PROC_ROM pass (convert switches to ROMs).
+
+Pass[proc_rom] runtime is 0 ms ......
+
+26.6. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+Pass[proc_mux] runtime is 750 ms ......
+
+26.7. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+Pass[proc_dlatch] runtime is 125 ms ......
+
+26.8. Executing PROC_DFF pass (convert process syncs to FFs).
+
+Pass[proc_dff] runtime is 94 ms ......
+
+26.9. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+
+Pass[proc_clean] runtime is 16 ms ......
+
+Pass[proc] runtime is 1047 ms ......
+
+27. Executing OPT pass (performing simple optimizations).
+
+27.1. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 422 ms ......
+
+27.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `\tx_rm'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `\rst_sync'.
+Removed a total of 3239 cells.
+
+Pass[opt_merge] runtime is 140 ms ......
+
+27.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 250 ms ......
+
+27.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 235 ms ......
+
+27.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `\tx_rm'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `\rst_sync'.
+Removed a total of 576 cells.
+
+Pass[opt_merge] runtime is 250 ms ......
+
+27.6. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 47 ms ......
+
+27.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 437 ms ......
+
+27.8. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 234 ms ......
+
+27.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+27.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 157 ms ......
+
+27.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 62 ms ......
+
+27.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `\rst_sync'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `\tx_rm'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 188 ms ......
+
+27.13. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 47 ms ......
+
+27.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 265 ms ......
+
+27.15. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 219 ms ......
+
+27.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+27.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+
+Pass[opt_muxtree] runtime is 156 ms ......
+
+27.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+
+Pass[opt_reduce] runtime is 47 ms ......
+
+27.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod\bram_sdp\W=32\D=8192\BYTE_EN=1'.
+Finding identical cells in module `$paramod\init_sweep\NUM_RX_VL=4096\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=0'.
+Finding identical cells in module `$paramod\mac_rx_if\IF_MODE=0\FCS_MODE=2\MAX_FRAME=1518\NET_ID=1'.
+Finding identical cells in module `$paramod\mac_tx_if\IF_MODE=0\FCS_MODE=2\IFG_BYTES=12'.
+Finding identical cells in module `$paramod\rx_flt\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ic\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_ip_udp_parse\DW=174\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_pmem_queue\DW=174'.
+Finding identical cells in module `$paramod\rx_port_buf\NUM_PORTS=256'.
+Finding identical cells in module `$paramod\rx_rm\DW=174\NUM_RX_VL=4096'.
+Finding identical cells in module `$paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048'.
+Finding identical cells in module `$paramod\timebase\TICK_US=1'.
+Finding identical cells in module `$paramod\tx_frame_builder\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_pace\IF_MODE=0\BYTE_SLOT_CYC=10'.
+Finding identical cells in module `$paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6'.
+Finding identical cells in module `$paramod\tx_sn_gen\NUM_TX_VL=128'.
+Finding identical cells in module `$paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256'.
+Finding identical cells in module `\AFDX_top'.
+Finding identical cells in module `\crc32'.
+Finding identical cells in module `\mgmt_sap_rx'.
+Finding identical cells in module `\rst_sync'.
+Finding identical cells in module `\rx_block_pool'.
+Finding identical cells in module `\tx_rm'.
+Removed a total of 0 cells.
+
+Pass[opt_merge] runtime is 172 ms ......
+
+27.20. Executing OPT_RMDFF pass (remove dff with constant values).
+
+Pass[opt_rmdff] runtime is 31 ms ......
+
+27.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+
+Pass[opt_clean] runtime is 250 ms ......
+
+27.22. Executing OPT_EXPR pass (perform const folding).
+
+Pass[opt_expr] runtime is 235 ms ......
+
+27.23. Finished OPT passes. (There is nothing left to do.)
+
+Pass[opt] runtime is 3859 ms ......
+
+28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).
+
+Pass[memory_dff] runtime is 219 ms ......
+
+29. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+Pass[memory_collect] runtime is 9328 ms ......
+
+Pass[select] runtime is 94 ms ......
+
+30. Executing CHECK pass (checking for obvious problems).
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [31] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [30] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [29] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [28] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [27] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [26] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [25] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [24] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [23] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [22] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [21] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [20] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [19] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [18] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [17] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [16] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [15] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [14] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [13] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [12] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [11] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [10] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [9] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [8] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [7] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [6] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [5] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [4] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [3] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [2] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [1] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6580_DATA [0] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [31] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [30] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [29] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [28] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [27] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [26] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [25] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [24] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [23] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [22] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [21] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [20] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [19] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [18] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [17] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [16] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [15] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [14] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [13] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [12] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [11] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [10] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [9] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [8] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [7] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [6] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [5] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [4] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [3] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [2] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [1] is used but has no driver.
+Warning: Wire $paramod\bram_sdp\W=32\D=8192\BYTE_EN=1.$memrd$mem_6582_DATA [0] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [7] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [6] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [5] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [4] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [3] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [2] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [1] is used but has no driver.
+Warning: Wire $paramod\rx_ic\DW=174\NUM_RX_VL=4096.$0psn_q [0] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [32] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [31] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [30] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [29] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [28] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [27] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [26] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [25] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [24] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [23] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [22] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [21] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [20] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [19] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [18] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [17] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [16] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [15] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [14] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [13] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [12] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [11] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [10] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [9] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [8] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [7] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [6] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [5] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [4] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [3] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [2] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [1] is used but has no driver.
+Warning: Wire $paramod\rx_rm\DW=174\NUM_RX_VL=4096.$0st_q [0] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [31] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [30] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [29] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [28] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [27] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [26] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [25] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [24] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [23] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [22] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [21] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [20] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [19] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [18] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [17] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [16] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [15] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [14] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [13] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [12] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [11] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [10] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [9] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [8] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [7] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [6] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [5] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [4] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [3] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [2] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [1] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q11 [0] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [31] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [30] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [29] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [28] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [27] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [26] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [25] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [24] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [23] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [22] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [21] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [20] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [19] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [18] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [17] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [16] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [15] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [14] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [13] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [12] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [11] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [10] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [9] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [8] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [7] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [6] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [5] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [4] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [3] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [2] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [1] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q10 [0] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [31] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [30] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [29] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [28] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [27] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [26] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [25] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [24] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [23] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [22] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [21] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [20] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [19] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [18] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [17] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [16] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [15] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [14] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [13] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [12] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [11] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [10] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [9] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [8] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [7] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [6] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [5] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [4] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [3] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [2] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [1] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q01 [0] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [31] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [30] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [29] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [28] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [27] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [26] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [25] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [24] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [23] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [22] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [21] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [20] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [19] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [18] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [17] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [16] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [15] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [14] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [13] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [12] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [11] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [10] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [9] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [8] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [7] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [6] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [5] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [4] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [3] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [2] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [1] is used but has no driver.
+Warning: Wire $paramod\rx_vl_lookup\DW=174\NUM_RX_VL=4096\HASH_BUCKETS=2048.$0q00 [0] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [27] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [26] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [25] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [24] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [23] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [22] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [21] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [20] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [19] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [18] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [17] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [16] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [15] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [14] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [13] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [12] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [11] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [10] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [9] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [8] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [7] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [6] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [5] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [4] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [3] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [2] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [1] is used but has no driver.
+Warning: Wire $paramod\tx_port_buf\NUM_PORTS=256\TX_BLK_LO=0\TX_BLK_N=6.$0desc_rd_data [0] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [23] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [22] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [21] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [20] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [19] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [18] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [17] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [16] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [15] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [14] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [13] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [12] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [11] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [10] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [9] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [8] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [7] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [6] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [5] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [4] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [3] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [2] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [1] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$next_tx_5179_DATA [0] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [23] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [22] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [21] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [20] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [19] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [18] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [17] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [16] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [15] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [14] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [13] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [12] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [11] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [10] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [9] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [8] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [7] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [6] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [5] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [4] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [3] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [2] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [1] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$bag_arr_5180_DATA [0] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [7] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [6] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [5] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [4] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [3] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [2] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [1] is used but has no driver.
+Warning: Wire $paramod\tx_vl_scheduler\NUM_TX_VL=128\NUM_PORTS=256.$memrd$port_arr_5181_DATA [0] is used but has no driver.
+ERROR: bad allocation

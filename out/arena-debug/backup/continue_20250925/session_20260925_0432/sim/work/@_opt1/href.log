@@ -1,0 +1,23 @@
+BEGIN 1:AFDX_top:fast:work
+    pb_in_ready :  1:tb_t18_core:fast:work
+    prs_to_port :  1:tb_t18_core:fast:work
+    rx_drop_reason_a :  1:tb_t18_core:fast:work
+    prs_out_vld :  1:tb_t18_core:fast:work
+    rx_free_map :  1:tb_t18_core:fast:work
+    rx_drop_reason_b :  1:tb_t18_core:fast:work
+    init_done :  1:tb_t18_core:fast:work
+    rx_ovf_b :  1:tb_t18_core:fast:work
+    rx_ovf_a :  1:tb_t18_core:fast:work
+END 
+BEGIN 1:rx_port_buf:fast:work
+    in_ready :  1:tb_t18_core:fast:work
+    deliver_cnt :  1:tb_t18_core:fast:work
+END 
+BEGIN 1:mac_rx_if:fast:work
+    drop_cnt :  1:tb_t18_core:fast:work
+    good_cnt :  1:tb_t18_core:fast:work
+END 
+BEGIN 1:mac_rx_if:fast__1:work
+    good_cnt :  1:tb_t18_core:fast:work
+    drop_cnt :  1:tb_t18_core:fast:work
+END 

@@ -1,0 +1,53 @@
+diff --git "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\snmp_lite_step1.v" "b/C:\\Workspace\\diansai\\rtl\\mgmt\\snmp_lite.v"
+index 490ac6c..a95a4f2 100644
+--- "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\snmp_lite_step1.v"
++++ "b/C:\\Workspace\\diansai\\rtl\\mgmt\\snmp_lite.v"
+@@ -312,13 +312,15 @@ module snmp_lite #(
+   end
+ 
+   // ================= 编码期的每 VarBind 取值 =================
+-  wire        e_err   = (err_st != 4'd0);
+-  wire [7:0]  e_tag   = e_err ? T_NUL : vb_tag[vi[2:0]];
+-  wire        e_isstr = !e_err && vb_str[vi[2:0]];
+-  wire [3:0]  e_vlen  = e_err   ? 4'd0 :
+-                        e_isstr ? 4'd0 : ilen(vb_val[vi[2:0]]);
++  reg [7:0]  e_tag_q;
++  reg        e_isstr_q;
++  reg [3:0]  e_vlen_q;
++  reg [31:0] e_val_q;
++  wire [7:0]  e_tag   = e_tag_q;
++  wire        e_isstr = e_isstr_q;
++  wire [3:0]  e_vlen  = e_vlen_q;
+   wire [7:0]  e_vlen8 = e_isstr ? 8'd16 : {4'd0, e_vlen};
+-  wire [7:0]  e_vbyte = e_isstr ? dch({4'd0, ek}) : ibyte(vb_val[vi[2:0]], e_vlen, ek);
++  wire [7:0]  e_vbyte = e_isstr ? dch({4'd0, ek}) : ibyte(e_val_q, e_vlen, ek);
+   wire [7:0]  e_oidb  = (ek < 4'd8) ? pfx_ch({4'd0, ek}) :
+                         (ek == 4'd8) ? vb_grp[vi[2:0]] :
+                         (ek == 4'd9) ? vb_leaf[vi[2:0]] : 8'h00;
+@@ -339,6 +341,7 @@ module snmp_lite #(
+       lp <= 1'b0; pp <= 9'd0; ep <= 9'd0; vi <= 4'd0; ek <= 4'd0;
+       comm_ok <= 1'b0; vb_ovf <= 1'b0; emit_done <= 1'b0;
+       msg_len <= 9'd0; pdu_len <= 9'd0; vbl_len <= 9'd0;
++      e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
+     end else begin
+       ctl_we <= 1'b0;
+       vl_bag_we <= 1'b0;
+@@ -595,7 +598,17 @@ module snmp_lite #(
+           vi <= 4'd0; ek <= 4'd0;
+           st <= (nvb == 4'd0) ? E_FIN : E_VBT;
+         end
+-        E_VBT:   begin rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_VBL; end
++        E_VBT:   begin
++          rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_VBL;
++          if (err_st != 4'd0) begin
++            e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
++          end else begin
++            e_tag_q   <= vb_tag[vi[2:0]];
++            e_isstr_q <= vb_str[vi[2:0]];
++            e_vlen_q  <= vb_str[vi[2:0]] ? 4'd0 : ilen(vb_val[vi[2:0]]);
++            e_val_q   <= vb_val[vi[2:0]];
++          end
++        end
+         E_VBL:   begin rsp[ep[7:0]] <= vb_tl[vi[2:0]]; ep <= ep + 9'd1; st <= E_OIDT; end
+         E_OIDT:  begin rsp[ep[7:0]] <= T_OID; ep <= ep + 9'd1; st <= E_OIDL; end
+         E_OIDL:  begin rsp[ep[7:0]] <= 8'd11; ep <= ep + 9'd1; ek <= 4'd0; st <= E_OIDB; end

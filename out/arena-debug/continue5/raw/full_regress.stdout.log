@@ -1,0 +1,13 @@
+T09 Python golden: 131072 oracle checks, 5632 RTL vectors -> C:\Workspace\diansai\sim\vec\t09_ic_cases.hex
+T15/T16 mgmt vectors: 27 cases, 899 words, max 563 B, crcD1=8285582B crcAll=967C33B9
+T08a vectors: 22 cases, 1145 words, CRC raw residue DEBB20E3, max 1519 B
+T12 IMAGE PASS: t12_contig keys=4096 ways=8192 seed=172D/AB61 rehash=0 moves=8 sha=748073B51B09561A529BE0275F942B1399382E3E31BD10829D79F17FAAAAB544
+T12 IMAGE PASS: t12_top keys=4096 ways=8192 seed=172D/AB61 rehash=0 moves=15 sha=A3149E48B54663747927F07D1C83312DCA4E5089A509190A64284F3685B7F39E
+T12 IMAGE PASS: t12_random keys=4096 ways=8192 seed=172D/AB61 rehash=0 moves=36 sha=9753F7DBFEDACC4B74D8F0FD66F56A8468B62354AA747F90345D36D0EA60FCCB
+T12 IMAGE PASS: t12_small keys=16 ways=128 seed=172D/AB61 rehash=0 moves=0 sha=02B3612A1C8959A0766DFB7C39289DD8C56BBED214C1DFB0D4E8DE4F2D61AF30
+T12 IMAGE PASS: t12_rehash keys=16 ways=128 seed=B564/F13A rehash=1 moves=0 sha=F80CC00AD1937592B6B45680110174684F568024105EDBA013337DEF05E6EEEC
+T12 TOP FRAMES PASS: A/B hits (0x0100), A miss (0x8000), B bad FCS; zlib wire-order FCS
+T12 OFFLINE PASS: consecutive/random/full, hot-four/small and hot-four/rehash-seeds; forced-five CLI rejected without output
+COMPILE rc=0 wall_s=1.6
+COMPILE OK (0 errors)
+[1/56] T00 tb_t00_common -> PASS (2.9 s) # T00 COMMON PASS (crc32 x9 vectors, fifo 4000, bram 1W2R 8192 + BE)

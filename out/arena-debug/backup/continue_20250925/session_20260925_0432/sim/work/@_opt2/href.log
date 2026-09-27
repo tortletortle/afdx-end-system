@@ -1,0 +1,9 @@
+BEGIN 1:AFDX_top:fast:work
+    prs_out_vld :  1:tb_t13_core:fast:work
+    init_done :  1:tb_t13_core:fast:work
+    prs_out_drop :  1:tb_t13_core:fast:work
+    pb_in_ready :  1:tb_t13_core:fast:work
+END 
+BEGIN 1:rx_port_buf:fast:work
+    deliver_cnt :  1:tb_t13_core:fast:work
+END 

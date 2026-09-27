@@ -1,0 +1,568 @@
+[
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_after_tx_rm.log",
+    "bytes": 27732,
+    "sha256": "1d303784878b138865431667041d3f5664e266a5bbd8f3e03c9603076de3a67e",
+    "lines": 594,
+    "errors": [
+      "ERROR: bad allocation"
+    ],
+    "tail": [
+      "Finding identical cells in module `\\rx_block_pool'.",
+      "Finding identical cells in module `\\tx_rm'.",
+      "Removed a total of 427229 cells.",
+      "",
+      "Pass[opt_merge] runtime is 23172 ms ......",
+      "",
+      "33.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).",
+      "ERROR: bad allocation"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_after_tx_rm_console.log",
+    "bytes": 55466,
+    "sha256": "9730034dc7550d6e288f8c3e94eae00ccde265e7a6773007ad3db76b588b540d",
+    "lines": 594,
+    "errors": [
+      "ERROR: bad allocation"
+    ],
+    "tail": [
+      "Finding identical cells in module `\\rx_block_pool'.",
+      "Finding identical cells in module `\\tx_rm'.",
+      "Removed a total of 427229 cells.",
+      "",
+      "Pass[opt_merge] runtime is 23172 ms ......",
+      "",
+      "33.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).",
+      "ERROR: bad allocation"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_after_tx_rm_rc.txt",
+    "bytes": 29,
+    "sha256": "1084d0b5da3104fa7a42560869d0263ba90adf479241416e2d5633618fb5247d",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=1 elapsed_s=100.8"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_pre_opt.log",
+    "bytes": 49622,
+    "sha256": "284e21c4b02002bd5e62eeac252068533f95ad69221de5fbb8bc3e958a4d0565",
+    "lines": 1194,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 125 ms ......",
+      "",
+      "End of script. Logfile hash: b1920cecf2",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 26x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_pre_opt.ys",
+    "bytes": 1544,
+    "sha256": "0f9fed003b78fe20a9a21d2c5a4a22727fccb1ec7a57d062158d3c5cbf9df3ed",
+    "lines": 39,
+    "errors": [],
+    "tail": [
+      "memory_collect",
+      "memory_bram -rules \"C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt\"",
+      "techmap -map \"C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v\"",
+      "log POST_BRAM_PRE_OPT",
+      "select -count t:$mem",
+      "select -count t:altsyncram",
+      "select -list t:$mem",
+      "stat"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_pre_opt_console.log",
+    "bytes": 99250,
+    "sha256": "74a81124e33430856c1f611bd6d862cbcb5dd3f8dcb48b7d3c47964a42c51488",
+    "lines": 1194,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 125 ms ......",
+      "",
+      "End of script. Logfile hash: b1920cecf2",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 26x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\bram_pre_opt_rc.txt",
+    "bytes": 13,
+    "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=0"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_after_tx_rm.log",
+    "bytes": 50183,
+    "sha256": "fb5e1433ae6159f71afe8b53d24da437b38df92f55f655b20b4907fe94d1bfd4",
+    "lines": 1233,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 94 ms ......",
+      "",
+      "End of script. Logfile hash: 8759fe23f3",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 25x read_verilog (0 sec), 4% 11x memory_collect (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_after_tx_rm_console.log",
+    "bytes": 100372,
+    "sha256": "a2d91b1dbe8f55b767ebd86beb5de9cc05ffa68bdbd13570159bf2a329dbefd0",
+    "lines": 1233,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 94 ms ......",
+      "",
+      "End of script. Logfile hash: 8759fe23f3",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 25x read_verilog (0 sec), 4% 11x memory_collect (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_after_tx_rm_rc.txt",
+    "bytes": 13,
+    "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=0"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_by_module.log",
+    "bytes": 26298,
+    "sha256": "a19e125b825046c693e0c1e6c088b2eda35bb1f4ac32d328504cd964c11a89c2",
+    "lines": 604,
+    "errors": [
+      "ERROR: dict::at()"
+    ],
+    "tail": [
+      "",
+      "Pass[memory_collect] runtime is 31 ms ......",
+      "BEFORE_COLLECT tx_rm",
+      "",
+      "Pass[log] runtime is 0 ms ......",
+      "",
+      "39. Executing MEMORY_COLLECT pass (generating $mem cells).",
+      "ERROR: dict::at()"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_by_module.ys",
+    "bytes": 1881,
+    "sha256": "647a0e8f2c0c9a8e9e69f595c9525a53f696d9da6e90e02d116d12eedbfed0de",
+    "lines": 53,
+    "errors": [],
+    "tail": [
+      "memory_collect *rx_vl_lookup*",
+      "log BEFORE_COLLECT *tx_port_buf*",
+      "memory_collect *tx_port_buf*",
+      "log BEFORE_COLLECT *tx_vl_scheduler*",
+      "memory_collect *tx_vl_scheduler*",
+      "log BEFORE_COLLECT tx_rm",
+      "memory_collect tx_rm",
+      "stat"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_by_module_console.log",
+    "bytes": 52598,
+    "sha256": "4a10d75b6a082b2d5ca75a9e7a6848fdbe3a399c22ebabe8038a0c8f32a783ca",
+    "lines": 604,
+    "errors": [
+      "ERROR: dict::at()"
+    ],
+    "tail": [
+      "",
+      "Pass[memory_collect] runtime is 31 ms ......",
+      "BEFORE_COLLECT tx_rm",
+      "",
+      "Pass[log] runtime is 0 ms ......",
+      "",
+      "39. Executing MEMORY_COLLECT pass (generating $mem cells).",
+      "ERROR: dict::at()"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_by_module_rc.txt",
+    "bytes": 13,
+    "sha256": "4fa76b808b0441857562232acabf29490555d9e389f4509f2b240b0a5b5e3812",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=1"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_top.log",
+    "bytes": 48330,
+    "sha256": "af523b3dfda7f36294ce2f8535bfd6983962f1eb2563ddb0972476b829611ba8",
+    "lines": 1159,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 94 ms ......",
+      "",
+      "End of script. Logfile hash: 80d4eec7a5",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 25x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_top.ys",
+    "bytes": 1248,
+    "sha256": "d260d632aa20f23096dc810146bdfbfce8fb1fc4357871a4c793828b12e80368",
+    "lines": 32,
+    "errors": [],
+    "tail": [
+      "  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \\",
+      "  C:/Workspace/diansai/rtl/top/AFDX_top.v",
+      "hierarchy -top AFDX_top",
+      "proc",
+      "opt",
+      "memory_dff",
+      "memory_collect AFDX_top",
+      "stat"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_top_console.log",
+    "bytes": 96666,
+    "sha256": "b95edbb7bef876036a9cf3e4eec398beba5469e4caf369503e820fd8fb3ebb3b",
+    "lines": 1159,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 94 ms ......",
+      "",
+      "End of script. Logfile hash: 80d4eec7a5",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 25x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\collect_top_rc.txt",
+    "bytes": 13,
+    "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=0"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\help_console.log",
+    "bytes": 16690,
+    "sha256": "6952a5f941b359f930b5994078ac075cab04afb98d1f838413657b4ac12e07bb",
+    "lines": 242,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[help] runtime is 0 ms ......",
+      "",
+      "End of script. Logfile hash: 8b93b8f954",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 100% 3x help (0 sec)",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\help_rc.txt",
+    "bytes": 3,
+    "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "0"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\inventory.log",
+    "bytes": 48329,
+    "sha256": "69beeba0842ca5df1ea61ab6f789711672f82a41ff62e49a2b1a1d1fbf02889f",
+    "lines": 1161,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 16 ms ......",
+      "",
+      "End of script. Logfile hash: db3414a5d8",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 25x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\inventory.ys",
+    "bytes": 1290,
+    "sha256": "cf1b68424850b8e68f8ff27b26ab9eab7393535b0bb270d1b8bdf332faaa30e7",
+    "lines": 34,
+    "errors": [],
+    "tail": [
+      "hierarchy -top AFDX_top",
+      "proc",
+      "opt",
+      "memory_dff",
+      "select -list t:$mem",
+      "select -list t:$memrd",
+      "select -list t:$memwr",
+      "stat"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\inventory_console.log",
+    "bytes": 96664,
+    "sha256": "21109fbfd6115d1ffdd8c5a4c5a32b3e58fa301aefee8901f3f1b9f9e3ef3e9c",
+    "lines": 1161,
+    "errors": [],
+    "tail": [
+      "",
+      "",
+      "Pass[stat] runtime is 16 ms ......",
+      "",
+      "End of script. Logfile hash: db3414a5d8",
+      "eLinx synthesis tool v1.0 (Windows Visual Studio)",
+      "Time spent: 4% 25x read_verilog (0 sec), 4% 4x opt_merge (0 sec), ...",
+      "Yosys execute success!"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\inventory_rc.txt",
+    "bytes": 13,
+    "sha256": "a9f58776a09b5dac438049683f24bf85764e0ff8e7455952456165c68c158627",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=0"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\map_tx_rm.log",
+    "bytes": 24529,
+    "sha256": "8741941b3cbcdcdab429988aec5f40d58d9e755ff2c67f0941be5dd412915678",
+    "lines": 531,
+    "errors": [
+      "ERROR: invalid vector<T> subscript"
+    ],
+    "tail": [
+      "Pass[opt] runtime is 3109 ms ......",
+      "",
+      "28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).",
+      "",
+      "Pass[memory_dff] runtime is 156 ms ......",
+      "",
+      "29. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).",
+      "ERROR: invalid vector<T> subscript"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\map_tx_rm.ys",
+    "bytes": 1246,
+    "sha256": "ecc7d38f463bb3c472893de261308cbd653764f2b40b0af0162cad91508f4631",
+    "lines": 33,
+    "errors": [],
+    "tail": [
+      "  C:/Workspace/diansai/rtl/top/AFDX_top.v",
+      "hierarchy -top AFDX_top",
+      "proc",
+      "opt",
+      "memory_dff",
+      "memory_map tx_rm",
+      "opt",
+      "stat"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\map_tx_rm_console.log",
+    "bytes": 49060,
+    "sha256": "7e627f8e9b72eda9173907ad7d72dd9496609235ac7016d2c2b90dbdb89f259b",
+    "lines": 531,
+    "errors": [
+      "ERROR: invalid vector<T> subscript"
+    ],
+    "tail": [
+      "Pass[opt] runtime is 3109 ms ......",
+      "",
+      "28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).",
+      "",
+      "Pass[memory_dff] runtime is 156 ms ......",
+      "",
+      "29. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).",
+      "ERROR: invalid vector<T> subscript"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\map_tx_rm_rc.txt",
+    "bytes": 13,
+    "sha256": "4fa76b808b0441857562232acabf29490555d9e389f4509f2b240b0a5b5e3812",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=1"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\README.md",
+    "bytes": 2053,
+    "sha256": "b3efece225be6a732e7d0f63ff827fe4098658944ed3ef3b7c6e531c2886fbc1",
+    "lines": 9,
+    "errors": [
+      "1. `top_repro` reproduces the original `elinx/prj/AFDX_top_synth.ys` flow: `memory_map`, `ERROR: invalid vector<T> subscript`, rc=1. `map_tx_rm` isolates a root cause: two small reset-in-a-loop queue memories in `tx_rm` crash this old tool's `memory_map` (rc=1). In this finalize attempt the two queues were changed to packed flops with dynamic part-selects; T04/T04g and the full regression are the behavioral guardrail.",
+      "2. The original path AFTER that change (`top_after_tx_rm`) advances past the memory error, but dies at `OPT_MUXTREE`, `ERROR: bad allocation`, rc=1. The explicit device BRAM sequence (`bram_after_tx_rm`, `memory_collect -> memory_bram -> techmap -> opt`) also dies at `OPT_MUXTREE`, rc=1. This is not a successful top synthesis.",
+      "No complete `AFDX_top` netlist, device placement, vendor area report or slack/Fmax is claimed. Next: isolate/restructure the largest top-level async storage and unsupported multiport byte enables into compatible inferred RAM/IP with equivalent registered latency, rerun Questa and complete eLinx synthesis with zero **full-log** `ERROR`, then choose a target device and perform P&R/STA. Do not treat a partial `stat` or a 12-module smoke table as this prerequisite."
+    ],
+    "tail": [
+      "",
+      "Use `C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe -s <script.ys> -l <tool.log>` from `C:/Workspace/diansai` to reproduce. Each `*_rc.txt` records the **actual process exit code**; `*_console.log` is stdout/stderr and the adjacent `.log` is the tool log.",
+      "",
+      "1. `top_repro` reproduces the original `elinx/prj/AFDX_top_synth.ys` flow: `memory_map`, `ERROR: invalid vector<T> subscript`, rc=1. `map_tx_rm` isolates a root cause: two small reset-in-a-loop queue memories in `tx_rm` crash this old tool's `memory_map` (rc=1). In this finalize attempt the two queues were changed to packed flops with dynamic part-selects; T04/T04g and the full regression are the behavioral guardrail.",
+      "2. The original path AFTER that change (`top_after_tx_rm`) advances past the memory error, but dies at `OPT_MUXTREE`, `ERROR: bad allocation`, rc=1. The explicit device BRAM sequence (`bram_after_tx_rm`, `memory_collect -> memory_bram -> techmap -> opt`) also dies at `OPT_MUXTREE`, rc=1. This is not a successful top synthesis.",
+      "3. Diagnostic **short-circuit only**: `bram_pre_opt.ys` stops immediately after BRAM mapping and `stat`, rc=0, with 119 `altsyncram` cells in the partially processed hierarchy; `AFDX_top` 513,209 generic cells and design hierarchy 640,622 generic cells (including 256,038 `$eq` in the top). This is neither a finished netlist nor mapped LUT/FF/BRAM utilization, and cannot feed STA. Large asynchronous tables / byte-enabled multiport storage remain a tool/architecture bottleneck.",
+      "",
+      "No complete `AFDX_top` netlist, device placement, vendor area report or slack/Fmax is claimed. Next: isolate/restructure the largest top-level async storage and unsupported multiport byte enables into compatible inferred RAM/IP with equivalent registered latency, rerun Questa and complete eLinx synthesis with zero **full-log** `ERROR`, then choose a target device and perform P&R/STA. Do not treat a partial `stat` or a 12-module smoke table as this prerequisite."
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\tool_inventory.log",
+    "bytes": 1490,
+    "sha256": "5987d7f305f6c3da0c3c71e42a8b2f16e15c4b6aa765f6118a343f1e707a4900",
+    "lines": 18,
+    "errors": [],
+    "tail": [
+      "quartus_sta=C:\\Program Files (x86)\\eHiWay\\eLinx3.0\\bin\\Passkey\\bin\\quartus_sta.exe",
+      "quartus_sh=C:\\Program Files (x86)\\eHiWay\\eLinx3.0\\bin\\Passkey\\bin\\quartus_sh.exe",
+      "vsim=C:\\altera_pro\\26.1.1\\questa_fse\\win64\\vsim.exe",
+      "vcover=C:\\altera_pro\\26.1.1\\questa_fse\\win64\\vcover.exe",
+      "verilator=NOT_ON_PATH",
+      "Project & constraints:",
+      "License flag:",
+      "SALT_LICENSE_SERVER_SET=True"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\top_after_tx_rm.log",
+    "bytes": 26700,
+    "sha256": "ae035008376a69f35d8d62cbe6594ce8a8bd812dad223bd7c9c034d39d7d8d61",
+    "lines": 570,
+    "errors": [
+      "ERROR: bad allocation"
+    ],
+    "tail": [
+      "Finding identical cells in module `\\rx_block_pool'.",
+      "Finding identical cells in module `\\tx_rm'.",
+      "Removed a total of 5136 cells.",
+      "",
+      "Pass[opt_merge] runtime is 6046 ms ......",
+      "",
+      "30.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).",
+      "ERROR: bad allocation"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\top_after_tx_rm_console.log",
+    "bytes": 53402,
+    "sha256": "8ab90b745319870ac8589f9d207d6f6e31294c495594597bc76dd6e4c94bae20",
+    "lines": 570,
+    "errors": [
+      "ERROR: bad allocation"
+    ],
+    "tail": [
+      "Finding identical cells in module `\\rx_block_pool'.",
+      "Finding identical cells in module `\\tx_rm'.",
+      "Removed a total of 5136 cells.",
+      "",
+      "Pass[opt_merge] runtime is 6046 ms ......",
+      "",
+      "30.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).",
+      "ERROR: bad allocation"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\top_after_tx_rm_rc.txt",
+    "bytes": 28,
+    "sha256": "56563c4378d75aad80c72b842d5ea64de699a92c9ee2e9ffe263c5971d57e954",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=1 elapsed_s=48.1"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\top_repro.log",
+    "bytes": 24480,
+    "sha256": "f8c7ba2f03f1d68cfa552b464550899cfe2f6337322e5f3382732d85c319d14c",
+    "lines": 531,
+    "errors": [
+      "ERROR: invalid vector<T> subscript"
+    ],
+    "tail": [
+      "Pass[opt] runtime is 2547 ms ......",
+      "",
+      "28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).",
+      "",
+      "Pass[memory_dff] runtime is 156 ms ......",
+      "",
+      "29. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).",
+      "ERROR: invalid vector<T> subscript"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\top_repro_console.log",
+    "bytes": 48962,
+    "sha256": "762c84980611d6588bf990c4e9b67e76bdc4687e004dde1c507a0b4982ae1376",
+    "lines": 531,
+    "errors": [
+      "ERROR: invalid vector<T> subscript"
+    ],
+    "tail": [
+      "Pass[opt] runtime is 2547 ms ......",
+      "",
+      "28. Executing MEMORY_DFF pass (merging $dff cells to $memrd and $memwr).",
+      "",
+      "Pass[memory_dff] runtime is 156 ms ......",
+      "",
+      "29. Executing MEMORY_MAP pass (converting $mem cells to logic and flip-flops).",
+      "ERROR: invalid vector<T> subscript"
+    ]
+  },
+  {
+    "path": "out\\arena-debug\\finalize\\synth\\top_repro_rc.txt",
+    "bytes": 28,
+    "sha256": "24189442d2a6b274db2a0a19256755c58de9137314bd0b9dbc6b6f29ec6ac3b3",
+    "lines": 1,
+    "errors": [],
+    "tail": [
+      "exit_code=1 elapsed_s=14.2"
+    ]
+  }
+]

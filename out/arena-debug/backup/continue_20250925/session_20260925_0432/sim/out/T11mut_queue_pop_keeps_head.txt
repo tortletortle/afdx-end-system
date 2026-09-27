@@ -1,0 +1,88 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source {C:/Workspace/diansai/sim/out/t11_mut_x5v98nvm/run.tcl}
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 21:34:47 on Sep 24,2026
+# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t11_mut_x5v98nvm/lib C:/Workspace/diansai/rtl/common/rst_sync.v C:/Workspace/diansai/rtl/common/timebase.v C:/Workspace/diansai/rtl/common/sync_fifo.v C:/Workspace/diansai/rtl/common/crc32.v C:/Workspace/diansai/rtl/common/bram_sdp.v C:/Workspace/diansai/rtl/top/init_sweep.v C:/Workspace/diansai/rtl/top/AFDX_top.v C:/Workspace/diansai/rtl/tx/tx_sn_gen.v C:/Workspace/diansai/rtl/tx/tx_port_buf.v C:/Workspace/diansai/rtl/tx/tx_frame_builder.v C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v C:/Workspace/diansai/rtl/tx/tx_rm.v C:/Workspace/diansai/rtl/tx/tx_pace.v C:/Workspace/diansai/rtl/tx/mac_tx_if.v C:/Workspace/diansai/rtl/rx/mac_rx_if.v C:/Workspace/diansai/rtl/rx/rx_block_pool.v C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v C:/Workspace/diansai/rtl/rx/rx_ic.v C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v C:/Workspace/diansai/rtl/rx/rx_flt.v C:/Workspace/diansai/rtl/rx/rx_rm.v C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v C:/Workspace/diansai/sim/out/t11_mut_x5v98nvm/rx_port_buf.v C:/Workspace/diansai/sim/tb/tb_t11_top_port.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rst_sync
+# -- Compiling module timebase
+# -- Compiling module sync_fifo
+# -- Compiling module crc32
+# -- Compiling module bram_sdp
+# -- Compiling module init_sweep
+# -- Compiling module AFDX_top
+# -- Compiling module tx_sn_gen
+# -- Compiling module tx_port_buf
+# -- Compiling module tx_frame_builder
+# -- Compiling module tx_vl_scheduler
+# -- Compiling module tx_rm
+# -- Compiling module tx_pace
+# -- Compiling module mac_tx_if
+# -- Compiling module mac_rx_if
+# -- Compiling module rx_block_pool
+# -- Compiling module rx_pmem_queue
+# -- Compiling module rx_ic
+# -- Compiling module rx_vl_lookup
+# -- Compiling module rx_flt
+# -- Compiling module rx_rm
+# -- Compiling module rx_ip_udp_parse
+# -- Compiling module rx_port_buf
+# -- Compiling module tb_t11_core
+# -- Compiling module tb_t11_top_port
+# -- Compiling module tb_t11g_top_port
+# 
+# Top level modules:
+# 	sync_fifo
+# 	tb_t11_top_port
+# 	tb_t11g_top_port
+# End time: 21:34:48 on Sep 24,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+T08E_MUTANT_COMPILED
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim -lib C:/Workspace/diansai/sim/out/t11_mut_x5v98nvm/lib tb_t11_top_port 
+# Start time: 21:34:48 on Sep 24,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t11_top_port(fast)
+#   [err] T110 t=297560000: payload byte read back from PMEM differs from frame
+#   [err] T110 t=297560000: payload byte read back from PMEM differs from frame
+#   [err] T110 t=298360000: held RX block count wrong (conservation)
+#   [err] T110 t=298392000: payload byte read back from PMEM differs from frame
+#   [err] T110 t=298392000: payload byte read back from PMEM differs from frame
+#   [err] T110 t=299192000: held RX block count wrong (conservation)
+#   [err] T110 t=299880000: held RX block count wrong (conservation)
+#   [err] T110 t=313224000: held RX block count wrong (conservation)
+#   [err] T110 t=313432000: payload byte read back from PMEM differs from frame
+#   [err] T110 t=313432000: payload byte read back from PMEM differs from frame
+#   [err] T110 t=314216000: held RX block count wrong (conservation)
+#   [err] T110 t=321304000: held RX block count wrong (conservation)
+#   [err] T110 t=328392000: held RX block count wrong (conservation)
+#   [err] T110 t=335480000: held RX block count wrong (conservation)
+#   [err] T110 t=342568000: held RX block count wrong (conservation)
+#   [err] T110 t=349720000: held RX block count wrong (conservation)
+#   [err] T110 t=356776000: held RX block count wrong (conservation)
+#   [err] T110 t=357592000: held RX block count wrong (conservation)
+#   [err] T110 t=364840000: held RX block count wrong (conservation)
+# T11 TOP PORT FAIL (IF_MODE=0 errors=19)
+# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t11_top_port.v(345)
+#    Time: 575744 ns  Iteration: 1  Instance: /tb_t11_top_port/core
+# End time: 21:34:50 on Sep 24,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

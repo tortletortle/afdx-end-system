@@ -1,0 +1,7 @@
+{"stage":"baseline","command":"powershell -ExecutionPolicy Bypass -File sim/run_regress.ps1","exit":0,"result":"56/56"}
+{"stage":"baseline","command":"quartus_map AFDX_top","exit":null,"result":"terminated after >30 min without completion"}
+{"stage":"step1","command":"powershell -ExecutionPolicy Bypass -File sim/run_regress.ps1","exit":0,"result":"56/56"}
+{"stage":"step1","command":"quartus_map AFDX_top; quartus_sta -t sta_post_map.tcl","exit":0,"result":"Fmax 39.56 MHz; WNS -17.279 ns; clk 8.000 ns"}
+{"stage":"step2","command":"powershell -ExecutionPolicy Bypass -File sim/run_regress.ps1","exit":0,"result":"56/56"}
+{"stage":"step2","command":"quartus_map AFDX_top; quartus_sta -t sta_post_map.tcl","exit":0,"result":"Fmax 45.85 MHz; WNS -13.809 ns; clk 8.000 ns"}
+{"stage":"step2-summary","command":"quartus_sta -t tns_step2.tcl","exit":0,"result":"Endpoint TNS -724179.500 ns"}

@@ -18,7 +18,9 @@ module sync_fifo #(
 );
   // D 必为 2 的幂（2/4/8/16/32）
   localparam integer AW = (D <= 2) ? 1 : (D <= 4) ? 2 : (D <= 8) ? 3 : (D <= 16) ? 4 : 5;
-  reg [W-1:0] mem [0:D-1];
+  // Small flop-backed store: a flat vector avoids the eLinx $mem backend's
+  // duplicate RD_DATA/RD_DATA_B drivers on the registered FIFO output.
+  reg [W*D-1:0] mem_bits;
   reg [AW:0]  wr_ptr, rd_ptr, cnt;
   wire wr = wr_en & ~full;
   wire rd = rd_en & ~empty;
@@ -31,11 +33,11 @@ module sync_fifo #(
       cnt    <= {(AW+1){1'b0}};
     end else begin
       if (wr) begin
-        mem[wr_ptr[AW-1:0]] <= wr_data;
+        mem_bits[wr_ptr[AW-1:0]*W +: W] <= wr_data;
         wr_ptr              <= wr_ptr + 1'b1;
       end
       if (rd) begin
-        rd_data <= mem[rd_ptr[AW-1:0]];
+        rd_data <= mem_bits[rd_ptr[AW-1:0]*W +: W];
         rd_ptr  <= rd_ptr + 1'b1;
       end
       cnt <= cnt + (wr ? inc : {(AW+1){1'b0}})

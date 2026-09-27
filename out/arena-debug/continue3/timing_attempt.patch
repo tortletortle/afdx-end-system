@@ -1,0 +1,72 @@
+diff --git a/rtl/common/rst_sync.v b/rtl/common/rst_sync.v
+index acd2c74..5635db4 100644
+--- a/rtl/common/rst_sync.v
++++ b/rtl/common/rst_sync.v
+@@ -7,10 +7,18 @@
+ module rst_sync (
+   input  wire clk,
+   input  wire reset,      // 高有效
+-  output wire rst_sync
++  output wire rst_sync,
++  output wire rst_rxpb
+ );
+   reg [2:0] r;
+-  always @(posedge clk)
++  // Dedicated RX port-buffer reset copy. Both flops sample r[1] on the
++  // same edge; unlike an extra pipeline stage, this adds no reset latency.
++  // Preserve the copy so synthesis does not merge it with r[2].
++  (* preserve *) reg r_rxpb;
++  always @(posedge clk) begin
+     r <= {r[1:0], reset};
++    r_rxpb <= r[1];
++  end
+   assign rst_sync = r[2];
++  assign rst_rxpb = r_rxpb;
+ endmodule
+diff --git a/rtl/top/AFDX_top.v b/rtl/top/AFDX_top.v
+index b007276..020c794 100644
+--- a/rtl/top/AFDX_top.v
++++ b/rtl/top/AFDX_top.v
+@@ -66,8 +66,9 @@ module AFDX_top #(
+ );
+ 
+   // ---- 复位同步（§4.2）----
+-  wire rst_sync;
+-  rst_sync u_rstsync (.clk(clk), .reset(reset), .rst_sync(rst_sync));
++  wire rst_sync, rst_rxpb;
++  rst_sync u_rstsync (.clk(clk), .reset(reset),
++                      .rst_sync(rst_sync), .rst_rxpb(rst_rxpb));
+ 
+   // 初始化顺序扫描：每个 strobe 真正写到对应状态/valid 存储体；末笔后排空一拍。
+   wire        init_we, init_done;
+@@ -178,6 +179,9 @@ module AFDX_top #(
+   // PMEM 请求直到实际落 RAM 再 ACK；争用时主机须保持至 ACK，不流水投递。
+   wire hs = host_cs & ~rst_sync & ~host_pmem_pending;
+   wire we = hs & host_we;
++  // Use the cycle-identical local reset for RX port host commands too;
++  // otherwise the global reset still drives every RX port counter via we.
++  wire rxpb_hs = host_cs & ~rst_rxpb & ~host_pmem_pending;
+   always @(posedge clk) begin
+     if (rst_sync) begin
+       ack_r <= 1'b0; pmem_rd_d <= 1'b0; desc_rd_d <= 1'b0; hash_rd_d <= 1'b0;
+@@ -240,9 +244,9 @@ module AFDX_top #(
+   wire [7:0]  hop_port = host_addr[7:0] - 8'h80;
+   wire [31:0] hop_w0 = port_cfg_mem[{hop_port,2'b00}];
+   wire hop_is_rx = hop_w0[31] && hop_w0[18];
+-  assign hop_desc_rd = hs && !host_we && desc_hit && hop_is_rx && init_done;
++  assign hop_desc_rd = rxpb_hs && !host_we && desc_hit && hop_is_rx && init_done;
+   wire msg_rd_ok = msg_rd_hit && init_done && hop_is_rx;
+-  wire hop_msg_rd = we && msg_rd_ok;
++  wire hop_msg_rd = rxpb_hs && host_we && msg_rd_ok;
+   wire [9:0] tx_idx   = host_addr - 16'h0200;
+   wire [12:0] rx_idx  = host_addr - 16'h1D80;
+   wire [12:0] hash_idx= host_addr - 16'h3D80;
+@@ -872,7 +876,7 @@ module AFDX_top #(
+     .free_req(mgmt_free_req), .free_take(mgmt_free_take), .free_id(mgmt_free_id),
+     .accept_cnt(mgmt_accept_cnt), .free_cnt(mgmt_free_cnt), .last_desc(mgmt_last_desc));
+   rx_port_buf #(.NUM_PORTS(NUM_PORTS)) u_rxpb (
+-    .clk(clk), .rst_sync(rst_sync),
++    .clk(clk), .rst_sync(rst_rxpb),
+     .init_we(init_we && (init_target == 3'd6)), .init_addr(init_addr),
+         .in_vld(prs_to_port), .in_ready(pb_in_ready), .in_drop(prs_out_drop),
+     .in_port(prs_out_port), .in_type(prs_out_type), .in_depth(prs_out_depth),

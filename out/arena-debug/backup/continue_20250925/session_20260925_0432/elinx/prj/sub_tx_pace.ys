@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/tx/tx_pace.v
+hierarchy -top tx_pace
+synth
+stat

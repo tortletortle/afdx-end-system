@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-26",
+  "clock_period_ns": 8.0,
+  "baseline": {
+    "regression": "56/56",
+    "regression_wall_s": 469.1,
+    "map_status": "terminated_after_30min_no_completion",
+    "fmax_mhz": null,
+    "wns_ns": null,
+    "tns_ns": null
+  },
+  "steps": [
+    {
+      "id": 1,
+      "change": "snmp_lite.walk linear 696-entry compare chain to interval decoder",
+      "regression": "56/56",
+      "regression_wall_s": 567.3,
+      "map_elapsed": "00:25:31",
+      "sta_elapsed": "00:02:44",
+      "sdc_guard": "clk=8.000 ns",
+      "fmax_mhz": 39.56,
+      "wns_ns": -17.279,
+      "tns_ns": null,
+      "decision": "kept"
+    },
+    {
+      "id": 2,
+      "change": "register VarBind encoder fields before response-memory writes",
+      "regression": "56/56",
+      "regression_wall_s": 552.8,
+      "map_elapsed": "00:28:01",
+      "sta_elapsed": "00:02:37",
+      "sdc_guard": "clk=8.000 ns",
+      "fmax_mhz": 45.85,
+      "wns_ns": -13.809,
+      "endpoint_tns_ns": -724179.5,
+      "decision": "kept",
+      "worst_from": "tx_port_buf:u_txbuf|s1_vld",
+      "worst_to": "tx_port_buf:u_txbuf|s1_desc[0]"
+    }
+  ],
+  "step1_to_step2": {"fmax_delta_mhz": 6.29, "wns_delta_ns": 3.47},
+  "final_reaches_125mhz": false,
+  "post_map_only": true
+}
+

@@ -1,0 +1,1 @@
+exit_code= elapsed_s=6 first_error= last_pass=35.22. Executing OPT_EXPR pass (perform const folding).

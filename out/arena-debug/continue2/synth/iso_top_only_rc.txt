@@ -1,0 +1,1 @@
+exit_code= elapsed_s=55 first_error=ERROR: bad allocation last_pass=34.2. Executing OPT_MERGE pass (detect identical cells).

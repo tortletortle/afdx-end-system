@@ -1,0 +1,9 @@
+COMMAND: python out/arena-debug/continue/session_20260925_0432/make_continue_patch.py
+PATCH: out/arena-debug/fixes.patch bytes=62006
+git apply -R --check rc=0
+
+isolated backup git apply --check rc=0
+
+isolated backup git apply rc=0
+
+byte-for-byte staged file mismatches: []

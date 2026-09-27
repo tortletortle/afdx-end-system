@@ -1,0 +1,158 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source compile.tcl
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 10:33:04 on Sep 25,2026
+# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/top/AFDX_top.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v ../rtl/rx/rx_rm.v ../rtl/rx/rx_ip_udp_parse.v ../rtl/rx/rx_port_buf.v ../rtl/mgmt/mgmt_sap_rx.v tb/tb_t00_common.v tb/tb_t01_reset_regs.v tb/tb_t02_tx_buf_sn.v tb/tb_t03_frame_builder.v tb/tb_t04_tx_chain.v tb/tb_t05c_cfg_budget.v tb/tb_t08a_rx_ingress.v tb/tb_t08b_top_rx.v tb/tb_t08c_host_arb.v tb/tb_t08d_top_flt.v tb/tb_t08e_top_ic.v tb/tb_t08f_full_scoreboard.v tb/tb_t10_top_rm.v tb/tb_t11_top_port.v tb/tb_t17_min_frame_stress.v tb/tb_t21_block_pool.v tb/tb_t09_rx_ic.v tb/tb_t09p_rx_ic.v tb/tb_t12_rx_lookup.v tb/tb_t12f_top_lookup.v tb/tb_t22_top_loopback.v tb/tb_t11i_top_int.v tb/tb_t22a_frontdoor_tx.v tb/tb_t23_sap_min.v tb/tb_t05b_jitter.v tb/tb_t13_latency.v tb/tb_t18_random_stress.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rst_sync
+# -- Compiling module timebase
+# -- Compiling module sync_fifo
+# -- Compiling module crc32
+# -- Compiling module bram_sdp
+# -- Compiling module init_sweep
+# -- Compiling module AFDX_top
+# -- Compiling module tx_sn_gen
+# -- Compiling module tx_port_buf
+# -- Compiling module tx_frame_builder
+# -- Compiling module tx_vl_scheduler
+# -- Compiling module tx_rm
+# -- Compiling module tx_pace
+# -- Compiling module mac_tx_if
+# -- Compiling module mac_rx_if
+# -- Compiling module rx_block_pool
+# -- Compiling module rx_pmem_queue
+# -- Compiling module rx_ic
+# -- Compiling module rx_vl_lookup
+# -- Compiling module rx_flt
+# -- Compiling module rx_rm
+# -- Compiling module rx_ip_udp_parse
+# -- Compiling module rx_port_buf
+# -- Compiling module mgmt_sap_rx
+# -- Compiling module tb_t00_common
+# -- Compiling module tb_t01_reset_regs
+# -- Compiling module tb_t02_tx_buf_sn
+# -- Compiling module tb_t03_frame_builder
+# -- Compiling module tb_t04_core
+# -- Compiling module tb_t04_tx_chain
+# -- Compiling module tb_t04g_tx_chain
+# -- Compiling module tb_t05c_cfg_budget
+# -- Compiling module tb_t08a_core
+# -- Compiling module tb_t08a_rx_ingress
+# -- Compiling module tb_t08ag_rx_ingress
+# -- Compiling module tb_t08b_core
+# -- Compiling module tb_t08b_top_rx
+# -- Compiling module tb_t08bg_top_rx
+# -- Compiling module tb_t08c_core
+# -- Compiling module tb_t08c_host_arb
+# -- Compiling module tb_t08cg_host_arb
+# -- Compiling module tb_t08d_core
+# -- Compiling module tb_t08d_top_flt
+# -- Compiling module tb_t08dg_top_flt
+# -- Compiling module tb_t08e_core
+# -- Compiling module tb_t08e_top_ic
+# -- Compiling module tb_t08eg_top_ic
+# -- Compiling module tb_t08f_core
+# -- Compiling module tb_t08f_full_scoreboard
+# -- Compiling module tb_t08fg_full_scoreboard
+# -- Compiling module tb_t10_core
+# -- Compiling module tb_t10_top_rm
+# -- Compiling module tb_t10g_top_rm
+# -- Compiling module tb_t11_core
+# -- Compiling module tb_t11_top_port
+# -- Compiling module tb_t11g_top_port
+# -- Compiling module tb_t17_core
+# -- Compiling module tb_t17_min_frame_stress
+# -- Compiling module tb_t17g_min_frame_stress
+# -- Compiling module tb_t21_core
+# -- Compiling module tb_t21_block_pool
+# -- Compiling module tb_t21g_block_pool
+# -- Compiling module tb_t09_core
+# -- Compiling module tb_t09_rx_ic
+# -- Compiling module tb_t09s_rx_ic
+# -- Compiling module tb_t09p_core
+# -- Compiling module tb_t09p_rx_ic
+# -- Compiling module tb_t09ps_rx_ic
+# -- Compiling module tb_t12_core
+# -- Compiling module tb_t12c_lookup
+# -- Compiling module tb_t12r_lookup
+# -- Compiling module tb_t12s_lookup
+# -- Compiling module tb_t12h_lookup
+# -- Compiling module tb_t12f_core
+# -- Compiling module tb_t12f_top_lookup
+# -- Compiling module tb_t12fg_top_lookup
+# -- Compiling module tb_t22_loopback_core
+# -- Compiling module tb_t22_top_loopback
+# -- Compiling module tb_t22g_top_loopback
+# -- Compiling module tb_t11i_core
+# -- Compiling module tb_t11i_top_int
+# -- Compiling module tb_t11ig_top_int
+# -- Compiling module tb_t22a_frontdoor_tx
+# -- Compiling module tb_t23_sap_core
+# -- Compiling module tb_t23_sap_min
+# -- Compiling module tb_t23g_sap_min
+# -- Compiling module tb_t05b_core
+# -- Compiling module tb_t05b_jitter
+# -- Compiling module tb_t05bg_jitter
+# -- Compiling module tb_t13_core
+# -- Compiling module tb_t13_latency
+# -- Compiling module tb_t13g_latency
+# -- Compiling module tb_t18_core
+# -- Compiling module tb_t18_random_stress
+# -- Compiling module tb_t18g_random_stress
+# 
+# Top level modules:
+# 	tb_t00_common
+# 	tb_t01_reset_regs
+# 	tb_t02_tx_buf_sn
+# 	tb_t03_frame_builder
+# 	tb_t04_tx_chain
+# 	tb_t04g_tx_chain
+# 	tb_t05c_cfg_budget
+# 	tb_t08a_rx_ingress
+# 	tb_t08ag_rx_ingress
+# 	tb_t08b_top_rx
+# 	tb_t08bg_top_rx
+# 	tb_t08c_host_arb
+# 	tb_t08cg_host_arb
+# 	tb_t08d_top_flt
+# 	tb_t08dg_top_flt
+# 	tb_t08e_top_ic
+# 	tb_t08eg_top_ic
+# 	tb_t08f_full_scoreboard
+# 	tb_t08fg_full_scoreboard
+# 	tb_t10_top_rm
+# 	tb_t10g_top_rm
+# 	tb_t11_top_port
+# 	tb_t11g_top_port
+# 	tb_t17_min_frame_stress
+# 	tb_t17g_min_frame_stress
+# 	tb_t21_block_pool
+# 	tb_t21g_block_pool
+# 	tb_t09_rx_ic
+# 	tb_t09s_rx_ic
+# 	tb_t09p_rx_ic
+# 	tb_t09ps_rx_ic
+# 	tb_t12c_lookup
+# 	tb_t12r_lookup
+# 	tb_t12s_lookup
+# 	tb_t12h_lookup
+# 	tb_t12f_top_lookup
+# 	tb_t12fg_top_lookup
+# 	tb_t22_top_loopback
+# 	tb_t22g_top_loopback
+# 	tb_t11i_top_int
+# 	tb_t11ig_top_int
+# 	tb_t22a_frontdoor_tx
+# 	tb_t23_sap_min
+# 	tb_t23g_sap_min
+# 	tb_t05b_jitter
+# 	tb_t05bg_jitter
+# 	tb_t13_latency
+# 	tb_t13g_latency
+# 	tb_t18_random_stress
+# 	tb_t18g_random_stress
+# End time: 10:33:04 on Sep 25,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0

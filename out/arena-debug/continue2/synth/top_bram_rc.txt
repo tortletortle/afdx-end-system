@@ -1,0 +1,1 @@
+name=top_bram ys=elinx/prj/AFDX_top_synth_bram.ys exit_code=0 elapsed_s=130 error_lines=0 success_banner=1 first_error= last_pass=144. Executing OPT_CLEAN pass (remove unused cells and wires). log_sha256=EDC7AF03BE0B7D5C694BB32C46E613DF693A360C2568AE0F465922B86803B3C9

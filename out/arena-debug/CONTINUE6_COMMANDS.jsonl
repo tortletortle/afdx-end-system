@@ -1,0 +1,1 @@
+{"id":"cmd_1790417503553_1","purpose":"host/tool/process preflight","status":"failed_before_execution","error":"spawn C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe ENOENT","regression":"not_run","sta":"not_run","source_changes":false}

@@ -1,0 +1,1032 @@
+diff --git "a/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md" "b/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md"
+index c7f6dde..26512cc 100644
+--- "a/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md"
++++ "b/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md"
+@@ -1,3 +1,17 @@
++# 当前进度增量 — MISSION-CONTINUE（2026-09-25）
++
++本节为最新状态，下面原始历史正文/编码内容保留；详细证据以 out/arena-debug/DIANSAI-REPORT.md 的 MISSION-CONTINUE 为准。
++
++- **DONE**：全 50 项 `+cover=sb` 回归、50 UCDB 合并；含 TB 的实例统计分支 62.14%、语句 73.62%，不是 RTL-only/功能覆盖率。
++- **DONE**：最终普通回归 50/50、编译 0 errors、lint 0 Error、严格文档门通过；原始日志与 SHA-256 在 out/arena-debug/continue/session_20260925_0432/。
++- **BLOCKED_TOOL**：顶层综合原流程、opt -fast、显式 BRAM 尝试仍失败；tx_rm 旧数组故障已隔离并复验上轮修复，不能算本轮顶层 PASS。
++- **BLOCKED_NO_REVISION_OR_TIMING_NETLIST**：TimeQuest rc=3 缺 active revision；8ns 内部约束已有，WNS/TNS/Fmax N/A，未填假 IO delay。
++- **OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP**：完整 SNMP/TFTP/RTC/统计面未实现；stats_regs 实际存在于 rtl/top/，也是未例化空壳，纠正旧报告路径核查错误。
++- 整机目标未完成、没有正式需求豁免；本轮 RTL/TB 保持不变。备份 continue_20250925/session_20260925_0432；fixes.patch 仅包含本轮修改。
++
++---
++
++
+ === READ_FILES BEGIN ===
+ === FILE BEGIN ===
+ "doc/å½åè¿åº¦_20260923.md"
+diff --git "a/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md" "b/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md"
+index 1ae2320..1472324 100644
+--- "a/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md"
++++ "b/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md"
+@@ -1,3 +1,18 @@
++# 后续计划增量 — MISSION-CONTINUE（2026-09-25）
++
++本节优先于下方历史计划，已完成项不重复造报告。
++
++1. **DONE**：全 manifest 50 UCDB 已实跑并合并；后续可新增 RTL-only / 按设计单元统计与未命中路径分析，但不能把现有含 TB 百分比改称 RTL-only。
++2. **BLOCKED_TOOL / P0**：eLinx 32 位综合器在顶层存储展开/优化时 bad allocation 或访问异常。先对 rx_cfg/tx_cfg/port_cfg 等组合多读口做银行划分、复制或寄存握手设计；每次改动先备份，逐项验证读延迟/配置生效/反压语义。也可验证供应商受支持的 64 位流程。完成条件：同参数完整顶层 rc=0、全日志无 ERROR、可审查网表/器件资源；部分 stat 不算完成。
++3. **BLOCKED_NO_REVISION_OR_TIMING_NETLIST / P0**：建立真实器件 revision 和可用 timing netlist 后跑 setup/hold，记录 WNS/TNS/Fmax/关键路径。沿用已核对的 8ns 内部约束；板级 IO delay 只能来自实测/批准预算，内部分析与外部签核分开报告。
++4. **OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP / P1**：snmp_lite、a615a_tftp、rtc_sync、rtl/top/stats_regs 均为空壳；按设计书 §7.15–7.18 实现真实端到端闭环、T14/T15/T16 及负例/超时/回绕/失步 TB，加入 manifest 和覆盖率，或取得正式书面需求豁免。当前没有豁免。
++5. 任何后续 RTL 变更后再次串行执行 50 项功能回归、lint、严格文档门，保留失败、真实 rc、命令和哈希；不能以本轮功能 PASS 宣称整机设计/时序完成。
++
++本轮证据：out/arena-debug/continue/session_20260925_0432/；统一入口：out/arena-debug/finalize/CONTINUE-20260925.md。
++
++---
++
++
+ === READ_FILES BEGIN ===
+ === FILE BEGIN ===
+ "doc/åç»­è®¡å.md"
+diff --git a/out/arena-debug/DIANSAI-REPORT.md b/out/arena-debug/DIANSAI-REPORT.md
+index c3d5460..d9b8040 100644
+--- a/out/arena-debug/DIANSAI-REPORT.md
++++ b/out/arena-debug/DIANSAI-REPORT.md
+@@ -1,5 +1,32 @@
+ # DIANSAI 修复与复验报告（2026-09-25）
+ 
++## MISSION-CONTINUE — 2026-09-25 最新收口结论
++
++> **本节优先于下方所有历史 FINALIZE / MISSION-FIX 快照。整机仍未完成：综合 BLOCKED_TOOL，STA 无有效数据，完整管理协议未交付。** 本轮没有把已有 tx_rm 修复冒充新修改，没有改变 RTL/TB 功能。
++
++| 项目 | 本轮实际结果 |
++|---|---|
++| 全量代码覆盖率 | **DONE：50/50 PASS、50 个 UCDB**；`+cover=sb`、`vsim -coverage`，merge/report rc=0；1083 instances、含 TB：分支 35798/57608=62.14%，语句 64040/86985=73.62%，工具 total=67.88%。不是 RTL-only/功能覆盖率/认证，不与旧四例分母混比。 |
++| 最终普通功能回归 | **DONE：50/50 PASS**，rc=0，耗时 329.98s；manifest/CSV 同序、50 份 console、编译 0 errors；与覆盖率回归分别留档。 |
++| 最终 lint / 严格文档门 | **DONE**：lint rc=0、0 `%Error`；`tools/run_all.py --strict` rc=0。最终文档修改后再次执行文档门，见 `post_docs_docgate.log` / `post_docs_docgate_rc.txt`。 |
++| 原综合故障定位 | 旧 tx_rm 的 exp_q/vl_q 循环复位数组独立复现 invalid vector，rc=1；当前 packed 版本独立 rc=0/554 generic cells，属于上轮已修复项，本轮复验。 |
++| 当前顶层综合 | **BLOCKED_TOOL**：原流程 rc=1/bad allocation；opt -fast 和现有显式 BRAM 映射尝试同样 rc=1。只映射 AFDX_top 存储的隔离探针在 OPT_EXPR 访问异常 0xC0000005；工具确认为 32 位。没有完整成功网表/器件资源摘要。 |
++| STA | **BLOCKED_NO_REVISION_OR_TIMING_NETLIST**：TimeQuest 实跑 rc=3、Can't find active revision。现有 8ns 最小内部约束已核对，未伪造 IO delay。WNS/TNS/Fmax/关键路径 N/A；没有证据证明许可证缺失。 |
++| 管理面 | **OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP**：三个 mgmt 模块和 `rtl/top/stats_regs.v` 都是未例化空壳；**纠正旧报告 stats_regs 缺失的错误**。T14–T16 不在 manifest，没有正式需求豁免，整机要求仍开放。 |
++
++### 本轮证据、备份与补丁
++
++- 新证据：`out/arena-debug/continue/session_20260925_0432/`。`commands.jsonl` 保存命令、cwd、实际子进程 rc、耗时及原始日志 SHA-256；`acceptance_audit.json` 独立核对 CSV/manifest/原始失败行；`source_binding.json` 证明本轮 RTL/TB 与修改前备份字节一致。
++- 综合详情 `SYNTH-STA.md`；覆盖率详情 `COVERAGE.md`；管理范围 `MANAGEMENT-SCOPE.md`；操作/辅助失败记录 `OPERATIONS.md`。无效 rx_cfg_isolate 探针明确作废，未作为 PASS 证据。原始所有失败日志完整保留。
++- 备份：`out/arena-debug/backup/continue_20250925/session_20260925_0432/`（父目录拼写遵从 MISSION；实际日期 2026-09-25）。没有 commit/push/reset；未触碰 competition_case 或凭据。
++- `out/arena-debug/fixes.patch` **仅本轮文档与新增可复现脚本**，相对上述备份生成，不混入先前 RTL 修改；旧补丁保存在备份。`patch_verify.log` 记录反向只检查、隔离备份正向应用与逐字节相等检查；不对当前工作树实际回滚。
++- finalize 入口 `out/arena-debug/finalize/CONTINUE-20260925.md`；本轮哈希表 `continue/session_20260925_0432/SHA256SUMS.txt` 与 `finalize/CONTINUE-20260925-SHA256SUMS.txt`。旧 finalize 哈希表与旧证据不覆盖。
++
++下一步：对顶层多组合读口配置存储做有行为验证的分银行/寄存握手或适配受支持综合器，完成同参数网表和器件项目再 STA；完整管理协议须实现+TB 或正式豁免。不能用本轮 50/50 或覆盖率替代这些未完成项。
++
++---
++
++
+ > **FINALIZE 最新结论（优先于本文件下方的历史 MISSION-FIX 快照）**：核心 RTL 全量功能回归 50/50 PASS；T23 两个不同 SN 的连续 SAP/PB1 槽争用与 T18 两事务同时在飞均取证；Questa 四个定向用例产出真实 UCDB。**顶层 eLinx 综合未成功，STA 无有效数据，完整 T14–T16 管理协议未交付；不能声称整机符合总体设计书或 125 MHz 时序收敛。**
+ 
+ ## MISSION-FINALIZE — 最终交付边界与状态
+diff --git a/out/arena-debug/continue/session_20260925_0432/audit_inputs.py b/out/arena-debug/continue/session_20260925_0432/audit_inputs.py
+new file mode 100644
+index 0000000..6a26202
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/audit_inputs.py
+@@ -0,0 +1,32 @@
++from execute import *
++import re
++rows=[]
++for p in sorted((P/'out/arena-debug/finalize/synth').glob('*')):
++ if p.suffix not in ('.log','.txt','.ys','.md'):continue
++ b=p.read_bytes();enc='utf-16' if b.startswith((b'\xff\xfe',b'\xfe\xff')) else 'utf-8-sig'
++ t=b.decode(enc,errors='replace');ls=t.splitlines()
++ rows.append(dict(path=str(p.relative_to(P)),bytes=len(b),sha256=hashlib.sha256(b).hexdigest(),lines=len(ls),errors=[x for x in ls if re.search(r'ERROR|invalid vector|bad allocation|dict::at',x)],tail=ls[-8:]))
++(D/'prior_synth_full_log_audit.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf8')
++book=P/('AFDX'+chr(0x7aef)+chr(0x7cfb)+chr(0x7edf)+'_'+chr(0x603b)+chr(0x4f53)+chr(0x8bbe)+chr(0x8ba1)+chr(0x4e66)+'.md')
++ls=book.read_text(encoding='utf-8-sig').splitlines()
++text='\n'.join(f'{i+1}: {ls[i]}' for a,b in [(786,860),(1076,1104),(1157,1160)] for i in range(a,b))
++(D/'spec_excerpts.txt').write_text(text,encoding='utf8')
++manifest=(P/'sim/tests.manifest').read_text(encoding='utf-8-sig')
++rtl=list((P/'rtl').rglob('*.v'))
++mg={}
++for mod in ['snmp_lite','a615a_tftp','rtc_sync','stats_regs']:
++ files=[x for x in rtl if x.stem==mod]
++ refs=[]
++ for x in rtl:
++  for i,l in enumerate(x.read_text(encoding='utf8',errors='replace').splitlines(),1):
++   if re.search(r'\b'+mod+r'\b',l) and not l.lstrip().startswith('//'):refs.append([str(x.relative_to(P)),i,l])
++ mg[mod]=dict(files=[str(x.relative_to(P)) for x in files],noncomment_references=refs)
++mg['T14_T16_manifest']=[l for l in manifest.splitlines() if re.match(r'T1[456]\s',l)]
++mg['status']='OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP; no requirements waiver; overall design incomplete'
++(D/'management_audit.json').write_text(json.dumps(mg,ensure_ascii=False,indent=2),encoding='utf8')
++projects=[]
++for scope in ['elinx','sim']:
++ for ext in ['*.qpf','*.qsf','*.sdc','*.edc']:
++  projects.extend(str(x.relative_to(P)) for x in (P/scope).rglob(ext))
++(D/'sta_inventory.json').write_text(json.dumps(dict(search_scope=['elinx','sim'],files=projects,constraints=(P/'elinx/sdc/AFDX_top.edc').read_text(),note='Internal-clock preliminary only; no invented board IO delays'),indent=2))
++print('Read all prior synth logs; management and scoped STA inventory written')
+diff --git a/out/arena-debug/continue/session_20260925_0432/audit_results.py b/out/arena-debug/continue/session_20260925_0432/audit_results.py
+new file mode 100644
+index 0000000..de8fac4
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/audit_results.py
+@@ -0,0 +1,29 @@
++from execute import *
++import csv,re
++m=[l.split()[:2] for l in (P/'sim/tests.manifest').read_text(encoding='utf-8-sig').splitlines() if l.strip() and not l.lstrip().startswith('#')]
++a={}
++for label,folder in [('coverage',D/'coverage'),('final',D/'final_tests')]:
++ rows=list(csv.DictReader((folder/'regress.csv').open(encoding='utf-8-sig')))
++ errs={}
++ for ident,tb in m:
++  t=(folder/(ident+'_console.txt')).read_text(encoding='utf8',errors='replace')
++  bad=[l for l in t.splitlines() if re.search(r'\bFAIL\b|^#\s*\*\*\s*(Error|Fatal)',l)]
++  if bad:errs[ident]=bad
++ a[label]=dict(manifest_count=len(m),csv_count=len(rows),same_order=[[r['test_id'],r['tb']] for r in rows]==m,passed=sum(r['result']=='PASS' for r in rows),raw_failure_lines=errs)
++ if label=='coverage':
++  dbs=[x.stem for x in folder.glob('T*.ucdb') if x.stat().st_size>0]
++  a[label]['ucdb_count']=len(dbs);a[label]['ucdb_ids_exact']=set(dbs)==set(x[0] for x in m)
++backup=P/'out/arena-debug/backup/continue_20250925/session_20260925_0432'
++source=[];mismatches=[]
++for scope in ['rtl','sim/tb']:
++ for f in sorted((P/scope).rglob('*.v')):
++  rel=f.relative_to(P);b=backup/rel
++  same=b.exists() and f.read_bytes()==b.read_bytes()
++  source.append(dict(path=rel.as_posix(),sha256=hashlib.sha256(f.read_bytes()).hexdigest(),unchanged=same))
++  if not same:mismatches.append(rel.as_posix())
++a['rtl_tb_changed_since_backup']=mismatches
++(D/'source_binding.json').write_text(json.dumps(source,indent=2))
++a['lint_errors']=len(re.findall(r'%Error', (D/'final_lint.log').read_text(encoding='utf8',errors='replace').replace('0 %Error','0 errors')))
++a['commands']=[json.loads(l) for l in (D/'commands.jsonl').read_text().splitlines() if l.strip()]
++(D/'acceptance_audit.json').write_text(json.dumps(a,indent=2))
++print(json.dumps({k:v for k,v in a.items() if k!='commands'},indent=2))
+diff --git a/out/arena-debug/continue/session_20260925_0432/bram_attempt.py b/out/arena-debug/continue/session_20260925_0432/bram_attempt.py
+new file mode 100644
+index 0000000..e1c2a6e
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/bram_attempt.py
+@@ -0,0 +1,2 @@
++from execute import *
++run('top_bram_attempt',['C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe','-s',str(D/'top_bram_attempt.ys'),'-l',str(D/'top_bram_attempt_tool.log')],timeout=300)
+diff --git a/out/arena-debug/continue/session_20260925_0432/compile_full_cov.tcl b/out/arena-debug/continue/session_20260925_0432/compile_full_cov.tcl
+new file mode 100644
+index 0000000..bcfa789
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/compile_full_cov.tcl
+@@ -0,0 +1,16 @@
++# =====================================================================
++# compile.tcl - fresh work lib + vlog all RTL & TB (called by run_regress.ps1)
++# File list comes from env VLOG_SRC (space separated, forward slashes,
++# relative to sim/). Kept as a file so the vsim cmdline stays quote-free.
++# =====================================================================
++if {![info exists env(VLOG_SRC)]} {
++  puts "ERROR: VLOG_SRC env not set"
++  quit -f -code 1
++}
++file delete -force work
++vlib work
++if {[catch {vlog -sv +cover=sb +notimingcheck {*}$env(VLOG_SRC)} msg]} {
++  puts "VLOG-ERROR: $msg"
++  quit -f -code 1
++}
++quit -f
+diff --git a/out/arena-debug/continue/session_20260925_0432/COVERAGE.md b/out/arena-debug/continue/session_20260925_0432/COVERAGE.md
+new file mode 100644
+index 0000000..9f36ad3
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/COVERAGE.md
+@@ -0,0 +1,23 @@
++# 全 manifest 代码覆盖率（2026-09-25）
++
++**DONE：50/50 插桩功能测试 PASS，50 个非空 UCDB，vcover merge/report 均 rc=0。** 不是只运行旧四例，不新增或减少 manifest 测试，也不使用历史 CSV 代替本轮结果。
++
++- 编译：compile_full_cov.tcl 使用 `vlog -sv +cover=sb +notimingcheck`，所有当前 RTL 和 manifest 对应 TB；编译 rc=0、Errors=0。
++- 执行：run_full_cov.ps1 是当前 sim/run_regress.ps1 的独立副本，保留相同源清单、TB 映射、golden 生成、600s 每例超时和 verdict 检查；run_full_cov.tcl 使用 `vsim -coverage`，在 run -all 前注册 `coverage save -onexit`。
++- 每项独立 vsim，严格串行。覆盖率 runner 总 rc=0、wall_s=389.22。50 份 console、CSV 和 UCDB 均在 coverage/。精确命令与子进程 rc 见 commands.jsonl。
++- 合并明确列举 T00..T23g 等全部 50 个实际 ID（不是编号连续的 50 个）；没有把 full50.ucdb 再作为输入。merge rc=0、Errors=0/Warnings=0；report rc=0。
++
++## 工具原始统计
++
++coverage/merged_summary.txt：**BY INSTANCES，1083 instances，包含 TB**。
++
++| 类型 | bins | hits | misses | 百分比 |
++|---|---:|---:|---:|---:|
++| Branches | 57608 | 35798 | 21810 | 62.14% |
++| Statements | 86985 | 64040 | 22945 | 73.62% |
++
++工具 filtered-view total=67.88%。这是工具按覆盖类型权重给出的数，不是把上述命中数直接相除的总命中率。
++
++**范围限制**：仅 statement+branch 代码覆盖率；不是 RTL-only、去重后的设计单元覆盖率、functional covergroups、condition/expression/toggle/FSM 覆盖率或适航认证。扩展测试也扩展了实例分母，因此不能把 67.88% 与旧四例 71.72% 直接比较成质量退步/提升。未配置人为排除来抬高百分比。T14/T15/T16 不在当前 manifest，未交付管理协议不会因这 50 项通过而变成完成。
++
++正常最终回归会重新编译未插桩 work 库，但不覆盖本目录 UCDB。复跑应先给本次目录做备份或使用新的 session 路径；execute.py 拒绝覆盖已有顶层日志。coverage_db_inventory.json 与最终 SHA256SUMS.txt 绑定数据库字节；acceptance_audit.json 核对 CSV、manifest 顺序、ID 集合和原始日志失败行。
+diff --git a/out/arena-debug/continue/session_20260925_0432/execute.py b/out/arena-debug/continue/session_20260925_0432/execute.py
+new file mode 100644
+index 0000000..d1c8eae
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/execute.py
+@@ -0,0 +1,24 @@
++import subprocess,pathlib,json,time,hashlib,os,sys
++P=pathlib.Path('C:/Workspace/diansai');os.chdir(P)
++D=P/'out/arena-debug/continue/session_20260925_0432'
++J=D/'commands.jsonl'
++def run(name,args,cwd=P,timeout=1200):
++ log=D/(name+'.log');start=time.time()
++ if log.exists():raise RuntimeError('Refusing overwrite: '+str(log))
++ with log.open('wb') as f:
++  try:r=subprocess.run(args,cwd=cwd,stdout=f,stderr=subprocess.STDOUT,timeout=timeout);rc=r.returncode
++  except subprocess.TimeoutExpired:rc=124
++ data=dict(name=name,argv=[str(a) for a in args],cwd=str(cwd),rc=rc,wall_s=round(time.time()-start,2),sha256=hashlib.sha256(log.read_bytes()).hexdigest())
++ with J.open('a',encoding='utf8') as f:f.write(json.dumps(data)+'\n')
++ (D/(name+'_rc.txt')).write_text(str(rc))
++ print(json.dumps(data),flush=True);return rc
++if __name__=='__main__':
++ if sys.argv[1]=='coverage':
++  rc=run('coverage_full50',['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(D/'run_full_cov.ps1')],timeout=3600)
++  cov=D/'coverage';dbs=sorted(cov.glob('T*.ucdb'))
++  (D/'coverage_db_inventory.json').write_text(json.dumps([dict(path=x.name,bytes=x.stat().st_size,sha256=hashlib.sha256(x.read_bytes()).hexdigest()) for x in dbs],indent=2))
++  vc='C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe'
++  if dbs:
++   mr=run('coverage_merge',[vc,'merge',str(cov/'full50.ucdb')]+list(map(str,dbs)))
++   if mr==0:run('coverage_report',[vc,'report','-code','sb','-summary','-output',str(cov/'merged_summary.txt'),str(cov/'full50.ucdb')])
++  sys.exit(rc)
+diff --git a/out/arena-debug/continue/session_20260925_0432/final_regression.py b/out/arena-debug/continue/session_20260925_0432/final_regression.py
+new file mode 100644
+index 0000000..6d5bec2
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/final_regression.py
+@@ -0,0 +1,22 @@
++from execute import *
++import shutil,csv,re
++# Explicit dependency: final normal Questa starts only after coverage and vcover end.
++start=time.time()
++while not (D/'coverage_report_rc.txt').exists():
++ if time.time()-start>1800: raise RuntimeError('Coverage dependency not complete; final regression NOT started')
++ time.sleep(2)
++# Preserve every coverage output in its own directory; normal regression uses sim/out.
++rc=run('final_full50',['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(P/'sim/run_regress.ps1')],timeout=3600)
++f=D/'final_tests';f.mkdir(exist_ok=False)
++for x in (P/'sim/out').glob('*_console.txt'):shutil.copy2(x,f/x.name)
++shutil.copy2(P/'sim/out/regress.csv',f/'regress.csv')
++shutil.copy2(P/'sim/tests.manifest',f/'tests.manifest')
++manifest=[l.split()[:2] for l in (P/'sim/tests.manifest').read_text(encoding='utf-8-sig').splitlines() if l.strip() and not l.lstrip().startswith('#')]
++rows=list(csv.DictReader((f/'regress.csv').open(encoding='utf-8-sig')))
++audit={'manifest_count':len(manifest),'rows':len(rows),'same_order':[[r['test_id'],r['tb']] for r in rows]==manifest,'pass':sum(r['result']=='PASS' for r in rows),'fail':sum(r['result']!='PASS' for r in rows),'rc':rc}
++audit['console_count']=sum((f/(m[0]+'_console.txt')).is_file() for m in manifest)
++audit['compile_errors']=re.findall(r'Errors:\s*(\d+)',(f/'compile_console.txt').read_text(encoding='utf8',errors='replace'))
++(D/'final_audit.json').write_text(json.dumps(audit,indent=2))
++run('final_lint',['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(P/'tools_lint.ps1')])
++run('final_docgate',['python',str(P/'tools/run_all.py'),'--strict'])
++print(json.dumps(audit),flush=True)
+diff --git a/out/arena-debug/continue/session_20260925_0432/make_continue_patch.py b/out/arena-debug/continue/session_20260925_0432/make_continue_patch.py
+new file mode 100644
+index 0000000..6ef9102
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/make_continue_patch.py
+@@ -0,0 +1,85 @@
++"""Create a reversible *finalize-only* patch against preserved pre-edit copies.
++
++The existing checkout has earlier unrelated edits; never diff against HEAD.
++Run after the final docs are written. No commit, reset, or source edit occurs.
++"""
++from __future__ import annotations
++
++import hashlib
++import shutil
++import subprocess
++import tempfile
++from pathlib import Path
++
++ROOT = Path('C:/Workspace/diansai')
++BASE = ROOT / "out/arena-debug/continue/session_20260925_0432"
++BACKUP_REL = "out/arena-debug/backup/continue_20250925/session_20260925_0432/"
++PATCH = ROOT / "out/arena-debug/fixes.patch"
++EXISTING = ["doc/当前进度_20260923.md", "doc/后续计划.md", "out/arena-debug/DIANSAI-REPORT.md"]
++ADDED = [p.relative_to(ROOT).as_posix() for p in sorted(BASE.iterdir())
++         if p.suffix in ('.py','.ps1','.tcl','.ys','.md')]
++ADDED += ['out/arena-debug/finalize/CONTINUE-20260925.md']
++
++
++
++def run(*args: str, cwd: Path = ROOT) -> subprocess.CompletedProcess[bytes]:
++    if args[0] == 'git':
++        args = (args[0], '-c', 'core.autocrlf=false', '-c', 'core.safecrlf=false', *args[1:])
++    return subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++
++
++def sha(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++pieces: list[bytes] = []
++for rel in EXISTING:
++    old = ROOT / (BACKUP_REL + rel)
++    cur = ROOT / rel
++    if not old.is_file() or not cur.is_file():
++        raise SystemExit(f"missing pre-edit backup/current: {rel}")
++    res = run("git", "diff", "--no-index", "--", BACKUP_REL + rel, rel)
++    if res.returncode not in (0, 1):
++        raise SystemExit(f"git diff failed {rel}: {res.stderr.decode(errors='replace')}")
++    if res.returncode == 1:
++        pieces.append(res.stdout.replace(b"a/" + BACKUP_REL.encode(), b"a/"))
++for rel in ADDED:
++    if not (ROOT / rel).is_file():
++        raise SystemExit(f"missing new file: {rel}")
++    res = run("git", "diff", "--no-index", "--", "/dev/null", rel)
++    if res.returncode != 1:
++        raise SystemExit(f"git new-file diff failed {rel}: rc={res.returncode} {res.stderr.decode(errors='replace')}")
++    pieces.append(res.stdout)
++PATCH.write_bytes(b"".join(pieces))
++
++log = [f"COMMAND: python {Path(__file__).relative_to(ROOT).as_posix()}",
++       f"PATCH: {PATCH.relative_to(ROOT).as_posix()} bytes={PATCH.stat().st_size}"]
++rev = run("git", "apply", "-R", "--check", PATCH.as_posix())
++log.append(f"git apply -R --check rc={rev.returncode}")
++log.append(rev.stdout.decode(errors="replace") + rev.stderr.decode(errors="replace"))
++if rev.returncode:
++    (BASE / "patch_verify.log").write_text("\n".join(log), encoding="utf-8")
++    raise SystemExit("reverse check FAILED; see patch_verify.log")
++with tempfile.TemporaryDirectory(prefix="diansai_continue_patch_") as d:
++    stage = Path(d)
++    for rel in EXISTING:
++        dest = stage / rel
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(ROOT / (BACKUP_REL + rel), dest)
++    check = run("git", "apply", "--check", PATCH.as_posix(), cwd=stage)
++    log.append(f"isolated backup git apply --check rc={check.returncode}")
++    log.append(check.stdout.decode(errors="replace") + check.stderr.decode(errors="replace"))
++    if check.returncode:
++        (BASE / "patch_verify.log").write_text("\n".join(log), encoding="utf-8")
++        raise SystemExit("forward check FAILED; see patch_verify.log")
++    applied = run("git", "apply", PATCH.as_posix(), cwd=stage)
++    log.append(f"isolated backup git apply rc={applied.returncode}")
++    log.append(applied.stdout.decode(errors="replace") + applied.stderr.decode(errors="replace"))
++    different = [rel for rel in EXISTING + ADDED if
++                 not (stage / rel).exists() or sha(stage / rel) != sha(ROOT / rel)]
++    log.append(f"byte-for-byte staged file mismatches: {different}")
++    if different or applied.returncode:
++        (BASE / "patch_verify.log").write_text("\n".join(log), encoding="utf-8")
++        raise SystemExit("staged patch differs; see patch_verify.log")
++(BASE / "patch_verify.log").write_text("\n".join(log) + "\n", encoding="utf-8")
++print(f"PATCH PASS: reverse/forward/byte-equality, {len(EXISTING)} old + {len(ADDED)} new")
+diff --git a/out/arena-debug/continue/session_20260925_0432/MANAGEMENT-SCOPE.md b/out/arena-debug/continue/session_20260925_0432/MANAGEMENT-SCOPE.md
+new file mode 100644
+index 0000000..772ac20
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/MANAGEMENT-SCOPE.md
+@@ -0,0 +1,14 @@
++# 管理面核查与正式验收边界（2026-09-25）
++
++状态：**OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP**。这是本次收口交付的范围声明，不是总体设计书需求豁免，不表示整机完成。
++
++| 模块 | 实际代码 | 设计书要求 | 结论 |
++|---|---|---|---|
++| snmp_lite | rtl/mgmt/snmp_lite.v，9 行、无端口空壳、未例化 | §7.16 BER / GET / GETNEXT / SET / MIB / 响应注入；T14 | 未实现、未验收 |
++| a615a_tftp | rtl/mgmt/a615a_tftp.v，同上 | §7.17 RRQ/WRQ/DATA/ACK/ERROR、重传/重复包/块号回绕、615A 加载 CRC；T15 | 未实现、未验收 |
++| rtc_sync | rtl/mgmt/rtc_sync.v，同上 | §7.15 时间戳同步、跳变/平滑/频率调整/SYNC_LOSS、≤1µs；T16 | 未实现、未验收 |
++| stats_regs | **rtl/top/stats_regs.v 确实存在**，9 行空壳、未例化 | §7.18 满配 per-VL 统计 RAM、事件 FIFO、原因分类计数 | 未实现完整统计面；纠正旧报告“缺失” |
++
++证据：management_audit.json（扫描 rtl/*.v 的非注释引用，仅模块声明）；spec_excerpts.txt；sim/tests.manifest 不含 T14/T15/T16。顶层已有局部统计寄存器和 mgmt_sap_rx，不等于以上完整模块已实现。
++
++后续验收不可只修改文档：须正式定稿协议/寄存器接口，实现请求→状态/数据更新→响应的端到端闭环，新增 T14/T15/T16 独立 TB 与负例、超时/重传/重复/回绕/失步测试，纳入 manifest 和覆盖率；或取得正式书面需求豁免。当前没有豁免，整机要求仍开放。
+diff --git a/out/arena-debug/continue/session_20260925_0432/old_top_repro.ys b/out/arena-debug/continue/session_20260925_0432/old_top_repro.ys
+new file mode 100644
+index 0000000..c2100f0
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/old_top_repro.ys
+@@ -0,0 +1,33 @@
++# eLinx synthesis script for AFDX_top
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/out/arena-debug/backup/finalize_20250925/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++memory_map
++opt
++stat
+diff --git a/out/arena-debug/continue/session_20260925_0432/OPERATIONS.md b/out/arena-debug/continue/session_20260925_0432/OPERATIONS.md
+new file mode 100644
+index 0000000..0a4c58e
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/OPERATIONS.md
+@@ -0,0 +1,11 @@
++# 执行与备份说明
++
++- HTTP MCP initialize 成功；read_files 的工作区为 C:/Workspace/diansai，但 run_command 默认 cwd 回报为桥接服务自身目录。因此所有后续执行均显式 Set-Location C:/Workspace/diansai；未依赖误报的默认目录。
++- 修改/生成会覆盖的 RTL、sim、elinx/prj、elinx/sdc、doc、报告、旧补丁、旧 finalize 已先备份到 out/arena-debug/backup/continue_20250925/session_20260925_0432/。该父目录按 MISSION 指定保留 20250925 拼写；本次实际日期是 2026-09-25。
++- 首次备份的文件复制成功，但哈希流水线把正在写入的 SHA256.csv 也枚举进去，Get-FileHash 报文件占用，命令 cmd_1790310701203_3 rc=1。未删除该部分清单；修正为先收集文件再写新 SHA256-complete.csv，cmd_1790310711790_4 rc=0。该辅助失败不计作设计验证结果。
++- 新覆盖率 runner 在执行前发现自动替换造成 Tcl 路径重复，先备份 run_full_cov_before_pathfix.ps1 后修正；未使用坏路径跑测试。原 sim/run_regress.ps1、原 RTL/TB 未修改。
++- prior_synth_full_log_audit.json 等核查输出第二次生成前另存 audit_before_escape_fix/；旧 finalize/synth 原件从未覆盖。
++- execute.py 对每个验证子进程保存完整 argv/cwd/真实 rc/耗时/原始合并输出日志/SHA-256，且拒绝覆盖同名日志。返回非零的综合/STA 是预期要保留的失败，不用外层 Python rc=0 代替它们。
++- Questa 全量覆盖率编译/50 项各自进程/merge/report 依序执行；最终普通 50 项回归等待 coverage_report_rc.txt 后才启动，随后依序 lint 和文档门。覆盖率数据与最终普通回归分目录，旧证据保留。
++- 没有 git commit/push/reset；没有读取或修改 competition_case、.env、密钥/token 文件。沿用现有回归脚本的工具授权环境，不输出授权值。
++- 文档旧正文含历史工具包装/编码损坏；本轮只在文件前添加明确的最新状态与后续验收条件，保留旧字节和历史，不把旧报告整份重造。
+diff --git a/out/arena-debug/continue/session_20260925_0432/post_docs.py b/out/arena-debug/continue/session_20260925_0432/post_docs.py
+new file mode 100644
+index 0000000..757e335
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/post_docs.py
+@@ -0,0 +1,3 @@
++from execute import *
++run('post_docs_docgate',['python',str(P/'tools/run_all.py'),'--strict'])
++run('continue_patch_build',['python',str(D/'make_continue_patch.py')])
+diff --git a/out/arena-debug/continue/session_20260925_0432/run_full_cov.ps1 b/out/arena-debug/continue/session_20260925_0432/run_full_cov.ps1
+new file mode 100644
+index 0000000..f6abc1a
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/run_full_cov.ps1
+@@ -0,0 +1,228 @@
++# =====================================================================
++# run_regress.ps1 - regression runner (design doc 12.4, week-1 skeleton)
++# Usage (from sim/):  powershell -ExecutionPolicy Bypass -File .\run_regress.ps1
++#   optional:  -Tests T00,T01   (subset)   -KeepWork  (skip recompile)
++# Reads tests.manifest, compiles once, runs each TB in its own vsim
++# session (600 s cap per test), writes ../out/arena-debug/continue/session_20260925_0432/coverage/regress.csv and per-test logs
++# ../out/arena-debug/continue/session_20260925_0432/coverage/<id>_console.txt. Exit 0 only if every test PASSes.
++# NOTE (week0 pitfall #5): whole-regression wall time can exceed the
++# MCP-bridge ~120 s foreground limit - launch detached and poll the log:
++#   Start-Process powershell -ArgumentList '-ExecutionPolicy','Bypass',
++#     '-File','C:\Workspace\diansai\sim\run_regress.ps1' ...
++# ASCII-only on purpose (week0 pitfall #3: PS 5.1 parses BOM-less UTF-8
++# .ps1 as GBK, stray bytes can silently break script behaviour).
++# =====================================================================
++param(
++  [string[]]$Tests = @(),
++  [switch]$KeepWork,
++  [switch]$Acc          # pass -voptargs=+acc so $dumpvars VCDs have
++                        # content (week-0 pitfall #11); costs sim time
++)
++$ErrorActionPreference = 'Stop'
++
++# --- locate vsim (same candidate list as run_t01.ps1) ---
++$cands = @(
++  "C:\altera_pro\26.1.1\questa_fse\win64\vsim.exe",
++  "C:\altera_pro\26.1.1\modelsim_ase\win32aloem\vsim.exe",
++  "C:\altera_pro\26.1.1\modelsim_ae\win32aloem\vsim.exe"
++)
++$vsim = $null
++foreach ($c in $cands) { if (Test-Path $c) { $vsim = $c; break } }
++if (-not $vsim) {
++  $f = Get-ChildItem "C:\altera_pro" -Recurse -Filter "vsim.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
++  if ($f) { $vsim = $f.FullName }
++}
++if (-not $vsim) { Write-Output "ERROR: vsim.exe not found"; exit 1 }
++
++# --- license env (Starter SALT keyring, see run_t01.ps1) ---
++$licUser = [Environment]::GetEnvironmentVariable('SALT_LICENSE_SERVER','User')
++if (-not $env:SALT_LICENSE_SERVER -and $licUser) { $env:SALT_LICENSE_SERVER = $licUser }
++if (-not $env:SALT_LICENSE_SERVER) { Write-Output "ERROR: SALT_LICENSE_SERVER not set"; exit 1 }
++
++# --- kill leftovers from a previous killed run (week0 pitfall #5) ---
++foreach ($pn in @('vsim','vish','vlm','vlog','vcom','vopt')) {
++  Get-Process -Name $pn -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
++}
++
++$sim = 'C:/Workspace/diansai/sim'
++Set-Location $sim
++New-Item -ItemType Directory -Force -Path ../out/arena-debug/continue/session_20260925_0432/coverage | Out-Null
++
++# --- manifest ---
++$manifest = @()
++foreach ($line in (Get-Content (Join-Path $sim 'tests.manifest') -Encoding UTF8)) {
++  $t = "$line".Trim()
++  if ($t -eq '' -or $t.StartsWith('#')) { continue }
++  $p = $t -split '\s+'
++  $cfg = if ($p.Count -gt 2) { $p[2] } else { 'default' }
++  $manifest += [pscustomobject]@{ Id = $p[0]; Tb = $p[1]; Cfg = $cfg }
++}
++# powershell -File passes "-Tests T00,T01" as one string (not a string[]).
++# Accept both that documented spelling and -Command's array spelling.
++if ($Tests.Count -gt 0) {
++  $selected = @($Tests | ForEach-Object { $_ -split ',' } |
++                ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
++  $manifest = @($manifest | Where-Object { $selected -contains $_.Id })
++}
++if ($manifest.Count -eq 0) { Write-Output "ERROR: no tests selected"; exit 1 }
++if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -gt 0) {
++  # Generate the oracle before any T09 session; a failed model is a failed run.
++  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t09_vectors.py')
++  if ($LASTEXITCODE -ne 0) {
++    Write-Output "ERROR: T09 Python golden vector generation failed"
++    exit 1
++  }
++}
++if (@($manifest | Where-Object { $_.Id -like 'T08*' -or $_.Id -like 'T11*' -or $_.Id -like 'T17*' -or $_.Id -like 'T21*' -or $_.Id -like 'T22*' -or $_.Id -like 'T23*' }).Count -gt 0) {
++  # T08/T11/T17/T21/T22/T23 share independently FCS-checked real-frame golden vectors.
++  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t08a_vectors.py')
++  if ($LASTEXITCODE -ne 0) {
++    Write-Output "ERROR: T08 RX Python golden vector generation failed"
++    exit 1
++  }
++}
++if (@($manifest | Where-Object { $_.Id -like 'T12*' -or $_.Id -like 'T08f*' }).Count -gt 0) {
++  # T12 and T08f need both tables and independent key lists; offline rejection
++  # must fail the regression instead of running against an old partial image.
++  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t12_vectors.py')
++  if ($LASTEXITCODE -ne 0) {
++    Write-Output "ERROR: T12 offline hash image generation failed"
++    exit 1
++  }
++}
++if ($Acc) { $env:VSIM_ACC = '1' } else { $env:VSIM_ACC = '0' }
++
++# --- vsim batch helper: cmd-level redirect (byte-transparent, pitfall #4),
++#     detached so the 600 s cap is enforced by us, not the bridge ---
++function Run-Vsim {
++  param([string]$Do, [string]$Log, [int]$TimeoutSec = 600)
++  Remove-Item $Log -Force -ErrorAction SilentlyContinue
++  # cmd /c quote-stripping pitfall: with several quotes in the string,
++  # cmd strips the FIRST and LAST quote and breaks the exe path.
++  # Wrapping the whole tail in an extra outer quote pair preserves them.
++  # Start-Process -PassThru on PS 5.1 can leave ExitCode null even after
++  # WaitForExit; use System.Diagnostics.Process directly instead.
++  $cmdline = '/c ""' + $vsim + '" -c -do "' + $Do + '" > ' + $Log + ' 2>&1"'
++  $psi = New-Object System.Diagnostics.ProcessStartInfo
++  $psi.FileName = 'cmd.exe'
++  $psi.Arguments = $cmdline
++  $psi.WorkingDirectory = $sim
++  $psi.UseShellExecute = $false
++  $p = [System.Diagnostics.Process]::Start($psi)
++  if (-not $p.WaitForExit($TimeoutSec * 1000)) {
++    taskkill /PID $p.Id /T /F 2>$null | Out-Null
++    foreach ($pn in @('vsim','vish','vlm')) {
++      Get-Process -Name $pn -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
++    }
++    return -1
++  }
++  return $p.ExitCode
++}
++
++$t0 = [Diagnostics.Stopwatch]::StartNew()
++
++# --- compile once (fresh work lib) ---
++if (-not $KeepWork) {
++  $rtl = @(
++    '../rtl/common/rst_sync.v', '../rtl/common/timebase.v',
++    '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
++    '../rtl/common/bram_sdp.v',  '../rtl/top/init_sweep.v', '../rtl/top/AFDX_top.v',
++    '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
++    '../rtl/tx/tx_frame_builder.v', '../rtl/tx/tx_vl_scheduler.v',
++    '../rtl/tx/tx_rm.v',            '../rtl/tx/tx_pace.v',
++    '../rtl/tx/mac_tx_if.v',   '../rtl/rx/mac_rx_if.v',
++    '../rtl/rx/rx_block_pool.v', '../rtl/rx/rx_pmem_queue.v',
++    '../rtl/rx/rx_ic.v', '../rtl/rx/rx_vl_lookup.v', '../rtl/rx/rx_flt.v',
++    '../rtl/rx/rx_rm.v', '../rtl/rx/rx_ip_udp_parse.v', '../rtl/rx/rx_port_buf.v',
++    '../rtl/mgmt/mgmt_sap_rx.v'
++  )
++  # TB file = tb/<tb>.v; a TB whose file hosts several top modules (e.g.
++  # tb_t04g_tx_chain lives in tb_t04_tx_chain.v) is mapped here.
++  $tbfile = @{ 'tb_t04g_tx_chain' = 'tb_t04_tx_chain';
++               'tb_t08ag_rx_ingress' = 'tb_t08a_rx_ingress';
++               'tb_t08bg_top_rx' = 'tb_t08b_top_rx';
++               'tb_t08cg_host_arb' = 'tb_t08c_host_arb';
++               'tb_t08dg_top_flt' = 'tb_t08d_top_flt';
++               'tb_t08eg_top_ic' = 'tb_t08e_top_ic';
++               'tb_t08fg_full_scoreboard' = 'tb_t08f_full_scoreboard';
++               'tb_t05bg_jitter' = 'tb_t05b_jitter';
++               'tb_t13g_latency' = 'tb_t13_latency';
++               'tb_t18g_random_stress' = 'tb_t18_random_stress';
++               'tb_t23g_sap_min' = 'tb_t23_sap_min';
++               'tb_t10g_top_rm' = 'tb_t10_top_rm';
++               'tb_t11g_top_port' = 'tb_t11_top_port';
++               'tb_t11ig_top_int' = 'tb_t11i_top_int';
++               'tb_t17g_min_frame_stress' = 'tb_t17_min_frame_stress';
++               'tb_t21g_block_pool' = 'tb_t21_block_pool';
++               'tb_t22g_top_loopback' = 'tb_t22_top_loopback';
++               'tb_t09s_rx_ic' = 'tb_t09_rx_ic';
++               'tb_t09ps_rx_ic' = 'tb_t09p_rx_ic';
++               'tb_t12c_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12r_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12s_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12h_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12fg_top_lookup' = 'tb_t12f_top_lookup' }
++  $tbs = @(); foreach ($m in $manifest) {
++    $f = if ($tbfile.ContainsKey($m.Tb)) { $tbfile[$m.Tb] } else { $m.Tb }
++    $tbs += ('tb/' + $f + '.v')
++  }
++  $env:VLOG_SRC = (($rtl + ($tbs | Select-Object -Unique)) -join ' ')
++  $sw = [Diagnostics.Stopwatch]::StartNew()
++  $rc = Run-Vsim 'source ../out/arena-debug/continue/session_20260925_0432/compile_full_cov.tcl' '../out/arena-debug/continue/session_20260925_0432/coverage/compile_console.txt' 300
++  Write-Output ("COMPILE rc=" + $rc + " wall_s=" + [math]::Round($sw.Elapsed.TotalSeconds,1))
++  if ($rc -ne 0) {
++    Write-Output "ERROR: compile session failed; log follows:"
++    Get-Content ../out/arena-debug/continue/session_20260925_0432/coverage/compile_console.txt -Encoding UTF8 | Write-Output
++    exit 1
++  }
++  # vlog prints "Errors: N, Warnings: M" - parse it (tcl exit code alone
++  # does not catch vlog errors when Questa still exits 0)
++  $errLine = (Select-String -Path ../out/arena-debug/continue/session_20260925_0432/coverage/compile_console.txt -Pattern 'Errors:\s*(\d+)') |
++             Select-Object -Last 1
++  $nErr = if ($errLine) { [int]$errLine.Matches[0].Groups[1].Value } else { 99 }
++  if ($nErr -ne 0) {
++    Write-Output ("ERROR: vlog reported " + $nErr + " error(s); log follows:")
++    Get-Content ../out/arena-debug/continue/session_20260925_0432/coverage/compile_console.txt -Encoding UTF8 | Write-Output
++    exit 1
++  }
++  Write-Output "COMPILE OK (0 errors)"
++}
++
++# --- run each test in its own vsim session ---
++$rows = New-Object System.Collections.Generic.List[string]
++$rows.Add('test_id,config,tb,result,max_dev,wall_s,summary')
++$npass = 0
++$idx = 0
++foreach ($m in $manifest) {
++  $idx++
++  $log = '../out/arena-debug/continue/session_20260925_0432/coverage/' + $m.Id + '_console.txt'
++  $env:TEST_TB = $m.Tb
++  $env:COV_DB = '../out/arena-debug/continue/session_20260925_0432/coverage/' + $m.Id + '.ucdb'
++  $sw = [Diagnostics.Stopwatch]::StartNew()
++  $rc = Run-Vsim 'source ../out/arena-debug/continue/session_20260925_0432/run_full_cov.tcl' $log 600
++  $wall = [math]::Round($sw.Elapsed.TotalSeconds,1)
++  $verdict = ''
++  if (Test-Path $log) {
++    foreach ($l in (Get-Content $log -Encoding UTF8)) {
++      if ("$l" -match '(PASS|FAIL)') { $verdict = "$l".Trim() }
++    }
++  }
++  $result = 'FAIL'
++  if ($rc -eq 0 -and $verdict -match 'PASS' -and $verdict -notmatch 'FAIL') {
++    $result = 'PASS'; $npass++
++  } elseif ($rc -eq -1) {
++    $verdict = 'TIMEOUT(600s)'
++  } elseif ($verdict -eq '') {
++    $verdict = ('no verdict line, vsim rc=' + $rc)
++  }
++  $summary = $verdict -replace ',', ';'
++  $rows.Add(($m.Id + ',' + $m.Cfg + ',' + $m.Tb + ',' + $result + ',na,' + $wall + ',' + $summary))
++  Write-Output ("[" + $idx + "/" + $manifest.Count + "] " + $m.Id + " " + $m.Tb + " -> " + $result + " (" + $wall + " s) " + $verdict)
++}
++
++[IO.File]::WriteAllLines((Join-Path $sim '../out/arena-debug/continue/session_20260925_0432/coverage/regress.csv'), $rows)
++Write-Output ("REGRESS SUMMARY: " + $npass + "/" + $manifest.Count + " pass, wall_s=" + [math]::Round($t0.Elapsed.TotalSeconds,1))
++Write-Output "CSV: ../out/arena-debug/continue/session_20260925_0432/coverage/regress.csv"
++$rows | Write-Output
++if ($npass -ne $manifest.Count) { exit 1 }
++exit 0
+diff --git a/out/arena-debug/continue/session_20260925_0432/run_full_cov.tcl b/out/arena-debug/continue/session_20260925_0432/run_full_cov.tcl
+new file mode 100644
+index 0000000..b52ea45
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/run_full_cov.tcl
+@@ -0,0 +1,22 @@
++# =====================================================================
++# run_one.tcl - run a single TB in this vsim session (called by
++# run_regress.ps1; TB module name comes from env TEST_TB).
++# One vsim process per test case = doc 12.4 "independent vsim session".
++# Wave visibility: default vopt optimization strips all signals, so
++# $dumpvars writes a header-only VCD (week-0 pitfall #11, root-caused
++# 2026-09-22). Set env VSIM_ACC=1 to add -voptargs=+acc when you need
++# real waveforms (about 2x sim time).
++# =====================================================================
++onerror { quit -f -code 1 }
++if {![info exists env(TEST_TB)]} {
++  puts "ERROR: TEST_TB env not set"
++  quit -f -code 1
++}
++if {[info exists env(VSIM_ACC)] && $env(VSIM_ACC) == "1"} {
++  vsim -coverage -voptargs=+acc $env(TEST_TB)
++} else {
++  vsim -coverage $env(TEST_TB)
++}
++coverage save -onexit $env(COV_DB)
++run -all
++quit -f
+diff --git a/out/arena-debug/continue/session_20260925_0432/rx_cfg_isolate.ys b/out/arena-debug/continue/session_20260925_0432/rx_cfg_isolate.ys
+new file mode 100644
+index 0000000..8a193f3
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/rx_cfg_isolate.ys
+@@ -0,0 +1,34 @@
++# eLinx synthesis script for AFDX_top
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++memory_map AFDX_top/rx_cfg_mem
++stat AFDX_top
++opt AFDX_top
++stat AFDX_top
+diff --git a/out/arena-debug/continue/session_20260925_0432/seal_evidence.py b/out/arena-debug/continue/session_20260925_0432/seal_evidence.py
+new file mode 100644
+index 0000000..54b5185
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/seal_evidence.py
+@@ -0,0 +1,10 @@
++from pathlib import Path
++import hashlib
++P=Path('C:/Workspace/diansai');D=P/'out/arena-debug/continue/session_20260925_0432'
++paths=[p for p in D.rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.name!='SHA256SUMS.txt']
++paths += [P/'out/arena-debug/DIANSAI-REPORT.md',P/'out/arena-debug/fixes.patch',P/'out/arena-debug/finalize/CONTINUE-20260925.md',P/'doc/当前进度_20260923.md',P/'doc/后续计划.md']
++lines=[hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.relative_to(P).as_posix() for p in sorted(paths)]
++s='\n'.join(lines)+'\n'
++(D/'SHA256SUMS.txt').write_text(s,encoding='utf8')
++(P/'out/arena-debug/finalize/CONTINUE-20260925-SHA256SUMS.txt').write_text(s,encoding='utf8')
++print('SEALED',len(paths),'files')
+diff --git a/out/arena-debug/continue/session_20260925_0432/SYNTH-STA.md b/out/arena-debug/continue/session_20260925_0432/SYNTH-STA.md
+new file mode 100644
+index 0000000..541a6ee
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/SYNTH-STA.md
+@@ -0,0 +1,32 @@
++# 顶层综合与 STA 续作证据（2026-09-25）
++
++## 结论
++
++**BLOCKED_TOOL**：当前 eLinx 顶层流程仍失败；没有完整成功网表，没有可签核资源利用率，没有 WNS/TNS/Fmax/关键路径数据。以下 rc 均来自实际子进程，不以外层 Python 正常退出冒充综合成功。
++
++| 探针 | 实际 rc | 结果与适用范围 |
++|---|---:|---|
++| old_top_repro | 1 | 在独立 .ys 中仅把 tx_rm 源路径替换成 finalize 前备份，复现 memory_map `invalid vector<T> subscript`；未回滚工作树 |
++| tx_rm_old | 1 | 独立旧 tx_rm 即可复现；触发结构为 exp_q[0:15]（2bit）和 vl_q[0:15]（8bit）的循环同步复位多写口 |
++| tx_rm_current | 0 | 上轮已有 packed-flop 最小修复复验；整份日志无 ERROR、check 完成，554 generic cells；不是本轮新修，也不是顶层结果 |
++| current_top_repro | 1 | 当前原始 AFDX_top_synth.ys 的 memory_map 已通过，后续 OPT_MUXTREE 报 bad allocation |
++| rx_cfg_isolate | 0 | **无效隔离探针**：仅选内存名字未发生映射（memory_map 0ms，仍有 5 memories）；不能用于证明修复或缩小故障范围 |
++| top_module_isolate | 3221225477 (0xC0000005) | 只映射 AFDX_top 模块后有 150603 generic cells / 88757 mux；OPT_EXPR 崩溃。说明顶层配置存储展开本身即触发工具问题，但未证明单个数组唯一根因 |
++| top_fast_probe | 1 | 最小可逆脚本变体 opt -fast，保留所有参数/模块/检查/网表导出目标；OPT_MERGE 中仍 bad allocation，未产出完整网表 |
++| top_bram_attempt | 1 | 使用项目现有器件 brams.txt/brams_map.v：memory_collect → memory_bram → techmap → opt/check/stat/write_verilog；优化时仍 bad allocation；部分 altsyncram 统计不能视为顶层 PASS |
++| sta_probe | 3 | 已安装 TimeQuest，create_timing_netlist 报 Can't find active revision；不是许可证缺失或工具缺失的证明 |
++
++全部命令/rc/耗时/console SHA-256 见 commands.jsonl，各探针另有 *_rc.txt、*.log、*_tool.log、*.ys。旧 finalize/synth 所有日志（含 UTF-16 console）已逐文件完整读取和校验，索引 prior_synth_full_log_audit.json；旧证据不覆盖。
++
++## 瓶颈与最小修复边界
++
++- eLinx_synthesis.exe 的 PE machine=0x14c（32 位），文件 SHA-256 在 tool_inventory.json。分配失败/访问异常是工具层可见故障；并不等价于已证明 RTL 在目标器件可实现。
++- AFDX_top 的五张表合计 322176 bit：rx_cfg_mem=8192x32、tx_cfg_mem=640x32、port_cfg_mem=1024x32、cfg_share_mem=128x21、vl_stat_mem=128x32。多个组合读口直接服务 FLT/RM/解析/主机/调度，不能无验证地替换成一拍同步 BRAM。
++- 本轮没有削减 VL/端口参数、黑盒化大 RAM、删除 check、替换 TB 断言或伪造器件 IP。保留当前 RTL/TB；新增独立综合脚本作为可逆尝试，失败也保留。
++- 下一步需给这些组合配置读口分银行/复制或加寄存握手，并保证配置生效、读延迟、反压语义；每次结构调整需重跑真实顶层 TB。或用受支持的 64 位供应商综合器/器件 IP 完成同参数网表。当前不能宣称综合已修复。
++
++## STA
++
++现有 elinx/sdc/AFDX_top.edc 与设计书 §11.2 一致：clk=8ns，uncertainty=0.45ns，transition=0.30ns，pps_in false path。设计书明确无板卡时 IO delay 默认注掉；没有把示例 3.2ns 填成测量值。该最小约束已经存在，本轮不重复创建。
++
++elinx/、sim/ 工程扫描未发现 qpf/qsf active revision，当前顶层综合失败，TimeQuest 负向实跑确认缺 active revision。精确阻塞：**缺 active revision + 完整可用 timing netlist/器件实现**；板级 IO 预算未定义是外部时序签核的另一个缺口，不声称它阻止内部路径分析。没有证据证明许可证缺失。WNS/TNS/Fmax/关键路径全部 N/A，不使用设计预算冒充实测。
+diff --git a/out/arena-debug/continue/session_20260925_0432/synth_sta.py b/out/arena-debug/continue/session_20260925_0432/synth_sta.py
+new file mode 100644
+index 0000000..4a4743d
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/synth_sta.py
+@@ -0,0 +1,5 @@
++from execute import *
++exe='C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe'
++for name,script in [('old_top_repro',D/'old_top_repro.ys'),('current_top_repro',P/'elinx/prj/AFDX_top_synth.ys'),('rx_cfg_isolate',D/'rx_cfg_isolate.ys'),('top_fast_probe',D/'top_fast_probe.ys')]:
++ run(name,[exe,'-s',str(script),'-l',str(D/(name+'_tool.log'))],timeout=300)
++run('sta_probe',['C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/quartus_sta.exe','-t',str(P/'out/arena-debug/finalize/sta/sta_probe.tcl')])
+diff --git a/out/arena-debug/continue/session_20260925_0432/tool_inventory.py b/out/arena-debug/continue/session_20260925_0432/tool_inventory.py
+new file mode 100644
+index 0000000..8156d62
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/tool_inventory.py
+@@ -0,0 +1,8 @@
++from execute import *
++import struct
++files=['C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe','C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/quartus_sta.exe','C:/altera_pro/26.1.1/questa_fse/win64/vlog.exe','C:/altera_pro/26.1.1/questa_fse/win64/vsim.exe','C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe']
++a=[]
++for f in files:
++ p=pathlib.Path(f);b=p.read_bytes();offset=struct.unpack_from('<I',b,0x3c)[0];machine=struct.unpack_from('<H',b,offset+4)[0]
++ a.append(dict(path=f,bytes=len(b),sha256=hashlib.sha256(b).hexdigest(),PE_machine=hex(machine)))
++(D/'tool_inventory.json').write_text(json.dumps(a,indent=2));print(json.dumps(a,indent=2))
+diff --git a/out/arena-debug/continue/session_20260925_0432/top_bram_attempt.ys b/out/arena-debug/continue/session_20260925_0432/top_bram_attempt.ys
+new file mode 100644
+index 0000000..e402dbb
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/top_bram_attempt.ys
+@@ -0,0 +1,43 @@
++# eLinx synthesis script for AFDX_top
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++opt_clean
++memory_collect
++memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
++techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
++log POST_BRAM_PRE_OPT
++select -count t:$mem
++select -count t:altsyncram
++select -list t:$mem
++stat
++opt
++check
++stat
++write_verilog out/arena-debug/continue/session_20260925_0432/top_bram_generic.v
+diff --git a/out/arena-debug/continue/session_20260925_0432/top_fast_probe.ys b/out/arena-debug/continue/session_20260925_0432/top_fast_probe.ys
+new file mode 100644
+index 0000000..8ce5db1
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/top_fast_probe.ys
+@@ -0,0 +1,35 @@
++# eLinx synthesis script for AFDX_top
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++memory_map
++opt -fast
++check
++stat
++write_verilog out/arena-debug/continue/session_20260925_0432/top_fast_generic.v
+diff --git a/out/arena-debug/continue/session_20260925_0432/top_isolate.py b/out/arena-debug/continue/session_20260925_0432/top_isolate.py
+new file mode 100644
+index 0000000..bc0c2d0
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/top_isolate.py
+@@ -0,0 +1,2 @@
++from execute import *
++run('top_module_isolate',['C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe','-s',str(D/'top_module_isolate.ys'),'-l',str(D/'top_module_isolate_tool.log')],timeout=300)
+diff --git a/out/arena-debug/continue/session_20260925_0432/top_module_isolate.ys b/out/arena-debug/continue/session_20260925_0432/top_module_isolate.ys
+new file mode 100644
+index 0000000..4d5c403
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/top_module_isolate.ys
+@@ -0,0 +1,34 @@
++# eLinx synthesis script for AFDX_top
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++memory_map AFDX_top
++stat AFDX_top
++opt AFDX_top
++stat AFDX_top
+diff --git a/out/arena-debug/continue/session_20260925_0432/tx_probes.py b/out/arena-debug/continue/session_20260925_0432/tx_probes.py
+new file mode 100644
+index 0000000..8a03b53
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/tx_probes.py
+@@ -0,0 +1,3 @@
++from execute import *
++for n in ['tx_rm_old','tx_rm_current']:
++ run(n,['C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe','-s',str(D/(n+'.ys')),'-l',str(D/(n+'_tool.log'))])
+diff --git a/out/arena-debug/continue/session_20260925_0432/tx_rm_current.ys b/out/arena-debug/continue/session_20260925_0432/tx_rm_current.ys
+new file mode 100644
+index 0000000..aac2f47
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/tx_rm_current.ys
+@@ -0,0 +1,9 @@
++read_verilog C:/Workspace/diansai/rtl/tx/tx_rm.v
++hierarchy -top tx_rm
++proc
++opt
++memory_dff
++memory_map
++opt
++check
++stat
+diff --git a/out/arena-debug/continue/session_20260925_0432/tx_rm_old.ys b/out/arena-debug/continue/session_20260925_0432/tx_rm_old.ys
+new file mode 100644
+index 0000000..1c43831
+--- /dev/null
++++ b/out/arena-debug/continue/session_20260925_0432/tx_rm_old.ys
+@@ -0,0 +1,9 @@
++read_verilog C:/Workspace/diansai/out/arena-debug/backup/finalize_20250925/rtl/tx/tx_rm.v
++hierarchy -top tx_rm
++proc
++opt
++memory_dff
++memory_map
++opt
++check
++stat
+diff --git a/out/arena-debug/finalize/CONTINUE-20260925.md b/out/arena-debug/finalize/CONTINUE-20260925.md
+new file mode 100644
+index 0000000..41e4910
+--- /dev/null
++++ b/out/arena-debug/finalize/CONTINUE-20260925.md
+@@ -0,0 +1,20 @@
++# MISSION-CONTINUE 交付入口（2026-09-25）
++
++最新结论见 [主报告](../DIANSAI-REPORT.md) 的 MISSION-CONTINUE，优先于本目录旧 FINALIZE 快照。
++
++- DONE：全量覆盖率 50/50 + 50 UCDB，最终普通回归 50/50，lint / 严格文档门通过。
++- BLOCKED_TOOL：顶层综合仍失败；没有完整成功网表或器件资源签核。
++- BLOCKED_NO_REVISION_OR_TIMING_NETLIST：STA rc=3，无 WNS/TNS/Fmax。
++- OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP：完整管理协议未交付；stats_regs 是 rtl/top/ 下空壳，不是文件缺失。
++
++[本轮证据目录](../continue/session_20260925_0432/)：
++- [综合与 STA](../continue/session_20260925_0432/SYNTH-STA.md)
++- [全量代码覆盖率](../continue/session_20260925_0432/COVERAGE.md)
++- [管理面正式范围](../continue/session_20260925_0432/MANAGEMENT-SCOPE.md)
++- [命令与 rc](../continue/session_20260925_0432/commands.jsonl)
++- [验收复核](../continue/session_20260925_0432/acceptance_audit.json)
++- [最终原始回归日志](../continue/session_20260925_0432/final_full50.log)
++- [文档更新后门禁](../continue/session_20260925_0432/post_docs_docgate.log)
++- [补丁验证](../continue/session_20260925_0432/patch_verify.log)
++
++本轮 SHA-256：CONTINUE-20260925-SHA256SUMS.txt；旧 SHA256SUMS.txt 和所有旧失败原件保持原状。fixes.patch 已改为只包含本次实际增量，旧补丁先备份。整机仍未完成，不将流程执行结束写成所有技术目标 PASS。

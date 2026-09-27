@@ -229,7 +229,10 @@ module tb_t01_reset_regs;
       err = err + 1;
     end
     if (dut.u_rxic.psn_mem[8191] !== 8'd0 || dut.u_rxrm.rm_mem[4095] !== 33'd0 ||
-        dut.u_rxlookup.table1way1[2047] !== 32'd0 || dut.rx_cfg_mem[8190] !== 32'd0 ||
+        dut.u_rxlookup.table1way1[2047] !== 32'd0 ||
+        // continue2: RX_VL_CFG w0 now lives in 4 BRAM replicas (was rx_cfg_mem[8190])
+        dut.u_rxcfg_h0.mem[4095] !== 32'd0 || dut.u_rxcfg_flt0.mem[4095] !== 32'd0 ||
+        dut.u_rxcfg_rm0.mem[4095] !== 32'd0 || dut.u_rxcfg_prs0.mem[4095] !== 32'd0 ||
         dut.tx_cfg_mem[635] !== 32'd0 || dut.port_cfg_mem[1020] !== 32'd0 ||
         dut.u_rxpb.p_cnt[255] !== 4'd0 || dut.vl_stat_mem[127] !== 32'd0) begin
       $display("  [err] last address of some scanned RAM not cleared"); err = err + 1;

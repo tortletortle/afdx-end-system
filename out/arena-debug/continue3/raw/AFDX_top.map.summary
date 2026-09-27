@@ -1,0 +1,20 @@
+Analysis & Synthesis Status : Successful - Fri Sep 25 18:09:46 2026
+Quartus II 64-Bit Version : 13.0.1 Build 232 06/12/2013 SP 1 SJ Full Version
+Revision Name : AFDX_top
+Top-level Entity Name : AFDX_top
+Family : Stratix IV
+Logic utilization : N/A
+    Combinational ALUTs : 62,884
+    Memory ALUTs : 0
+    Dedicated logic registers : 80,270
+Total registers : 80270
+Total pins : 196
+Total virtual pins : 0
+Total block memory bits : 1,474,340
+DSP block 18-bit elements : 0
+Total GXB Receiver Channel PCS : 0
+Total GXB Receiver Channel PMA : 0
+Total GXB Transmitter Channel PCS : 0
+Total GXB Transmitter Channel PMA : 0
+Total PLLs : 0
+Total DLLs : 0

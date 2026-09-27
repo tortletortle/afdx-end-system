@@ -1,0 +1,1 @@
+name=top_after_rxcfg_bram ys=elinx/prj/AFDX_top_synth.ys exit_code=0 elapsed_s=177 error_lines=0 success_banner=1 first_error= last_pass=30.15. Executing OPT_EXPR pass (perform const folding). log_sha256=08AE03026CAAACBEBE039B53429D74D2FA33F5F6C20368D24B227B88D85819C9

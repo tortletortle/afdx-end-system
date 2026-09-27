@@ -1,0 +1,252 @@
+[
+  {
+    "path": "T00.ucdb",
+    "bytes": 3365,
+    "sha256": "29e7ea719da41696a62bd51842c2b63c8742fda045e4ecc31c4c007a69824d05"
+  },
+  {
+    "path": "T01.ucdb",
+    "bytes": 16876,
+    "sha256": "bbd0fb4ff0870f6e93deca1539fb68689d99ec5f5c1754a1323c865cad59507e"
+  },
+  {
+    "path": "T02.ucdb",
+    "bytes": 5583,
+    "sha256": "1ac0700445e2bf8c6f38c1ac3583f6cc42a9d23d625e3a47e91a2a66f8793076"
+  },
+  {
+    "path": "T03.ucdb",
+    "bytes": 5878,
+    "sha256": "962a2974175162c2c61f4b66d459dae9ae11fe78e9a7bc8dd1af01af1a6953ee"
+  },
+  {
+    "path": "T04.ucdb",
+    "bytes": 11146,
+    "sha256": "dd54731e73bf44bc182e359c12f83bf8260067dee033f04ce4d24d2c70d27926"
+  },
+  {
+    "path": "T04g.ucdb",
+    "bytes": 10969,
+    "sha256": "6987bdf541ca2156fb1b3a86cbf43694c155f63ec90c04169878a0923f52ad14"
+  },
+  {
+    "path": "T05b.ucdb",
+    "bytes": 17083,
+    "sha256": "329b11114e2b196e51aa9943060d6568caab4a3296034cb86364698f8e105a81"
+  },
+  {
+    "path": "T05bg.ucdb",
+    "bytes": 17290,
+    "sha256": "2e00ce830fd46427b4911c43c864c7609949eceb9cbf2c4dacf1b792255f4d2a"
+  },
+  {
+    "path": "T05c.ucdb",
+    "bytes": 15855,
+    "sha256": "e5d2c0f2ecee77b5c480e62be0aa5efb34c290f53238088b41b7c0da6ed239f8"
+  },
+  {
+    "path": "T08a.ucdb",
+    "bytes": 3970,
+    "sha256": "2fd8b401ab472f26e1eb4301e539fca812e98dea41c444508f097077ec0b8c66"
+  },
+  {
+    "path": "T08ag.ucdb",
+    "bytes": 3802,
+    "sha256": "46dfa3c646c889f9405642a96fe7144ae2c69e33fb1b94f186443a35dbca60ee"
+  },
+  {
+    "path": "T08b.ucdb",
+    "bytes": 18642,
+    "sha256": "e73a0456e93f3c95a7452db1abf08bca1c7b6e3162e1212dc81c0aa02ff1c6cd"
+  },
+  {
+    "path": "T08bg.ucdb",
+    "bytes": 18529,
+    "sha256": "2526830bc8caa5237580a71578bb431fb8d268f76240123611a94b0af4b67632"
+  },
+  {
+    "path": "T08c.ucdb",
+    "bytes": 18080,
+    "sha256": "48c9c580de48373ca780ac6594ef983b912e1d5d4765b18b2e94214a43b7c0b9"
+  },
+  {
+    "path": "T08cg.ucdb",
+    "bytes": 17932,
+    "sha256": "97e25cc5daa1ef6c77b4861261d50bc895a5c88d25258ca43c34af8a6efac5d1"
+  },
+  {
+    "path": "T08d.ucdb",
+    "bytes": 19071,
+    "sha256": "d419f7aaaec7d9c9ecd358ac4cb37f0efd64cca024fd7346229d38af0607132c"
+  },
+  {
+    "path": "T08dg.ucdb",
+    "bytes": 18939,
+    "sha256": "069078dbd44468408470202e5c39ae9366a9581c5c81618d2917a02272a30b9b"
+  },
+  {
+    "path": "T08e.ucdb",
+    "bytes": 20770,
+    "sha256": "d068105212cbb8f641dd0dee46f3ab84a5b356776d86da25517b5bc4c9ee1e00"
+  },
+  {
+    "path": "T08eg.ucdb",
+    "bytes": 20596,
+    "sha256": "8dc8fc9cfc3ef92f12e68c960b809f494412fc95e39c1734ac7b2fa479c6d0e2"
+  },
+  {
+    "path": "T08f.ucdb",
+    "bytes": 18267,
+    "sha256": "5705835c8645b86161c4067cc89eda16e06b6bb0947e4c9db84708ab67d92952"
+  },
+  {
+    "path": "T08fg.ucdb",
+    "bytes": 18188,
+    "sha256": "38f03c51afa169476dc7a32bf519c3a88c1d265680fe580e6c8a176430c57a0d"
+  },
+  {
+    "path": "T09.ucdb",
+    "bytes": 3146,
+    "sha256": "a61bf950f2bd3349b3c023887a528dcdb6d0d099288ae4bc8db659011b47dcd5"
+  },
+  {
+    "path": "T09p.ucdb",
+    "bytes": 4080,
+    "sha256": "969cf51d8fe0fa98ab1cd71f534a9b44f7363110838f2bd6ad8d20e0bb4b39ae"
+  },
+  {
+    "path": "T09ps.ucdb",
+    "bytes": 4099,
+    "sha256": "ee1d6a88c397bc7efae71f94e9179da495ed13fe17e086a6b6f913e097df8af7"
+  },
+  {
+    "path": "T09s.ucdb",
+    "bytes": 3171,
+    "sha256": "31d738d40db31e1b0e6d0e256fcc953ddd3ea949f79130990c87124b4caec823"
+  },
+  {
+    "path": "T10.ucdb",
+    "bytes": 20228,
+    "sha256": "dfce632ee2f4df230b330104bba069d11cb3a9ff239211de30c5bae8177c6cd4"
+  },
+  {
+    "path": "T10g.ucdb",
+    "bytes": 20022,
+    "sha256": "16187cf4ebcb05609d2b471a9d76204703ee057731acc75241dd21b0e109964e"
+  },
+  {
+    "path": "T11.ucdb",
+    "bytes": 19735,
+    "sha256": "2888e9d2d3558a0102837224bc9632bdd927be6af46f66e05b6093661963005b"
+  },
+  {
+    "path": "T11g.ucdb",
+    "bytes": 19563,
+    "sha256": "4fc84da03073b19a700d25ab83c5f9b27ba870405d51697f42cf7d21b27a884a"
+  },
+  {
+    "path": "T11i.ucdb",
+    "bytes": 19268,
+    "sha256": "dfd281bddb6356801d3495325e1055f376181c1989fa4c8b15725a15f5668f57"
+  },
+  {
+    "path": "T11ig.ucdb",
+    "bytes": 19092,
+    "sha256": "bbdfe6ade707df8544f77fca768e02c10b3558cf0d18f4b24d4caad05344d893"
+  },
+  {
+    "path": "T12c.ucdb",
+    "bytes": 4154,
+    "sha256": "c464e4baeffa1ac44a15320dad966364cfd19791f4e3f5bd39117da6ae03aa53"
+  },
+  {
+    "path": "T12f.ucdb",
+    "bytes": 19563,
+    "sha256": "349f8ea80f9f65f408b14c57cde4c39da0bb1ee852e377d2986eafd9898fc949"
+  },
+  {
+    "path": "T12fg.ucdb",
+    "bytes": 19440,
+    "sha256": "6b965c54ae78693b18d0ce4ac70c21efb06d95564c756f66cbbc7b54b9faaa46"
+  },
+  {
+    "path": "T12h.ucdb",
+    "bytes": 4136,
+    "sha256": "3df168518dfc90a0b55c1d43a734877913d0abbbcbfd80db819d531ff07a12fa"
+  },
+  {
+    "path": "T12r.ucdb",
+    "bytes": 4152,
+    "sha256": "74a24523c1127a16d6a2c153b78bf1cb8dfb77c18dc304e8597bdc8d65f02a1b"
+  },
+  {
+    "path": "T12s.ucdb",
+    "bytes": 4135,
+    "sha256": "57cb837db527c9f3d039b6cf2ceba112aaa732d66e5492d113684234cc1d0379"
+  },
+  {
+    "path": "T13.ucdb",
+    "bytes": 18734,
+    "sha256": "c31ea37e83b1250d50b19cdaae0cf76b48bd7346198f4276474c06fa37b2c2ce"
+  },
+  {
+    "path": "T13g.ucdb",
+    "bytes": 18530,
+    "sha256": "8e4c706ad09a5771267bdb623e67133f164b039d88c08f9fda6888cbccb53ba3"
+  },
+  {
+    "path": "T17.ucdb",
+    "bytes": 19059,
+    "sha256": "21a18416aa883a0650ed32aad0329e23c4b9a8122313c544f434bfaf60b76782"
+  },
+  {
+    "path": "T17g.ucdb",
+    "bytes": 18903,
+    "sha256": "c0a91d506843b07e5b17666f439026e72fdfbcbb70ce0f4562d8b988f783a7ed"
+  },
+  {
+    "path": "T18.ucdb",
+    "bytes": 20915,
+    "sha256": "9942fc02fa7d5e3e9ef3287cf5787abd5950816640f2ea5d977fbf722a2112fd"
+  },
+  {
+    "path": "T18g.ucdb",
+    "bytes": 20696,
+    "sha256": "bebafe6cdada522b8cc2dd9bc09e81bd86e410750cc7ede5e214b47cf5d9132e"
+  },
+  {
+    "path": "T21.ucdb",
+    "bytes": 18867,
+    "sha256": "2beb52a31ef3deeedab74e665763010046a5ff040df0e24da0a37d89e1e0eecd"
+  },
+  {
+    "path": "T21g.ucdb",
+    "bytes": 18772,
+    "sha256": "6d094b217e8ef61908742cda596f345f1e65570fff4846e0e4b4273ad1e2d2d8"
+  },
+  {
+    "path": "T22.ucdb",
+    "bytes": 19565,
+    "sha256": "ba772a47c13170c081ae2b3c551bfbdaf654a4c413927c37e55184083798aa2a"
+  },
+  {
+    "path": "T22a.ucdb",
+    "bytes": 16613,
+    "sha256": "44767cffd29d2eabb53cee73a018a22c30b2c7f34fa1a97b3119a6b66e408fc3"
+  },
+  {
+    "path": "T22g.ucdb",
+    "bytes": 19349,
+    "sha256": "e77a62ff2268a742221239644c4df08dffdc9f195618675d00b955e6212b3438"
+  },
+  {
+    "path": "T23.ucdb",
+    "bytes": 18723,
+    "sha256": "3e8b575f3cd4a3f207a3c96840810dafd95bcce09996e8d307456f160b1ddebe"
+  },
+  {
+    "path": "T23g.ucdb",
+    "bytes": 18661,
+    "sha256": "18f5a11dc98e14396ba8b122f0b79f40a1bdd2b33b8db64484619000d5c817ed"
+  }
+]

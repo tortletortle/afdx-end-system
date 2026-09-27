@@ -1,0 +1,10 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T01,default,tb_t01_reset_regs,FAIL,na,84.9,# T01 INIT/REG FAIL: 1 errors
+T08b,default,tb_t08b_top_rx,PASS,na,3.8,# T08b RX-TOP-INGRESS PASS (IF_MODE=0; dual net; BE; ACK priority; bad FCS)
+T08bg,gmii,tb_t08bg_top_rx,PASS,na,3.6,# T08b RX-TOP-INGRESS PASS (IF_MODE=1; dual net; BE; ACK priority; bad FCS)
+T08c,host-arb,tb_t08c_host_arb,PASS,na,3.9,# T08c HOST-ARBITRATION PASS (IF_MODE=0 real_dual_frames=56 host_writes=40 deferred=40 held=20 pulse=20 commits=40 max_wait=2 reset_abort=1)
+T08f,full-table-scoreboard,tb_t08f_full_scoreboard,FAIL,na,4.7,# T08 FULL SCOREBOARD FAIL (IF_MODE=0 errors=8191)
+T08fg,full-table-scoreboard-gmii,tb_t08fg_full_scoreboard,FAIL,na,5.2,# T08 FULL SCOREBOARD FAIL (IF_MODE=1 errors=8191)
+T22,loopback,tb_t22_top_loopback,FAIL,na,4.7,# T22 TOP LOOPBACK FAIL (IF_MODE=0 errors=1)
+T22g,loopback-gmii,tb_t22g_top_loopback,FAIL,na,4.6,# T22 TOP LOOPBACK FAIL (IF_MODE=1 errors=1)
+T22a,default,tb_t22a_frontdoor_tx,PASS,na,3.7,# T22a FRONTDOOR-TX PASS (init + table/PMEM frontdoor + A/B FCS/SN/payload)

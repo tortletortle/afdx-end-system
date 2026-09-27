@@ -1,0 +1,8 @@
+FINAL_PATCH_SHA256 1a69fe66a9d30fb5764850004c92c52928127669902c5afdfe8f586dde804e75
+git apply --directory=out/arena-debug/continue3/replay_final --check C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+git apply --directory=out/arena-debug/continue3/replay_final C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+FORWARD_BYTE_IDENTICAL elinx/prj/quartus/sta_post_map.tcl
+FORWARD_BYTE_IDENTICAL elinx/prj/quartus/check_sdc_8ns.tcl
+git apply --directory=out/arena-debug/continue3/replay_final_undo --check --reverse C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+git apply --directory=out/arena-debug/continue3/replay_final_undo --reverse C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+REVERSE_BYTE_IDENTICAL sta_post_map.tcl; new check_sdc_8ns.tcl deleted

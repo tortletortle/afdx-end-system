@@ -1,0 +1,3 @@
+MCP apply_patch preflight result (first attempt to add verification helper files):
+PATH_OUTSIDE_WORKSPACE: out/arena-debug/continue3/sim/tb/tb_reset_copy.v has no existing parent directory inside the allowed workspace roots.
+No files were changed by this failed multi-file preflight. Created the continue3/sim/tb directory and retried successfully.

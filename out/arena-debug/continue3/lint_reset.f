@@ -1,0 +1,11 @@
+--lint-only
+--timing
+-Wall
+-Wno-fatal
+-Wno-WIDTH
+--top-module
+tb_reset_copy
+--Mdir
+work/lint_reset
+rtl/common/rst_sync.v
+sim/tb/tb_reset_copy.v

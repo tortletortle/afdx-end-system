@@ -5,9 +5,11 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t11g_top_port 
-# Start time: 22:34:48 on Sep 24,2026
+# Start time: 15:21:10 on Sep 27,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# ** Warning: ../rtl/top/AFDX_top.v(1291): (vopt-2241) Connection width does not match width of port 'host_addr'. The port definition is at: ../rtl/mgmt/a615a_tftp.v(51).
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
 # //  Questa Altera Starter FPGA Edition-64
 # //  Version 2025.3 win64 Sep 15 2025
 # //
@@ -24,8 +26,8 @@ Reading pref.tcl
 # //
 # Loading sv_std.std
 # Loading work.tb_t11g_top_port(fast)
-# T11 TOP PORT PASS (IF_MODE=1 deliver=14 ovr=4 qovf=2 port_drop=5 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)
+# T11 TOP PORT PASS (IF_MODE=1 deliver=14 ovr=4 qovf=2 port_drop=4 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)
 # ** Note: $finish    : tb/tb_t11_top_port.v(345)
 #    Time: 444920 ns  Iteration: 1  Instance: /tb_t11g_top_port/core
-# End time: 22:34:52 on Sep 24,2026, Elapsed time: 0:00:04
-# Errors: 0, Warnings: 0
+# End time: 15:21:13 on Sep 27,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 1

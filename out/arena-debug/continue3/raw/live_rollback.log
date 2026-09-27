@@ -1,0 +1,10 @@
+git apply --check --reverse C:\Workspace\diansai\out\arena-debug\continue3\timing_attempt.patch
+rc=0
+stdout=
+stderr=
+git apply --reverse C:\Workspace\diansai\out\arena-debug\continue3\timing_attempt.patch
+rc=0
+stdout=
+stderr=
+ROLLED_BACK_BYTE_IDENTICAL rtl/common/rst_sync.v sha256=c0829708816348af8e0a510277231feee45389aae788de711e96a46c00cfc53e
+ROLLED_BACK_BYTE_IDENTICAL rtl/top/AFDX_top.v sha256=f975bdc6bf9b672de250cf119346bfb2c30a7b3927aa5df3cf130f47ca95bb6d

@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/common/crc32.v C:/Workspace/diansai/rtl/tx/mac_tx_if.v
+hierarchy -top mac_tx_if
+synth
+stat

@@ -12,10 +12,20 @@ if {![info exists env(TEST_TB)]} {
   puts "ERROR: TEST_TB env not set"
   quit -f -code 1
 }
+set vsim_args {}
 if {[info exists env(VSIM_ACC)] && $env(VSIM_ACC) == "1"} {
-  vsim -voptargs=+acc $env(TEST_TB)
-} else {
-  vsim $env(TEST_TB)
+  lappend vsim_args -voptargs=+acc
 }
-run -all
+if {[info exists env(UCDB_OUT)]} {
+  lappend vsim_args -coverage
+}
+if {[catch {vsim {*}$vsim_args $env(TEST_TB)} msg]} {
+  puts "VSIM-ERROR: $msg"
+  quit -f -code 1
+} else {
+  if {[info exists env(UCDB_OUT)]} {
+    coverage save -onexit $env(UCDB_OUT)
+  }
+  run -all
+}
 quit -f

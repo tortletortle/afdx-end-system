@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v
+hierarchy -top mgmt_sap_rx
+synth
+stat

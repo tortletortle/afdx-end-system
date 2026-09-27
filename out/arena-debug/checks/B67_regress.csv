@@ -1,0 +1,3 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T18,random-stress,tb_t18_random_stress,PASS,na,26.3,# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=100 seed=51c0ffee min=17 max=1471 stalls=97 spaced=100)
+T18g,random-stress-gmii,tb_t18g_random_stress,PASS,na,9.3,# T18 RANDOM STRESS PASS (IF_MODE=1 rounds=25 frames=100 seed=51c0ffee min=17 max=1471 stalls=97 spaced=100)

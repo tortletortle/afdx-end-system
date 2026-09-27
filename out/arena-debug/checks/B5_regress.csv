@@ -1,0 +1,5 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T21,block-pool-exhaust,tb_t21_block_pool,PASS,na,3.5,# T21 BLOCK-POOL PASS (IF_MODE=0 filled=10 no_blk=1 exhaust=1 borrow=4 returned=10 recovery=1 deliver=11 no_pmem_empty=0)
+T21g,block-pool-exhaust-gmii,tb_t21g_block_pool,PASS,na,4.7,# T21 BLOCK-POOL PASS (IF_MODE=1 filled=10 no_blk=1 exhaust=1 borrow=4 returned=10 recovery=1 deliver=11 no_pmem_empty=0)
+T23,sap-minimal,tb_t23_sap_min,PASS,na,3.7,# T23 SAP MINIMAL PASS (IF_MODE=0 accept=1 return=1 port=5 plen=8 pmem=8B pb1_collisions=1 max_wait<=1)
+T23g,sap-minimal-gmii,tb_t23g_sap_min,PASS,na,3.6,# T23 SAP MINIMAL PASS (IF_MODE=1 accept=1 return=1 port=5 plen=8 pmem=8B pb1_collisions=1 max_wait<=1)

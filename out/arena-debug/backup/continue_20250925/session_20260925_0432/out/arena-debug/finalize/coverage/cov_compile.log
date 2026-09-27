@@ -1,0 +1,64 @@
+Reading pref.tcl
+
+# 2025.3
+
+# do ../out/arena-debug/finalize/coverage/compile_cov.tcl
+# 
+#   ../rtl/common/rst_sync.v ../rtl/common/timebase.v
+#   ../rtl/common/sync_fifo.v ../rtl/common/crc32.v
+#   ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/top/AFDX_top.v
+#   ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v
+#   ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v
+#   ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v
+#   ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v
+#   ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v
+#   ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v
+#   ../rtl/rx/rx_rm.v ../rtl/rx/rx_ip_udp_parse.v
+#   ../rtl/rx/rx_port_buf.v ../rtl/mgmt/mgmt_sap_rx.v
+#   tb/tb_t23_sap_min.v tb/tb_t18_random_stress.v
+# 
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 11:17:11 on Sep 25,2026
+# vlog -sv "+cover=sb" "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/top/AFDX_top.v ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v ../rtl/rx/rx_rm.v ../rtl/rx/rx_ip_udp_parse.v ../rtl/rx/rx_port_buf.v ../rtl/mgmt/mgmt_sap_rx.v tb/tb_t23_sap_min.v tb/tb_t18_random_stress.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rst_sync
+# -- Compiling module timebase
+# -- Compiling module sync_fifo
+# -- Compiling module crc32
+# -- Compiling module bram_sdp
+# -- Compiling module init_sweep
+# -- Compiling module AFDX_top
+# -- Compiling module tx_sn_gen
+# -- Compiling module tx_port_buf
+# -- Compiling module tx_frame_builder
+# -- Compiling module tx_vl_scheduler
+# -- Compiling module tx_rm
+# -- Compiling module tx_pace
+# -- Compiling module mac_tx_if
+# -- Compiling module mac_rx_if
+# -- Compiling module rx_block_pool
+# -- Compiling module rx_pmem_queue
+# -- Compiling module rx_ic
+# -- Compiling module rx_vl_lookup
+# -- Compiling module rx_flt
+# -- Compiling module rx_rm
+# -- Compiling module rx_ip_udp_parse
+# -- Compiling module rx_port_buf
+# -- Compiling module mgmt_sap_rx
+# -- Compiling module tb_t23_sap_core
+# -- Compiling module tb_t23_sap_min
+# -- Compiling module tb_t23g_sap_min
+# -- Compiling module tb_t18_core
+# -- Compiling module tb_t18_random_stress
+# -- Compiling module tb_t18g_random_stress
+# 
+# Top level modules:
+# 	sync_fifo
+# 	tb_t23_sap_min
+# 	tb_t23g_sap_min
+# 	tb_t18_random_stress
+# 	tb_t18g_random_stress
+# End time: 11:17:12 on Sep 25,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+COVERAGE_COMPILE_OK: RTL/T23/T18, statement+branch, NOT a full suite
+EXIT_CODE=0 ELAPSED_S=2.43

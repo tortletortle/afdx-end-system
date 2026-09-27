@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/tx/tx_sn_gen.v
+hierarchy -top tx_sn_gen
+synth
+stat

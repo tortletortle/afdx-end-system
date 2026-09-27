@@ -1,0 +1,9 @@
+# Preliminary internal-clock constraints from design book §11.2.
+# NOT a sign-off IO/STA file: no target board, pinout, source/sink clocks,
+# device implementation project or timing netlist is supplied. In §11.2,
+# nominal 3.2 ns IO delays are explicitly a commented *example*, not a
+# measured board budget. Do not enable made-up IO delays for a PASS verdict.
+create_clock -name clk -period 8.000 [get_ports clk]
+set_clock_uncertainty 0.45 [get_clocks clk]
+set_clock_transition 0.30 [get_clocks clk]
+set_false_path -from [get_ports pps_in]

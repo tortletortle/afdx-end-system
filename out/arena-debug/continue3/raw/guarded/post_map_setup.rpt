@@ -1,0 +1,1924 @@
+----------------
+; Command Info ;
+----------------
+Report Timing: Found 20 setup paths (20 violated).  Worst case slack is -16.103 
+
+Tcl Command:
+    report_timing -setup -file C:/Workspace/diansai/out/arena-debug/continue3/raw/guarded/post_map_setup.rpt -npaths 20 -detail full_path
+
+Options:
+    -setup 
+    -npaths 20 
+    -detail full_path 
+    -file {C:/Workspace/diansai/out/arena-debug/continue3/raw/guarded/post_map_setup.rpt} 
+
+Delay Model:
+    Slow 900mV 85C Model
+
++-----------------------------------------------------------------------------------------------------------------------------------------+
+; Summary of Paths                                                                                                                        ;
++---------+-------------------------+-------------------------------+--------------+-------------+--------------+------------+------------+
+; Slack   ; From Node               ; To Node                       ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++---------+-------------------------+-------------------------------+--------------+-------------+--------------+------------+------------+
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[127] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[95]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[123] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[91]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[223] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[251] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[219] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[119] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[87]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[115] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[83]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[247] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[215] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[243] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[211] ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[63]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[59]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[55]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[51]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
+; -16.103 ; rst_sync:u_rstsync|r[2] ; rx_port_buf:u_rxpb|p_pin[31]  ; clk          ; clk         ; 8.000        ; -0.013     ; 23.580     ;
++---------+-------------------------+-------------------------------+--------------+-------------+--------------+------------+------------+
+
+Path #1: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[127] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[127]~333|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[127]~333|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[127]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[127] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[127]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[127] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[127] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #2: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[95] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[95]~332|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[95]~332|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[95]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[95] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[95]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[95] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[95] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #3: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[123] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[123]~331|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[123]~331|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[123]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[123] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[123]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[123] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[123] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #4: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[91] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[91]~330|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[91]~330|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[91]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[91] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[91]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[91] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[91] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #5: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[223] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[223]~328|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[223]~328|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[223]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[223] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[223]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[223] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[223] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #6: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[251] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[251]~327|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[251]~327|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[251]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[251] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[251]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[251] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[251] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #7: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[219] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[219]~326|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[219]~326|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[219]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[219] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[219]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[219] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[219] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #8: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[119] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[119]~325|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[119]~325|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[119]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[119] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[119]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[119] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[119] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #9: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[87] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[87]~324|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[87]~324|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[87]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[87] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[87]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[87] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[87] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #10: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[115] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[115]~323|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[115]~323|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[115]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[115] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[115]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[115] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[115] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #11: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[83] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[83]~322|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[83]~322|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[83]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[83] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[83]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[83] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[83] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #12: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[247] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[247]~321|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[247]~321|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[247]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[247] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[247]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[247] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[247] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #13: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[215] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[215]~320|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[215]~320|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[215]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[215] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[215]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[215] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[215] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #14: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[243] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[243]~319|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[243]~319|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[243]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[243] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[243]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[243] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[243] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #15: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++----------------------------------------------------+
+; Path Summary                                       ;
++--------------------+-------------------------------+
+; Property           ; Value                         ;
++--------------------+-------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]       ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[211] ;
+; Launch Clock       ; clk                           ;
+; Latch Clock        ; clk                           ;
+; Data Arrival Time  ; 29.249                        ;
+; Data Required Time ; 13.146                        ;
+; Slack              ; -16.103 (VIOLATED)            ;
++--------------------+-------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++----------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                            ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time              ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                    ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                     ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]       ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                 ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout               ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf       ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout     ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf      ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout    ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab     ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout   ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[211]~318|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[211]~318|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[211]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[211] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
++----------------------------------------------------------------------------------------------+
+; Data Required Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                       ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time               ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                    ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                           ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                   ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                   ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[211]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[211] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty             ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[211] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #16: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[63] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[63]~317|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[63]~317|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[63]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[63] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[63]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[63] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[63] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #17: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[59] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[59]~316|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[59]~316|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[59]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[59] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[59]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[59] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[59] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #18: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[55] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[55]~315|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[55]~315|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[55]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[55] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[55]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[55] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[55] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #19: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[51] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[51]~314|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[51]~314|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[51]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[51] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[51]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[51] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[51] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #20: Setup slack is -16.103 (VIOLATED)
+===============================================================================
++---------------------------------------------------+
+; Path Summary                                      ;
++--------------------+------------------------------+
+; Property           ; Value                        ;
++--------------------+------------------------------+
+; From Node          ; rst_sync:u_rstsync|r[2]      ;
+; To Node            ; rx_port_buf:u_rxpb|p_pin[31] ;
+; Launch Clock       ; clk                          ;
+; Latch Clock        ; clk                          ;
+; Data Arrival Time  ; 29.249                       ;
+; Data Required Time ; 13.146                       ;
+; Slack              ; -16.103 (VIOLATED)           ;
++--------------------+------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 23.580 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 5     ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 6     ; 22.400      ; 94         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 7     ; 1.143       ; 4          ; 0.000 ; 0.346 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++---------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                           ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time             ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                   ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   0.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rstsync|r[2]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+; 29.249   ; 23.580  ;    ;      ;        ;            ;       ; data path                    ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; rst_sync:u_rstsync|r[2]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 4548   ; Unassigned ;       ; u_rstsync|r[2]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; comb~16|dataa                ;
+;   11.052 ;   0.346 ; RF ; CELL ; 489    ; Unassigned ;       ; comb~16|combout              ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|in_ready~1|dataf      ;
+;   16.122 ;   0.070 ; FR ; CELL ; 284    ; Unassigned ;       ; u_rxpb|in_ready~1|combout    ;
+;   21.122 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|ev_sample~0|dataf     ;
+;   21.192 ;   0.070 ; RR ; CELL ; 71     ; Unassigned ;       ; u_rxpb|ev_sample~0|combout   ;
+;   23.442 ;   2.250 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[128]~4|datab    ;
+;   23.787 ;   0.345 ; RF ; CELL ; 190    ; Unassigned ;       ; u_rxpb|p_pin[128]~4|combout  ;
+;   28.787 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[31]~305|datad   ;
+;   29.022 ;   0.235 ; FF ; CELL ; 1      ; Unassigned ;       ; u_rxpb|p_pin[31]~305|combout ;
+;   29.172 ;   0.150 ; FF ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[31]|d           ;
+;   29.249 ;   0.077 ; FF ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[31] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
++---------------------------------------------------------------------------------------------+
+; Data Required Path                                                                          ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                      ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time              ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                   ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency               ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                          ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                  ;
+;   8.524  ;   0.374 ; RR ; CELL ; 81057  ; Unassigned ;       ; clk~input|o                  ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; u_rxpb|p_pin[31]|clk         ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[31] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty            ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; rx_port_buf:u_rxpb|p_pin[31] ;
++----------+---------+----+------+--------+------------+-------+------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+

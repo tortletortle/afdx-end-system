@@ -1,0 +1,44 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t04_tx_chain 
+# Start time: 14:18:29 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# ** Warning: tb/tb_t04_tx_chain.v(45): (vopt-2685) [TFMPC] - Too few port connections for 'u_pmem'.  Expected 11, found 10.
+# ** Warning: tb/tb_t04_tx_chain.v(45): (vopt-2718) [TFMPC] - Missing connection for port 'wr_be'.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=2.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t04_tx_chain(fast)
+# T04 phase 1: single VL BAG=32us dual-net, IF_MODE=0
+#   single-VL start gap: min=4220 max=4360 cyc (BAG=4000 cyc)
+# T04 phase 2: 5 VLs BAG 32/64/128/256/512us
+#   vl0: 77 frames
+#   vl1: 25 frames
+#   vl2: 13 frames
+#   vl3: 8 frames
+#   vl4: 5 frames
+# T04 phase 3: VL5 A-only, B silent
+#   free_map=003d exh=0 ovr=0 qovf=0 frames A=138 B=128
+# T04 TXCHAIN PASS (IF_MODE=0, 138 frames, BAG/FCS/SN/payload/dual-net/IFG ok, single-VL gap 4220..4360 cyc)
+# ** Note: $finish    : tb/tb_t04_tx_chain.v(433)
+#    Time: 4568056 ns  Iteration: 1  Instance: /tb_t04_tx_chain/core
+# End time: 14:18:37 on Sep 25,2026, Elapsed time: 0:00:08
+# Errors: 0, Warnings: 2

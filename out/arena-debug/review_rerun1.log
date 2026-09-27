@@ -1,0 +1,25 @@
+T08a vectors: 22 cases, 1145 words, CRC raw residue DEBB20E3, max 1519 B
+T12 IMAGE PASS: t12_contig keys=4096 ways=8192 seed=172D/AB61 rehash=0 moves=8 sha=748073B51B09561A529BE0275F942B1399382E3E31BD10829D79F17FAAAAB544
+T12 IMAGE PASS: t12_top keys=4096 ways=8192 seed=172D/AB61 rehash=0 moves=15 sha=A3149E48B54663747927F07D1C83312DCA4E5089A509190A64284F3685B7F39E
+T12 IMAGE PASS: t12_random keys=4096 ways=8192 seed=172D/AB61 rehash=0 moves=36 sha=9753F7DBFEDACC4B74D8F0FD66F56A8468B62354AA747F90345D36D0EA60FCCB
+T12 IMAGE PASS: t12_small keys=16 ways=128 seed=172D/AB61 rehash=0 moves=0 sha=02B3612A1C8959A0766DFB7C39289DD8C56BBED214C1DFB0D4E8DE4F2D61AF30
+T12 IMAGE PASS: t12_rehash keys=16 ways=128 seed=B564/F13A rehash=1 moves=0 sha=F80CC00AD1937592B6B45680110174684F568024105EDBA013337DEF05E6EEEC
+T12 TOP FRAMES PASS: A/B hits (0x0100), A miss (0x8000), B bad FCS; zlib wire-order FCS
+T12 OFFLINE PASS: consecutive/random/full, hot-four/small and hot-four/rehash-seeds; forced-five CLI rejected without output
+COMPILE rc=0 wall_s=4.3
+COMPILE OK (0 errors)
+[1/6] T08f tb_t08f_full_scoreboard -> PASS (7.5 s) # T08 FULL SCOREBOARD PASS (IF_MODE=0 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+[2/6] T08fg tb_t08fg_full_scoreboard -> PASS (4.1 s) # T08 FULL SCOREBOARD PASS (IF_MODE=1 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+[3/6] T23 tb_t23_sap_min -> PASS (3.7 s) # T23 SAP MINIMAL PASS (IF_MODE=0 accept=1 return=1 port=5 plen=8 pmem=8B)
+[4/6] T23g tb_t23g_sap_min -> PASS (3.2 s) # T23 SAP MINIMAL PASS (IF_MODE=1 accept=1 return=1 port=5 plen=8 pmem=8B)
+[5/6] T18 tb_t18_random_stress -> PASS (24.5 s) # T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=100)
+[6/6] T18g tb_t18g_random_stress -> PASS (9.6 s) # T18 RANDOM STRESS PASS (IF_MODE=1 rounds=25 frames=100)
+REGRESS SUMMARY: 6/6 pass, wall_s=57
+CSV: out/regress.csv
+test_id,config,tb,result,max_dev,wall_s,summary
+T08f,full-table-scoreboard,tb_t08f_full_scoreboard,PASS,na,7.5,# T08 FULL SCOREBOARD PASS (IF_MODE=0 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+T08fg,full-table-scoreboard-gmii,tb_t08fg_full_scoreboard,PASS,na,4.1,# T08 FULL SCOREBOARD PASS (IF_MODE=1 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+T23,sap-minimal,tb_t23_sap_min,PASS,na,3.7,# T23 SAP MINIMAL PASS (IF_MODE=0 accept=1 return=1 port=5 plen=8 pmem=8B)
+T23g,sap-minimal-gmii,tb_t23g_sap_min,PASS,na,3.2,# T23 SAP MINIMAL PASS (IF_MODE=1 accept=1 return=1 port=5 plen=8 pmem=8B)
+T18,random-stress,tb_t18_random_stress,PASS,na,24.5,# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=100)
+T18g,random-stress-gmii,tb_t18g_random_stress,PASS,na,9.6,# T18 RANDOM STRESS PASS (IF_MODE=1 rounds=25 frames=100)

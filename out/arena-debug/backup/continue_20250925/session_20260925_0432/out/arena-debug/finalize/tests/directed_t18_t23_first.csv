@@ -1,0 +1,5 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T23,sap-minimal,tb_t23_sap_min,PASS,na,3.5,# T23 SAP MINIMAL PASS (IF_MODE=0 accept=2 return=2 SN=0;1 port=5 plen=8 pmem=8B pb1_collisions=2 overlap=0 max_wait=0 disabled_rsap=1)
+T23g,sap-minimal-gmii,tb_t23g_sap_min,PASS,na,3.9,# T23 SAP MINIMAL PASS (IF_MODE=1 accept=2 return=2 SN=0;1 port=5 plen=8 pmem=8B pb1_collisions=2 overlap=1 max_wait=0 disabled_rsap=1)
+T18,random-stress,tb_t18_random_stress,PASS,na,24.1,# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=102 pair_inflight=2 seed=51c0ffee min=17 max=1471 stalls=97 spaced=100 tx_overlap=1 rx_stall=756)
+T18g,random-stress-gmii,tb_t18g_random_stress,FAIL,na,10.5,# T18 RANDOM STRESS FAIL (IF_MODE=1 errors=27 seed=51c0ffee)

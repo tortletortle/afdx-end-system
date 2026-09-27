@@ -1,0 +1,224 @@
+{
+  "inputs_completed_ucdb": 53,
+  "all_details": {
+    "branch": [
+      67673,
+      35542,
+      32131
+    ],
+    "statement": [
+      138059,
+      83960,
+      54099
+    ]
+  },
+  "rtl_only_details": {
+    "branch": [
+      66092,
+      34117,
+      31975
+    ],
+    "statement": [
+      125961,
+      74233,
+      51728
+    ]
+  },
+  "top_uncovered_rtl": [
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/mgmt/snmp_lite.v",
+      "branch": [
+        10984,
+        1484,
+        9500
+      ],
+      "statement": [
+        19002,
+        4720,
+        14282
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/mgmt/a615a_tftp.v",
+      "branch": [
+        5086,
+        520,
+        4566
+      ],
+      "statement": [
+        10002,
+        2168,
+        7834
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/tx/tx_sn_gen.v",
+      "branch": [
+        16663,
+        10995,
+        5668
+      ],
+      "statement": [
+        17185,
+        11393,
+        5792
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/tx/tx_frame_builder.v",
+      "branch": [
+        3012,
+        1615,
+        1397
+      ],
+      "statement": [
+        9677,
+        5252,
+        4425
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/top/AFDX_top.v",
+      "branch": [
+        8120,
+        3905,
+        4215
+      ],
+      "statement": [
+        3496,
+        2241,
+        1255
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/rx/rx_vl_lookup.v",
+      "branch": [
+        1998,
+        1552,
+        446
+      ],
+      "statement": [
+        14626,
+        10578,
+        4048
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/tx/mac_tx_if.v",
+      "branch": [
+        2212,
+        914,
+        1298
+      ],
+      "statement": [
+        5260,
+        3584,
+        1676
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/tx/tx_port_buf.v",
+      "branch": [
+        1349,
+        852,
+        497
+      ],
+      "statement": [
+        5951,
+        3798,
+        2153
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/rx/mac_rx_if.v",
+      "branch": [
+        4400,
+        3868,
+        532
+      ],
+      "statement": [
+        13518,
+        11520,
+        1998
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/mgmt/mgmt_sap_rx.v",
+      "branch": [
+        1440,
+        432,
+        1008
+      ],
+      "statement": [
+        2812,
+        1596,
+        1216
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/rx/rx_port_buf.v",
+      "branch": [
+        834,
+        240,
+        594
+      ],
+      "statement": [
+        3002,
+        1378,
+        1624
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/top/stats_regs.v",
+      "branch": [
+        1830,
+        1292,
+        538
+      ],
+      "statement": [
+        4600,
+        3040,
+        1560
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/mgmt/rtc_sync.v",
+      "branch": [
+        822,
+        312,
+        510
+      ],
+      "statement": [
+        2034,
+        1230,
+        804
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/common/bram_sdp.v",
+      "branch": [
+        1018,
+        1018,
+        0
+      ],
+      "statement": [
+        3072,
+        1763,
+        1309
+      ]
+    },
+    {
+      "source": "C:/Workspace/diansai/sim/../rtl/rx/rx_ic.v",
+      "branch": [
+        1062,
+        910,
+        152
+      ],
+      "statement": [
+        2440,
+        1956,
+        484
+      ]
+    }
+  ]
+}

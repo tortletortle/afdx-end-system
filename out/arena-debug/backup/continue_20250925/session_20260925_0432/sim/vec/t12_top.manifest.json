@@ -1,0 +1,18 @@
+{
+  "attempt": 0,
+  "buckets": 2048,
+  "count": 4096,
+  "image_sha256": "A3149E48B54663747927F07D1C83312DCA4E5089A509190A64284F3685B7F39E",
+  "keys_sha256": "B305B830F61255766EFCBE7ED2016AA3B1A3F42231C4CAC2C5A0E57D0B92BAAF",
+  "max_depth": 1,
+  "moves": 15,
+  "num_rx_vl": 4096,
+  "seeds": [
+    5933,
+    43873
+  ],
+  "valid": true,
+  "version": 1,
+  "word_base": "0x3D80",
+  "word_formula": "base+table*(2*buckets)+bucket*2+way"
+}

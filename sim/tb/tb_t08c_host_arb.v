@@ -5,6 +5,12 @@
 // address/data in either case, and each accepted write must commit once.
 `timescale 1 ns / 1 ps
 module tb_t08c_core #(parameter integer IF_MODE=0);
+
+  // continue2: PMEM is now 4 byte-lane BRAMs (bram_sdp BYTE_EN split); reassemble word
+  function [31:0] pmem_word(input [12:0] a);
+    pmem_word = {dut.u_pmem.g_lanes.g_lane[3].u_lane.mem[a], dut.u_pmem.g_lanes.g_lane[2].u_lane.mem[a],
+                 dut.u_pmem.g_lanes.g_lane[1].u_lane.mem[a], dut.u_pmem.g_lanes.g_lane[0].u_lane.mem[a]};
+  endfunction
   reg clk=0, reset=1;
   always #4 clk=~clk;
   reg [7:0] rx_data=0,rx_data_b=0;
@@ -178,7 +184,7 @@ module tb_t08c_core #(parameter integer IF_MODE=0);
     release dut.rx_pmem_busy;
     reset=0;
     repeat(5) @(negedge clk);
-    if(host_ack!==0 || dut.host_pmem_pending!==0 || dut.u_pmem.mem[13'h050]!==32'hFEED_BA5E)
+    if(host_ack!==0 || dut.host_pmem_pending!==0 || pmem_word(13'h050)!==32'hFEED_BA5E)
       bad("reset leaked deferred ACK or committed stale pending write");
     waitc=0;
     while(dut.init_done!==1 && waitc<26000) begin @(negedge clk);waitc=waitc+1;end

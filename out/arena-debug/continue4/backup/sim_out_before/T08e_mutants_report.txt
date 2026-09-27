@@ -1,0 +1,9 @@
+T08e isolated RTL faults: compile, then FAIL (a pass is MISSED)
+original rtl/top/AFDX_top.v SHA-256: 87BF747E5801BE9B7ACCD3EAAA4D481BAECD080E76B67C8315E1529DE1F0E421
+original rtl/rx/rx_ic.v SHA-256: BAE5BD32A71FB43D95CD58C5C4663B7C37C5E7001118A058320FE29712915A17
+ic_en_ignored DETECTED (compiled=True, TB_FAIL=True, rc=0)
+ic_drop_missing_from_total DETECTED (compiled=True, TB_FAIL=True, rc=0)
+reject_writes_psn DETECTED (compiled=True, TB_FAIL=True, rc=0)
+net_b_aliases_net_a_psn DETECTED (compiled=True, TB_FAIL=True, rc=0)
+lost_one_rejected DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T08e MUTATION SUMMARY: 5/5 detected

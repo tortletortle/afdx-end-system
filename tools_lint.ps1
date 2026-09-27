@@ -56,7 +56,16 @@ $txmods = @(
 $rxmods = @('rtl/rx/mac_rx_if.v', 'rtl/rx/rx_block_pool.v',
             'rtl/rx/rx_pmem_queue.v', 'rtl/rx/rx_vl_lookup.v',
             'rtl/rx/rx_flt.v', 'rtl/rx/rx_ic.v', 'rtl/rx/rx_rm.v',
-            'rtl/rx/rx_ip_udp_parse.v', 'rtl/rx/rx_port_buf.v')
+            'rtl/rx/rx_ip_udp_parse.v', 'rtl/rx/rx_port_buf.v',
+            'rtl/mgmt/mgmt_sap_rx.v',
+            'rtl/top/stats_regs.v', 'rtl/mgmt/snmp_lite.v',
+            'rtl/mgmt/a615a_tftp.v', 'rtl/mgmt/rtc_sync.v')
+# continue4: the management plane and the global statistics page are now
+# elaborated inside AFDX_top, so they join $rxmods and every gate-1/gate-3
+# target picks them up automatically. NOTE: never put a comment line *inside*
+# a PowerShell array literal - the element line right after it is swallowed.
+# NOTE: keep this file ASCII-only; Windows PowerShell 5.1 reads BOM-less
+# scripts as ANSI/GBK and non-ASCII comments break the parser.
 # gate 1: top elaboration
 Lint 'AFDX_top' ($base + @('--top-module','AFDX_top') + $common + $txmods + $rxmods + @('rtl/top/init_sweep.v','rtl/top/AFDX_top.v'))
 
@@ -84,7 +93,12 @@ foreach ($m in @(
   @('rx_ip_udp_parse', 'rtl/rx/rx_ip_udp_parse.v'),
   @('rx_port_buf',     'rtl/rx/rx_port_buf.v'),
   @('rx_flt',          'rtl/rx/rx_flt.v'),
-  @('rx_vl_lookup',    'rtl/rx/rx_vl_lookup.v')
+  @('rx_vl_lookup',    'rtl/rx/rx_vl_lookup.v'),
+  @('mgmt_sap_rx',     'rtl/mgmt/mgmt_sap_rx.v'),
+  @('stats_regs',      'rtl/top/stats_regs.v'),
+  @('snmp_lite',       'rtl/mgmt/snmp_lite.v'),
+  @('a615a_tftp',      'rtl/mgmt/a615a_tftp.v'),
+  @('rtc_sync',        'rtl/mgmt/rtc_sync.v')
 )) {
   Lint $m[0] ($base + @('--top-module', $m[0]) + @($m[1..($m.Count-1)]))
 }
@@ -173,6 +187,18 @@ Lint 'tb_t11i_top_int' ($tbbase + @('--top-module','tb_t11i_top_int') +
 Lint 'tb_t11ig_top_int' ($tbbase + @('--top-module','tb_t11ig_top_int') +
   $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
   'rtl/top/AFDX_top.v','sim/tb/tb_t11i_top_int.v'))
+
+# continue4: three new management-plane cases
+#   T14 global statistics page, T15 snmp_lite, T16 a615a_tftp + rtc_sync
+Lint 'tb_t14_stats_regs' ($tbbase + @('--top-module','tb_t14_stats_regs') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t14_stats_regs.v'))
+Lint 'tb_t15_snmp' ($tbbase + @('--top-module','tb_t15_snmp') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t15_snmp.v'))
+Lint 'tb_t16_tftp_rtc' ($tbbase + @('--top-module','tb_t16_tftp_rtc') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t16_tftp_rtc.v'))
 
 Remove-Item $gatefile -Force -ErrorAction SilentlyContinue
 if ($script:fail -ne 0) { Write-Output "LINT GATE: FAIL"; exit 1 }

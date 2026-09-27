@@ -1,0 +1,31 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t21g_block_pool 
+# Start time: 23:36:36 on Sep 24,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t21g_block_pool(fast)
+# T21 BLOCK-POOL PASS (IF_MODE=1 filled=10 no_blk=1 exhaust=1 borrow=4 returned=10 recovery=1 deliver=11 no_pmem_empty=0)
+# ** Note: $finish    : tb/tb_t21_block_pool.v(260)
+#    Time: 231336 ns  Iteration: 1  Instance: /tb_t21g_block_pool/core
+# End time: 23:36:39 on Sep 24,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0

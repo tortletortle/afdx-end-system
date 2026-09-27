@@ -1,0 +1,7 @@
+COPIED project\output_files\AFDX_top.map.rpt -> raw\AFDX_top.map.rpt sha256=58d015def66454a402dea8e2daae2e499dac03bef7e420785ee5a39c0c361d27
+COPIED project\output_files\AFDX_top.map.summary -> raw\AFDX_top.map.summary sha256=74e3543bee3e788356831c508755f79a3530313553d32e273527dac2d80a78e5
+REMOVED_GENERATED project\db
+REMOVED_GENERATED project\incremental_db
+REMOVED_GENERATED project\output_files
+REMOVED_GENERATED sim\work
+REMOVED_GENERATED work

@@ -1,0 +1,3 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T05b,saturated-jitter,tb_t05b_jitter,PASS,na,8.1,# T05b SATURATED JITTER PASS (IF_MODE=0 VLs=32 frames=96 startup_jitter=4us steady_max_jitter=3us avg_steady_jitter=2us link_load=99.86%)
+T05bg,saturated-jitter-gmii,tb_t05bg_jitter,PASS,na,7,# T05b SATURATED JITTER PASS (IF_MODE=1 VLs=32 frames=96 startup_jitter=4us steady_max_jitter=3us avg_steady_jitter=3us link_load=99.86%)

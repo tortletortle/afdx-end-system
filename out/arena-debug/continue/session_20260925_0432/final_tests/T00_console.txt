@@ -1,0 +1,43 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t00_common 
+# Start time: 12:39:09 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t00_common(fast)
+#   [ok] crc32 pattern len=0 -> 00000000
+#   [ok] crc32 pattern len=9 -> cbf43926
+#   [ok] crc32 pattern len=1 -> d202ef8d
+#   [ok] crc32 pattern len=1 -> ff000000
+#   [ok] crc32 pattern len=17 -> 7ba75ee3
+#   [ok] crc32 pattern len=64 -> 708ee432
+#   [ok] crc32 pattern len=60 -> 0812159d
+#   [ok] crc32 pattern len=1518 -> 32cf6a27
+#   [ok] crc32 golden AFDX frame (60 B) -> c45b5174
+#   [ok] fifo8 random stress 4000 beats, drained (empty=1)
+#   [ok] bram A full sweep 8192 words
+#   [ok] bram B sampled sweep (stride 97)
+# T00 COMMON PASS (crc32 x9 vectors, fifo 4000, bram 1W2R 8192 + BE)
+# ** Note: $finish    : tb/tb_t00_common.v(388)
+#    Time: 179448 ns  Iteration: 1  Instance: /tb_t00_common
+# End time: 12:39:11 on Sep 25,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

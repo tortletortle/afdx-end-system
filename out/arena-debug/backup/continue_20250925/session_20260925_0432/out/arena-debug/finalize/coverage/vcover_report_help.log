@@ -1,0 +1,32 @@
+﻿Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Start time: 11:19:03 on Sep 25,2026
+vcover report -help 
+Usage:
+       vcover report <rpt_options> <ucdb_or_coverstore_test>
+       <rpt_options> = <mutual_options> [<html_options>| <txt_options>]
+       <mutual_options> = [-annotate] [-assert] [-binrhs] [-code [bcesf(t|x)]] [-codeAll] [-concurrent|-immediate]
+                          [-cvg] [-details] [-directive] [-du=<du_name>] [-engine [sf]] [-failed] [-filter <string>]
+                          [-help] [-hidecvginsts] [-hidecvginstspi0] [-instance=<path>[.]] [-lang sva|psl|vhdl]
+                          [-library <libname>] [-multibitverbose] [-nocompactcrossbins] [-noconcurr] [-nocvgbin]
+                          [-noignorebins] [-noimmed] [-nomissing] [-notimestamps] [-nozeroweights]
+                          [-output <file_path>] [-pa] [-pacombined] [-package=<pkgname>] [-params]
+                          [-plansection=<testplan_section_path>[.]] [-precision <int>]
+                          [-samples ([-le|-ge] <int> | <int>-<int>)] [-select <inputs|outputs|inouts|ports|internals>]
+                          [-severity info|note|warning|error|failure|fatal] [-showenabledcodecov] [-showexcluded]
+                          [-summary] [-testattr] [-testdetails] [-testhitdata[=<int>]] [-testhitdataAll]
+                          [-usecnpm] [-uselimit] [-verbose] [-zeros]
+       <txt_options> = [-2state] [-above <percent> | -below <percent>] [-all]
+                       [-append] [-comment] [-config] [-covered] [-coverenhanced]
+                       [-cvp <covergroup|coverinstance|cvp|cross_path>] [-dumptables] [-duplicates]
+                       [-flat [-primarykey <type|path|value>] [-secondarykey <type|path|value>]]
+                       [-memory] [-nocomment] [-noexcludedhits] [-[n]regexp <string>] [-option]
+                       [-portmode <inputs|outputs|inouts|ports|internals>] [-recursive] [-showambiguity]
+                       [-srcfile=<file_name+file_name1>] [-testextract <test_name_or_pattern>] [-toggles]
+                       [-unattemptedimmed]
+       <html_options> = -html [-threshH <pct>] [-threshL <pct>]
+       <ucdb_or_coverstore_test> = ([<ucdbfile>|<coverstore[:testname]])
+       <common options> = [(-suppress|-note|-warning|-error|-fatal) <msgNumber>[,<msgNumber>...]]
+                          [-stats[=[+-]all,none,time,cmd,msg,perf,verbose,list,kb]]
+                          [-[w]prof=<filename>] [-proftick=<integer>] [-version]
+End time: 11:19:03 on Sep 25,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0

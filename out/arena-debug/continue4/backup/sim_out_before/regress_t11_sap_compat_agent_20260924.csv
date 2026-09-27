@@ -1,0 +1,3 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T11,rx-port-top,tb_t11_top_port,PASS,na,4,# T11 TOP PORT PASS (IF_MODE=0 deliver=14 ovr=4 qovf=2 port_drop=4 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)
+T11g,rx-port-top-gmii,tb_t11g_top_port,PASS,na,3.5,# T11 TOP PORT PASS (IF_MODE=1 deliver=14 ovr=4 qovf=2 port_drop=4 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)

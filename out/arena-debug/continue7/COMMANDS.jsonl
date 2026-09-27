@@ -1,0 +1,8 @@
+{"stage":"regression","command":"reuse completed sim/run_regress.ps1 result","exit":0,"result":"56/56 PASS in 473.8 s; not rerun"}
+{"stage":"qsf","command":"verify AFDX_top.qsf FAMILY and DEVICE","exit":0,"result":"Stratix IV / EP4SGX230HF35C2"}
+{"stage":"map-initial","command":"quartus_map AFDX_top","exit":1,"result":"Family name Cyclone IV GX is illegal"}
+{"stage":"map-retry","command":"quartus_map AFDX_top","exit":0,"result":"0 errors; 84 warnings; elapsed 00:47:31"}
+{"stage":"sta","command":"DIANSAI_STA_OUT=out/arena-debug/continue7/step1_sta; quartus_sta -t sta_post_map.tcl","exit":0,"result":"SDC guard clk=8.000 ns; Fmax 45.84 MHz; WNS -13.815 ns"}
+{"stage":"sta-summary","command":"quartus_sta -t out/arena-debug/continue7/tns_step1.tcl","exit":0,"result":"Endpoint TNS -700108.256 ns; 71 unconstrained inputs; 121 unconstrained outputs"}
+{"stage":"decision","command":"compare against continue6 45.85 MHz / -13.809 ns","exit":0,"result":"negative benefit: Fmax -0.01 MHz; WNS -0.006 ns; revert"}
+{"stage":"revert","command":"reverse timing_step1.patch changes in rtl/tx/tx_port_buf.v","exit":0,"result":"reverted; SHA-256 matches backup/step1/tx_port_buf.v"}

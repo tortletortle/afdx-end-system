@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/common/rst_sync.v
+hierarchy -top rst_sync
+synth
+stat

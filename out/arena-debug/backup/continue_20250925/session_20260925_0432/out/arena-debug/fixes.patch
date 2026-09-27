@@ -1,0 +1,843 @@
+diff --git a/rtl/tx/tx_rm.v b/rtl/tx/tx_rm.v
+index a527393..a1f2a85 100644
+--- a/rtl/tx/tx_rm.v
++++ b/rtl/tx/tx_rm.v
+@@ -74,10 +74,13 @@ module tx_rm (
+   // 发送方向存在 FIFO 延迟，done 出现时本模块可能已在收下一帧，故按队列记录每帧的 nm。
+   // done 事件计数——A/B 各自 pending 计数，队头帧所需的路都到齐时合成 1 拍 frame_done。
+   reg [3:0] pend_a, pend_b;
+-  reg [1:0] exp_q [0:15];   // 帧序 FIFO：每帧期望的 en 位图（深 16，见 tx_vl_scheduler.ifq）
+-  reg [7:0] vl_q  [0:15];
++  // A small, resettable FIFO: packed flops avoid the legacy eLinx/Yosys
++  // memory_map/memory_collect crash on the two reset-in-a-loop arrays.
++  // Dynamic part-selects preserve the original one-read/one-write behavior.
++  reg [31:0]  exp_q_bits;  // 16 x 2-bit expected net modes
++  reg [127:0] vl_q_bits;   // 16 x 8-bit VL IDs
+   reg [3:0] eq_wr, eq_rd;
+-  wire [1:0] exp_head = exp_q[eq_rd];
++  wire [1:0] exp_head = exp_q_bits[2*eq_rd +: 2];
+   reg  [7:0] done_vl_r;
+   assign done_vl = done_vl_r;
+   assign frame_start = a_start | b_start;
+@@ -85,17 +88,20 @@ module tx_rm (
+   wire have_b = (pend_b != 4'd0) | ~exp_head[1];
+   wire fire   = (eq_wr != eq_rd) & have_a & have_b;
+ 
+-  integer k;
+   always @(posedge clk) begin
+     if (rst_sync) begin
+       pend_a <= 4'd0; pend_b <= 4'd0; eq_wr <= 4'd0; eq_rd <= 4'd0;
+       frame_done <= 1'b0; frames_a <= 16'd0; frames_b <= 16'd0;
+       done_vl_r <= 8'd0;
+-      for (k = 0; k < 16; k = k + 1) begin exp_q[k] <= 2'b00; vl_q[k] <= 8'd0; end
++      exp_q_bits <= 32'd0; vl_q_bits <= 128'd0;
+     end else begin
+       frame_done <= fire;
+-      done_vl_r  <= vl_q[eq_rd];
+-      if (go & in_sof) begin exp_q[eq_wr] <= nm_in; vl_q[eq_wr] <= in_vl; eq_wr <= eq_wr + 4'd1; end
++      done_vl_r  <= vl_q_bits[8*eq_rd +: 8];
++      if (go & in_sof) begin
++        exp_q_bits[2*eq_wr +: 2] <= nm_in;
++        vl_q_bits[8*eq_wr +: 8] <= in_vl;
++        eq_wr <= eq_wr + 4'd1;
++      end
+       if (fire) eq_rd <= eq_rd + 4'd1;
+       pend_a <= pend_a + {3'b0, a_done} - {3'b0, (fire & exp_head[0])};
+       pend_b <= pend_b + {3'b0, b_done} - {3'b0, (fire & exp_head[1])};
+diff --git a/sim/tb/tb_t23_sap_min.v b/sim/tb/tb_t23_sap_min.v
+index e7ad9bf..f0a0d42 100644
+--- a/sim/tb/tb_t23_sap_min.v
++++ b/sim/tb/tb_t23_sap_min.v
+@@ -25,7 +25,10 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     .host_irq(),.pps_in(1'b0),.pps_out(),.rtc_time_us(),.dbg_frame_event());
+   reg [31:0] vec [0:1144];
+   integer errors=0,i,k,b,waitc,blk,sap_fire=0,sap_return=0;
+-  integer collision_cnt=0, mgmt_wait=0, disabled_sap=0;
++  integer collision_cnt=0, mgmt_wait=0, max_mgmt_wait=0, disabled_sap=0;
++  integer reset_base=-1, vec_idx, overlap_cycles=0;
++  reg second_in_wire=0, during_pair=0;
++  reg [3:0] sap_blk0=0, sap_blk1=0;
+   reg [31:0] rd,w;
+   task bad;
+     input [8*104-1:0] reason;
+@@ -53,10 +56,24 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+                    2:frame_byte=q[15:8];default:frame_byte=q[7:0]; endcase
+     end
+   endfunction
+-  task drive_case0_a;
++  // The golden vector generator includes case 18: same CRC-checked 64B SAP
++  // frame as case 0 but SN=0 (reset sequence). Send it immediately before
++  // case 0 (SN=1), rather than repeating the same SN and hiding a drop.
++  function [7:0] reset_frame_byte;
++    input integer off; reg [31:0] q;
++    begin
++      q=vec[reset_base+(off>>2)];
++      case(off&3) 0:reset_frame_byte=q[31:24];1:reset_frame_byte=q[23:16];
++                   2:reset_frame_byte=q[15:8];default:reset_frame_byte=q[7:0]; endcase
++    end
++  endfunction
++  task drive_one_a;
++    input integer use_reset_sn;
+     begin
+       for(b=0;b<64;b=b+1) begin
+-        @(negedge clk);rx_ready=1;rx_valid=1;rx_data=frame_byte(b);
++        @(negedge clk);rx_ready=1;rx_valid=1;
++        rx_data=use_reset_sn ? reset_frame_byte(b) : frame_byte(b);
++        if(during_pair && !use_reset_sn) second_in_wire=1;
+         if(IF_MODE==0) begin @(negedge clk);rx_valid=0;repeat(8) @(negedge clk);end
+       end
+       @(negedge clk);rx_ready=0;rx_valid=0;
+@@ -66,11 +83,17 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     if(dut.rx_ovf_a||dut.rx_ovf_b) bad("RX FIFO overflow");
+     if(dut.prs_out_vld && dut.prs_out_drop && dut.prs_out_reason==3'd5 && dut.pb_in_ready)
+       disabled_sap=disabled_sap+1; // R_SAP must return its block via port-buffer drop
+-    if(dut.prs_to_sap && dut.sap_in_ready) sap_fire=sap_fire+1;
++    if(dut.prs_to_sap && dut.sap_in_ready) begin
++      if(sap_fire==0) sap_blk0=dut.prs_out_blk;
++      if(sap_fire==1) sap_blk1=dut.prs_out_blk;
++      sap_fire=sap_fire+1;
++    end
+     if(dut.mgmt_free_take) sap_return=sap_return+1;
+     if(dut.mgmt_free_req) begin
++      if(second_in_wire) overlap_cycles=overlap_cycles+1;
+       if(!dut.mgmt_free_take) mgmt_wait=mgmt_wait+1;
+       else mgmt_wait=0;
++      if(mgmt_wait>max_mgmt_wait) max_mgmt_wait=mgmt_wait;
+       if(mgmt_wait>1) bad("SAP return starved by ordinary RX frees");
+       if(dut.pb_free1) begin
+         collision_cnt=collision_cnt+1;
+@@ -85,6 +108,14 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     $readmemh("vec/t08a_frames.hex",vec);
+     if(vec[0]!==32'd22 || vec[1][15:0]!==16'd64 || vec[1][23:16]!==8'd0 || vec[2]!==32'h7)
+       bad("valid 64B SAP fixture missing");
++    vec_idx=1;
++    for(i=0;i<22;i=i+1) begin
++      if(vec[vec_idx][31:24]==8'd18 && vec[vec_idx][15:0]==16'd64)
++        reset_base=vec_idx+2;
++      vec_idx=vec_idx+2+(vec[vec_idx][15:0]+3)/4;
++    end
++    if(reset_base<0 || frame_byte(59)!==8'd1 || reset_frame_byte(59)!==8'd0)
++      bad("distinct SN=0/1 golden SAP FCS fixtures missing");
+     repeat(7) @(negedge clk);reset=0;
+     waitc=0;while(dut.init_done!==1 && waitc<26000) begin @(negedge clk);waitc=waitc+1;end
+     if(waitc>=26000) bad("INIT_DONE timeout");
+@@ -98,25 +129,36 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     host_read(PT_SAP,rd);if(rd!==32'h8006_0000) bad("SAP port readback mismatch");
+     // RX_EN and SNMP_EN are both set in 0x051E; CTL.SNMP_EN gates SAP routing.
+     host_write(16'h0008,32'h051E);
+-    // Inject a sustained ordinary PB1 return stream across SAP acceptance.
+-    // Only the release slot is driven; no second RX frame is synthesized.
++    // Drive valid SN=0 then SN=1 on the same wire at a 12-byte IFG. Inject
++    // sustained ordinary PB1 release-slot pulses while each SAP is pending.
++    // This is slot-level contention, not a second ordinary RX frame stream.
+     force dut.pb_free1 = 1'b1;
+     force dut.pb_free1_id = 4'd15;
+-    drive_case0_a();
+-    waitc=0;while(dut.mgmt_accept_cnt<1 && waitc<10000) begin @(negedge clk);waitc=waitc+1;end
+-    if(waitc>=10000) bad("SAP management accept timeout");
++    during_pair=1;
++    drive_one_a(1);
++    repeat(IF_MODE==0 ? 120 : 12) @(negedge clk);
++    drive_one_a(0);
++    during_pair=0; second_in_wire=0;
++    waitc=0;while(dut.mgmt_accept_cnt<2 && waitc<10000) begin @(negedge clk);waitc=waitc+1;end
++    if(waitc>=10000) bad("SAP back-to-back accept timeout");
+     repeat(16) @(negedge clk);
+     release dut.pb_free1; release dut.pb_free1_id;
+     repeat(100) @(negedge clk);
+-    host_read(16'hAC10,rd);if(rd!==32'd1) bad("MGMT accept counter wrong");
+-    host_read(16'hAC11,rd);if(rd!==32'd1) bad("MGMT block-return counter wrong");
++    host_read(16'hAC10,rd);if(rd!==32'd2) bad("MGMT accept counter wrong");
++    host_read(16'hAC11,rd);if(rd!==32'd2) bad("MGMT block-return counter wrong");
+     host_read(16'hAC12,rd);
+-    if(rd[31]!==1'b1 || rd[22:15]!==P_SAP || rd[10:0]!==11'd8 || rd[14:11]!==4'd6)
++    if(rd[31]!==1'b1 || rd[22:15]!==P_SAP || rd[10:0]!==11'd8 ||
++       rd[14:11]!==sap_blk1 || sap_blk0!==4'd6)
+       bad("MGMT descriptor window wrong");
+     blk=rd[14:11];
+     host_read(16'hAC13,rd);if(rd!==32'd0) bad("MGMT still busy after return");
+-    if(sap_fire!==1 || sap_return!==1) bad("SAP handshake/return count wrong");
+-    if(collision_cnt<1 || mgmt_wait>1) bad("SAP/PB1 collision or bounded return not observed");
++    if(sap_fire!==2 || sap_return!==2) bad("SAP pair handshake/return count wrong");
++    // MII's legal 12-byte IFG is 120 core cycles: the first SAP may have
++    // returned before the second frame starts. Do not demand overlapping
++    // wire reception for this mode; demand two independent pending/PB1
++    // collisions and exact per-frame ownership in both modes.
++    if(collision_cnt<2 || max_mgmt_wait>1)
++      bad("SAP pair PB1 contention or bounded return absent");
+     // Empty PORT_DESC leaves its unused block field unspecified; check only
+     // defined empty-state fields rather than comparing the entire word.
+     host_read(16'h8180+P_SAP,rd);
+@@ -131,7 +173,8 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+       for(k=0;k<4;k=k+1) if(4*i+k>=42 && 4*i+k<50)
+         if(w[31-8*k -:8]!==frame_byte(4*i+k)) bad("SAP PMEM payload differs from frame");
+     end
+-    if(dut.rx_free_map!==16'hFFC0) bad("SAP block not returned to RX pool");
++    if(dut.rx_free_map!==16'hFFC0 || !dut.rx_free_map[sap_blk0] || !dut.rx_free_map[sap_blk1])
++      bad("SAP pair blocks not returned to RX pool");
+ 
+     // Negative case: reset RM history, configure the same valid fixture but
+     // leave CTL.SNMP_EN=0; it must drop specifically with R_SAP and free blk 6.
+@@ -145,7 +188,7 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     host_write(PT_SAP,32'h8006_0000);host_write(PT_SAP+1,32'h0000_1388);
+     host_write(PT_SAP+2,32'd0);host_write(PT_SAP+3,32'd1);
+     host_write(16'h0008,32'h041E); // RX enabled, SNMP_EN bit8 cleared
+-    drive_case0_a();
++    drive_one_a(0);
+     waitc=0;while(disabled_sap<1 && waitc<10000) begin @(negedge clk);waitc=waitc+1;end
+     if(waitc>=10000) bad("Disabled SAP never produced R_SAP drop");
+     repeat(32) @(negedge clk);
+@@ -154,10 +197,10 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     host_read(16'hAC11,rd);if(rd!==32'd0) bad("Disabled SAP entered MGMT return");
+     host_read(16'h0101,rd);if(rd!==32'd1) bad("Disabled SAP port drop count wrong");
+     host_read(16'h001C,rd);if(rd!==32'd1) bad("Disabled SAP total drop count wrong");
+-    if(sap_fire!==1 || sap_return!==1 || dut.rx_free_map!==16'hFFC0)
++    if(sap_fire!==2 || sap_return!==2 || dut.rx_free_map!==16'hFFC0)
+       bad("Disabled SAP ownership/block return wrong");
+     if(errors==0)
+-      $display("T23 SAP MINIMAL PASS (IF_MODE=%0d accept=1 return=1 port=5 plen=8 pmem=8B pb1_collisions=%0d max_wait<=1 disabled_rsap=%0d)",IF_MODE,collision_cnt,disabled_sap);
++      $display("T23 SAP MINIMAL PASS (IF_MODE=%0d accept=2 return=2 SN=0,1 port=5 plen=8 pmem=8B pb1_collisions=%0d overlap=%0d max_wait=%0d disabled_rsap=%0d)",IF_MODE,collision_cnt,overlap_cycles,max_mgmt_wait,disabled_sap);
+     else $display("T23 SAP MINIMAL FAIL (IF_MODE=%0d errors=%0d)",IF_MODE,errors);
+     $finish;
+   end
+diff --git a/sim/tb/tb_t18_random_stress.v b/sim/tb/tb_t18_random_stress.v
+index 16e6647..4aecc03 100644
+--- a/sim/tb/tb_t18_random_stress.v
++++ b/sim/tb/tb_t18_random_stress.v
+@@ -53,7 +53,7 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+   );
+ 
+   localparam integer NUM_TEST_PORTS = 4;
+-  localparam integer NUM_ROUNDS = 25; // 25 rounds * 4 ports = 100 frames
++  localparam integer NUM_ROUNDS = 25; // 100 serial messages + 2 overlapping port transactions
+ 
+   reg [31:0] err_count = 0;
+   reg [31:0] test_count = 0;
+@@ -121,6 +121,14 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+   integer na = 0, nb = 0;
+   reg [7:0] rxbuf_a [0:2047], rxbuf_b [0:2047];
+   integer nrx_a = 0, nrx_b = 0;
++  // The last two distinct-port messages are committed before either has
++  // finished TX; both A/B RX frames are replayed while the parser is held.
++  integer pair_len [0:1], pair_salt [0:1], pair_blk [0:1];
++  integer pair_first_wire=0, pair_total_wire=0, pair_pre_deliv=0;
++  integer pair_tx_overlap=0, pair_rx_stall=0;
++  integer pair_skew_a=0, pair_skew_b=0;
++  integer pair_good_a=0, pair_good_b=0, pair_drop_a=0, pair_drop_b=0;
++  reg pair_replay=0;
+ 
+   always @(posedge clk) if (!reset) begin
+     if (tx_valid && (IF_MODE != 0 || tx_ready)) begin
+@@ -131,6 +139,11 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+       cb[nb] = tx_data_b;
+       nb = nb + 1;
+     end
++    if (pair_replay && dut.prs_out_vld && dut.prs_to_port && !dut.pb_in_ready)
++      pair_rx_stall = pair_rx_stall + 1;
++    if (dut.rx_ovf_a || dut.rx_ovf_b) begin
++      if (err_count < 16) bad("RX FIFO overflow during stress");
++    end
+   end
+ 
+   task replay_a(input integer start_skew);
+@@ -138,6 +151,13 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+     begin
+       repeat (start_skew) @(negedge clk);
+       for (b = 0; b < nrx_a; b = b + 1) begin
++        if (pair_replay && b == pair_first_wire) begin
++          // GMII's last byte was assigned on the preceding negedge; let a
++          // posedge sample it before dropping DV for the interframe gap.
++          if (IF_MODE != 0) @(negedge clk);
++          rx_valid = 0; rx_ready = 0;
++          repeat (IF_MODE == 0 ? 120 : 12) @(negedge clk); // 12-byte IFG
++        end
+         @(negedge clk); rx_ready = 1; rx_valid = 1; rx_data = rxbuf_a[b];
+         if (IF_MODE == 0) begin @(negedge clk); rx_valid = 0; repeat (8+extra_gap) @(negedge clk); end
+       end
+@@ -151,6 +171,11 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+     begin
+       repeat (start_skew) @(negedge clk);
+       for (b = 0; b < nrx_b; b = b + 1) begin
++        if (pair_replay && b == pair_first_wire) begin
++          if (IF_MODE != 0) @(negedge clk);
++          rx_valid_b = 0; rx_ready_b = 0;
++          repeat (IF_MODE == 0 ? 120 : 12) @(negedge clk);
++        end
+         @(negedge clk); rx_ready_b = 1; rx_valid_b = 1; rx_data_b = rxbuf_b[b];
+         if (IF_MODE == 0) begin @(negedge clk); rx_valid_b = 0; repeat (8+extra_gap) @(negedge clk); end
+       end
+@@ -159,7 +184,7 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+     end
+   endtask
+ 
+-  integer r, p, i, k, waitc, blk, prev_deliv;
++  integer r, p, i, k, waitc, blk, prev_deliv, pair_wait;
+   reg [31:0] rd, w;
+   reg [15:0] word_addr;
+   reg [7:0]  actual_byte, exp_byte;
+@@ -355,14 +380,122 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+       end
+     end
+ 
++    // Actual multi-transaction case: two different TX/RX ports, both new
++    // messages committed before either MAC frame finishes. A single shared
++    // PMEM open block is allocated per commit; write the second payload only
++    // after the first MSG_WR opens its successor. Keep both RX descriptors
++    // live together until their PMEM payloads and exact counts are checked.
++    pair_len[0] = 17 + draw(48);
++    pair_len[1] = 17 + draw(16); // keep the second host write shorter than first TX
++    pair_salt[0] = draw(256);
++    pair_salt[1] = draw(256);
++    pair_first_wire = (pair_len[0] < 17) ? 64 : (42 + pair_len[0] + 1 + 4);
++    if (pair_first_wire < 64) pair_first_wire = 64;
++    pair_total_wire = pair_first_wire + 64; // second frame is 64..79 B
++    if (pair_len[1] > 17) pair_total_wire = pair_first_wire + 42 + pair_len[1] + 1 + 4;
++    pair_pre_deliv = dut.u_rxpb.deliver_cnt;
++    pair_good_a = dut.u_mac_rx_a.good_cnt; pair_good_b = dut.u_mac_rx_b.good_cnt;
++    pair_drop_a = dut.u_mac_rx_a.drop_cnt; pair_drop_b = dut.u_mac_rx_b.drop_cnt;
++    for (p = 0; p < 2; p = p + 1) begin
++      waitc = 0;
++      host_read(16'h0074, rd);
++      while (!rd[4] && waitc < 50000) begin
++        @(negedge clk); waitc = waitc + 1;
++        host_read(16'h0074, rd);
++      end
++      if (!rd[4]) bad("Pair: no free TX PMEM block");
++      pair_blk[p] = rd[3:0];
++      cur_plen = pair_len[p];
++      payload_salt = pair_salt[p];
++      for (i = 0; i < (cur_plen + 3) / 4; i = i + 1) begin
++        w = { (8'(((payload_salt + 4*i + 0) & 255))),
++              (8'(((payload_salt + 4*i + 1) & 255))),
++              (8'(((payload_salt + 4*i + 2) & 255))),
++              (8'(((payload_salt + 4*i + 3) & 255))) };
++        host_write(16'h8800 + (pair_blk[p] << 9) + i, w);
++      end
++      if (p == 0) begin na = 0; nb = 0; end
++      host_write(16'h8280 + p, cur_plen);
++      if (p == 1) begin
++        if (pair_blk[0] == pair_blk[1] || na >= pair_first_wire || nb >= pair_first_wire)
++          bad("Pair: messages were not simultaneously in TX flight");
++        else pair_tx_overlap = pair_tx_overlap + 1;
++      end
++    end
++    waitc = 0;
++    while ((na < pair_total_wire || nb < pair_total_wire) && waitc < 500000) begin
++      @(negedge clk); waitc = waitc + 1;
++    end
++    if (na < pair_total_wire || nb < pair_total_wire) bad("Pair: MAC TX timeout");
++    repeat (48) @(negedge clk);
++    if (na !== pair_total_wire || nb !== pair_total_wire)
++      bad("Pair: captured MAC byte totals differ from two frame lengths");
++    nrx_a = na; nrx_b = nb;
++    if (nrx_a > 2047 || nrx_b > 2047) bad("Pair: RX capture buffer overflow");
++    for (i = 0; i < na && i < 2048; i = i + 1) rxbuf_a[i] = ca[i];
++    for (i = 0; i < nb && i < 2048; i = i + 1) rxbuf_b[i] = cb[i];
++    pair_skew_a = draw(5); pair_skew_b = draw(5);
++    force dut.u_rxpb.in_ready = 1'b0;
++    pair_replay = 1;
++    fork
++      replay_a(pair_skew_a);
++      replay_b(pair_skew_b);
++    join
++    $display("  [T18 PAIR] mode=%0d TX=%0d/%0d lengths=%0d,%0d MAC_good_delta=%0d,%0d MAC_drop_delta=%0d,%0d reasons=%02h,%02h parser_stall=%0d delivered=%0d free=%04h",
++             IF_MODE,na,nb,pair_first_wire,pair_total_wire-pair_first_wire,
++             dut.u_mac_rx_a.good_cnt-pair_good_a,dut.u_mac_rx_b.good_cnt-pair_good_b,
++             dut.u_mac_rx_a.drop_cnt-pair_drop_a,dut.u_mac_rx_b.drop_cnt-pair_drop_b,
++             dut.rx_drop_reason_a,dut.rx_drop_reason_b,pair_rx_stall,
++             dut.u_rxpb.deliver_cnt-pair_pre_deliv,dut.rx_free_map);
++    @(negedge clk); release dut.u_rxpb.in_ready;
++    pair_replay = 0;
++    pair_wait = 0;
++    while (dut.u_rxpb.deliver_cnt < pair_pre_deliv + 2 && pair_wait < 250000) begin
++      @(negedge clk); pair_wait = pair_wait + 1;
++    end
++    if (pair_wait >= 250000) bad("Pair: RX two-port delivery timeout");
++    repeat (96) @(negedge clk); // drain both A/B duplicates through RM
++    test_count = test_count + 2;
++    if (dut.u_rxpb.deliver_cnt !== pair_pre_deliv + 2 ||
++        dut.u_rxpb.deliver_cnt !== test_count) bad("Pair: exact dedup +2 failed");
++    if (pair_tx_overlap !== 1 || pair_rx_stall < 1)
++      bad("Pair: actual TX overlap / parser backpressure absent");
++    for (p = 0; p < 2; p = p + 1) begin
++      rx_p = 16 + p;
++      host_read(16'h8480 + rx_p, rd);
++      if (rd !== 32'd1) bad("Pair: both port MSG_CNT must be one before any free");
++      host_read(16'h8180 + rx_p, rd);
++      if (rd[31] !== 1'b1 || rd[10:0] !== pair_len[p])
++        bad("Pair: RX port descriptor mismatch");
++      blk = rd[23:20];
++      for (i = 10; i < (42 + pair_len[p] + 3) / 4; i = i + 1) begin
++        host_read(16'h8800 + (blk << 9) + i, w);
++        for (k = 0; k < 4; k = k + 1) begin
++          if (4*i + k >= 42 && 4*i + k < 42 + pair_len[p]) begin
++            actual_byte = w[31 - 8*k -: 8];
++            exp_byte = (pair_salt[p] + 4*i + k - 42) & 255;
++            if (actual_byte !== exp_byte) bad("Pair: PMEM payload byte mismatch");
++          end
++        end
++      end
++    end
++    for (p = 0; p < 2; p = p + 1) begin
++      host_write(16'h8380 + 16 + p, 32'd0);
++      host_read(16'h8480 + 16 + p, rd);
++      if (rd !== 32'd0) bad("Pair: MSG_CNT must be zero after MSG_RD");
++    end
++    repeat(8) @(negedge clk);
++    if (dut.rx_free_map !== 16'hFFC0) bad("Pair: RX PMEM block leak");
++
+     #1000;
+-    $display("  [T18 INFO] seed=%08h first=%08h min=%0d max=%0d stalled=%0d spaced=%0d",
+-             initial_seed, rng_first, min_plen, max_plen, stalled_frames, spaced_frames);
++    $display("  [T18 INFO] seed=%08h first=%08h min=%0d max=%0d stalled=%0d spaced=%0d pair_len=%0d,%0d pair_tx_overlap=%0d pair_rx_stall=%0d",
++             initial_seed, rng_first, min_plen, max_plen, stalled_frames, spaced_frames,
++             pair_len[0], pair_len[1], pair_tx_overlap, pair_rx_stall);
+     if (min_plen>17 || max_plen<1471 || stalled_frames==0 || spaced_frames==0)
+       bad("Random length/spacing/backpressure coverage missing");
+     if (err_count == 0) begin
+-      $display("T18 RANDOM STRESS PASS (IF_MODE=%0d rounds=%0d frames=%0d seed=%08h min=%0d max=%0d stalls=%0d spaced=%0d)",
+-               IF_MODE, NUM_ROUNDS, test_count, initial_seed, min_plen, max_plen, stalled_frames, spaced_frames);
++      $display("T18 RANDOM STRESS PASS (IF_MODE=%0d rounds=%0d frames=%0d pair_inflight=2 seed=%08h min=%0d max=%0d stalls=%0d spaced=%0d tx_overlap=%0d rx_stall=%0d)",
++               IF_MODE, NUM_ROUNDS, test_count, initial_seed, min_plen, max_plen, stalled_frames, spaced_frames, pair_tx_overlap, pair_rx_stall);
+     end else begin
+       $display("T18 RANDOM STRESS FAIL (IF_MODE=%0d errors=%0d seed=%08h)", IF_MODE, err_count, initial_seed);
+     end
+diff --git a/README.md b/README.md
+index 20aa4cc..4815529 100644
+--- a/README.md
++++ b/README.md
+@@ -13,7 +13,15 @@
+ | 怎么运行工具和验证 | [工具与验证说明](README_tools.md) |
+ | 本轮整理及检查结果 | [2026-09-23 检查记录](doc/检查记录_20260923.md) |
+ 
+-## 当前阶段（2026-09-24 最新 36 项快照 + T21 增量）
++## 当前阶段（2026-09-25 FINALIZE；仅限已取证的 RTL 子集）
++
++- **功能仿真**：末次完整 `sim/run_regress.ps1` 独立串行执行，编译 rc=0/0 errors，清单顺序 **50/50 PASS**（285.4 s）。T23/T23g 有 SN=0→1 连续两帧 SAP、PB1 槽竞争 2 次/模式且块数守恒；T18/T18g 在 100 笔串行随机事务之外各增加 **2 笔不同端口同时在飞**，双网重放、反压/去重/逐字节/精确计数均通过。只有两笔并发取证，**没有证明 4 端口持续多事务并发**。
++- **真实但局部的代码覆盖率**：Questa `+cover=sb` 生成 T23/T23g/T18/T18g 四份 UCDB 和合并报告；这四个用例（**含 TB 实例**）分支 4035/6098 = 66.16%，语句 7110/9200 = 77.28%。不是 50 项全量或功能覆盖率；不能用 50/50 PASS 替代覆盖率。
++- **硬件交付阻塞**：`AFDX_top` 顶层 eLinx 综合仍在 `OPT_MUXTREE` 报 `bad allocation`（rc=1），虽有 8 ns 内部时钟的初步 `.edc`，仍没有完整网表/目标板约束/P&R。TimeQuest 可执行但无 active revision；**STA WNS/TNS/Fmax 未取得**，125 MHz 时序收敛不得声称完成。
++- **明确不在本次可验收交付范围的管理协议**：`mgmt_sap_rx` 仅为最小 SAP 描述符/块归还窗口；`snmp_lite.v`、`a615a_tftp.v`、`rtc_sync.v` 是未例化的模块壳，`stats_regs.v` 不存在，T14–T16 未执行。这些仍是[总体设计书](AFDX端系统_总体设计书.md)中的**未满足目标/规格缺口**，本次绝不称完整 SNMP/TFTP/RTC/统计面已交付。
++- 最新命令、失败原件、全量 CSV/50 个 console、UCDB、STA 负例与 SHA-256 见 [FINALIZE 报告](out/arena-debug/DIANSAI-REPORT.md)和 `out/arena-debug/finalize/`；下面为按日期保留的旧快照，**不可用来替代最新状态**。
++
++### 2026-09-24 历史快照（以下旧断言已过期，仅供溯源）
+ 
+ - **TX**：顶层主机前门、初始化扫描、发送链和 Q20 配置判决已有实现及阶段性仿真证据。
+ - **RX**：双网入口、块池、PMEM 写仲裁、顶层哈希查表、FLT 语义过滤、**IC 完整性检查（v0.5.14）与 RM 双网去重（v0.5.15）** 已接线，IC/RM 各独占唯一状态 RAM；`T08d/T08dg` 取证四类过滤拒绝，`T08e/T08eg` 取证 IC 判决/PSN/块守恒（故障注入 7/7），`T10/T10g` 取证 A/B 副本只转发一次、SkewMax 窗口内外、RM 开关、IC 拒绝不污染 RM（故障注入 7/7）。**v0.5.16 起 RM 转发帧经 `rx_ip_udp_parse` → `rx_port_buf` 投递到 RX 采样/队列端口**，主机经前门读 `PORT_DESC`/`MSG_CNT`、运行期读 PMEM 载荷、写 `MSG_RD` 释放；`T11/T11g` 取证逐字节载荷读回、覆盖/pin、队列序与溢出、五类解析丢弃（故障注入 13/13）。**v0.5.17 补两件**：① RX 事件中断——`INT_STATUS`（0x0018，W1C）低 4 位 = 新采样消息 / 队列入队 / 采样覆盖或队列满 / CRC 错帧（双网 `mac_rx_if.crc_err`），同拍新事件优先于 W1C，`INT_ENABLE`（0x0014）只存低 8 位，`host_irq` = `CTL[14]` 或（`INT_ENABLE & INT_STATUS`）为电平式；`T11i/T11ig` 覆盖屏蔽期间仍登记、使能即拉高、软件中断、采样/入队/覆盖/满、A/B 网坏 FCS 只置 bit3 且不投递、同拍竞争（故障注入 9/9）。② `T22/T22g` TX→RX 冷启动真回环——一次 `CFG_MODE` 配好 TX VL0 与 RX（种子/哈希项/RX_VL_CFG/端口表 + 映像提交）后，主机 PMEM 写 → `MSG_WR` → 抓取 DUT 在线的 A/B 字节流回灌 RX 入口（两帧、保留真实 BAG 1000 μs），描述符/`MSG_CNT`/PMEM 载荷与发出帧逐字节一致、SN 连续、IC 去重、块守恒、`INT_STATUS[0]` 置位（故障注入 6/6）。**本轮新增 `T21/T21g`**：队列端口占满 RX 块 6..15 → 第 11 帧触发 `NO_BLK`/`rx_exh_cnt` 且无 PMEM 写/无入队 → `MSG_RD` 逐条归还 → 后续帧恢复交付，两种 IF_MODE 2/2 PASS。SAP/管理面未接。
+diff --git "a/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md" "b/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md"
+index 3e7e4ae..c7f6dde 100644
+--- "a/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md"
++++ "b/doc/\345\275\223\345\211\215\350\277\233\345\272\246_20260923.md"
+@@ -192,3 +192,14 @@ sha256:a29170271e8ed4c90e3b54187f1381edad37bd6d4c9edb3667bf711dae57ffb9
+ - [x] **P0 (T21/T21g) 块池耗尽与反压**：10 个 RX 块占满触发 `NO_BLK`/`rx_exh_cnt`，无 PMEM 空写，逐笔 `MSG_RD` 释放后完整恢复交付。
+ - [ ] **芯片逻辑综合 (eLinx，部分完成)**：24 个 RTL 源码通过 AST 解析；12 份独立子模块日志按全日志 `^ERROR` 为零且末尾 `Yosys execute success!` 核对，当前均通过（本轮重跑 `sync_fifo` 与 `rx_block_pool`），但样本不含全部大容量存储和顶层。`AFDX_top_synth.ys` 本轮重跑在 `memory_map` 报 `ERROR: invalid vector<T> subscript`（rc=1）；尝试显式 BRAM 映射的顶层 `memory_collect` 又报 `ERROR: dict::at()`（rc=1）。**顶层综合未通过，未产生可验收网表；STA/125 MHz 时序收敛未验证**，不得把子模块/AST 通过写成芯片综合完成。
+ - [x] **全量 Questa 回归（本轮重跑）**：确认无并行仿真后，重新编译 0 errors（rc=0），与 `sim/tests.manifest` 同序的 50 条 `sim/out/regress.csv` **50/50 PASS**、`wall_s=276.3`；本轮 CSV SHA-256=`023E9CF471DE0E4C2662DEC6C4CB02A40476FFC24534DB591148AD13220EDD57`。留存 `out/arena-debug/checks/final_full50.log`；该结果不代表前述顶层综合/STA 已通过。
++
++## 2026-09-25 FINALIZE 最终复验（以下为本页最新口径，覆盖上方同日旧快照）
++
++- [x] **功能回归**：最后一次无 `-Tests` 过滤地串行执行 `sim/run_regress.ps1`；编译 rc=0 / 0 errors，50 条 manifest 顺序与 `finalize/tests/final_full50.csv` 完全一致，**50/50 PASS**，`wall_s=285.4`，CSV SHA-256=`0469EE8878E77B000F63ED7DFE57BF44A6921AF675018F5B0F0060589801A9EB`；原始 stdout、CSV 与 50 份逐项 console 见 `out/arena-debug/finalize/tests/`。这是 RTL 周期级功能结果，不是 STA/标准认证。
++- [x] **T23/T23g 双 SAP/竞争**：同线按合法 IFG 连续 SN=0→1，每档 `accept=2/return=2`、PB1 归还槽强制竞争 2 次、管理块返回等待 0 拍，两个块最终释放；GMII 观察 1 拍线路重叠，MII 合法 IFG 下为 0 拍，不虚称 MII 接收重叠。T23 仅证明 SAP 最小 descriptor handoff 与块归还，PB1 为槽级注入，并非第二路普通完整帧流。
++- [x] **T18/T18g 至少两笔同时在飞**：保留固定 seed=`51c0ffee` 的 25 轮 100 笔跨 4 端口的**串行**随机业务；另新增一对端口 0/1 的 2 笔消息，在首帧仍传输时提交第 2 笔，双网回灌，接收端口 16/17 同时持有 `MSG_CNT=1`/PMEM 描述符直到释放。每档共 102 帧，17..1471B、97 笔串行背压、pair TX overlap=1、pair RX stall MII=756/GMII=71，精确去重 +2、逐字节与最终 `free=FFC0` 均通过。**不是 4 端口多事务长期满载并发证明**。
++- [x] **Questa 真实局部代码覆盖率**：对 T23/T23g/T18/T18g 四档实际用 `+cover=sb`、`vsim -coverage`、`coverage save -onexit` 得到 4 个 UCDB 与 `vcover merge/report`。合并统计共 116 实例（**包括 TB**），分支 4035/6098=66.16%，语句 7110/9200=77.28%，加权 71.72%；**不是全 50 项的 RTL-only/功能覆盖率**。原件在 `finalize/coverage/`。
++- [ ] **顶层综合阻塞**：`tx_rm` 两个 16 深复位数组改为 packed flops 后，原顶层不再停在该 `memory_map` 故障，但两条完整路径均在 `OPT_MUXTREE` 报 `ERROR: bad allocation`、rc=1；`bram_pre_opt` 的 119 个 `altsyncram`/640622 中间 cells 不是完整网表/器件资源。`AFDX_top` eLinx synthesis 仍未通过，源日志见 `finalize/synth/`。
++- [ ] **STA 阻塞**：`elinx/sdc/AFDX_top.edc` 只有设计书 8 ns 内部时钟与异步 PPS 约束，不能凭空添加无板级依据的 IO delay；TimeQuest 已安装，但无 active revision/完整顶层网表，`create_timing_netlist` 探针 rc=3。状态 `BLOCKED_NO_PROJECT_OR_NETLIST`（**不是** `BLOCKED_NO_TOOL`）；WNS/TNS/关键路径/Fmax 均为未取得，见 `finalize/sta/`。
++- [ ] **管理协议规格缺口**：`snmp_lite.v`、`a615a_tftp.v`、`rtc_sync.v` 仍是未例化的 9 行空壳，`stats_regs.v` 不存在，T14–T16 不在当前 manifest。完整 SNMP/TFTP/RTC/统计面**未纳入本次可验收交付**，却仍是总体设计书原目标；须另行实现/验证或正式豁免，不能把 T23 最小 SAP 当作 T14–T16 完成。
++- [x] **RTL lint**：`tools_lint.ps1` 末次 rc=0、门禁 0 `%Error`；严格文档门和源/证据 SHA 以 `finalize/gates/` 和 `finalize/SHA256SUMS.txt` 的最后运行结果为准。
+diff --git "a/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md" "b/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md"
+index e6bad75..1ae2320 100644
+--- "a/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md"
++++ "b/doc/\345\220\216\347\273\255\350\256\241\345\210\222.md"
+@@ -240,18 +240,21 @@ sha256:20dfffd40470348b9610d8f3f6df0477aa02236e31bac5aaf4fab2d968a262ef
+ === READ_FILES END ===
+ 
+ 
+-## 2026-09-25 本轮全量回归收口与阶段清单（追加记录）
++## 2026-09-25 FINALIZE 实测状态与剩余计划（此节覆盖同日旧快照）
+ 
+ - [x] **P0-01: T08f/T08fg 全表 8192 配置加载与逐笔 Scoreboard 校验通过**（8192 Hash + 8192 RX_CFG 寄存器读写校验，4096 唯一索引与 4 Bank/Way，单代表性 64B 帧端到端交付与块归还）。
+ - [x] **P0-02: T17/T17g 双网最小帧饱和混合读写压测通过**（512 对双网最小帧，4096 次写入 + 256 次读取，4096 次 deferred 仲裁，`max_wait=2`，CRC 坏帧拦截=1，`free=FFC0` 守恒）。
+-- [x] **P1: T05b/T05bg 32 VLs 饱和满载抖动测试通过**（32 条 VL 合法 BAG 1..128 ms，错相启动抖动 MII=781us / GMII=96us，稳态调度抖动 3us）。
++- [x] **P1: T05b/T05bg 32 VL 饱和错相测试通过**（各 VL BAG=828 µs，首帧相对预设相位的最大发送延迟 MII/GMII 均 4 µs，稳态最大 3 µs；旧同相批量起发的 781/96 µs 与错误阈值已废止，不是合格抖动值）。
+ - [x] **P1: T13/T13g 硬件回环时延精确测量通过**（17B/256B/1471B 变长负载，纯硬件时延 MII 7.432~123.496us，GMII 3.184~17.128us）。
+-- [x] **P1: T18/T18g 多端口变长随机压力测试通过**（4 端口并发，25 轮 100 帧随机变长负载 17B~1471B，双网在线抓包回放，逐字节 PMEM 对比 100% 正确）。
+-- [x] **P1: T23/T23g SAP/管理面最小闭环通过**（SAP 描述符管理窗口交互、块安全归还）。
+-- [x] **全量 Questa 回归 50/50 PASS**（50/50 全部通过，耗时 282.9s，编译 0 errors）。
+-- [x] **芯片逻辑综合验证**（eLinx 3.0 下 12 个核心子模块全部综合成功，顶层 24 模块 AST 语法解析通过）。
+-
+-**后续演进建议：**
+-1. 若需下板实现，使用 eLinx 原生 BRAM IP（M9K/M4K）替换顶层大容量二维存储器以提升后端综合与 P&R 效率；
+-2. 配合具体目标 FPGA 器件型号与引脚约束文件，通过 `Implementation.exe` 执行完整布局布线与后仿 STA；
+-3. 根据系统管理需求，在 `mgmt_sap_rx` 基础上扩展完整 SNMP 协议栈解析（BER 解码与应答报文构建）。
++- [x] **P1: T18/T18g 随机串行 + 双事务同时在飞（2/2）**（固定 seed `51c0ffee`，100 笔跨 4 端口的串行随机事务加 2 笔不同端口并发，合计 102 帧/模式；双网回灌、真实 RX 背压、精确去重/MSG_CNT/PMEM 逐字节和块归还通过；**不能称 4 端口多消息持续并发**）。
++- [x] **P1: T23/T23g 双 SAP 序号与 PB1 竞争（2/2）**（SN=0→1 同线合法 IFG，accept=2/return=2/每档 PB1 冲突 2 次/等待 ≤1 拍、无漏块；PB1 为槽级注入，不是完整普通帧流）。
++- [x] **末次完整 Questa 回归 50/50 PASS**（2026-09-25 无 `-Tests` 过滤、编译 rc=0/0 errors、wall_s=285.4；`finalize/tests/final_full50.csv` SHA-256=`0469EE8878E77B000F63ED7DFE57BF44A6921AF675018F5B0F0060589801A9EB`；CSV 与 manifest 同序 50/50）。
++- [x] **真实但局部的 Questa 代码覆盖率**（T23/T23g/T18/T18g 四个用例 UCDB/合并库；分支 4035/6098=66.16%，语句 7110/9200=77.28%，**统计含 TB**；不是 50 项全量或功能覆盖率）。
++- [ ] **P0: 完整 `AFDX_top` eLinx 综合**：12 份独立子模块冒烟与 AST 不代表顶层；修复 `tx_rm` 小 FIFO 旧工具 `memory_map` 故障后，原流程和显式 BRAM 路径都在 `OPT_MUXTREE` 报 `ERROR: bad allocation`（rc=1）；优化前 119 `altsyncram`/640622 逻辑 cells 只是中间统计，**没有已完成网表/可审阅器件资源报告**。
++- [ ] **P0: P&R/STA**：TimeQuest 可执行（不是 `BLOCKED_NO_TOOL`），但 `create_timing_netlist` 因无 active revision/完成综合网表而 rc=3；初步 8 ns 时钟 `.edc` 没有无板级依据的 IO delay。WNS/TNS/关键路径/Fmax **均未取得**，状态 `BLOCKED_NO_PROJECT_OR_NETLIST`。
++- [ ] **T14–T16 与完整管理面**：`snmp_lite.v`、`a615a_tftp.v`、`rtc_sync.v` 仍是空壳，`stats_regs.v` 缺失；本次可验收交付仅含 T23 最小 SAP 描述符闭环，完整 SNMP/TFTP/RTC/统计协议**未纳入本次交付**，但仍为设计书未满足的目标，必须单独实现并验证或由需求方正式豁免，不能视作完成。
++
++**下一步验收门槛：**
++1. 确定目标 FPGA 与容量；逐一隔离顶层大容量异步配置 RAM/多端口按字节写模型，改为可推断的同步 BRAM/IP 并保持延迟语义；重跑功能回归，直到 **顶层** eLinx 全日志无 `ERROR`、rc=0，产出网表与器件资源报告。
++2. 明确板卡引脚、源/宿时钟与外设预算，给出有来源的 IO delay；建 active revision，运行 P&R/TimeQuest setup/hold STA 并留 WNS/TNS/Fmax/最差路径原始报告。不得从 RTL PASS 或部分 BRAM 统计推导时序 PASS。
++3. 补全完整 SNMP（BER/GET/SET/只读负例）、ARINC 615A/TFTP（收发/重传/块号回绕/CRC）、PPS RTC（≤1 µs 与 SYNC_LOSS）、统计窗口的顶层接线和 T14–T16；否则维持“本次不交付/规格缺口”。覆盖率应扩至全部可验收用例，新增功能覆盖点，独立报告 RTL-only 与 TB 权重。
+diff --git a/out/arena-debug/DIANSAI-REPORT.md b/out/arena-debug/DIANSAI-REPORT.md
+index 8fb10f2..c3d5460 100644
+--- a/out/arena-debug/DIANSAI-REPORT.md
++++ b/out/arena-debug/DIANSAI-REPORT.md
+@@ -1,5 +1,42 @@
+ # DIANSAI 修复与复验报告（2026-09-25）
+ 
++> **FINALIZE 最新结论（优先于本文件下方的历史 MISSION-FIX 快照）**：核心 RTL 全量功能回归 50/50 PASS；T23 两个不同 SN 的连续 SAP/PB1 槽争用与 T18 两事务同时在飞均取证；Questa 四个定向用例产出真实 UCDB。**顶层 eLinx 综合未成功，STA 无有效数据，完整 T14–T16 管理协议未交付；不能声称整机符合总体设计书或 125 MHz 时序收敛。**
++
++## MISSION-FINALIZE — 最终交付边界与状态
++
++工作目录 `C:/Workspace/diansai`；命令日志、未遮盖的首次失败、原始 CSV/50 份 console、UCDB、约束与工具探针统一在 `out/arena-debug/finalize/`，逐文件 SHA-256 清单 `finalize/SHA256SUMS.txt`。本节只覆盖自 `backup/finalize_20250925/` 备份之后的修改；没有 commit/push/reset，也未碰 `competition_case/` 或凭据。
++
++| 验收项 | 最新状态 | 可核证结果和边界 |
++|---|---|---|
++| 连续 SAP/PB1（T23/T23g） | **DONE：2/2** | 同线合法 IFG 的 SN=0→1；两档各 accept/return=2、PB1 争用=2、等待=0 拍、块守恒；MII 不虚称线路重叠，PB1 是槽级注入不是第二普通帧流。原始 console：`finalize/tests/directed_T23_console.txt`、`directed_T23g_console.txt`。 |
++| 两事务并发（T18/T18g） | **DONE：2/2，限双在飞** | 种子 `51c0ffee`，各档 100 笔串行随机事务 + 端口 0/1 同时 TX 在飞的 2 笔，计 102 帧；A/B 双网回灌、接收 16/17 同时持有两消息、去重 +2、`MSG_CNT` 读/释 1→0、PMEM 逐字节和 RX 块最终 `FFC0`；pair 背压 MII=756/GMII=71 拍。**不是** 4 端口持续并发。 |
++| 末次完整功能回归 | **DONE：50/50** | `powershell -NoProfile -ExecutionPolicy Bypass -File sim/run_regress.ps1`，先查无残留 Questa，单流程无 `-Tests`，编译 rc=0/0 errors，50 条 manifest 顺序、CSV 50 PASS 与 50 个 console 全核对；wall_s=285.4，退出码 0。 |
++| Questa 覆盖率 | **DONE_PARTIAL：真实四用例 UCDB** | `+cover=sb` 编译、`vsim -coverage`、4 次 `coverage save -onexit`、`vcover merge/report` rc=0；四用例合并 **含 TB 实例**分支 4035/6098=66.16%、语句 7110/9200=77.28%、总 71.72%，116 instances。不是完整 50 项、RTL-only、功能覆盖率或认证指标。 |
++| 顶层 eLinx 综合 | **BLOCKED_SYNTH_OOM** | 原脚本 `memory_map: invalid vector<T> subscript`，修复 `tx_rm` 的旧工具敏感小队列后推进到 `OPT_MUXTREE: ERROR: bad allocation`，原路径与显式 BRAM 路径 rc 均为 1；尚无完整 `AFDX_top` 可审阅综合网表/器件利用率。 |
++| STA/时序收敛 | **BLOCKED_NO_PROJECT_OR_NETLIST** | TimeQuest 已安装（**非** `BLOCKED_NO_TOOL`），但 `create_timing_netlist` 因无 active revision 报错、探针 rc=3。只有设计书 8 ns 时钟初步 `.edc`，无合法板级 IO delay/已布线设计；**WNS/TNS/关键路径/Fmax 均未取得**。 |
++| 完整 SNMP/TFTP/RTC/统计面 | **OUT_OF_SCOPE_FINALIZE／OPEN_SPEC_GAP** | `mgmt_sap_rx` 仅为 SAP descriptor/管理窗口/块归还；`snmp_lite.v`、`a615a_tftp.v`、`rtc_sync.v` 为未例化的 9 行壳，`stats_regs.v` 缺失，T14–T16 不在 manifest。本次可验收交付**明确不包含**完整协议，但设计书仍要求，故整机目标**未完成**；需另做实现+TB 或正式需求豁免。 |
++| 门禁 | **DONE** | `tools_lint.ps1` rc=0、0 `%Error`（保留 warnings）；`python tools/run_all.py --strict` rc=0、5/5 + selfcheck（不等于 RTL/STA）。 |
++
++### 原始证据与 SHA-256（均按完整文件取值）
++
++| 证据路径（相对工作目录） | SHA-256 / 阅读要点 |
++|---|---|
++| `out/arena-debug/finalize/tests/final_full50.log` | `FDE46DB23DE57BE30F2E8E499EEAD05A24458A3BE03BE08ED0A21EE0CC8CD10F`，编译与 50 条原始摘要/rc |
++| `out/arena-debug/finalize/tests/final_full50.csv` | `0469EE8878E77B000F63ED7DFE57BF44A6921AF675018F5B0F0060589801A9EB`；`final_audit.log` 核对同序；`full_consoles/` 有 50 份原始文件 |
++| `out/arena-debug/finalize/coverage/T18_T23_4cases.ucdb` | `1939643A009AA69B184EAF2379E06B1FE42ACC970816994D0015F8D246EBB2DD`；各档 UCDB、compile/run/vcover 日志及 `merged_summary.txt` 一并保留 |
++| `out/arena-debug/finalize/coverage/merged_summary.txt` | `1E2988FFF51FE3E1A3869D7C484F322651B15F56621A26ABD57E81045DB39E80`；只对该四例含 TB 范围 |
++| `out/arena-debug/finalize/synth/top_after_tx_rm_console.log` | `8AB90B745319870AC8589F9D207D6F6E31294C495594597BC76DD6E4C94BAE20`；rc=1 同目录 `_rc.txt` |
++| `out/arena-debug/finalize/synth/bram_after_tx_rm_console.log` | `9730034DC7550D6E288F8C3E94EAE00CCDE265E7A6773007AD3DB76B588B540D`；rc=1；`bram_pre_opt` 虽 rc=0 只停在优化前，不是综合网表 |
++| `out/arena-debug/finalize/sta/sta_probe_console.log` | `197BBDAD642F8D0C76349C0E06691FEB74AE4738BA737195C2E97AF74D4E2B57`；`create_timing_netlist` 无 active revision，rc=3 |
++| `out/arena-debug/finalize/gates/final_lint.log` / `final_docgate.log` | 前者 `1A9E9CFCA87FBB3059FF1A3E80868D533FBE00C159EA802FA5A1EFCB3B61F88A`；后者 `EC1EFAB9FA0D691B982721BAE376DF8B23AB8BE3F4339E65185324EE2DE6B782` |
++
++定向原始文件：`out/arena-debug/finalize/tests/directed_T23_console.txt`、`directed_T23g_console.txt`、`directed_T18_console.txt`、`directed_T18g_console.txt`。首次 T23 MII 把合法 IFG 误判为必须接收重叠、首次 T18g TB 在 GMII 第二帧前过早撤 `DV` 导致 MAC 长度丢弃，均有原始失败 console（`t23_mii_overlap_failed_console.txt`、`t18g_first_failed_console.txt`、`t18g_diag_failed_console.txt`），修正的是 TB 驱动/不成立断言，最终四档及完整 50 项复跑 PASS，**失败原件未删**。详情及命令在 `finalize/tests/README.md`、`finalize/coverage/README.md`、`finalize/synth/README.md`、`finalize/sta/README.md`。
++
++补丁 `out/arena-debug/fixes.patch` 只对 `backup/finalize_20250925/` 的本轮源/文档备份生成，包含新增约束与可复现辅助脚本，**不混入先前工作树的修改**；旧补丁另存于备份目录。`finalize/patch_verify.log` 记录 `git apply -R --check` 及对隔离备份的正向应用、字节校验；不对工作树实际反向应用。若需完成整机目标，先拆分/推断顶层大 RAM 或适配器件 BRAM IP，再经全量功能回归、器件 P&R/setup+hold STA；另按 T14–T16 实现管理协议或获得书面范围豁免。
++
++---
++## 历史 MISSION-FIX 记录（下方旧结论按当时状态归档，均以以上 FINALIZE 为准）
++
+ - 工作区：`C:/Workspace/diansai`；依据：`out/arena-debug/MISSION-FIX.md`、`REVIEW-REPORT.md`。
+ - **总体结论**：Questa 完整清单 **50/50 PASS**（编译 rc=0、0 errors，耗时 276.3 s）；Lint 与严格文档门通过。`AFDX_top` **综合仍失败**，未进行 STA；不得将功能仿真、AST 解析或 12 个独立子模块综合等同于整机综合/时序收敛。
+ - 原工作树含大量既存未提交、未跟踪修改；本轮没有 reset/commit/push，也没有碰 `competition_case/`。每处源文件修改前均备份到 `out/arena-debug/backup/fix_20260925/`，保留复现失败证据。原报告文件含乱码及工具回包包装文本，原样备份后重写为本报告。
+diff --git a/elinx/sdc/AFDX_top.edc b/elinx/sdc/AFDX_top.edc
+new file mode 100644
+index 0000000..a8a814a
+--- /dev/null
++++ b/elinx/sdc/AFDX_top.edc
+@@ -0,0 +1,9 @@
++# Preliminary internal-clock constraints from design book §11.2.
++# NOT a sign-off IO/STA file: no target board, pinout, source/sink clocks,
++# device implementation project or timing netlist is supplied. In §11.2,
++# nominal 3.2 ns IO delays are explicitly a commented *example*, not a
++# measured board budget. Do not enable made-up IO delays for a PASS verdict.
++create_clock -name clk -period 8.000 [get_ports clk]
++set_clock_uncertainty 0.45 [get_clocks clk]
++set_clock_transition 0.30 [get_clocks clk]
++set_false_path -from [get_ports pps_in]
+diff --git a/out/arena-debug/finalize/coverage/README.md b/out/arena-debug/finalize/coverage/README.md
+new file mode 100644
+index 0000000..93e941f
+--- /dev/null
++++ b/out/arena-debug/finalize/coverage/README.md
+@@ -0,0 +1,9 @@
++# Questa code coverage: four directed cases, not the full manifest
++
++- Tool: Questa Altera Starter FPGA Edition 2025.3; actual `+cover=sb` compilation, `vsim -coverage`, `coverage save -onexit`, four nonempty UCDBs, `vcover merge` and `vcover report` all returned rc=0. Scripts and raw output are in this directory.
++- Reproduce from `sim/`, with **one Questa process at a time** and no residual `vsim/vopt/vlog/vish/vlm`: `vsim -c -do "do ../out/arena-debug/finalize/coverage/compile_cov.tcl"`; for each `(T23,tb_t23_sap_min)`, `(T23g,tb_t23g_sap_min)`, `(T18,tb_t18_random_stress)`, `(T18g,tb_t18g_random_stress)`, set `COV_TB` and `COV_DB=../out/arena-debug/finalize/coverage/<ID>.ucdb`, then run `vsim -c -do "do ../out/arena-debug/finalize/coverage/run_cov.tcl"`. The TB's `$finish` exits the script, so `coverage save -onexit` MUST be armed before `run -all`.
++- Merge: `vcover merge T18_T23_4cases.ucdb T23.ucdb T23g.ucdb T18.ucdb T18g.ucdb` (supply paths from the project root). Report: `vcover report -code sb -summary -output merged_summary.txt T18_T23_4cases.ucdb`.
++- **Observed, four tests and their hierarchy including TBs**: branches 4035/6098 = 66.16%; statements 7110/9200 = 77.28%; weighted total 71.72% (116 instances). `merged_summary.txt` and `merged_detail.txt` are actual tool output; the detail call combined `-details -recursive`, so Questa warned `-details` was ignored. Treat the text as a recursive instance summary, NOT a detailed missed-bin report.
++- Filtered individual DUT hierarchy checks: `T18g_dut_summary.txt` = 79.60%, `T23_dut_summary.txt` = 62.32% (merged DB, `-instance=/tb_.../core/dut -recursive`). These are different denominators, not a combined DUT-wide metric.
++- **Limits**: no full-50 coverage merge; no functional covergroups or condition/expression/toggle/FSM instrumentation. The 50/50 functional regression and these four-case code-coverage percentages are distinct evidence. No 100% or design-wide coverage claim.
++- First attempted T23 run passed but had no UCDB because `$finish` prevented a post-run save; its raw log is retained as `T23_cov_missing_save.log`. It is NOT a coverage result.
+diff --git a/out/arena-debug/finalize/coverage/compile_cov.tcl b/out/arena-debug/finalize/coverage/compile_cov.tcl
+new file mode 100644
+index 0000000..529d889
+--- /dev/null
++++ b/out/arena-debug/finalize/coverage/compile_cov.tcl
+@@ -0,0 +1,25 @@
++# Run from sim/ in an exclusive Questa session. The final normal regression
++# recompiles the same generated work library without instrumentation.
++onerror {quit -f -code 1}
++set sources {
++  ../rtl/common/rst_sync.v ../rtl/common/timebase.v
++  ../rtl/common/sync_fifo.v ../rtl/common/crc32.v
++  ../rtl/common/bram_sdp.v ../rtl/top/init_sweep.v ../rtl/top/AFDX_top.v
++  ../rtl/tx/tx_sn_gen.v ../rtl/tx/tx_port_buf.v
++  ../rtl/tx/tx_frame_builder.v ../rtl/tx/tx_vl_scheduler.v
++  ../rtl/tx/tx_rm.v ../rtl/tx/tx_pace.v ../rtl/tx/mac_tx_if.v
++  ../rtl/rx/mac_rx_if.v ../rtl/rx/rx_block_pool.v
++  ../rtl/rx/rx_pmem_queue.v ../rtl/rx/rx_ic.v
++  ../rtl/rx/rx_vl_lookup.v ../rtl/rx/rx_flt.v
++  ../rtl/rx/rx_rm.v ../rtl/rx/rx_ip_udp_parse.v
++  ../rtl/rx/rx_port_buf.v ../rtl/mgmt/mgmt_sap_rx.v
++  tb/tb_t23_sap_min.v tb/tb_t18_random_stress.v
++}
++file delete -force work
++vlib work
++if {[catch {vlog -sv +cover=sb +notimingcheck {*}$sources} msg]} {
++  puts "COVERAGE_COMPILE_FAIL: $msg"
++  quit -f -code 1
++}
++puts "COVERAGE_COMPILE_OK: RTL/T23/T18, statement+branch, NOT a full suite"
++quit -f
+diff --git a/out/arena-debug/finalize/coverage/run_cov.tcl b/out/arena-debug/finalize/coverage/run_cov.tcl
+new file mode 100644
+index 0000000..ef1efd2
+--- /dev/null
++++ b/out/arena-debug/finalize/coverage/run_cov.tcl
+@@ -0,0 +1,18 @@
++# Run from sim/ after compile_cov.tcl, env COV_TB and COV_DB set by caller.
++onerror {quit -f -code 1}
++if {![info exists env(COV_TB)] || ![info exists env(COV_DB)]} {
++  puts "COVERAGE_RUN_FAIL: COV_TB/COV_DB not set"
++  quit -f -code 1
++}
++if {[catch {vsim -coverage $env(COV_TB)} msg]} {
++  puts "COVERAGE_RUN_FAIL: $msg"
++  quit -f -code 1
++}
++# The TB's $finish terminates the Questa script immediately: register the
++# database write BEFORE run -all; commands after run -all never execute.
++if {[catch {coverage save -onexit $env(COV_DB)} msg]} {
++  puts "COVERAGE_ARM_FAIL: $msg"
++  quit -f -code 1
++}
++puts "COVERAGE_ARMED: $env(COV_DB)"
++run -all
+diff --git a/out/arena-debug/finalize/sta/README.md b/out/arena-debug/finalize/sta/README.md
+new file mode 100644
+index 0000000..d455aea
+--- /dev/null
++++ b/out/arena-debug/finalize/sta/README.md
+@@ -0,0 +1,7 @@
++# STA prerequisite and negative probe: BLOCKED_NO_PROJECT_OR_NETLIST
++
++- TimeQuest exists: `C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/quartus_sta.exe`, Quartus II 13.0.1. Therefore **not** `BLOCKED_NO_TOOL`.
++- Executed `quartus_sta -t out/arena-debug/finalize/sta/sta_probe.tcl`: rc=3, `create_timing_netlist` reports **"Can't find active revision"**; see `sta_probe_console.log`. The earlier `read_netlist`-API experiment was invalid for this executable and is separately retained as `sta_probe_unsupported_command.log`; it is not used to justify the status.
++- eLinx top-level original flow (`elinx/prj/AFDX_top_synth.ys`) fails `memory_map` (`invalid vector<T> subscript`); the explicit-BRAM continuation after fixing the `tx_rm` reset arrays maps some RAM but then fails at `OPT_MUXTREE` with `ERROR: bad allocation`, rc=1; see `../synth/`. Pre-optimization cell counts and partial `altsyncram` counts are not a completed, auditable netlist or placed device utilization.
++- No target FPGA/P&R active revision, complete synthesized top netlist, board pin map or measured external timing budget is present in the current project. `elinx/sdc/AFDX_top.edc` only constrains the specification's 8 ns internal clock, uncertainty and transition, plus an asynchronous PPS path. It has **no invented IO delays**. It is preliminary and has NOT been applied to a successful placement/time-analysis run.
++- **WNS/TNS/Fmax/critical path/device area: N/A, NOT PASS.** Next: make all large top-level memories synthesizable for the chosen eLinx/device flow, finish top synthesis without `ERROR`, define device/pins and measured IO budgets, create/place a project revision, then run and archive setup/hold STA reports.
+diff --git a/out/arena-debug/finalize/sta/sta_probe.tcl b/out/arena-debug/finalize/sta/sta_probe.tcl
+new file mode 100644
+index 0000000..a4a8b36
+--- /dev/null
++++ b/out/arena-debug/finalize/sta/sta_probe.tcl
+@@ -0,0 +1,13 @@
++# Negative precondition probe only; no AFDX_top mapped/P&R timing netlist exists.
++# This MUST NOT be reported as timing sign-off or used to invent WNS/TNS/Fmax.
++puts "STA_PROBE: attempting TimeQuest create_timing_netlist without a compiled project"
++if {[catch {package require ::quartus::sta} why]} {
++  puts "STA_PACKAGE_ERROR: $why"
++  exit 2
++}
++if {[catch {create_timing_netlist} why]} {
++  puts "STA_BLOCKED_NO_PROJECT_OR_NETLIST: $why"
++  exit 3
++}
++puts "UNEXPECTED: create_timing_netlist succeeded; inspect netlist identity before reporting"
++exit 4
+diff --git a/out/arena-debug/finalize/synth/README.md b/out/arena-debug/finalize/synth/README.md
+new file mode 100644
+index 0000000..7755baf
+--- /dev/null
++++ b/out/arena-debug/finalize/synth/README.md
+@@ -0,0 +1,9 @@
++# Top-level eLinx synthesis: BLOCKED (real failing attempts retained)
++
++Use `C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe -s <script.ys> -l <tool.log>` from `C:/Workspace/diansai` to reproduce. Each `*_rc.txt` records the **actual process exit code**; `*_console.log` is stdout/stderr and the adjacent `.log` is the tool log.
++
++1. `top_repro` reproduces the original `elinx/prj/AFDX_top_synth.ys` flow: `memory_map`, `ERROR: invalid vector<T> subscript`, rc=1. `map_tx_rm` isolates a root cause: two small reset-in-a-loop queue memories in `tx_rm` crash this old tool's `memory_map` (rc=1). In this finalize attempt the two queues were changed to packed flops with dynamic part-selects; T04/T04g and the full regression are the behavioral guardrail.
++2. The original path AFTER that change (`top_after_tx_rm`) advances past the memory error, but dies at `OPT_MUXTREE`, `ERROR: bad allocation`, rc=1. The explicit device BRAM sequence (`bram_after_tx_rm`, `memory_collect -> memory_bram -> techmap -> opt`) also dies at `OPT_MUXTREE`, rc=1. This is not a successful top synthesis.
++3. Diagnostic **short-circuit only**: `bram_pre_opt.ys` stops immediately after BRAM mapping and `stat`, rc=0, with 119 `altsyncram` cells in the partially processed hierarchy; `AFDX_top` 513,209 generic cells and design hierarchy 640,622 generic cells (including 256,038 `$eq` in the top). This is neither a finished netlist nor mapped LUT/FF/BRAM utilization, and cannot feed STA. Large asynchronous tables / byte-enabled multiport storage remain a tool/architecture bottleneck.
++
++No complete `AFDX_top` netlist, device placement, vendor area report or slack/Fmax is claimed. Next: isolate/restructure the largest top-level async storage and unsupported multiport byte enables into compatible inferred RAM/IP with equivalent registered latency, rerun Questa and complete eLinx synthesis with zero **full-log** `ERROR`, then choose a target device and perform P&R/STA. Do not treat a partial `stat` or a 12-module smoke table as this prerequisite.
+diff --git a/out/arena-debug/finalize/tests/README.md b/out/arena-debug/finalize/tests/README.md
+new file mode 100644
+index 0000000..b9c4382
+--- /dev/null
++++ b/out/arena-debug/finalize/tests/README.md
+@@ -0,0 +1,7 @@
++# Final verification (2026-09-25, no concurrent Questa)
++
++- Last **unfiltered** command, after RTL/TB changes: `powershell -NoProfile -ExecutionPolicy Bypass -File sim/run_regress.ps1`; `final_full50.log` process rc=0, compile rc=0 (0 errors), **50/50 PASS**, script `wall_s=285.4`; independent manifest/CSV order + 50 console existence audit in `final_audit.log`. This is functionality, not STA or coverage. Raw `final_full50.csv`, `final_compile_console.txt` and all 50 original per-case outputs in `full_consoles/`; SHA-256 in `../SHA256SUMS.txt`.
++- T23/T23g: two valid SAP frames with **different SN=0,1** sent on the same wire with a legal interframe gap; sustained forced ordinary PB1 return-slot pulses while SAP is pending. Each mode: accept=2, block return=2, observed PB1 collisions=2, max SAP return wait=0 and no RX block leak. GMII observed one cycle of wire/pending overlap; MII observed zero, which is legal with its long byte IFG. This is **slot-level PB1 contention**, not a second ordinary full-frame stream. Disabled SAP exact `R_SAP` drop remains checked.
++- T18/T18g: seed `51c0ffee`, 25 rounds of 100 serialized messages plus **one pair** of two different ports simultaneously in TX flight; both A/B MAC frame copies replayed with legal IFG. Both RX descriptors remain live until exact `MSG_CNT=1` and PMEM byte comparison; A/B dedup adds exactly two deliveries for the pair; after both `MSG_RD`, `MSG_CNT=0`, block map restored. 102 messages/mode, randomized 17..1471 B coverage, 97 serial parser stalls, pair RX backpressure 756 MII / 71 GMII cycles. **Not** a four-port, many-message sustained concurrency proof.
++- Directed evidence: `directed_T23_console.txt`, `directed_T23g_console.txt`, `directed_T18_console.txt`, `directed_T18g_console.txt`; `t18g_second.log/csv` confirm the final GMII fix. The first GMII replay failed because the TB dropped GMII DV on a negedge **before** its preceding byte was sampled, causing MAC length-drop (reason 0x10). Original failures are preserved as `t18g_first_failed_console.txt` and `t18g_diag_failed_console.txt`; the corrected TB waits a sampling edge and the final 50/50 run also passes. Earlier T23 MII asserted impossible cross-frame overlap for a legal IFG; original failing console is retained as `t23_mii_overlap_failed_console.txt`, then that false assertion was removed without weakening accept/block/return checks.
++- Management inventory `management_scope_inventory.log`: T14/T15/T16 are NOT in the manifest; `snmp_lite.v`, `a615a_tftp.v`, `rtc_sync.v` are 9-line uninstantiated stubs; `stats_regs.v` is absent. T23 only proves minimal descriptor handoff and PB1 ownership, not protocol implementations.
+diff --git a/out/arena-debug/finalize/write_sha256.py b/out/arena-debug/finalize/write_sha256.py
+new file mode 100644
+index 0000000..dd8ba25
+--- /dev/null
++++ b/out/arena-debug/finalize/write_sha256.py
+@@ -0,0 +1,59 @@
++"""Hash the final evidence plus only this finalize round's edited inputs.
++
++Run from any cwd: python out/arena-debug/finalize/write_sha256.py
++Verify: python out/arena-debug/finalize/write_sha256.py --verify
++The manifest deliberately excludes itself to avoid a hash cycle.
++"""
++from __future__ import annotations
++
++import hashlib
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[3]
++BASE = ROOT / "out/arena-debug/finalize"
++MANIFEST = BASE / "SHA256SUMS.txt"
++EDITED = [
++    "rtl/tx/tx_rm.v",
++    "sim/tb/tb_t18_random_stress.v",
++    "sim/tb/tb_t23_sap_min.v",
++    "elinx/sdc/AFDX_top.edc",
++    "README.md",
++    "doc/当前进度_20260923.md",
++    "doc/后续计划.md",
++    "out/arena-debug/DIANSAI-REPORT.md",
++    "out/arena-debug/fixes.patch",
++    "sim/tests.manifest",
++]
++
++
++def digest(path: Path) -> str:
++    h = hashlib.sha256()
++    with path.open("rb") as fd:
++        for block in iter(lambda: fd.read(1024 * 1024), b""):
++            h.update(block)
++    return h.hexdigest().upper()
++
++
++def relpath(path: Path) -> str:
++    return path.relative_to(ROOT).as_posix()
++
++
++if __name__ == "__main__":
++    if sys.argv[1:] == ["--verify"]:
++        rows = [line.split("  ", 1) for line in MANIFEST.read_text(encoding="utf-8").splitlines()]
++        mismatches = [name for old, name in rows if digest(ROOT / name) != old]
++        print(f"SHA256 VERIFY: {len(rows)-len(mismatches)}/{len(rows)} match")
++        for name in mismatches:
++            print("MISMATCH:", name)
++        sys.exit(1 if mismatches else 0)
++    if len(sys.argv) != 1:
++        sys.exit("usage: write_sha256.py [--verify]")
++    files = {ROOT / name for name in EDITED}
++    files.update(p for p in BASE.rglob("*") if p.is_file() and p != MANIFEST)
++    missing = [str(p) for p in files if not p.exists()]
++    if missing:
++        sys.exit("missing: " + ", ".join(missing))
++    rows = [f"{digest(path)}  {relpath(path)}" for path in sorted(files, key=relpath)]
++    MANIFEST.write_text("\n".join(rows) + "\n", encoding="utf-8")
++    print(f"SHA256 WRITTEN: {len(rows)} files, {relpath(MANIFEST)}")
+diff --git a/out/arena-debug/finalize/make_patch.py b/out/arena-debug/finalize/make_patch.py
+new file mode 100644
+index 0000000..7a5fae4
+--- /dev/null
++++ b/out/arena-debug/finalize/make_patch.py
+@@ -0,0 +1,99 @@
++"""Create a reversible *finalize-only* patch against preserved pre-edit copies.
++
++The existing checkout has earlier unrelated edits; never diff against HEAD.
++Run after the final docs are written. No commit, reset, or source edit occurs.
++"""
++from __future__ import annotations
++
++import hashlib
++import shutil
++import subprocess
++import tempfile
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[3]
++BASE = ROOT / "out/arena-debug/finalize"
++BACKUP_REL = "out/arena-debug/backup/finalize_20250925/"
++PATCH = ROOT / "out/arena-debug/fixes.patch"
++EXISTING = [
++    "rtl/tx/tx_rm.v",
++    "sim/tb/tb_t23_sap_min.v",
++    "sim/tb/tb_t18_random_stress.v",
++    "README.md",
++    "doc/当前进度_20260923.md",
++    "doc/后续计划.md",
++    "out/arena-debug/DIANSAI-REPORT.md",
++]
++ADDED = [
++    "elinx/sdc/AFDX_top.edc",
++    "out/arena-debug/finalize/coverage/README.md",
++    "out/arena-debug/finalize/coverage/compile_cov.tcl",
++    "out/arena-debug/finalize/coverage/run_cov.tcl",
++    "out/arena-debug/finalize/sta/README.md",
++    "out/arena-debug/finalize/sta/sta_probe.tcl",
++    "out/arena-debug/finalize/synth/README.md",
++    "out/arena-debug/finalize/tests/README.md",
++    "out/arena-debug/finalize/write_sha256.py",
++    "out/arena-debug/finalize/make_patch.py",
++]
++
++
++def run(*args: str, cwd: Path = ROOT) -> subprocess.CompletedProcess[bytes]:
++    return subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++
++
++def sha(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++pieces: list[bytes] = []
++for rel in EXISTING:
++    old = ROOT / (BACKUP_REL + rel)
++    cur = ROOT / rel
++    if not old.is_file() or not cur.is_file():
++        raise SystemExit(f"missing pre-edit backup/current: {rel}")
++    res = run("git", "diff", "--no-index", "--", BACKUP_REL + rel, rel)
++    if res.returncode not in (0, 1):
++        raise SystemExit(f"git diff failed {rel}: {res.stderr.decode(errors='replace')}")
++    if res.returncode == 1:
++        pieces.append(res.stdout.replace(b"a/" + BACKUP_REL.encode(), b"a/"))
++for rel in ADDED:
++    if not (ROOT / rel).is_file():
++        raise SystemExit(f"missing new file: {rel}")
++    res = run("git", "diff", "--no-index", "--", "/dev/null", rel)
++    if res.returncode != 1:
++        raise SystemExit(f"git new-file diff failed {rel}: rc={res.returncode} {res.stderr.decode(errors='replace')}")
++    pieces.append(res.stdout)
++PATCH.write_bytes(b"".join(pieces))
++
++log = [f"COMMAND: python {Path(__file__).relative_to(ROOT).as_posix()}",
++       f"PATCH: {PATCH.relative_to(ROOT).as_posix()} bytes={PATCH.stat().st_size}"]
++rev = run("git", "apply", "-R", "--check", PATCH.as_posix())
++log.append(f"git apply -R --check rc={rev.returncode}")
++log.append(rev.stdout.decode(errors="replace") + rev.stderr.decode(errors="replace"))
++if rev.returncode:
++    (BASE / "patch_verify.log").write_text("\n".join(log), encoding="utf-8")
++    raise SystemExit("reverse check FAILED; see patch_verify.log")
++with tempfile.TemporaryDirectory(prefix="diansai_finalize_patch_") as d:
++    stage = Path(d)
++    for rel in EXISTING:
++        dest = stage / rel
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(ROOT / (BACKUP_REL + rel), dest)
++    check = run("git", "apply", "--check", PATCH.as_posix(), cwd=stage)
++    log.append(f"isolated backup git apply --check rc={check.returncode}")
++    log.append(check.stdout.decode(errors="replace") + check.stderr.decode(errors="replace"))
++    if check.returncode:
++        (BASE / "patch_verify.log").write_text("\n".join(log), encoding="utf-8")
++        raise SystemExit("forward check FAILED; see patch_verify.log")
++    applied = run("git", "apply", PATCH.as_posix(), cwd=stage)
++    log.append(f"isolated backup git apply rc={applied.returncode}")
++    log.append(applied.stdout.decode(errors="replace") + applied.stderr.decode(errors="replace"))
++    different = [rel for rel in EXISTING + ADDED if
++                 not (stage / rel).exists() or sha(stage / rel) != sha(ROOT / rel)]
++    log.append(f"byte-for-byte staged file mismatches: {different}")
++    if different or applied.returncode:
++        (BASE / "patch_verify.log").write_text("\n".join(log), encoding="utf-8")
++        raise SystemExit("staged patch differs; see patch_verify.log")
++(BASE / "patch_verify.log").write_text("\n".join(log) + "\n", encoding="utf-8")
++print(f"PATCH PASS: reverse/forward/byte-equality, {len(EXISTING)} old + {len(ADDED)} new")

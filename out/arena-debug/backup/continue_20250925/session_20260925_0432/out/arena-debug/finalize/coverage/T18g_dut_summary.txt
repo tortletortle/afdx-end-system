@@ -1,0 +1,4 @@
+Recursive Coverage Report Summary Data by instance
+
+Total coverage (filtered view): 79.60%
+

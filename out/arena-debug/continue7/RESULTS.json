@@ -1,0 +1,57 @@
+{
+  "date": "2026-09-27",
+  "task": "continue7-finalize",
+  "device": {
+    "family": "Stratix IV",
+    "part": "EP4SGX230HF35C2",
+    "qsf_guard": "passed"
+  },
+  "regression": {
+    "result": "56/56",
+    "wall_s": 473.8,
+    "rerun_in_finalize": false,
+    "evidence": "raw/step1_regress.log"
+  },
+  "map": {
+    "status": "successful",
+    "errors": 0,
+    "warnings": 84,
+    "elapsed": "00:47:31",
+    "initial_failure": "Family name Cyclone IV GX is illegal",
+    "retry_log": "raw/step1_map_retry.log"
+  },
+  "post_map_sta": {
+    "status": "successful",
+    "post_map_only": true,
+    "signoff": false,
+    "clock_period_ns": 8.0,
+    "sdc_guard": "clk=8.000 ns",
+    "fmax_mhz": 45.84,
+    "wns_ns": -13.815,
+    "endpoint_tns_ns": -700108.256,
+    "worst_from": "tx_port_buf:u_txbuf|s1_vld",
+    "worst_to": "tx_port_buf:u_txbuf|s1_desc[0]",
+    "worst_data_delay_ns": 21.292,
+    "unconstrained_input_ports": 71,
+    "unconstrained_output_ports": 121
+  },
+  "continue6_baseline": {
+    "fmax_mhz": 45.85,
+    "wns_ns": -13.809,
+    "endpoint_tns_ns": -724179.5
+  },
+  "delta_vs_continue6": {
+    "fmax_mhz": -0.01,
+    "wns_ns": -0.006,
+    "endpoint_tns_ns": 24071.244
+  },
+  "decision": {
+    "classification": "negative_benefit",
+    "tx_port_buf_banking": "reverted",
+    "reaches_125mhz": false,
+    "rtl_sha256_after_revert": "349f7dde3b98587cb02cd63b393a3a434683ebc16f1211aaed63df8f64cbb9ff",
+    "backup_sha256": "349f7dde3b98587cb02cd63b393a3a434683ebc16f1211aaed63df8f64cbb9ff",
+    "revert_verified": true
+  }
+}
+

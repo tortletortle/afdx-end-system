@@ -1,0 +1,10 @@
+DIFF rtl/common/rst_sync.v: 759 bytes
+DIFF rtl/top/AFDX_top.v: 2369 bytes
+git apply --directory=out/arena-debug/continue3/replay --check C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+git apply --directory=out/arena-debug/continue3/replay C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+BYTE_IDENTICAL rtl/common/rst_sync.v sha256=dcc4f72f1e21bd691b6456dd505f770121b8d79d4112120c4d4d04b123af2cf1
+BYTE_IDENTICAL rtl/top/AFDX_top.v sha256=1094f9dfd27c5be6882b8b15dc0d4be6e6f4c2262eb7bfa11fc54bf595cda34e
+git apply --check --reverse --directory=out/arena-debug/continue3/replay_undo C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+git apply --reverse --directory=out/arena-debug/continue3/replay_undo C:\Workspace\diansai\out\arena-debug\continue3\fixes.patch rc=0 stderr=
+REVERSE_BYTE_IDENTICAL rtl/common/rst_sync.v sha256=c0829708816348af8e0a510277231feee45389aae788de711e96a46c00cfc53e
+REVERSE_BYTE_IDENTICAL rtl/top/AFDX_top.v sha256=f975bdc6bf9b672de250cf119346bfb2c30a7b3927aa5df3cf130f47ca95bb6d

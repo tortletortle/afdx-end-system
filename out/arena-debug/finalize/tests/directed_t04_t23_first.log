@@ -1,0 +1,15 @@
+T08a vectors: 22 cases, 1145 words, CRC raw residue DEBB20E3, max 1519 B
+COMPILE rc=0 wall_s=2.4
+COMPILE OK (0 errors)
+[1/4] T04 tb_t04_tx_chain -> PASS (9.1 s) # T04 TXCHAIN PASS (IF_MODE=0, 138 frames, BAG/FCS/SN/payload/dual-net/IFG ok, single-VL gap 4220..4360 cyc)
+[2/4] T04g tb_t04g_tx_chain -> PASS (7.8 s) # T04 TXCHAIN PASS (IF_MODE=1, 140 frames, BAG/FCS/SN/payload/dual-net/IFG ok, single-VL gap 4229..4674 cyc)
+[3/4] T23 tb_t23_sap_min -> FAIL (3.8 s) # T23 SAP MINIMAL FAIL (IF_MODE=0 errors=1)
+[4/4] T23g tb_t23g_sap_min -> PASS (3.3 s) # T23 SAP MINIMAL PASS (IF_MODE=1 accept=2 return=2 SN=0,1 port=5 plen=8 pmem=8B pb1_collisions=2 overlap=1 max_wait=0 disabled_rsap=1)
+REGRESS SUMMARY: 3/4 pass, wall_s=26.4
+CSV: out/regress.csv
+test_id,config,tb,result,max_dev,wall_s,summary
+T04,default,tb_t04_tx_chain,PASS,na,9.1,# T04 TXCHAIN PASS (IF_MODE=0; 138 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4220..4360 cyc)
+T04g,gmii,tb_t04g_tx_chain,PASS,na,7.8,# T04 TXCHAIN PASS (IF_MODE=1; 140 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4229..4674 cyc)
+T23,sap-minimal,tb_t23_sap_min,FAIL,na,3.8,# T23 SAP MINIMAL FAIL (IF_MODE=0 errors=1)
+T23g,sap-minimal-gmii,tb_t23g_sap_min,PASS,na,3.3,# T23 SAP MINIMAL PASS (IF_MODE=1 accept=2 return=2 SN=0;1 port=5 plen=8 pmem=8B pb1_collisions=2 overlap=1 max_wait=0 disabled_rsap=1)
+EXIT_CODE=1 ELAPSED_S=27.1

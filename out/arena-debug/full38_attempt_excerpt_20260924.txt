@@ -1,0 +1,8 @@
+﻿Full 38-item attempt excerpt (not registered as PASS)
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File C:/Workspace/diansai/sim/run_regress.ps1
+Observed: initial tests through T10 IF_MODE=0 passed, then T10g hit Questa/vish RPC/license disconnect and left simulator processes. Subsequent tests failed mostly with work library/optimization errors caused by the stale simulator state.
+Key lines observed:
+[18/38] T10 tb_t10_top_rm -> PASS ...
+[19/38] T10g tb_t10g_top_rm -> FAIL ... TIMEOUT(600s)
+T10g console tail: vish lost connection to vsim process; Fatal: Exiting VSIM license process; Unexpected EOF on RPC channel.
+Cleanup: Stop-Process for vsim/vish/vlm/vlog/vcom/vopt, then reran T10g, T11/T11g/T21/T21g, and tail 15-test subset; all reruns PASS.

@@ -1,0 +1,17 @@
+{
+  "mission": "Continue6 P0 timing convergence",
+  "date": "2026-09-26",
+  "status": "blocked_before_baseline",
+  "workspace": "C:\Workspace\diansai",
+  "inherited_reference_unverified": {"fmax_mhz": 42.15, "worst_setup_slack_ns": -15.72},
+  "regression": {"expected_tests": 56, "status": "not_run", "passed": null, "failed": null},
+  "sdc_guard": {"expected_clock_ns": 8.0, "status": "not_run"},
+  "post_map_sta": {"status": "not_run", "fmax_mhz": null, "wns_ns": null, "tns_ns": null},
+  "optimization_steps": [],
+  "source_modified": false,
+  "questa_launched": false,
+  "blocker": "MCP run_command could not spawn C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe (ENOENT). Host process/license preflight and all EDA execution remain unverified.",
+  "artifact_location": {"requested": "out/arena-debug/continue6/", "actual": "out/arena-debug/ (CONTINUE6_* filenames)", "reason": "MCP patch tool rejected creation because the intermediate parent directory does not exist."},
+  "patches": {"fixes": null, "timing_steps": [], "rejected": []},
+  "limitations": ["No timing numbers were measured in this attempt.", "Inherited reference figures are not independently confirmed.", "No source backup was needed because no design files were changed."]
+}

@@ -9,7 +9,11 @@ if {![info exists env(VLOG_SRC)]} {
 }
 file delete -force work
 vlib work
-if {[catch {vlog -sv +notimingcheck {*}$env(VLOG_SRC)} msg]} {
+set cov_args {}
+if {[info exists env(VLOG_COVERAGE)] && $env(VLOG_COVERAGE) == "1"} {
+  set cov_args {+cover=sb}
+}
+if {[catch {vlog -sv +notimingcheck {*}$cov_args {*}$env(VLOG_SRC)} msg]} {
   puts "VLOG-ERROR: $msg"
   quit -f -code 1
 }

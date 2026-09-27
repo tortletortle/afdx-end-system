@@ -1,0 +1,8 @@
+T12f isolated top RTL faults: compile, then FAIL (a pass is MISSED)
+original top RTL SHA-256: 87BF747E5801BE9B7ACCD3EAAA4D481BAECD080E76B67C8315E1529DE1F0E421
+rx_gate_bypass DETECTED (compiled=True, TB_FAIL=True, rc=0)
+commit_without_entry DETECTED (compiled=True, TB_FAIL=True, rc=0)
+seed_rewrite_keeps_commit DETECTED (compiled=True, TB_FAIL=True, rc=0)
+host_hash_base_minus_two DETECTED (compiled=True, TB_FAIL=True, rc=0)
+host_hash_readback_disabled DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T12 TOP MUTATION SUMMARY: 5/5 detected

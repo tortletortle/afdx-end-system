@@ -1,0 +1,26 @@
+COMMAND=C:\Program Files (x86)\eHiWay\eLinx3.0\bin\Passkey\bin\quartus_sta.exe -t C:\Workspace\diansai\out\arena-debug\finalize\sta\sta_probe.tcl
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
+    Info: Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Full Version
+    Info: Copyright (C) 1991-2013 Altera Corporation. All rights reserved.
+    Info: Your use of Altera Corporation's design tools, logic functions 
+    Info: and other software and tools, and its AMPP partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Altera Program License 
+    Info: Subscription Agreement, Altera MegaCore Function License 
+    Info: Agreement, or other applicable license agreement, including, 
+    Info: without limitation, that your use is for the sole purpose of 
+    Info: programming logic devices manufactured by Altera and sold by 
+    Info: Altera or its authorized distributors.  Please refer to the 
+    Info: applicable agreement for further details.
+    Info: Processing started: Fri Sep 25 11:21:13 2026
+Info: Command: quartus_sta -t C:\Workspace\diansai\out\arena-debug\finalize\sta\sta_probe.tcl
+STA_PROBE: attempting TimeQuest read_netlist without a compiled project
+STA_BLOCKED_NO_NETLIST: ERROR: Quartus II Tcl command "read_netlist" is only available for use in the following executables:
+	qacv
+	quartus
+	quartus_cdb
+
+EXIT_CODE=3 ELAPSED_S=6.87

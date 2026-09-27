@@ -1,0 +1,97 @@
+{
+  "round": "continue5",
+  "date": "2026-09-26",
+  "mission": "out/arena-debug/MISSION-CONTINUE5-FINALIZE.md",
+  "mission_sha256": "0e7219dbcaa2165d92a3dd4cc4f31a8a7d134ac8403039fc9bff892f61aaef2a",
+  "status": "GOAL_1_GMII_VARIANTS_DONE_GOAL_2_COVERAGE_REPORT_DONE_GOAL_3_FULL_REGRESS_56_GATES_PASS",
+  "goal_1_gmii_variants": {
+    "description": "T14/T15/T16 各增加 IF_MODE=1 (GMII) 变体用例 (T14g/T15g/T16g)，进入 tests.manifest (53->56)，并在 run_regress.ps1 中配置映射与通过定向回归验证",
+    "done": true,
+    "modules": [
+      "tb_t14_stats_regs_gmii",
+      "tb_t15_snmp_gmii",
+      "tb_t16_tftp_rtc_gmii"
+    ],
+    "backup_dir": "out/arena-debug/continue5/backup/gmii-variants",
+    "manifest_count": {
+      "before": 53,
+      "after": 56
+    },
+    "targeted_regress": {
+      "cases": 6,
+      "pass": 6,
+      "fail": 0,
+      "csv": "raw/targeted_final_regress.csv"
+    }
+  },
+  "goal_2_coverage_report": {
+    "description": "完成 COVERAGE.md 覆盖率报告，明确区分含 TB 与 RTL-only 覆盖率，并基于 coverage_metrics.json 深入剖析 Top-15 未覆盖 RTL 模块原因",
+    "done": true,
+    "report_file": "COVERAGE.md",
+    "metrics": {
+      "inputs_completed_ucdb": 53,
+      "all_details": {
+        "statement_percent": 60.81,
+        "branch_percent": 52.52,
+        "statement": [
+          138059,
+          83960,
+          54099
+        ],
+        "branch": [
+          67673,
+          35542,
+          32131
+        ]
+      },
+      "rtl_only_details": {
+        "statement_percent": 58.93,
+        "branch_percent": 51.62,
+        "statement": [
+          125961,
+          74233,
+          51728
+        ],
+        "branch": [
+          66092,
+          34117,
+          31975
+        ]
+      },
+      "top_uncovered_rtl_count": 15
+    }
+  },
+  "goal_3_gates": {
+    "full_regress_56": {
+      "total": 56,
+      "pass": 56,
+      "fail": 0,
+      "wall_s": 557.9,
+      "csv": "raw/regress_56.csv",
+      "log": "raw/full_regress_56_final.log"
+    },
+    "verilator_lint": {
+      "pass": true,
+      "fail_targets": [],
+      "log": "raw/lint.log"
+    },
+    "run_all_strict": {
+      "pass": true,
+      "log": "raw/run_all_strict.log"
+    }
+  },
+  "coverage_boundaries": [
+    "stats_regs: dmac / ip_csum / udp_csum 三类丢弃计数器恒 0（RX 链路无独立判决源）",
+    "stats_regs: 同拍双网同类丢弃合并记 1；JIT_* 是到达间隔而非 RFC3550 抖动；HIST_VL 只覆盖 VL 0..7",
+    "snmp_lite: 只支持短式与 0x81 长式长度(<=255)；仅 v1/v2c；无 Trap/GETBULK/v3",
+    "snmp_lite: community 为编译期常量 public；OID 叶子号限 0..127",
+    "snmp_lite: 支持按 VL 索引的对象 .5~.9，SET 写 afdxEsCtl / .5 bag 影子寄存器",
+    "a615a_tftp: RRQ 只服务 32 B STATUS 文件；不支持 OACK/选项协商；不做 A615-A 上层协议",
+    "rtc_sync: 分辨率 1 us，不宣称亚微秒；pps_in 只有 3 拍同步器，未做 CDC 签核",
+    "rtc_sync: 顶层 sync_vld 硬接 0，报文对时只在 T16 单元级验证",
+    "mgmt: 两个引擎的响应只编码并经 MGMT 观测窗读出，未接入 TX 帧构建器（管理面回包不上线）",
+    "mgmt: SAP 端口到服务的路由是 AFDX_top 参数而非运行时寄存器",
+    "mgmt: mgmt_sap_rx 本地缓冲 160 字(640 B)，超长载荷截断并计入 trunc_cnt"
+  ],
+  "discipline_deviations": []
+}

@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/top/init_sweep.v
+hierarchy -top init_sweep
+synth
+stat

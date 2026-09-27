@@ -1,0 +1,20 @@
+﻿Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Start time: 11:19:03 on Sep 25,2026
+vcover merge -help 
+       vcover merge <merge_options> <outfile> <input1> [<input2>...<inputn>]
+       <merge_options> = [-and] [-append] [-ignoredusig] [-multiuserenv] [-mergedesigndiffs]  [-inputs <cmdfile>]
+                   [-install <path>] [-log <file>] [-notagging] [-strip <n>]
+                   [(-instance <path> | -du <du_fullname>) [-recursive]]
+                  [-mapucdb <ucdb_file_name>]  [-master <ucdb_file_name>] [-out <ucdb_file_name>] [-outputstore <output_coverstore_path>]
+                   [-quiet] [-trend] [-combine|-combinemax|-combinemin|-testassociated|-totals]
+                   [-backup] [-checkinputs] [-date <YYYYMMDDHHMMSS>]
+                   [-pathseparator (-=;~!@%^&+|:./)]
+                   [-ucdbchecks] [-verbose] [-version]
+                   [-level <1-4>]  [-silent] [-preservetestcounts] [-forceall] [-ucdb62] [-mergebytokenno]
+       <input>          = [<ucdbfile>|<coverstore[:<testname>[,<testname>]*]]
+       <du_fullname>    = [library.]primary[(secondary)]
+       <common options> = [(-suppress|-note|-warning|-error|-fatal) <msgNumber>[,<msgNumber>...]] 
+                          [-stats[=[+-]all,none,time,cmd,msg,perf,verbose,list,kb]] [-[w]prof=<filename>] [-proftick=<integer>]
+                          [-lockingnone|-lockingfull] [-timeout <n>]
+End time: 11:19:03 on Sep 25,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0

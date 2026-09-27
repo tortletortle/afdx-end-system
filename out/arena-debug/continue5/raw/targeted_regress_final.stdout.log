@@ -1,0 +1,19 @@
+T15/T16 mgmt vectors: 27 cases, 899 words, max 563 B, crcD1=8285582B crcAll=967C33B9
+T08a vectors: 22 cases, 1145 words, CRC raw residue DEBB20E3, max 1519 B
+COMPILE rc=0 wall_s=1.7
+COMPILE OK (0 errors)
+[1/6] T14 tb_t14_stats_regs -> PASS (6.5 s) # T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW, 1 real frame, bytes=64, scoreboard match)
+[2/6] T15 tb_t15_snmp -> PASS (4.8 s) # T15 SNMP PASS (unit: 12 real BER PDUs, GET/GETNEXT/SET, STATS_BLOCK, noSuchName/readOnly/badValue/community-drop, OCTET STRING, multi-varbind; top: 12 on-wire SAP frames decoded, 11 answered, 1 dropped on community)
+[3/6] T16 tb_t16_tftp_rtc -> PASS (5.1 s) # T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: 8 on-wire SAP frames, load area verified, pps fired)
+[4/6] T14g tb_t14_stats_regs_gmii -> PASS (5.7 s) # T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW, 1 real frame, bytes=64, scoreboard match)
+[5/6] T15g tb_t15_snmp_gmii -> PASS (4.5 s) # T15 SNMP PASS (unit: 12 real BER PDUs, GET/GETNEXT/SET, STATS_BLOCK, noSuchName/readOnly/badValue/community-drop, OCTET STRING, multi-varbind; top: 12 on-wire SAP frames decoded, 11 answered, 1 dropped on community)
+[6/6] T16g tb_t16_tftp_rtc_gmii -> PASS (4.9 s) # T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: 8 on-wire SAP frames, load area verified, pps fired)
+REGRESS SUMMARY: 6/6 pass, wall_s=33.5
+CSV: out/regress.csv
+test_id,config,tb,result,max_dev,wall_s,summary
+T14,stats-page,tb_t14_stats_regs,PASS,na,6.5,# T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW; 1 real frame; bytes=64; scoreboard match)
+T15,snmp-lite,tb_t15_snmp,PASS,na,4.8,# T15 SNMP PASS (unit: 12 real BER PDUs; GET/GETNEXT/SET; STATS_BLOCK; noSuchName/readOnly/badValue/community-drop; OCTET STRING; multi-varbind; top: 12 on-wire SAP frames decoded; 11 answered; 1 dropped on community)
+T16,tftp-rtc,tb_t16_tftp_rtc,PASS,na,5.1,# T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: 8 on-wire SAP frames; load area verified; pps fired)
+T14g,stats-page-gmii,tb_t14_stats_regs_gmii,PASS,na,5.7,# T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW; 1 real frame; bytes=64; scoreboard match)
+T15g,snmp-lite-gmii,tb_t15_snmp_gmii,PASS,na,4.5,# T15 SNMP PASS (unit: 12 real BER PDUs; GET/GETNEXT/SET; STATS_BLOCK; noSuchName/readOnly/badValue/community-drop; OCTET STRING; multi-varbind; top: 12 on-wire SAP frames decoded; 11 answered; 1 dropped on community)
+T16g,tftp-rtc-gmii,tb_t16_tftp_rtc_gmii,PASS,na,4.9,# T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: 8 on-wire SAP frames; load area verified; pps fired)

@@ -1,0 +1,246 @@
+{
+  "date": "2026-09-26",
+  "status": "FINALIZED_TIMING_NOT_CLOSED",
+  "gate_logs_reexecuted": false,
+  "rtl": [
+    {
+      "path": "rtl/top/stats_regs.v",
+      "lines": 308,
+      "bytes": 13464,
+      "sha256": "ca9ef2bdca68d5484964e822e9c33d91b0398ca62ac5594b6b5336a2a0467d59",
+      "non_stub": true
+    },
+    {
+      "path": "rtl/mgmt/snmp_lite.v",
+      "lines": 565,
+      "bytes": 24958,
+      "sha256": "4e25e970dbeb9620e6b0e2d40235925cfae8c89f0a8866531cced5b0b3ec3e14",
+      "non_stub": true
+    },
+    {
+      "path": "rtl/mgmt/a615a_tftp.v",
+      "lines": 360,
+      "bytes": 16242,
+      "sha256": "74d2117afb22676312c44cdbc1d3cf065de3dd0f8c72d68e34c5534ab7aa50f4",
+      "non_stub": true
+    },
+    {
+      "path": "rtl/mgmt/rtc_sync.v",
+      "lines": 149,
+      "bytes": 6572,
+      "sha256": "998bc5b20ff121f58def1d446b86c32a5f28177669254e009fd4c91a5be5d725",
+      "non_stub": true
+    }
+  ],
+  "manifest_cases": 53,
+  "gates": {
+    "regress_clean53": {
+      "pass": 53,
+      "total": 53,
+      "wall_s": 542.0,
+      "log_sha256": "9ff532a41b5ea4180aa75109538adadd33613927cdfe8723ddd48f5a1ab40964",
+      "csv_sha256": "53c6318d974a7fef6a524aa8420caf95e065cde0bb7a773d7b489155c9203f51"
+    },
+    "regress_timing_attempt": {
+      "pass": 53,
+      "total": 53,
+      "wall_s": 477.2,
+      "log_sha256": "b9b7c7b9d8debbc2948ed72e74b0172646c130c03eca1d2f1f525a8ddf25614f",
+      "csv_sha256": "6b93fa68483af06c9a409265e18726fd3648b89c89da5bd10ec8292befa3691c"
+    },
+    "lint": {
+      "error_diagnostics": 0,
+      "gate_pass": true,
+      "sha256": "16a1fee32f2b073fbce4ac8dbe39bc5055e0480b7fa547090e2544d18817306a",
+      "scope": "historical, before retained RTC candidate"
+    },
+    "strict": {
+      "pass": 5,
+      "total": 5,
+      "sha256": "7f14fc4714645a38f8a3753e4bc7b07083fff51d6f9bb78963c9a0a22219b041",
+      "scope": "historical document/model check, not RTL signoff"
+    }
+  },
+  "baseline_sta": {
+    "attempted": true,
+    "map_rc": 0,
+    "map_wall_s": 592.0,
+    "sta_rc": 0,
+    "sta_wall_s": 116.3,
+    "sdc_guard_8ns_seen": true,
+    "sdc_guard_log_seen": true,
+    "worst_setup_slack_ns": -18.569,
+    "end_point_tns_ns": -661896.147,
+    "fmax_mhz": 37.64,
+    "map_completion_seen": true,
+    "sta_completion_seen": true,
+    "map_log": "raw/map_base.log",
+    "sta_log": "raw/sta_base.log",
+    "measurement_scope": "management baseline before retained RTC pipeline",
+    "rc_evidence": "ASCII trailers appended to UTF-16 PowerShell logs",
+    "sdc_rpt": "raw/sta/BASE_post_map_sdc.rpt",
+    "fmax_rpt": "raw/sta/BASE_post_map_fmax.rpt",
+    "setup_summary_rpt": "raw/sta/BASE_post_map_setup_summary.rpt",
+    "measurement_complete": true,
+    "timing_closed": false
+  },
+  "candidate_sta": {
+    "attempted": true,
+    "map_rc": 0,
+    "map_wall_s": 615.3,
+    "sta_rc": 0,
+    "sta_wall_s": 138.8,
+    "sdc_guard_8ns_seen": true,
+    "sdc_guard_log_seen": true,
+    "worst_setup_slack_ns": -15.723,
+    "end_point_tns_ns": -665200.142,
+    "fmax_mhz": 42.15,
+    "map_completion_seen": true,
+    "sta_completion_seen": true,
+    "map_log": "raw/map_cand.log",
+    "sta_log": "raw/sta_cand.log",
+    "measurement_scope": "retained RTC two-cycle candidate; post-map only, NOT routed timing signoff",
+    "rc_evidence": "ASCII trailers appended to UTF-16 PowerShell logs",
+    "sdc_rpt": "raw/sta/post_map_sdc.rpt",
+    "fmax_rpt": "raw/sta/post_map_fmax.rpt",
+    "setup_summary_rpt": "raw/sta/post_map_setup_summary.rpt",
+    "measurement_complete": true,
+    "timing_closed": false,
+    "valid_for_current_rtl": true
+  },
+  "sta_report_pairs": {
+    "post_map_sdc.rpt": {
+      "base_sha256": "9b06bd7680efb6b2147578866ea63fc46f742532fcb87506215bf086caed7f1e",
+      "candidate_sha256": "9b06bd7680efb6b2147578866ea63fc46f742532fcb87506215bf086caed7f1e",
+      "byte_identical": true
+    },
+    "post_map_fmax.rpt": {
+      "base_sha256": "3099441700d3b04a32cd904749befaf3bcb73e230682f73f436533e54a4428d0",
+      "candidate_sha256": "a70396f3195b5b98ee158121bfbf69c532ed8793cd6d1b9b8e6be244541ecb8b",
+      "byte_identical": false
+    },
+    "post_map_setup_summary.rpt": {
+      "base_sha256": "6eaf0f125520f53c55b6268da18a092da777cdb030ba475d7949365f138461b6",
+      "candidate_sha256": "6c62a29ba6c1be0da11f3a54d38d3894cdf1f98ed44277ad511bc19493ba2cca",
+      "byte_identical": false
+    }
+  },
+  "candidate_post_map_measurement_verified": true,
+  "timing_closed": false,
+  "git_head_for_baseline_lookup": "b960cbcf1479c65bad06416e703a63f400b2cf1a",
+  "patch_replay": [
+    {
+      "path": "rtl/top/stats_regs.v",
+      "baseline": "backup/rtl/top/stats_regs.v",
+      "baseline_text_sha256": "2cad2a857abbc91fc735cf1ca9bdf42a75cae017e6c50abc225a417b2f6172d3",
+      "current_sha256": "ca9ef2bdca68d5484964e822e9c33d91b0398ca62ac5594b6b5336a2a0467d59",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "rtl/top/AFDX_top.v",
+      "baseline": "backup/rtl/top/AFDX_top.v",
+      "baseline_text_sha256": "f975bdc6bf9b672de250cf119346bfb2c30a7b3927aa5df3cf130f47ca95bb6d",
+      "current_sha256": "831d587dcb1d2897731e9563b1d0f0211add00f9fbe0726527f8fdbd0227cabb",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "rtl/mgmt/snmp_lite.v",
+      "baseline": "backup/rtl/mgmt/snmp_lite.v",
+      "baseline_text_sha256": "ae9010c752fd277b7309b543a28091ad39eaf615d5e5a3e07970e99d8463aa30",
+      "current_sha256": "4e25e970dbeb9620e6b0e2d40235925cfae8c89f0a8866531cced5b0b3ec3e14",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "rtl/mgmt/a615a_tftp.v",
+      "baseline": "backup/rtl/mgmt/a615a_tftp.v",
+      "baseline_text_sha256": "92283719ae5a76ce8fa7032fc9f1bc99ff12f0d63e403c58f950c0f11bb66b38",
+      "current_sha256": "74d2117afb22676312c44cdbc1d3cf065de3dd0f8c72d68e34c5534ab7aa50f4",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "rtl/mgmt/rtc_sync.v",
+      "baseline": "backup/rtl/mgmt/rtc_sync.v",
+      "baseline_text_sha256": "c3a9a5151dba5cce47fea7a8885c69b641ae4fe082997f6746fc3f4179a5543c",
+      "current_sha256": "998bc5b20ff121f58def1d446b86c32a5f28177669254e009fd4c91a5be5d725",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "rtl/mgmt/mgmt_sap_rx.v",
+      "baseline": "MISSING: full image only",
+      "baseline_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "dd6ca7639f784c360d0041788eb982b6de8331b5b3e061a266c90d3b7b5c88e5",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "rtl/common/timebase.v",
+      "baseline": "backup/rtl/common/timebase.v",
+      "baseline_text_sha256": "895cfa722f170ce2ba44a30740296faed1d5d61edd18cbf212fad413856b3c5d",
+      "current_sha256": "1eb5a4a3b33345a7587cb7c5f52a2cc7f5255ee2311ed124dfae6e7dbedd3678",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "sim/tests.manifest",
+      "baseline": "backup/sim/tests.manifest",
+      "baseline_text_sha256": "eb85c604c06989411fd5bcb38a3842b9aae1a7357c4c75b12252c8243892bc7d",
+      "current_sha256": "07492e67265380efa83352dabd96aa533022934c757041e50ca1bdc02289dc52",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "sim/run_regress.ps1",
+      "baseline": "backup/sim/run_regress.ps1",
+      "baseline_text_sha256": "a9b3006269f5d6d8bbef8d97f5a5503113410b32691c0d4cc790f7c7918ec5bc",
+      "current_sha256": "d5c3be48eeed12077e7b8fa39f921ac09c398e84bb56ac20d89711e7f592b641",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "tools_lint.ps1",
+      "baseline": "git HEAD",
+      "baseline_text_sha256": "3df06b8740a0e15715cfa31c93abf277290e3b5088a87457d2928e99eb785898",
+      "current_sha256": "aa76df0b36d26b1422d9875606fc42f1f929f09b41d03519f0a7768e40b14cc1",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "sim/tb/tb_t14_stats_regs.v",
+      "baseline": "new file",
+      "baseline_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "7c0cf1d15fd5ae723b44ceb80fd932431c27c9f85a84951f393538addb9f38e6",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "sim/tb/tb_t15_snmp.v",
+      "baseline": "new file",
+      "baseline_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "58ad1aa7234e02e9cf8e55e5c31e5027c431e1dbbf304404b92f0297e186e2b3",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "sim/tb/tb_t16_tftp_rtc.v",
+      "baseline": "new file",
+      "baseline_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "9c4f6b0fa07f13d0200daf847de46e65126ed5a838ff277d50c134c87669cd84",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "sw/golden/gen_t15_vectors.py",
+      "baseline": "new file",
+      "baseline_text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "2213d9687a6e6216245794cb6107f115aeae2c871f0da5d54418858c9855a8bb",
+      "replay_matches_current_text": true
+    },
+    {
+      "path": "elinx/prj/AFDX_top_synth.ys",
+      "baseline": "backup/elinx/prj/AFDX_top_synth.ys",
+      "baseline_text_sha256": "a709ad59efb02e2e79435968b5a56b9c6c8e4b3869baa165752ab28f65978955",
+      "current_sha256": "d167730eadad4827cd53f34da2041bab967f3f57d9cb6dae3b2117d7be63680e",
+      "replay_matches_current_text": true
+    }
+  ],
+  "patch_sha256": "6ee9188f641d6c335ea990d0b0862975d4f445eb73e9ddae55c4f0bebd62fff6",
+  "results_sha256": "abaebaa2d0baa8a33e92c56267b6aa7fac0c2c921f462928c6e527f419429c11",
+  "checks_passed": true,
+  "limitations": [
+    "Candidate post-map measured; WNS/Fmax improved but TNS worsened; 8 ns timing NOT closed.",
+    "Missing pre-round mgmt_sap_rx baseline; patch includes full image only.",
+    "Historical clean53/lint/strict predate candidate; no new RTL/synthesis run during finalize."
+  ]
+}

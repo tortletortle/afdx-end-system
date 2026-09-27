@@ -1,0 +1,68 @@
+﻿# Rollback patch: apply this file with git apply -R
+
+diff --git a/out/arena-debug/continue7/backup/step1/tx_port_buf.v b/rtl/tx/tx_port_buf.v
+index 543e3a4..3236b2c 100644
+--- a/out/arena-debug/continue7/backup/step1/tx_port_buf.v
++++ b/rtl/tx/tx_port_buf.v
+@@ -82,7 +82,13 @@ module tx_port_buf #(
+   localparam [D_W-1:0] M_FRESH = (28'h1 << B_FRESH);
+ 
+   // ---- 存储 ----
+-  reg [D_W-1:0] desc [0:NUM_PORTS-1];   // 描述符（不复位）
++  // Four banks keep each asynchronous descriptor read mux at 64 entries
++  // instead of one 256-entry mux.  Port[1:0] selects the bank and
++  // port[7:2] selects the row; the externally visible addressing is unchanged.
++  reg [D_W-1:0] desc_b0 [0:(NUM_PORTS/4)-1];
++  reg [D_W-1:0] desc_b1 [0:(NUM_PORTS/4)-1];
++  reg [D_W-1:0] desc_b2 [0:(NUM_PORTS/4)-1];
++  reg [D_W-1:0] desc_b3 [0:(NUM_PORTS/4)-1];
+   reg [7:0]     qst  [0:NUM_PORTS-1];   // {tail[3:0], cnt[3:0]}（不复位）
+   reg [12:0]    len_tab [0:15];         // 每块消息字节数（队列非队头项用）
+   reg [3:0]     next_tab [0:15];        // 块链
+@@ -153,6 +159,10 @@ module tx_port_buf #(
+   reg  [7:0]     wb_qst;
+   reg            wb_we;
+   wire bypass = s1_vld & wb_we & (s1_port == ev_port);
++  wire [D_W-1:0] ev_desc = (ev_port[1:0] == 2'd0) ? desc_b0[ev_port[7:2]] :
++                             (ev_port[1:0] == 2'd1) ? desc_b1[ev_port[7:2]] :
++                             (ev_port[1:0] == 2'd2) ? desc_b2[ev_port[7:2]] :
++                                                       desc_b3[ev_port[7:2]];
+ 
+   always @(posedge clk) begin
+     if (rst_sync) begin
+@@ -174,7 +184,7 @@ module tx_port_buf #(
+       s1_vld       <= ev_vld;
+       s1_is_commit <= ev_commit;
+       s1_port      <= ev_port;
+-      s1_desc      <= bypass ? wb_desc : desc[ev_port];
++      s1_desc      <= bypass ? wb_desc : ev_desc;
+       s1_qst       <= bypass ? wb_qst  : qst[ev_port];
+       s1_len       <= len[12:0];
+       s1_type      <= port_type;
+@@ -287,7 +297,12 @@ module tx_port_buf #(
+   // ---- 回写 desc / qst / 链表 / len_tab ----
+   always @(posedge clk) begin
+     if (wb_we) begin
+-      desc[s1_port] <= wb_desc;
++      case (s1_port[1:0])
++        2'd0: desc_b0[s1_port[7:2]] <= wb_desc;
++        2'd1: desc_b1[s1_port[7:2]] <= wb_desc;
++        2'd2: desc_b2[s1_port[7:2]] <= wb_desc;
++        default: desc_b3[s1_port[7:2]] <= wb_desc;
++      endcase
+       qst[s1_port]  <= wb_qst;
+     end
+   end
+@@ -365,7 +380,11 @@ module tx_port_buf #(
+   end
+ 
+   // ---- 描述符主机只读口（§7.14 0x8180，1 拍延迟）----
++  wire [D_W-1:0] desc_rd_mux = (desc_rd_addr[1:0] == 2'd0) ? desc_b0[desc_rd_addr[7:2]] :
++                                   (desc_rd_addr[1:0] == 2'd1) ? desc_b1[desc_rd_addr[7:2]] :
++                                   (desc_rd_addr[1:0] == 2'd2) ? desc_b2[desc_rd_addr[7:2]] :
++                                                                 desc_b3[desc_rd_addr[7:2]];
+   always @(posedge clk) begin
+-    desc_rd_data <= {4'h0, desc[desc_rd_addr]};
++    desc_rd_data <= {4'h0, desc_rd_mux};
+   end
+ endmodule

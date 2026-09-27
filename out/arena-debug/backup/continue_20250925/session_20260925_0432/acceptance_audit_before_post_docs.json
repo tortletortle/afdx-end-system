@@ -1,0 +1,282 @@
+{
+  "coverage": {
+    "manifest_count": 50,
+    "csv_count": 50,
+    "same_order": true,
+    "passed": 50,
+    "raw_failure_lines": {},
+    "ucdb_count": 50,
+    "ucdb_ids_exact": true
+  },
+  "final": {
+    "manifest_count": 50,
+    "csv_count": 50,
+    "same_order": true,
+    "passed": 50,
+    "raw_failure_lines": {}
+  },
+  "rtl_tb_changed_since_backup": [],
+  "lint_errors": 0,
+  "commands": [
+    {
+      "name": "old_top_repro",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\old_top_repro.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\old_top_repro_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 1,
+      "wall_s": 17.54,
+      "sha256": "3f515023915198bd70dc47717054a098e544cdf20f601f422e5be7ac6eeaab6c"
+    },
+    {
+      "name": "current_top_repro",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\elinx\\prj\\AFDX_top_synth.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\current_top_repro_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 1,
+      "wall_s": 54.46,
+      "sha256": "9e3503a7284e681b177cce6a9cef1872bd0a14e4eda1c056ca7b3171c98d4f3b"
+    },
+    {
+      "name": "rx_cfg_isolate",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\rx_cfg_isolate.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\rx_cfg_isolate_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 4.4,
+      "sha256": "396df0fb3bf92115c5b4b08444f81afd6cbd9983cabafd82d1d28576b4f92451"
+    },
+    {
+      "name": "top_fast_probe",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\top_fast_probe.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\top_fast_probe_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 1,
+      "wall_s": 54.82,
+      "sha256": "09d326bef819b02162fd256c50b63f099bfc74856bd1f82eee9234e1462875c5"
+    },
+    {
+      "name": "sta_probe",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/quartus_sta.exe",
+        "-t",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\finalize\\sta\\sta_probe.tcl"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 3,
+      "wall_s": 0.38,
+      "sha256": "6473403e0971a6c09b0bdb2ece378a2827400d775f007ef945cb443158a0d13d"
+    },
+    {
+      "name": "top_module_isolate",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\top_module_isolate.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\top_module_isolate_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 3221225477,
+      "wall_s": 19.71,
+      "sha256": "1e02ee70ef6a146e9c9f2b2cabe6218e3e8e18e9fbe57486f8c10d29bcb27d17"
+    },
+    {
+      "name": "tx_rm_old",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\tx_rm_old.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\tx_rm_old_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 1,
+      "wall_s": 0.16,
+      "sha256": "f040e5685dec5c0660d95430a20a9d5b1767b7c7c3f8fbf90ade3f6d4cb4044c"
+    },
+    {
+      "name": "tx_rm_current",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\tx_rm_current.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\tx_rm_current_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 0.25,
+      "sha256": "a4a095973e6bb5e283ae1464975ad6429d1db64605e0bbc7595d00b34aa60d43"
+    },
+    {
+      "name": "top_bram_attempt",
+      "argv": [
+        "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+        "-s",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\top_bram_attempt.ys",
+        "-l",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\top_bram_attempt_tool.log"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 1,
+      "wall_s": 59.96,
+      "sha256": "dc129d8cf5e459b54123b369dc950c874134b38863e3c4e6195dbcc357a6a94e"
+    },
+    {
+      "name": "coverage_full50",
+      "argv": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\run_full_cov.ps1"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 389.22,
+      "sha256": "a7564aa84edd0205d1d03151527df44c132aca4de37ebdda2bbbaf781acf8966"
+    },
+    {
+      "name": "coverage_merge",
+      "argv": [
+        "C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe",
+        "merge",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\full50.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T00.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T01.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T02.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T03.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T04.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T04g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T05b.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T05bg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T05c.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08a.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08ag.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08b.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08bg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08c.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08cg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08d.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08dg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08e.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08eg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08f.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T08fg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T09.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T09p.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T09ps.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T09s.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T10.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T10g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T11.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T11g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T11i.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T11ig.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T12c.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T12f.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T12fg.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T12h.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T12r.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T12s.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T13.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T13g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T17.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T17g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T18.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T18g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T21.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T21g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T22.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T22a.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T22g.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T23.ucdb",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\T23g.ucdb"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 0.52,
+      "sha256": "e99b13036b57cd074e7ce147bed8d097e023ec68b3fa3d899578ba1401a087a7"
+    },
+    {
+      "name": "coverage_report",
+      "argv": [
+        "C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe",
+        "report",
+        "-code",
+        "sb",
+        "-summary",
+        "-output",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\merged_summary.txt",
+        "C:\\Workspace\\diansai\\out\\arena-debug\\continue\\session_20260925_0432\\coverage\\full50.ucdb"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 0.25,
+      "sha256": "5d5169f69379b67d6aeb1033bbf5e60437aed8f7f322990c72e8f0fc0e5387a9"
+    },
+    {
+      "name": "final_full50",
+      "argv": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Workspace\\diansai\\sim\\run_regress.ps1"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 329.98,
+      "sha256": "bfba6284ed58b5e6ac30292502164938fc858211aa3727c98290b016d673ab1d"
+    },
+    {
+      "name": "final_lint",
+      "argv": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Workspace\\diansai\\tools_lint.ps1"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 14.27,
+      "sha256": "80ffca117c20a61c266fe384babcd9264526e41381c873a50db1f3bd94fb79e0"
+    },
+    {
+      "name": "final_docgate",
+      "argv": [
+        "python",
+        "C:\\Workspace\\diansai\\tools\\run_all.py",
+        "--strict"
+      ],
+      "cwd": "C:\\Workspace\\diansai",
+      "rc": 0,
+      "wall_s": 0.43,
+      "sha256": "2362429d5c22b6f049fd652a48e002bb34c60433f2e1f12e1ee95bec39579c74"
+    }
+  ]
+}

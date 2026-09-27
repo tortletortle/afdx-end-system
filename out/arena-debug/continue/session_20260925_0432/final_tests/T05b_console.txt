@@ -1,0 +1,32 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t05b_jitter 
+# Start time: 12:43:30 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t05b_jitter(fast)
+#   [T05b INFO] Round 1: max per-VL phase-to-departure delay=4 us (bound <= 500 us); raw first-departure span=800 us (includes deliberate phase offsets)
+# T05b SATURATED JITTER PASS (IF_MODE=0 VLs=32 frames=96 startup_jitter=4us steady_max_jitter=3us avg_steady_jitter=2us link_load=99.86%)
+# ** Note: $finish    : tb/tb_t05b_jitter.v(245)
+#    Time: 2695456 ns  Iteration: 1  Instance: /tb_t05b_jitter/core
+# End time: 12:43:37 on Sep 25,2026, Elapsed time: 0:00:07
+# Errors: 0, Warnings: 0

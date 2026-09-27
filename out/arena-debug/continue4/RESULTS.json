@@ -1,0 +1,195 @@
+{
+  "round": "continue4",
+  "date": "2026-09-26",
+  "mission": "out/arena-debug/MISSION-CONTINUE4.md",
+  "mission_sha256": "3470f6b0d6e4c89a08882fc74f9e02e2bb009e9776c2502cbfa586835045147d",
+  "status": "GOAL_A_DONE_GOAL_B_ATTEMPTED_POSITIVE_KEPT",
+  "goal_a": {
+    "description": "关闭 P1 管理面 OPEN_SPEC_GAP：T14 统计页 / T15 snmp_lite / T16 a615a_tftp+rtc_sync",
+    "done": true,
+    "modules": {
+      "rtl/top/stats_regs.v": {
+        "before_lines": 9,
+        "state": "implemented"
+      },
+      "rtl/mgmt/snmp_lite.v": {
+        "before_lines": 9,
+        "state": "implemented"
+      },
+      "rtl/mgmt/a615a_tftp.v": {
+        "before_lines": 9,
+        "state": "implemented"
+      },
+      "rtl/mgmt/rtc_sync.v": {
+        "before_lines": 9,
+        "state": "implemented"
+      },
+      "rtl/mgmt/mgmt_sap_rx.v": {
+        "before_lines": 50,
+        "state": "extended: PMEM payload fetch + byte-stream fan-out"
+      },
+      "rtl/top/AFDX_top.v": {
+        "before_lines": 1033,
+        "state": "integrated"
+      },
+      "rtl/common/timebase.v": {
+        "before_lines": 48,
+        "state": "bugfix: tick_ctr had no reset -> tick_us never pulsed in simulation"
+      }
+    },
+    "new_tests": [
+      "T14",
+      "T15",
+      "T16"
+    ],
+    "manifest_cases": {
+      "before": 50,
+      "after": 53
+    }
+  },
+  "goal_b": {
+    "description": "P0 时序关键路径结构优化一次尝试",
+    "attempted": true,
+    "kept": true,
+    "change": "rtl/mgmt/rtc_sync.v —— 把 PPS/报文对时的组合链拆成两拍（第 1 拍锁存有符号误差 err_q，第 2 拍才改 offset 与 sec_phase）",
+    "reversible": true,
+    "timing_attempt_patch": "timing_attempt.patch",
+    "rollback": "git apply --reverse timing_attempt.patch（基线副本在 backup/timing_attempt_before/rtc_sync.v）",
+    "continue3_reference": {
+      "fmax_mhz": 42.56,
+      "wns_ns": -15.498,
+      "tns_ns": -567451.74,
+      "note": "不含管理面的旧网表，只能作参考，不是本轮的对照基线"
+    },
+    "measured": {
+      "baseline_this_round": {
+        "meaning": "continue4 的管理面已合入、但尚未做时序改动的 post-map 结果",
+        "fmax_mhz": 37.64,
+        "wns_ns": -18.569,
+        "tns_ns": -661896.147,
+        "critical_path": "rtc_sync:g_rtc.u_rtc|sec_phase[22] -> rtc_sync:g_rtc.u_rtc|offset[63]",
+        "sdc_guard_8ns_ok": true,
+        "map_rc": null,
+        "map_wall_s": null,
+        "sta_rc": null,
+        "reports": [
+          "raw/sta/BASE_post_map_fmax.rpt",
+          "raw/sta/BASE_post_map_setup_summary.rpt",
+          "raw/sta/BASE_post_map_sdc.rpt"
+        ],
+        "logs": [
+          "raw/map_base.log",
+          "raw/sta_base.log"
+        ]
+      },
+      "candidate": {
+        "change": "rtc_sync: 把 PPS/报文对时的 '求误差' 与 '改 offset/相位' 拆成两拍",
+        "fmax_mhz": 42.15,
+        "wns_ns": -15.723,
+        "tns_ns": -665200.142,
+        "critical_path": "rst_sync:u_rstsync|r[2] -> (回到 continue3 的原关键路径)",
+        "sdc_guard_8ns_ok": true,
+        "map_rc": null,
+        "map_wall_s": null,
+        "sta_rc": null,
+        "regress": {
+          "csv": "raw/regress_timing_attempt.csv",
+          "total": 53,
+          "pass": 53,
+          "fail": 0,
+          "failed_ids": [],
+          "sum_wall_s": 474.3,
+          "slowest": [
+            [
+              "T01",
+              164.4
+            ],
+            [
+              "T18",
+              40.6
+            ],
+            [
+              "T18g",
+              11.2
+            ]
+          ]
+        },
+        "reports": [
+          "raw/sta/CAND_post_map_fmax.rpt",
+          "raw/sta/CAND_post_map_setup_summary.rpt",
+          "raw/sta/CAND_post_map_sdc.rpt",
+          "raw/sta/post_map_setup.rpt"
+        ],
+        "logs": [
+          "raw/map_cand.log",
+          "raw/sta_cand.log"
+        ]
+      },
+      "delta": {
+        "fmax_mhz": 4.51,
+        "wns_ns": 2.846,
+        "verdict": "POSITIVE -> kept (功能 53/53 不变，Fmax/WNS 均改善)"
+      }
+    },
+    "caveat": "改善只是把本轮管理面引入的时序退化补回来；设计在 8 ns(125 MHz) 约束下仍然远不收敛。"
+  },
+  "gates": {
+    "regress_baseline_before_change": {
+      "pass": 50,
+      "total": 50,
+      "wall_s": 285.6,
+      "log": "raw/regress_baseline.log"
+    },
+    "regress_after_change": {
+      "csv": "raw/regress_clean53.csv",
+      "total": 53,
+      "pass": 53,
+      "fail": 0,
+      "failed_ids": [],
+      "sum_wall_s": 540.0,
+      "slowest": [
+        [
+          "T01",
+          199.4
+        ],
+        [
+          "T18",
+          58.1
+        ],
+        [
+          "T05b",
+          19.5
+        ]
+      ]
+    },
+    "verilator_lint": {
+      "pass": true,
+      "fail_targets": [],
+      "log": "raw/lint.log"
+    },
+    "run_all_strict": {
+      "pass": true,
+      "log": "raw/run_all_strict.log"
+    }
+  },
+  "coverage_boundaries": [
+    "stats_regs: dmac / ip_csum / udp_csum 三类丢弃计数器恒 0（RX 链路无独立判决源）",
+    "stats_regs: 同拍双网同类丢弃合并记 1；JIT_* 是到达间隔而非 RFC3550 抖动；HIST_VL 只覆盖 VL 0..7",
+    "snmp_lite: 只支持短式与 0x81 长式长度(<=255)；仅 v1/v2c；无 Trap/GETBULK/v3",
+    "snmp_lite: community 为编译期常量 public；OID 叶子号限 0..127",
+    "snmp_lite: 设计书 §7.16 里按 VL 索引的对象 .5~.9 未实现",
+    "snmp_lite: SET 只能写 afdxEsCtl，且只写管理面影子寄存器，未联动主机 CTL(0x0008)",
+    "a615a_tftp: RRQ 只服务 32 B STATUS 文件；不支持 OACK/选项协商；不做 A615-A 上层协议",
+    "rtc_sync: 分辨率 1 us，不宣称亚微秒；pps_in 只有 3 拍同步器，未做 CDC 签核",
+    "rtc_sync: 顶层 sync_vld 硬接 0，报文对时只在 T16 单元级验证",
+    "mgmt: 两个引擎的响应只编码并经 MGMT 观测窗读出，未接入 TX 帧构建器（管理面回包不上线）",
+    "mgmt: SAP 端口到服务的路由是 AFDX_top 参数而非运行时寄存器",
+    "mgmt: mgmt_sap_rx 本地缓冲 160 字(640 B)，超长载荷截断并计入 trunc_cnt",
+    "mgmt: T14/T15/T16 只在 IF_MODE=0 (MII) 下做顶层验证，无 GMII 变体用例"
+  ],
+  "discipline_deviations": [
+    "启动 final53 回归时与上一次 6 条小回归有约 10 s 的 Questa 进程重叠；该次结果未被采信，确认 vsim 全部退出后重新独占跑了一次完整 53 项回归（raw/regress_clean53.log），报告引用后者。",
+    "rtl/mgmt/mgmt_sap_rx.v 与 tools_lint.ps1 首次修改前漏做现场备份，事后以 git HEAD 版本作为 fixes.patch 的基线。"
+  ],
+  "notes": []
+}

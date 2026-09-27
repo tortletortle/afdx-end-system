@@ -1,0 +1,58 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source {C:/Workspace/diansai/sim/out/t09_mut_pebohion/run.tcl}
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 21:58:37 on Sep 23,2026
+# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t09_mut_pebohion/lib C:/Workspace/diansai/sim/out/t09_mut_pebohion/rx_ic.v C:/Workspace/diansai/sim/tb/tb_t09p_rx_ic.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rx_ic
+# -- Compiling module tb_t09p_core
+# -- Compiling module tb_t09p_rx_ic
+# -- Compiling module tb_t09ps_rx_ic
+# 
+# Top level modules:
+# 	tb_t09p_rx_ic
+# 	tb_t09ps_rx_ic
+# End time: 21:58:37 on Sep 23,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+T09_MUTANT_COMPILED
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim -lib C:/Workspace/diansai/sim/out/t09_mut_pebohion/lib tb_t09ps_rx_ic 
+# Start time: 21:58:38 on Sep 23,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t09ps_rx_ic(fast)
+#   [err] N=16 tick=299 sent=36 received=35: output differs from ordered independent scoreboard
+#   [err] N=16 tick=299 sent=36 received=35: PSN memory differs on output retirement
+#   [err] N=16 tick=303 sent=37 received=36: PSN memory differs on output retirement
+#   [err] N=16 tick=395 sent=47 received=46: output differs from ordered independent scoreboard
+#   [err] N=16 tick=396 sent=47 received=46: output differs from ordered independent scoreboard
+#   [err] N=16 tick=396 sent=47 received=46: PSN memory differs on output retirement
+#   [err] N=16 tick=400 sent=48 received=47: output differs from ordered independent scoreboard
+#   [err] N=16 tick=400 sent=48 received=47: PSN memory differs on output retirement
+#   [err] N=16 tick=443 sent=58 received=57: output differs from ordered independent scoreboard
+#   [err] N=16 tick=443 sent=58 received=57: PSN memory differs on output retirement
+#   [err] N=16 tick=447 sent=59 received=58: output differs from ordered independent scoreboard
+#   [err] N=16 tick=447 sent=59 received=58: PSN memory differs on output retirement
+# T09p RX-IC PRESSURE FAIL (N=16 errors=3915)
+# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t09p_rx_ic.v(324)
+#    Time: 129936 ns  Iteration: 1  Instance: /tb_t09ps_rx_ic/core
+# End time: 21:58:40 on Sep 23,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

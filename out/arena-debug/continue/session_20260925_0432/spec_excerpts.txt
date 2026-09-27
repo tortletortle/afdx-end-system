@@ -1,0 +1,105 @@
+787: ### 7.15 `rtc_sync`
+788: 
+789: 功能：维护全局时基并实现与主时钟的同步。
+790: 
+791: - `timebase` 产生 `tick_us`（`CLK_FREQ_HZ/1e6` 分频；`TICK_US` 用于仿真缩放）。RTC 计数器 `rtc64[63:0]`（μs）+ 分数累加器 `frac[15:0]`：每拍 `frac += FREQ_ADJ`，溢出则 `rtc64++`。`FREQ_ADJ` 初值 = `2^16 × (1e6/CLK_FREQ_HZ)` 的整数化（125 MHz 下为 524，与 `timebase.v` 实现一致；原式 `100e6` 为 100 倍笔误，v0.5.3 勘误），提供 ±200 ppm 微调（16 bit，中心值 + 偏移）。
+792: - 同步报文：专用 VL（`SYNC_VL`）的采样端口，报文 32 B = `{tag 0x41464458 "AFDX", master_ts[63:0], seq, flags, reserved}`。硬件在帧首字节到达时锁存 `tb_us`（`t1`）与 SN（`seq`），主时钟时间戳记为 `t0`，偏差 `d = t0 − t1 − est_path`。`est_path` 用 `RTC_PATH_EST` 配置（ES 侧固定延迟补偿，数值取自 T13 端到端回环实测的接收链延迟，与综合无关）。
+793: - 收敛：`|d| > TH_JUMP`（默认 50 μs）则当拍直接跳变（不进入平滑）；否则 `rtc64 -= d >> LOG2_AVG`（默认 `LOG2_AVG=6`，即按 64 帧平滑，等效一阶低通）；同时用 `d` 的滑动平均调节 `FREQ_ADJ`（比例系数 `Kp=64`、积分系数 `Ki=4096`，均为配置寄存器，整数定点实现，不使用浮点）。
+794: - 输出：`rtc_time_us`、`pps_out`（`rtc64[0]==0 && rtc64_prev[0]==1` 时拉高一拍）；`SYNC_LOSS` 在连续 `SYNC_TIMEOUT`（默认 4 个 BAG）无报文时置位，置位后停止平滑只保留自由运行。
+795: 
+796: 仿真精度目标：稳定后 `|d| ≤ 1 μs`（时基分辨率即为 1 μs，因此该指标的含义是"不出现 ±1 以上的持续偏差"，不宣称亚 μs）。要提精度需把 `timebase` 提到 ns，代价是 24 bit 窗口不够用（ns 时戳需 34 bit），P2 可选。
+797: 
+798: ### 7.16 `snmp_lite`
+799: 
+800: 功能：SAP 端口收 SNMP 请求，解析 GET/GETNEXT/SET，查 MIB，组响应。
+801: 
+802: 支持的 PDU：`get-request(0xA0)`、`get-next-request(0xA1)`、`set-request(0xA3)`、`response(0xA2)`；版本只认 v1(0)/v2c(1)，其余 `version-not-in-version-list`（v1 下回 `genErr`）。不支持 trap/inform/GETBULK。
+803: 
+804: BER 解析为单遍状态机（最大 VarBind 数 8，超范围回 `tooBig`/`genErr`）：`SEQUENCE` → `INTEGER(version)` → `OCTET STRING(community)`（与 `SNMP_COMMUNITY` 寄存器比较，长度 ≤16，不符回 silently discard）→ `PDU`：`INTEGER(req-id)`、`INTEGER(err-status)`、`INTEGER(err-index)`、`SEQUENCE(VarBindList)`：每项 `OID` + `NULL`(GET/GETNEXT) 或 类型值(SET)。
+805: 
+806: MIB 表：`mib_rom`（128 项 × 32 bit）+ 4 个可读可写对象。
+807: 
+808: | OID（前缀 `1.3.6.1.4.1.4444.1.1`） | 名称 | 访问 | 实现 |
+809: |---|---|---|---|
+810: | .1.0 | `afdxEsDescr` | RO OCTET STRING(16) | 常量 `"AFDX-ES eLinx v1"` |
+811: | .2.0 | `afdxEsUpTime` | RO Counter32 | `rtc64[63:32]`（1/100 s 换算后 ×100） |
+812: | .3.0 | `afdxNumTxVl` | RO INTEGER | 参数 |
+813: | .4.0 | `afdxNumRxVl` | RO INTEGER | 参数 |
+814: | .5.0 | `afdxVlBag` | RW INTEGER（索引 vl） | 写需 `CFG_MODE=1` |
+815: | .6.0 | `afdxVlLmax` | RO INTEGER（索引 vl） | 表读 |
+816: | .7.0 | `afdxVlTxFrameCnt` | RO Counter32 | 统计 RAM |
+817: | .8.0 | `afdxVlRxAcceptCnt` | RO Counter32 | 统计 RAM |
+818: | .9.0 | `afdxVlDropCnt` | RO Counter32 | 统计 RAM（各原因合计） |
+819: | .10.0 | `afdxEsRxMaxJitterUs` | RO INTEGER | `STATS` 高水位 |
+820: | .11.0 | `afdxEsCtl` | RW INTEGER | 映射 `CTL` 低 16 位 |
+821: | .12.0 | `afdxEsDropCnt` | RO Counter32 | `DROP_CNT` 合计 |
+822: | .13.0 | `afdxEsBufUtil` | RO Gauge32 | `PMEM_FREE` 反算百分比 |
+823: 
+824: GETNEXT 语义：在已排序的 OID 列表中查第一个大于目标项（列表按索引展开，`vl` 维度在 MIB 中按 `idx = vl*2` 方式线性编码，实现用二分，log2(128)=7 拍）。GET 不存在的 OID 回 `noSuchName`（v1）；SET 到 RO 回 `readOnly`，类型/范围不符回 `badValue`（`error-index` = 该项下标）。响应封装为 `SEQUENCE{version, community, {request-id, 0, 0, VarBindList}}`。
+825: 
+826: 响应发送：调用 builder 注入通道，目的 IP/端口从请求报文的源地址反转（`snmp_peer_ip`/`snmp_peer_port` 记录最近一次合法请求）。
+827: 
+828: 资源：状态机 + BER 编码器 + MIB ROM，估 2.4K LUT + 1 BRAM（MIB ROM 64×32 用 LUTRAM）。响应一帧最坏 300 字节 = 24 μs 线上时间，SNMP 会话吞吐足够（10 分钟更新周期，或压力测试 T14 用背靠背请求测冲突处理）。
+829: 
+830: ### 7.17 `a615a_tftp`
+831: 
+832: TFTP（RFC 1350，无选项扩展为 P2）：
+833: 
+834: | opcode | 方向 | 本端动作 |
+835: |---|---|---|
+836: | 1 RRQ / 2 WRQ | 收 | 校验文件名（`"UPLOAD"`/`"DATASET_001"` 白名单，`TFTP_TIMEOUT` 默认 5 s）、源端口记为 TID；回 OACK(6)（若协商 blksize/timeout）或首 ACK(4) |
+837: | 3 DATA | 收 | 校验块号（`expected`，0~65535 回绕），写目标区（`TFTP_DEST_BASE=0xCC20`，即加载区首地址，PMEM 块池之外的独立 32 KB RAM），回 ACK |
+838: | 4 ACK | 发方向 | 块号匹配则发下一块 |
+839: | 5 ERROR | 收 | 状态机复位，`TFTP_ERR_CODE` 记录 |
+840: | 6 OACK / 7 ACK-with-opt | 双向 | blksize 支持 512/1024（≤1456 B 帧载荷限制），timeout 2~10 s |
+841: 
+842: 块号回绕、重复包（同块号重传）按"回 ACK 不重复写"处理；超时重传计数 `RETRY_MAX`（默认 3）超限回 ERROR(4)。
+843: 
+844: 615A 精简流程（`a615a_sm`）：
+845: 
+846: ```
+847: IDLE --Find 0x0001--> FIND_RSP(0x0002) --> [Upload 0x0031] --> UPLOAD_RSP(0x0032)
+848:      --> [DataReq 0x0033] --> 通过 TFTP 收数据 --> 写加载区
+849:      --> [StatusFile 上传 0x0012] --> [Done 0x0037] --> IDLE
+850: ```
+851: 
+852: 报文头 8 B：`msg_id(2) + length(2) + type(1) + subtype(1) + sequence(2)`；消息类型：`0x11`=管理/上传，`0x13`=数据。加载区写入后由 `host_if` 的 `LOADED_OK` 位通知主机（或 BFM）"假装执行加载"，仿真里用 CRC32 比对源文件与加载区内容作为验收。
+853: 
+854: 资源：ROM 消息表 + 32 KB 加载区 BRAM + 状态机，估 1.6K LUT + 15 个 18 Kbit 块（加载区 32 KB，见 §9）。
+855: 
+856: ### 7.18 `stats_regs`
+857: 
+858: 事件脉冲（单拍）到寄存器的累加：`vl_stats` RAM（128 项 × 64 bit：`tx_cnt[16]`、`rx_accept[20]`、`rx_drop[20]`、`max_jit[8]`）读改写会阻塞，因此先入 4 深事件 FIFO，由空闲拍串行回写（统计允许 2 帧滞后，文档注明）。全局 32 bit 计数器直接寄存器累加，`max/mean` 抖动高水位用组合比较更新。
+859: 
+860: 丢弃原因位宽 12 位：`len, dmac, ethtype, ip_ver, ip_csum, udp_len, udp_csum, crc, unconf, lmax, ic, rm`；每类一个 32 bit 计数器 + 1 个合计。
+1077: ### 11.2 SDC
+1078: 
+1079: ```tcl
+1080: create_clock -name clk -period 8.000 [get_ports clk]
+1081: set_clock_uncertainty 0.45 [get_clocks clk]
+1082: set_clock_transition   0.30 [get_clocks clk]
+1083: set_input_delay  -clock clk -max 3.2 [remove_from_collection [all_inputs] [get_ports clk]]
+1084: set_output_delay -clock clk -max 3.2 -min 0.5 [all_outputs]
+1085: set_false_path -from [get_ports pps_in]
+1086: set_max_fanout 32 [current_design]
+1087: group_path -name rx_chain -weight 2 -from [get_pins mac_rx_if/*] -to [get_pins rx_port_buf/*]
+1088: group_path -name tx_pace  -weight 2 -to [get_pins mac_tx_if/tx_valid]
+1089: report_timing -delay_type max -max_paths 20 > rpt/timing.rpt
+1090: ```
+1091: 
+1092: 无板卡 ⇒ IO 时序不参与评分：`set_input_delay`/`set_output_delay` 只在模板里留注释、默认注掉（不写这两条不会漏掉功能问题，只会让工具按内部路径判）。`set_false_path` 只留给 `pps_in`。若后续真要求映射，再按「片内 MAC 相邻、3.2 ns」补上，功能逻辑一行不动。
+1093: 
+1094: ### 11.3 关键路径与对策
+1095: 
+1096: | 路径 | 预估 | 对策 |
+1097: |---|---|---|
+1098: | 调度器单路存储读 → 24 bit 模减 / `port_ready` 选择 | 待综合 | O-14 单比较器逐项扫描；检查 BRAM 推断与 125 MHz 裕量，若 `port_ready` mux 过长则拆拍并重测 T04/T05 |
+1099: | `rx_ic` 读表 → 判决 → 写表 | 6.9 ns | 判决只用 8 bit 比较 + 2 个加 1，链长 4 拍天然有 8 拍余量，必要时插拍 |
+1100: | PMEM 读口仲裁 mux → builder 字节输出 | 7.4 ns | 仲裁结果提前 1 拍寄存（描述符决定地址，无需当拍算） |
+1101: | CRC32 XOR 树（8 级） | 6.5 ns | 拆两拍：`crc_mid` 寄存（每字节本就有 8 拍空闲） |
+1102: | SNMP BER 解析的组合链 | 8.1 ns | 解析器改为 1 字节/拍的显式状态机（当前设计如此），把 OID 比较放 2 拍 |
+1103: 
+1104: 125 MHz（8 ns）属低频，风险主要在互连而非逻辑级数，因此一律用"每字节 10 拍"的空闲拍插寄存，不改变任何对外时序。上表「预估」列是综合前的设计预算：v1.0 前若做了 §11.1 就替换成 `rpt/timing.rpt` 实测数据，没做则保留预算值并在表头写明「未实测」。不许拿估算冒充实测。
+1158: | T14 | SNMP | GET/GETNEXT/SET、RO 写、类型错、community 错、长 OID | 响应 BER 与 `pysnmp` 解析一致 | snmp |
+1159: | T15 | TFTP/615A | 上/下载、超时重传、块号 65535→0、重复块 | 加载区 CRC 与源文件一致 | tftp |
+1160: | T16 | RTC 同步 | 初始偏 1 ms / 30 μs，中途失步 | 收敛 ≤1 μs、`SYNC_LOSS` 行为 | rtc |

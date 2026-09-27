@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/tx/tx_frame_builder.v
+hierarchy -top tx_frame_builder
+synth
+stat

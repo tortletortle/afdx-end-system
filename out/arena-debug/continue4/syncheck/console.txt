@@ -1,0 +1,9 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source do.tcl
+# expected boolean value but got "[catch {{eval vlog -sv +notimingcheck $env(VLOG_FI"
+Questa> 
+vish lost connection to vsim process.
+** Fatal: Exiting VSIM license process.

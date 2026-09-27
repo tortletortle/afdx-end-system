@@ -1,0 +1,9 @@
+read_verilog C:/Workspace/diansai/rtl/tx/tx_rm.v
+hierarchy -top tx_rm
+proc
+opt
+memory_dff
+memory_map
+opt
+check
+stat

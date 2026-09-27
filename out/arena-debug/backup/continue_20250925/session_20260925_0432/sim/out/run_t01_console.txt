@@ -1,0 +1,54 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_t01.tcl
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 01:06:20 on Sep 22,2026
+# vlog -sv "+notimingcheck" ../rtl/common/rst_sync.v ../rtl/common/timebase.v ../rtl/common/sync_fifo.v ../rtl/common/crc32.v ../rtl/top/AFDX_top.v tb/tb_t01_reset_regs.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rst_sync
+# -- Compiling module timebase
+# -- Compiling module sync_fifo
+# -- Compiling module crc32
+# -- Compiling module AFDX_top
+# -- Compiling module tb_t01_reset_regs
+# 
+# Top level modules:
+# 	sync_fifo
+# 	tb_t01_reset_regs
+# End time: 01:06:21 on Sep 22,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim -voptargs="+acc" tb_t01_reset_regs 
+# Start time: 01:06:21 on Sep 22,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: (vopt-10908) Some optimizations are turned off because the +acc switch is in effect.
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t01_reset_regs(fast)
+# Loading work.AFDX_top(fast)
+# Loading work.rst_sync(fast)
+# Loading work.timebase(fast)
+# Loading work.crc32(fast)
+#   [ok] crc32 self-check 0xCBF43926
+# T01 SMOKE PASS (skeleton: register page + timebase + CRC32)
+# ** Note: $finish    : tb/tb_t01_reset_regs.v(184)
+#    Time: 100763904 ns  Iteration: 1  Instance: /tb_t01_reset_regs
+# End time: 01:08:03 on Sep 22,2026, Elapsed time: 0:01:42
+# Errors: 0, Warnings: 1

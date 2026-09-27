@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/common/sync_fifo.v
+hierarchy -top sync_fifo
+synth
+stat

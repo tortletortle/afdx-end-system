@@ -1,0 +1,14 @@
+T22 isolated RTL faults: compile, then FAIL (a pass is MISSED)
+original rtl/top/AFDX_top.v SHA-256: 0319B453006709B2730940AD9570527214D953594269FB72E10101321C5A91C2
+original rtl/rx/rx_vl_lookup.v SHA-256: 51E1D0C902E7137155B0DE3ED2364E3634D8BB9E2AA04549DA9EED62D57366CD
+original rtl/rx/rx_ip_udp_parse.v SHA-256: 5A6720B93BED0EAD14DFAA199526489E246A1CD60CBC6062F7DC09FC51D99661
+original rtl/rx/rx_ic.v SHA-256: BAE5BD32A71FB43D95CD58C5C4663B7C37C5E7001118A058320FE29712915A17
+original rtl/tx/mac_tx_if.v SHA-256: AA33F9FDD61DC41D675C836A4BC275B7E4989FC2889E5E88986D4946C5B7598B
+original rtl/rx/mac_rx_if.v SHA-256: EB7BF941CE22B71162D04819A26252A9A6370FA716E80F4D749C4B56B280F228
+dup_blocks_never_released DETECTED (compiled=True, TB_FAIL=True, rc=0)
+lookup_hit_never_asserted DETECTED (compiled=True, TB_FAIL=True, rc=0)
+plen_from_frame_length DETECTED (compiled=True, TB_FAIL=True, rc=0)
+psn_not_written_back DETECTED (compiled=True, TB_FAIL=True, rc=0)
+tx_fcs_not_appended DETECTED (compiled=True, TB_FAIL=True, rc=0)
+rx_payload_word_shifted DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T22 MUTATION SUMMARY: 6/6 detected

@@ -1,0 +1,17 @@
+VLOG-OK
+# 
+# do C:/Workspace/diansai/out/arena-debug/continue4/syncheck.tcl
+# C:/Workspace/diansai/rtl/mgmt/rtc_sync.v
+# Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+# Start time: 14:08:17 on Sep 26,2026
+# vlog -sv "+notimingcheck" C:/Workspace/diansai/rtl/mgmt/rtc_sync.v 
+# ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# -- Compiling module rtc_sync
+# 
+# Top level modules:
+# 	rtc_sync
+# End time: 14:08:18 on Sep 26,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# ** Warning: (vsim-12004) -c and -batch are mutually exclusive options and should not be specified together; -c option is being ignored.
+# Errors: 0, Warnings: 1

@@ -1,0 +1,43 @@
+# sim/tests.manifest - regression test list (parsed by run_regress.ps1)
+# Format: <test-id> <tb-module> [config]   (order = execution order, doc 12.4)
+# Add one line per new TB. Full-config tests get their own line + config tag.
+T00 tb_t00_common default
+T01 tb_t01_reset_regs default
+T02 tb_t02_tx_buf_sn default
+T03 tb_t03_frame_builder default
+T04 tb_t04_tx_chain default
+T04g tb_t04g_tx_chain gmii
+T05c tb_t05c_cfg_budget default
+T08a tb_t08a_rx_ingress default
+T08ag tb_t08ag_rx_ingress gmii
+T08b tb_t08b_top_rx default
+T08bg tb_t08bg_top_rx gmii
+T08c tb_t08c_host_arb host-arb
+T08cg tb_t08cg_host_arb host-arb-gmii
+T08d tb_t08d_top_flt flt
+T08dg tb_t08dg_top_flt flt-gmii
+T08e tb_t08e_top_ic ic-top
+T08eg tb_t08eg_top_ic ic-top-gmii
+T10 tb_t10_top_rm rm-top
+T10g tb_t10g_top_rm rm-top-gmii
+T11 tb_t11_top_port rx-port-top
+T11g tb_t11g_top_port rx-port-top-gmii
+T17 tb_t17_min_frame_stress min-frame-dual-net-512
+T17g tb_t17g_min_frame_stress min-frame-dual-net-512-gmii
+T21 tb_t21_block_pool block-pool-exhaust
+T21g tb_t21g_block_pool block-pool-exhaust-gmii
+T09 tb_t09_rx_ic full
+T09s tb_t09s_rx_ic small
+T09p tb_t09p_rx_ic full
+T09ps tb_t09ps_rx_ic small
+T12c tb_t12c_lookup full-contiguous
+T12r tb_t12r_lookup full-random
+T12s tb_t12s_lookup small-collision
+T12h tb_t12h_lookup small-rehash
+T12f tb_t12f_top_lookup frontdoor-ingress
+T12fg tb_t12fg_top_lookup frontdoor-gmii
+T22 tb_t22_top_loopback loopback
+T22g tb_t22g_top_loopback loopback-gmii
+T11i tb_t11i_top_int int-top
+T11ig tb_t11ig_top_int int-top-gmii
+T22a tb_t22a_frontdoor_tx default

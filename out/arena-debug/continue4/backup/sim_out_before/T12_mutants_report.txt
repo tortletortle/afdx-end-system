@@ -1,0 +1,7 @@
+T12s four isolated RTL mutants (must compile then FAIL)
+original RTL SHA-256: E247E45740BC4064A30A82928C20E46EEF1A38037C1A7DDBE51189E08D0659BF
+wrong_hash_multiplier DETECTED (compiled=True, TB_FAIL=True, rc=0)
+missing_table1_way0 DETECTED (compiled=True, TB_FAIL=True, rc=0)
+missing_config_way11 DETECTED (compiled=True, TB_FAIL=True, rc=0)
+drops_output_on_backpressure DETECTED (compiled=True, TB_FAIL=True, rc=0)
+T12 MUTATION SUMMARY: 4/4 detected

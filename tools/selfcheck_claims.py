@@ -73,7 +73,8 @@ def c3_jitter(n_vl=32, lmax=303):
     print("  末条仅排队至少 (%d-1)×%.2f=%.2f μs（未计扫描/握手），%s 500 μs 合规线" %
           (n_vl, frame_us, tail_wait_us, "超过" if tail_wait_us > 500 else "未超过"))
     assert tail_wait_us > 500, "同步启动风险样例变了，需重估 T05"
-    print("  待做：起始相位错开 RTL/脚本，T05 同时记录启动瞬态与稳态；不能仅凭带宽合规声称抖动达标。")
+    print("  这是旧同相起发的解析风险样例；当前 T05b/T05bg 已按每 VL 错相提交并以 500 μs 为硬判据，")
+    print("  其周期级实测见对应 Questa 日志；本模型不读取仿真结果，也不证明 STA/标准认证。")
     return tail_wait_us
 
 
@@ -81,4 +82,5 @@ if __name__ == "__main__":
     c1_config_load()
     c2_bag_rule()
     c3_jitter()
-    print("\n自查通过：模型/文档相符；T05c 前门有单项 RTL 仿真，T05b 满载抖动/T22 端到端仍未取证。")
+    print("\n自查通过：模型/文档相符；T05b/T05bg、T22/T22g 已有 RTL 用例，")
+    print("每次是否 PASS 应查看对应回归 CSV/Questa 日志；本脚本仅验算理论与文档，不替代 RTL 仿真或 STA。")

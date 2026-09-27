@@ -1,0 +1,6 @@
+T08a vectors: 22 cases, 1145 words, CRC raw residue DEBB20E3, max 1519 B
+[1/1] T14 tb_t14_stats_regs -> PASS (3.5 s) # T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW, 1 real frame, bytes=64, scoreboard match)
+REGRESS SUMMARY: 1/1 pass, wall_s=3.6
+CSV: out/regress.csv
+test_id,config,tb,result,max_dev,wall_s,summary
+T14,stats-page,tb_t14_stats_regs,PASS,na,3.5,# T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW; 1 real frame; bytes=64; scoreboard match)

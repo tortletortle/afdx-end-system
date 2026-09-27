@@ -1,0 +1,12 @@
+{
+  "manifest_count": 50,
+  "rows": 50,
+  "same_order": true,
+  "pass": 50,
+  "fail": 0,
+  "rc": 0,
+  "console_count": 50,
+  "compile_errors": [
+    "0"
+  ]
+}

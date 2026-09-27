@@ -3,6 +3,12 @@
 // 描述符只在对应末字真的落 PMEM 后弹出；RX 优先时主机 ACK 等待实际写完成。
 `timescale 1 ns / 1 ps
 module tb_t08b_core #(parameter IF_MODE=0);
+
+  // continue2: PMEM is now 4 byte-lane BRAMs (bram_sdp BYTE_EN split); reassemble word
+  function [31:0] pmem_word(input [12:0] a);
+    pmem_word = {dut.u_pmem.g_lanes.g_lane[3].u_lane.mem[a], dut.u_pmem.g_lanes.g_lane[2].u_lane.mem[a],
+                 dut.u_pmem.g_lanes.g_lane[1].u_lane.mem[a], dut.u_pmem.g_lanes.g_lane[0].u_lane.mem[a]};
+  endfunction
   reg clk=0, reset=1;
   always #4 clk=~clk;
   reg [7:0] rx_data=0, rx_data_b=0;
@@ -53,8 +59,8 @@ module tb_t08b_core #(parameter IF_MODE=0);
           $display("  [err] A desc blk=%0d len=%0d",last_blk_a,dut.rx_desc_a[158:148]);err=err+1;
         end
         // desc_pop 前内存必须已经完成 tail BE：在该沿前同步窥视供 RAM 可见性的断言。
-        if (dut.u_pmem.mem[{last_blk_a,9'd19}] !== {vecbyte(37,76),vecbyte(37,77),vecbyte(37,78),8'hA5}) begin
-          $display("  [err] A desc before PMEM tail write got=%h",dut.u_pmem.mem[{last_blk_a,9'd19}]);err=err+1;
+        if (pmem_word({last_blk_a,9'd19}) !== {vecbyte(37,76),vecbyte(37,77),vecbyte(37,78),8'hA5}) begin
+          $display("  [err] A desc before PMEM tail write got=%h",pmem_word({last_blk_a,9'd19}));err=err+1;
         end
       end
       if (dut.rx_desc_pop_b) begin
@@ -64,8 +70,8 @@ module tb_t08b_core #(parameter IF_MODE=0);
             dut.rx_desc_b[99]!=1'b1) begin
           $display("  [err] B desc blk=%0d len=%0d",last_blk_b,dut.rx_desc_b[158:148]);err=err+1;
         end
-        if (dut.u_pmem.mem[{last_blk_b,9'd19}] !== {vecbyte(37,76),vecbyte(37,77),vecbyte(37,78),8'hA5}) begin
-          $display("  [err] B desc before PMEM tail write got=%h",dut.u_pmem.mem[{last_blk_b,9'd19}]);err=err+1;
+        if (pmem_word({last_blk_b,9'd19}) !== {vecbyte(37,76),vecbyte(37,77),vecbyte(37,78),8'hA5}) begin
+          $display("  [err] B desc before PMEM tail write got=%h",pmem_word({last_blk_b,9'd19}));err=err+1;
         end
       end
       if (dut.rx_frame_err_a) bad=bad+1;
@@ -146,12 +152,12 @@ module tb_t08b_core #(parameter IF_MODE=0);
     join
     repeat(12) @(negedge clk);
     if(good_a!=1 || good_b!=1 || bad!=0 || host_stall!=1 ||
-       dut.u_pmem.mem[0]!==32'hDEAD_BEEF || dut.rx_free_map!==16'hFFC0) begin
+       pmem_word(0)!==32'hDEAD_BEEF || dut.rx_free_map!==16'hFFC0) begin
       $display("  [err] good A/B=%0d/%0d bad=%0d hoststall=%0d hostword=%h free=%h",
-         good_a,good_b,bad,host_stall,dut.u_pmem.mem[0],dut.rx_free_map);err=err+1;
+         good_a,good_b,bad,host_stall,pmem_word(0),dut.rx_free_map);err=err+1;
     end
     for(k=0;k<79;k=k+1) begin
-      actual=dut.u_pmem.mem[last_blk_a*512+(k>>2)];
+      actual=pmem_word(last_blk_a*512+(k>>2));
       case(k&3)
         0: obtained=actual[31:24]; 1: obtained=actual[23:16];
         2: obtained=actual[15:8]; default: obtained=actual[7:0];
@@ -161,7 +167,7 @@ module tb_t08b_core #(parameter IF_MODE=0);
         if(err<8) $display("  [err] A PMEM byte %0d got %h want %h",k,obtained,expected);
         err=err+1;
       end
-      actual=dut.u_pmem.mem[last_blk_b*512+(k>>2)];
+      actual=pmem_word(last_blk_b*512+(k>>2));
       case(k&3)
         0: obtained=actual[31:24]; 1: obtained=actual[23:16];
         2: obtained=actual[15:8]; default: obtained=actual[7:0];

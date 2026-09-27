@@ -1,0 +1,8 @@
+COMPILE rc=0 wall_s=1.9
+COMPILE OK (0 errors)
+[1/1] T18g tb_t18g_random_stress -> FAIL (10.1 s) # T18 RANDOM STRESS FAIL (IF_MODE=1 errors=27 seed=51c0ffee)
+REGRESS SUMMARY: 0/1 pass, wall_s=12.2
+CSV: out/regress.csv
+test_id,config,tb,result,max_dev,wall_s,summary
+T18g,random-stress-gmii,tb_t18g_random_stress,FAIL,na,10.1,# T18 RANDOM STRESS FAIL (IF_MODE=1 errors=27 seed=51c0ffee)
+EXIT_CODE=1 ELAPSED_S=12.6

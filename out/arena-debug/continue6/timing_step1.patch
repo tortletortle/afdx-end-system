@@ -1,0 +1,53 @@
+diff --git "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\snmp_lite.v" "b/C:\\Workspace\\diansai\\rtl\\mgmt\\snmp_lite.v"
+index b9f0181..490ac6c 100644
+--- "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\snmp_lite.v"
++++ "b/C:\\Workspace\\diansai\\rtl\\mgmt\\snmp_lite.v"
+@@ -194,14 +194,42 @@ module snmp_lite #(
+     begin inst_i = (i >= 10'd4 && i < 10'd644) ? ((i - 10'd4) % 10'd128) : 8'd0; end
+   endfunction
+   // GETNEXT 有序游走；indexed 对象按 instance 递增。
++  // continue6: 目录是四段连续区间，直接做区间译码，避免把 696 次
++  // 24-bit 比较/优先选择完全展开成一条巨型组合链。
+   function [9:0] walk; input [7:0] g; input [7:0] l; input [7:0] x; input hi;
+-    integer k; reg found; reg [23:0] key, cur;
++    reg [9:0] base;
+     begin
+-      walk = 10'h3FF; found = 1'b0; key = {g, l, x};
+-      for (k = 0; k < 696; k = k + 1) begin
+-        cur = {grp_i(k[9:0]), leaf_i(k[9:0]), inst_i(k[9:0])};
+-        if (!found && ((cur > key) || (!hi && cur == key))) begin
+-          walk = k[9:0]; found = 1'b1;
++      walk = 10'h3FF;
++      base = 10'd0;
++      if (g < 8'd1) begin
++        walk = 10'd0;
++      end else if (g == 8'd1) begin
++        if (l < 8'd1) begin
++          walk = 10'd0;
++        end else if (l <= 8'd4) begin
++          base = {2'd0, l} - 10'd1;
++          if (!hi)        walk = base;
++          else if (l < 4) walk = base + 10'd1;
++          else            walk = 10'd4;
++        end else if (l <= 8'd9) begin
++          base = 10'd4 + ((l - 8'd5) * 10'd128);
++          if (!hi)          walk = base;
++          else if (x < 127) walk = base + {2'd0, x} + 10'd1;
++          else if (l < 9)   walk = base + 10'd128;
++          else              walk = 10'd644;
++        end else if (l <= 8'd13) begin
++          base = 10'd644 + (l - 8'd10);
++          if (!hi)         walk = base;
++          else if (l < 13) walk = base + 10'd1;
++          else             walk = 10'd648;
++        end else begin
++          walk = 10'd648;
++        end
++      end else if (g == 8'd2) begin
++        if (l < 8'd48) begin
++          base = 10'd648 + {2'd0, l};
++          if (!hi)         walk = base;
++          else if (l < 47) walk = base + 10'd1;
+         end
+       end
+     end

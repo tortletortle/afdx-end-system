@@ -74,10 +74,13 @@ module tx_rm (
   // 发送方向存在 FIFO 延迟，done 出现时本模块可能已在收下一帧，故按队列记录每帧的 nm。
   // done 事件计数——A/B 各自 pending 计数，队头帧所需的路都到齐时合成 1 拍 frame_done。
   reg [3:0] pend_a, pend_b;
-  reg [1:0] exp_q [0:15];   // 帧序 FIFO：每帧期望的 en 位图（深 16，见 tx_vl_scheduler.ifq）
-  reg [7:0] vl_q  [0:15];
+  // A small, resettable FIFO: packed flops avoid the legacy eLinx/Yosys
+  // memory_map/memory_collect crash on the two reset-in-a-loop arrays.
+  // Dynamic part-selects preserve the original one-read/one-write behavior.
+  reg [31:0]  exp_q_bits;  // 16 x 2-bit expected net modes
+  reg [127:0] vl_q_bits;   // 16 x 8-bit VL IDs
   reg [3:0] eq_wr, eq_rd;
-  wire [1:0] exp_head = exp_q[eq_rd];
+  wire [1:0] exp_head = exp_q_bits[2*eq_rd +: 2];
   reg  [7:0] done_vl_r;
   assign done_vl = done_vl_r;
   assign frame_start = a_start | b_start;
@@ -85,17 +88,20 @@ module tx_rm (
   wire have_b = (pend_b != 4'd0) | ~exp_head[1];
   wire fire   = (eq_wr != eq_rd) & have_a & have_b;
 
-  integer k;
   always @(posedge clk) begin
     if (rst_sync) begin
       pend_a <= 4'd0; pend_b <= 4'd0; eq_wr <= 4'd0; eq_rd <= 4'd0;
       frame_done <= 1'b0; frames_a <= 16'd0; frames_b <= 16'd0;
       done_vl_r <= 8'd0;
-      for (k = 0; k < 16; k = k + 1) begin exp_q[k] <= 2'b00; vl_q[k] <= 8'd0; end
+      exp_q_bits <= 32'd0; vl_q_bits <= 128'd0;
     end else begin
       frame_done <= fire;
-      done_vl_r  <= vl_q[eq_rd];
-      if (go & in_sof) begin exp_q[eq_wr] <= nm_in; vl_q[eq_wr] <= in_vl; eq_wr <= eq_wr + 4'd1; end
+      done_vl_r  <= vl_q_bits[8*eq_rd +: 8];
+      if (go & in_sof) begin
+        exp_q_bits[2*eq_wr +: 2] <= nm_in;
+        vl_q_bits[8*eq_wr +: 8] <= in_vl;
+        eq_wr <= eq_wr + 4'd1;
+      end
       if (fire) eq_rd <= eq_rd + 4'd1;
       pend_a <= pend_a + {3'b0, a_done} - {3'b0, (fire & exp_head[0])};
       pend_b <= pend_b + {3'b0, b_done} - {3'b0, (fire & exp_head[1])};

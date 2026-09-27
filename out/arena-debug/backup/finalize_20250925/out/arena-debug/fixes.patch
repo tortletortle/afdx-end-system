@@ -1,0 +1,1007 @@
+diff --git a/doc/当前进度_20260923.md b/doc/当前进度_20260923.md
+index 499f8a9..3e7e4ae 100644
+--- a/doc/当前进度_20260923.md
++++ b/doc/当前进度_20260923.md
+@@ -185,10 +185,10 @@ sha256:a29170271e8ed4c90e3b54187f1381edad37bd6d4c9edb3667bf711dae57ffb9
+ 
+ - [x] **P0-01 (T08f/T08fg) 全表配置加载与逐笔 Scoreboard 校验**：前门读写 8192 Hash 映射字与 8192 RX_CFG 寄存器，校验 4096 唯一索引与 4 Bank/Way，单代表性 64B 帧端到端交付与块归还通过。
+ - [x] **P0-02 (T17/T17g) 主机长期稳定性与双网最小帧饱和混合读写压测**：512 对双网最小帧（共 1024 帧），4096 次主机写入 + 256 次读取，4096 次 deferred 仲裁，观测最大等待周期 `max_wait=2`，CRC 坏帧拦截=1，块池最终守恒 `free=FFC0`。
+-- [x] **SAP / 管理面最小闭环 (T23/T23g)**：`CTL.SNMP_EN=1` 使能下 SAP(type=2) 报文路由至 `mgmt_sap_rx`，管理窗口 `0xAC10..0xAC13` 交互成功，`accept=1, return=1, port=5, plen=8B`，块池安全释放 `free=FFC0`。
+-- [x] **P1 (T05b/T05bg) 32 VLs 饱和满载抖动测试**：32 条 VL 合法 BAG（1/2/4/8/16/32/64/128 ms）满载调度，错相启动初始抖动 `MII=781us, GMII=96us`，稳态最大调度抖动仅 `3us`。
++- [x] **SAP / 管理面最小闭环 (T23/T23g)**：`CTL.SNMP_EN=1` 时 descriptor handoff `accept=1, return=1, port=5, plen=8B`；持续普通 RX PB1 归还期间，SAP 请求有界接受（≤1 拍）且两路均入池；重新初始化后 `SNMP_EN=0` 的有效 SAP 帧按 `R_SAP` **精确丢弃 1 次**，不进入管理窗口且归还 RX 块。仍不是 SNMP/615A 应用协议引擎。
++- [x] **P1 (T05b/T05bg) 32 VLs 饱和满载抖动测试**：32 条 VL 均为 BAG=828us、Lmax=303B，总 Q20 负载约 99.86%；现按 `i*BAG/32` 错相提交，逐 VL 首帧相对预设相位的最大发送延迟 `MII=4us, GMII=4us`（硬判据 ≤500us），稳态间隔偏差均 ≤3us。首帧实际总跨度 800/799us 含刻意相位差，**不能当作抖动**；旧数值 `MII=781us, GMII=96us` 来自同相起发，且当时 867us 的通过阈值不合规，现已废止。这里只是 RTL 周期级测量，非 STA/标准认证。
+ - [x] **P1 (T13/T13g) 端到端硬件回环时延精确测量**：精确测量 17B/256B/1471B 负载端到端硬件往返时延（含 TX 流水、Wire 传输、RX 流水与总时延）；MII 硬件时延 7.432~123.496us，GMII 硬件时延 3.184~17.128us。
+-- [x] **P1 (T18/T18g) 多端口长时随机压力测试**：4 TX 端口 + 4 RX 端口，25 轮并发随机测试（共 100 帧/测试，变长负载 17B~1471B），抓包真实双网回环灌入，逐字节 PMEM 校验 100% 正确。
++- [x] **P1 (T18/T18g) 多端口随机激励环回**：4 TX + 4 RX 端口，25×4=100 **串行消息事务**，每帧 A/B 两网并行回灌；固定可重放种子 `51c0ffee` 的 `$urandom` 驱动负载长度（覆盖 17..1471B）、消息间隔、A/B 错峰、MII 字节间隔与解析→端口反压（97 帧实际施压）；逐字节 PMEM 校验及 `deliver_cnt` 每事务**恰好 +1**、`MSG_CNT` 读前 1/释放后 0。未覆盖 4 端口多事务同时在飞，不能声称这一并发度或功能覆盖率。
+ - [x] **P0 (T21/T21g) 块池耗尽与反压**：10 个 RX 块占满触发 `NO_BLK`/`rx_exh_cnt`，无 PMEM 空写，逐笔 `MSG_RD` 释放后完整恢复交付。
+-- [x] **芯片逻辑综合 (eLinx)**：全部 24 个 RTL 源码通过 AST 解析；全部 12 个核心子模块在 eLinx 下综合成功 (Yosys execute success)。
+-- [x] **全量 Questa 回归 (50/50 PASS)**：50/50 项测试用例全部通过（耗时 282.9s），编译 0 errors，生成全量日志 SHA-256 哈希链。
++- [ ] **芯片逻辑综合 (eLinx，部分完成)**：24 个 RTL 源码通过 AST 解析；12 份独立子模块日志按全日志 `^ERROR` 为零且末尾 `Yosys execute success!` 核对，当前均通过（本轮重跑 `sync_fifo` 与 `rx_block_pool`），但样本不含全部大容量存储和顶层。`AFDX_top_synth.ys` 本轮重跑在 `memory_map` 报 `ERROR: invalid vector<T> subscript`（rc=1）；尝试显式 BRAM 映射的顶层 `memory_collect` 又报 `ERROR: dict::at()`（rc=1）。**顶层综合未通过，未产生可验收网表；STA/125 MHz 时序收敛未验证**，不得把子模块/AST 通过写成芯片综合完成。
++- [x] **全量 Questa 回归（本轮重跑）**：确认无并行仿真后，重新编译 0 errors（rc=0），与 `sim/tests.manifest` 同序的 50 条 `sim/out/regress.csv` **50/50 PASS**、`wall_s=276.3`；本轮 CSV SHA-256=`023E9CF471DE0E4C2662DEC6C4CB02A40476FFC24534DB591148AD13220EDD57`。留存 `out/arena-debug/checks/final_full50.log`；该结果不代表前述顶层综合/STA 已通过。
+diff --git a/out/arena-debug/DIANSAI-REPORT.md b/out/arena-debug/DIANSAI-REPORT.md
+index 8ea444f..8fb10f2 100644
+--- a/out/arena-debug/DIANSAI-REPORT.md
++++ b/out/arena-debug/DIANSAI-REPORT.md
+@@ -1,260 +1,104 @@
+-=== READ_FILES BEGIN ===
+-=== FILE BEGIN ===
+-"out/arena-debug/DIANSAI-REPORT.md"
+-success
+-1-168
+-168
+-false
+-false
+-null
+-sha256:c7d892169adce66fa5d87f2ce4faf5337c5f27f87c088f5df0045c8f6fc393e0
+---- CONTENT BEGIN ---
+-# DIANSAI AFDX FPGA RTL / ç»¼åä¸éªè¯å
+-¨éæ¶å£æ¥å
+-
+-- **äº¤ä»æ¥æï¼** 2026-09-25ï¼Asia/Shanghaiï¼
+-- **å·¥ç¨æ ¹ç®å½ï¼** `C:\Workspace\diansai`
+-- **ä»»å¡ç®æ ï¼** æç
+-§ `out/arena-debug/MISSION-diansai.md` è¦æ±ï¼å®æå
+-¨éåå½ä¸å
+-³é®ç¹æ§éªè¯é­ç¯ï¼
+-  1. P0-01 (T08f/T08fg) å
+-¨è¡¨é
+-ç½®å è½½ä¸éç¬ Scoreboard æ ¡éªï¼
+-  2. P0-02 (T17/T17g) ä¸»æºé¿æç¨³å®æ§ä¸åç½æå°å¸§é¥±åæ··åè¯»ååæµï¼
+-  3. SAP / ç®¡çé¢æå°é­ç¯ï¼T23/T23gï¼ï¼
+-  4. T05b/T05bg 32 VLs åæ³æ»¡è½½æå¨æµè¯ãT13/T13g ç«¯å°ç«¯ç¡¬ä»¶åç¯æ¶å»¶ç²¾ç¡®æµéãT18/T18g å¤ç«¯å£é¿æ¶éæºååæµè¯ï¼
+-  5. è¯çé»è¾ç»¼åä¸ STA ç¶æåæï¼eLinx å·¥å
+-·é¾ä¸å­æ¨¡åç»¼åéªè¯ï¼ï¼
+-  6. å
+-¨é 50 é¡¹ Questa ä»¿çåå½ï¼50/50 PASSï¼å SHA-256 å®æ´æ§è¯æ®é¾å½æ¡£ã
+-
+----
+-
+-## 1. æç»åå½æ»ä½ç»è®º
+-
+-| ç±»å« / æµè¯é¡¹ | ç»è®º | è¯æ®æè¦ |
+-|---|---|---|
+-| **P0-01: T08f / T08fg** | **PASS / PASS** | 8192 Hash æ åå­ + 8192 RX_CFG å¯å­å¨éç¬è¯»åæ ¡éªï¼4096 å¯ä¸ç´¢å¼ä¸ 4 Bank/Way æ ¡éªï¼åä»£è¡¨æ§ 64B å¸§ç«¯å°ç«¯äº¤ä»ä¸åå½è¿ |
+-| **P0-02: T17 / T17g** | **PASS / PASS** | 512 å¯¹åç½æå°å¸§ï¼å
+-± 1024 å¸§ï¼ï¼4096 æ¬¡ä¸»æºåå
+-¥ + 256 æ¬¡è¯»åï¼4096 æ¬¡ deferred ä»²è£ï¼è§æµæå¤§ç­å¾
+-å¨æ `max_wait=2`ï¼CRC åå¸§æ¦æª=1ï¼åæ± æç»å®æ `free=FFC0` |
+-| **SAP æå°é­ç¯: T23 / T23g** | **PASS / PASS** | `CTL.SNMP_EN=1` ä½¿è½ä¸ SAP(type=2) æ¥æè·¯ç±è³ `mgmt_sap_rx`ï¼ç®¡ççªå£ `0xAC10..0xAC13` äº¤äºæåï¼`accept=1, return=1, port=5, plen=8B`ï¼åæ± å®å
+-¨éæ¾ `free=FFC0` |
+-| **P1: T05b / T05bg æ»¡è½½æå¨** | **PASS / PASS** | 32 æ¡ VL åæ³ BAGï¼1/2/4/8/16/32/64/128 msï¼æ»¡è½½è°åº¦ï¼éç¸å¯å¨åå§æå¨ `MII=781us, GMII=96us`ï¼ç¨³ææå¤§è°åº¦æå¨ä»
+- `3us` |
+-| **P1: T13 / T13g ç¡¬ä»¶åç¯æ¶å»¶** | **PASS / PASS** | ç²¾ç¡®æµé 17B/256B/1471B è´è½½ç«¯å°ç«¯ç¡¬ä»¶å¾è¿æ¶å»¶ï¼å« TX æµæ°´ãWire ä¼ è¾ãRX æµæ°´ä¸æ»æ¶å»¶ï¼ï¼MII ç¡¬ä»¶æ¶å»¶ 7.432~123.496usï¼GMII ç¡¬ä»¶æ¶å»¶ 3.184~17.128us |
+-| **P1: T18 / T18g éæºé¿æ¶åæµ** | **PASS / PASS** | 4 TX ç«¯å£ + 4 RX ç«¯å£ï¼25 è½®å¹¶åéæºæµè¯ï¼å
+-± 100 å¸§/æµè¯ï¼åé¿è´è½½ 17B~1471Bï¼ï¼æå
+-çå®åç½åç¯çå
+-¥ï¼éå­è PMEM æ ¡éª 100% æ­£ç¡® |
+-| **P0: T21 / T21g åæ± èå°½ä¸åå** | **PASS / PASS** | 10 ä¸ª RX åå æ»¡è§¦å `NO_BLK`/`rx_exh_cnt`ï¼æ  PMEM ç©ºåï¼éç¬ `MSG_RD` éæ¾åå®æ´æ¢å¤äº¤ä» |
+-| **å
+-¨éåå½æ¸
+-å (50/50)** | **100% PASS** | **50/50 é¡¹å
+-¨é¨ PASS**ï¼å¢éæ»èæ¶ 282.9sï¼ï¼ç¼è¯ 0 Error 0 Fatal |
+-
+----
+-
+-## 2. æ ¸å¿ä¸é¡¹æµè¯ææ ä¸è¯¦ç»æ°æ®
+-
+-### 2.1 T05b / T05bg 32 VLs é¥±åæ»¡è½½æå¨æµè¯ (Jitter Measurement)
+-- **é
+-ç½®ä¸åºæ¯ï¼** é
+-ç½® 32 æ¡åæ³èæé¾è·¯ï¼VL0~VL31ï¼ï¼BAG æ¡£ä½è¦ç 1msã2msã4msã8msã16msã32msã64msã128msï¼å¸§é¿è¦ç 64B~1518Bï¼Lmax=64..1518ï¼ã
+-- **éç¸å¯å¨ä¸è°åº¦ï¼** å¨åå§æ¶å»å¼å
+-¥åæå¹¶åè¯·æ±ï¼éªè¯å¸¦ç¶æ´å½¢ä¸éççº¦æï¼ç¨³æä¸æç»­è°åº¦ã
+-- **å®æµææ ï¼**
+-  - **T05b (MII 100Mbps):**
+-    - éç¸å¯å¨é¦å¸§æå¤§æéæå¨ (Startup Max Jitter): `781.0 us`
+-    - ç¨³æè¿ç»­å¸§è°åº¦æå¤§æå¨ (Steady State Max Jitter): `3.0 us`
+-    - ç»è®º: ç¡¬ä»¶å¸¦ç¶æ´å½¢å¨è½å¤ä¸¥æ ¼å¹³æ»çªåï¼ç¨³ææ¶éå®å
+-¨ç¬¦å ARINC 664 Part 7 æ åè¦æ±ã
+-  - **T05bg (GMII 1000Mbps):**
+-    - éç¸å¯å¨é¦å¸§æå¤§æéæå¨ (Startup Max Jitter): `96.0 us`
+-    - ç¨³æè¿ç»­å¸§è°åº¦æå¤§æå¨ (Steady State Max Jitter): `3.0 us`
+-    - ç»è®º: GMII æ¨¡å¼ä¸çº¿éæå 10 åï¼åå§æéå»¶è¿æ¾èä¸éï¼ç¨³ææå¨ä¿æå¨ 3us æä½æ°´å¹³ã
+-
+-### 2.2 T13 / T13g ç¡¬ä»¶åç¯æ¶å»¶ç²¾ç¡®æµé (Hardware Round-Trip Latency)
+-- **æµéç«¯ç¹å®ä¹ï¼**
+-  - **TX_pipeï¼** ä¸»æºè§¦å `MSG_WR` å° MAC TX ååºç¬¬ä¸å­è Preamble çæ¶å»¶ã
+-  - **Wire_timeï¼** MAC TX åéå®æ´ä»¥å¤ªç½å¸§å¨çº¿è·¯ä¸çä¼ è¾æ¶é´ï¼å«åå¯¼ç ãå¸§ä½ãFCS ä¸ IFGï¼ã
+-  - **RX_pipeï¼** MAC RX æ¶å°é¦å­èå°å®ææ¥æ¾ãè¿æ»¤ãå®æ´æ§æ£æ¥ãåä½ç®¡çãè§£æå¹¶åå
+-¥ PMEM/äº§çä¸­æ­çæ¶å»¶ã
+-  - **HW_E2Eï¼** çº¯ç¡¬ä»¶æµæ°´çº¿å¤çæ¶å»¶ï¼TX æµæ°´çº¿ + RX æµæ°´çº¿ï¼æé¤çº¿ç¼ä¼ è¾æ¶é´ï¼ã
+-  - **Total_RTTï¼** ç«¯å°ç«¯å®æ´å¾è¿æ¶å»¶ï¼ä»åèµ·åéå°æ°æ®å°±ç»ªäº RX PMEMï¼ã
+-
+-- **å®æµæ°æ®è¡¨ï¼**
+-
+-| æµè¯ç¨ä¾ / éç | è´è½½å¤§å° (Plen) | å¸§é¿ (Frame) | TX æµæ°´çº¿æ¶å»¶ | çº¿è·¯ä¼ è¾æ¶å»¶ (Wire) | RX æµæ°´çº¿æ¶å»¶ | çº¯ç¡¬ä»¶æ¶å»¶ (HW_E2E) | æ»å¾è¿æ¶å»¶ (Total RTT) |
+-|---|---|---|---|---|---|---|---|
+-| **T13 (MII 100M)** | 17 Bytes (æå°å¸§) | 64 Bytes | 2.168 us | 5.040 us | 5.264 us | **7.432 us** | **12.472 us** |
+-| **T13 (MII 100M)** | 256 Bytes (ä¸­é¿å¸§) | 303 Bytes | 1.880 us | 24.160 us | 24.384 us | **26.264 us** | **50.424 us** |
+-| **T13 (MII 100M)** | 1471 Bytes (æå¤§å¸§) | 1518 Bytes | 1.912 us | 121.360 us | 121.584 us | **123.496 us** | **244.856 us** |
+-| **T13g (GMII 1G)** | 17 Bytes (æå°å¸§) | 64 Bytes | 2.528 us | 0.504 us | 0.656 us | **3.184 us** | **3.688 us** |
+-| **T13g (GMII 1G)** | 256 Bytes (ä¸­é¿å¸§) | 303 Bytes | 1.904 us | 2.416 us | 2.568 us | **4.472 us** | **6.888 us** |
+-| **T13g (GMII 1G)** | 1471 Bytes (æå¤§å¸§) | 1518 Bytes | 4.840 us | 12.136 us | 12.288 us | **17.128 us** | **29.264 us** |
+-
+-### 2.3 T18 / T18g éæºåé¿è´è½½å¤ç«¯å£é¿æ¶ååæµè¯ (Random Stress Testing)
+-- **æµè¯ææï¼** é
+-ç½® 4 ä¸ªç¬ç« TX èæç«¯å£ï¼Port 0, 1, 2, 3ï¼ä¸ 4 ä¸ªç¬ç« RX æ¥æ¶ç«¯å£ï¼Port 0, 1, 2, 3ï¼ï¼å¯¹åº 4 ä¸ªä¸å VLã
+-- **æ¿å±è§æ¨¡ï¼** è¿è¡ 25 è½®å¾ªç¯ï¼æ¯è½®å¹¶åçæ 4 å¸§éæºåé¿æ¥æï¼è´è½½å¨ 17B ~ 1471B ä¹é´éè¿ä¼ªéæºç®æ³çæï¼ï¼æ¯æµè¯ç¨ä¾ç´¯è®¡æ¶å 100 å¸§å®æ´æ¥æã
+-- **é­ç¯éªè¯ï¼**
+-  - ç¡¬ä»¶çæå¹¶å¨çº¿æå TX MAC ç«¯å£è¾åºç A/B åç½çå®å­èæµï¼
+-  - èªå¨åæ¾æ³¨å
+-¥ RX MAC åç½å
+-¥å£ï¼
+-  - éªè¯ 100 å¸§å
+-¨é¨æåéè¿æ¥æ¾ãFLT è¿æ»¤ãIC æ ¡éªãRM å»éãUDP æ¥å¤´è§£æä¸ PMEM åå
+-¥ï¼
+-  - ä¸»æºè¯»åå
+-¨é¨ 100 å¸§ç PMEM è´è½½æ°æ®ï¼å¹¶ä¸åéç«¯åå§ payload è¿è¡éå­èå¯¹æ¯ï¼**100 å¸§æ°æ®ä¸è´æ§ 100% PASS**ã
+-
+----
+-
+-## 3. è¯çç»¼åä¸æ¶åºåæ (Synthesis & STA) çå®æ¥å
+-
+-### 3.1 ç»¼åå·¥å
+-·é¾ç¶æä¸éªè¯æ§è¡
+-- **ç»¼åç¯å¢ï¼** æçµæ eLinx 3.0 å·¥å
+-·é¾ (`C:\Program Files (x86)\eHiWay\eLinx3.0\bin\shell\bin\eLinx_synthesis.exe` v1.0, åºäº Yosys åç«¯ä¸æçµæä¼å Pass)ã
+-- **RTL ä»£ç ç»æï¼** å
+-¨å·¥ç¨ 24 ä¸ª Verilog-2005 æºä»£ç æä»¶éè¿ eLinx AST è§£æä¸è¯­æ³æ£æ¥ï¼0 è¯­æ³éè¯¯ã
+-- **å­æ¨¡åé»è¾ç»¼åï¼** å¯¹å
+-¨é¨ 12 ä¸ªæ ¸å¿å­æ¨¡åè¿è¡ç¬ç«é»è¾ç»¼åï¼**12/12 å
+-¨é¨ç»¼åæå (Yosys execute success)**ï¼é»è¾é¨ä¸åå
+-ç»è®¡å¦ä¸ï¼
+-
+-| å­æ¨¡ååç§° | æå¨è·¯å¾ | ç»¼åç¶æ | åå
+-æ»æ° (Cells) | å
+-¸ååå
+-åå¸ |
+-|---|---|---|---|---|
+-| `rst_sync` | `rtl/common/rst_sync.v` | **PASS** | 3 | 3x `$_DFF_P_` |
+-| `timebase` | `rtl/common/timebase.v` | **PASS** | 506 | è®¡æ°å¨ãæ¶éåé¢ä¸ä½¿è½é»è¾ |
+-| `crc32` | `rtl/common/crc32.v` | **PASS** | 352 | å¹¶è¡ CRC-32 ç»åè®¡ç®æ ä¸ç§»ä½å¯å­å¨ |
+-| `sync_fifo` | `rtl/common/sync_fifo.v` | **PASS** | 80 | æéæ¯è¾å¨ä¸æ§å¶ç¶ææº |
+-| `init_sweep` | `rtl/mgmt/init_sweep.v` | **PASS** | 152 | å¯å­å¨æ«æåå§åæéç¶ææº |
+-| `tx_sn_gen` | `rtl/tx/tx_sn_gen.v` | **PASS** | 7626 | 32 VL ç¬ç« SN åçå¨ä¸ç¶æä¿æé»è¾ |
+-| `tx_pace` | `rtl/tx/tx_pace.v` | **PASS** | 42 | éçå¹é
+-ä¸åå¸§èæå¨ |
+-| `mac_tx_if` | `rtl/mac/mac_tx_if.v` | **PASS** | 983 | MII/GMII åéä»è´¨æ¥å£ä¸ CRC æå
+-¥ |
+-| `rx_block_pool` | `rtl/rx/rx_block_pool.v` | **PASS** | 857 | 10 åç¼å²æ± åé
+-/éæ¾ä»²è£å¨ |
+-| `rx_flt` | `rtl/rx/rx_flt.v` | **PASS** | 852 | VL é
+-ç½®æ¯å¯¹ä¸è¯­ä¹è¿æ»¤é»è¾ |
+-| `mgmt_sap_rx` | `rtl/mgmt/mgmt_sap_rx.v` | **PASS** | 373 | SAP æè¿°ç¬¦æå­ä¸ä¸»æºç®¡ççªå£ |
+-| `tx_frame_builder` | `rtl/tx/tx_frame_builder.v` | **PASS** | 5430 | åè®®æ¥å¤´æ¼è£
+-ä¸æ°æ®éè·¯å¤è·¯éæ©å¨ |
+-
+-### 3.2 é¡¶å±ç»¼åä¸ STA ç¶æè¯´æ
+-- **é¡¶å± AST ä¸å±æ¬¡å±å¼ï¼** é¡¶å± `AFDX_top` æåå®æ Verilog åç«¯è§£æä¸ `HIERARCHY` passï¼24 ä¸ªæ¨¡åç«¯å£äºèä¸æ»çº¿ä½å®½æ ç¼å¹é
+-ã
+-- **å·²ç¥å·¥å
+-·é¾éå¶ï¼** eLinx v1.0 å
+-ç½®ç 2021 ç Yosys å¨å¤ç `AFDX_top` ä¸­æ·±å±å¤ç«¯å£å¤§ä½å®½äºç»´å­å¨å¨æ°ç»ï¼å¦ 8KB åå¸è¡¨ã4K é¡¹è¿æ»¤è¡¨ä¸ PMEM è·¨æ¶éåæ å°ï¼æ¶ï¼å¨ `MEMORY_COLLECT` pass è§¦åå·²ç¥å
+-å­éæå¼éï¼å»ºè®®åç»­å°å¤§å®¹éè¡¨æ ¼å®ä¾åä¸º eLinx åç `M9K`/`M4K` BRAM ç¡¬æ ¸ IPï¼
+-- **STA å·¥å
+-·ç¶æï¼** eLinx åç«¯ P&R å STA ä¾èµ `Implementation.exe` åè¯çå¼èçº¦ææä»¶ï¼.sdc / .fdcï¼ï¼å½åå·¥ä½åºæªæè½½ç©çå¨ä»¶å¼èçº¦æä¸å
+-·ä½åå· Licenseï¼æ¶åºåæå·²å¨ Questa 125MHz/25MHz å¨æçº§å
+-¨éä»¿çä¸­å®æéªè¯ï¼50/50 å
+-¨é¨æ æ¶åºåè½è¿ä¾ï¼ã
+-
+----
+-
+-## 4. å
+-¨é 50 é¡¹åå½æµè¯å®æ´æ¸
+-åä¸ SHA-256 è¯æ®é¾
+-
+-| åºå· | æµè¯ç¨ä¾ ID | æè¿°ä¸éªè¯å
+-å®¹ | ç»æ | èæ¶ (s) | æ¥å¿å¤§å° (B) | æ¥å¿æä»¶ SHA-256 åå¸å¼ |
+-|:---:|:---:|---|:---:|:---:|:---:|---|
+-| 1 | T00 | åé¨å¯å­å¨è¯»åãå¤ä½é»è®¤å¼ä¸æªæ å°å°åæ£æ¥ | **PASS** | 3.5 | 1953 | `B367548B9176948DF6AC0D61EB266BE8E01DBA7FEED432FED7337A26EB46BFA1` |
+-| 2 | T01 | åéåå§åæ«æä¸ç¶ææ¸
+-é¤ | **PASS** | 3.3 | 1582 | `7B0AE5C6627654A5CE70D0449532BA0DB8694568C141428B876F16CB30AC6920` |
+-| 3 | T02 | åéåå¸§æ³¨å
+-¥ä¸æè¿°ç¬¦è£
+-è½½ | **PASS** | 3.3 | 1621 | `C1E5189F28059D29F358B2B71C7D696DD988FF8F76DE49EBEA3C3C5D83A7554D` |
+-| 4 | T03 | åéç«¯å¸§å¤´æ¼è£
+-ä¸ CRC è®¡ç® | **PASS** | 3.3 | 2104 | `217D8A0CC070004C68C284887C1C93FCF0022D47D0E5C1EDC952D7B7706A2290` |
+-| 5 | T04 | MII æ¨¡å¼åé MAC ç©çæ¥å£æ¶åº | **PASS** | 3.5 | 2152 | `7144287B14337713B80847F334FE0D854C3BA18FB3E578BEFBD35B80A6B82AC4` |
+-| 6 | T04g | GMII æ¨¡å¼åé MAC ç©çæ¥å£æ¶åº | **PASS** | 3.5 | 2187 | `EC2A9716DE72033ADA697E813B632597093D36152CD94B44F29708983A52F4B4` |
+-| 7 | T05b | 32 VLs é¥±åæ»¡è½½ MII éçæå¨æµè¯ | **PASS** | 4.3 | 2399 | `5A9D21F55476CD723E70928CF7A4A28BE2831BCBE47656A8F3F1CF3331FAEC07` |
+-| 8 | T05bg | 32 VLs é¥±åæ»¡è½½ GMII éçæå¨æµè¯ | **PASS** | 3.7 | 2398 | `C9A1FFD8AEF81C98725514E9F8E43981881729EB89288EFA8F2FA1B6F6841285` |
+-| 9 | T05c | åé BAG å®æ¶ä¸å¸¦ç¶æ´å½¢éªè¯ | **PASS** | 3.4 | 1457 | `4F063E2CE4A5197BBABB452B40B35AB8B080FCD938CE5B1DA65DB7BF0852B8BD` |
+-| 10 | T08a | åºç¡å VL RX åå¸æ¥æ¾ | **PASS** | 3.4 | 1898 | `E57F0B708E815FE1AB0A97C93C4815D96C0BE3320B83303B5769A3DD946D94D8` |
+-| 11 | T08ag | åºç¡å VL RX GMII æ¥æ¾ | **PASS** | 3.4 | 1900 | `6900A29AD7159218AA50C800ADE2D4C558EE48951EAA479EDFBD7779AA63E531` |
+-| 12 | T08b | å¤è·¯åå¸å²çªä¸åè·¯ç»ç¸èæ¥æ¾ | **PASS** | 3.6 | 2147 | `9944A9AE7FD1793A248EF6A1BD8F722ED2FD3036F76E2332BFCEF5CEEE7DC3EA` |
+-| 13 | T08bg | å¤è·¯åå¸å²çª GMII æ¥æ¾ | **PASS** | 3.6 | 2149 | `B34EB24747754B98B6D1B2DF5EC4EB68CA6B0DF364A5F4425F2552ED983A7E36` |
+-| 14 | T08c | æ¥æ¾è¡¨æªå½ä¸­ä¸åå¸§ä¸¢å¼ | **PASS** | 3.5 | 2043 | `463AC35C586B7C37293AC3697BE0FDE9266E7C4293AE1DE3A7B9A26A2BA74B64` |
+-| 15 | T08cg | æ¥æ¾è¡¨æªå½ä¸­ GMII ä¸¢å¼ | **PASS** | 3.4 | 2045 | `A7F2D1A1E5C16C4E1A3D1DE9C37751E77F187CE342C44FE70891461A0C226759` |
+-| 16 | T08d | è¯­ä¹è¿æ»¤ï¼Lmaxãç½ç»ä½¿è½ãæ¨¡å¼å¹é
+-ï¼ | **PASS** | 3.8 | 2115 | `8AE4232BAA02652431CC81D0DE16E31C392D66EC5207936171BD4A1FEA8D3EB1` |
+-| 17 | T08dg | è¯­ä¹è¿æ»¤ GMII æ¨¡å¼ | **PASS** | 3.8 | 2117 | `6CF880E9DEB6A56C6CD55342939B6F32A3745DE24D3D58017B0F2A8AFBD448B0` |
+-| 18 | T08e | å®æ´æ§æ£æ¥ (IC) ä¸åºåå· PSN å¤å® | **PASS** | 3.7 | 2141 | `9D8A29A26330BC37E1C3877960F0C0F8014582E555C92AEF11421E0AC7481309` |
+-| 19 | T08eg | å®æ´æ§æ£æ¥ IC GMII æ¨¡å¼ | **PASS** | 3.7 | 2143 | `FFFC52FBCFE96B366B5CD19BE9BC2132D9A3B57608889EE99929B9B8FF3F384F` |
+-| 20 | T08f | å
+-¨è¡¨ 8192 é
+-ç½®å è½½ä¸éç¬ Scoreboard | **PASS** | 10.9 | 2404 | `F48D5E583A1448DE4FF3BD5D382B295BD0DF7BD4579F22288FE382FF88AF277A` |
+-| 21 | T08fg | å
+-¨è¡¨é
+-ç½®å è½½ GMII Scoreboard | **PASS** | 10.9 | 2406 | `85BD130EC26CF2CEAA77BE1D30E267DA56DC83D1B994793405CFAC7BFF6AE497` |
+-| 22 | T09 | ç¬ç«åä½ç®¡ç (RM) ç®æ³å¤å® | **PASS** | 3.5 | 1632 | `5812B4C1844BD8E87ACFC0C87CA826458269784DCBA6A2D40EBACBC721865F8E` |
+-| 23 | T09p | åä½ç®¡çåç«¯å£å¹¶åè®¿é® | **PASS** | 3.5 | 1638 | `D18A0DE0F4DE251FF176461D79E78013E3B6A97F5B6E767E967520DDE89599B2` |
+-| 24 | T09ps | åä½ç®¡ç SkewMax è¾¹çå®¹å¿ | **PASS** | 3.6 | 1672 | `6027E2FEF38883BFA195483F204C48698028D5E6A3B95B7261FBC8151EF900EB` |
+-| 25 | T09s | åä½ç®¡çåºåå·ç¿»è½¬æµè¯ | **PASS** | 3.6 | 1656 | `24673E2AF9997CE49F89AE1D35288599E9F0001004A81E152865768800D60910` |
+-| 26 | T10 | é¡¶å±ååå
+-¨é¾è·¯ RM åç½å»é | **PASS** | 4.8 | 2061 | `B039A9772F26252ED03F93427E3EE726EE9EBDE02F2ECB75DC27DDE6DDA6EE01` |
+-| 27 | T10g | é¡¶å±ååå
+-¨é¾è·¯ RM GMII æ¨¡å¼ | **PASS** | 4.6 | 2063 | `B7717435EE33C91F26154388BF28DDA6F53D769E66F46A3102434E0E8783DC0C` |
+-| 28 | T11 | RM å° UDP æ¥æè§£æä¸ç«¯å£ç¼å²äº¤ä» | **PASS** | 4.9 | 2407 | `8E20E020FA4CDFF3F6A7BCF5A84F455A253A2BA59D89D1C34A1B283E4FA9D546` |
+-| 29 | T11g | æ¥æè§£æä¸ç«¯å£ç¼å² GMII æ¨¡å¼ | **PASS** | 4.9 | 2409 | `BEB22CD2529C5B72C2B2945DDAEB74DC2305539DA6411EB548AC7DF5201DAFD5` |
+-| 30 | T11i | æ¥æ¶äºä»¶ä¸­æ­ (INT_STATUS/IRQ) è§¦åä¸æ¸
+-é¤ | **PASS** | 4.2 | 2276 | `F102B0F8B931BDCFBFEAE7B42BC19BC8DE55157BC89053DCBEA3D6864119B913` |
+-| 31 | T11ig | æ¥æ¶äºä»¶ä¸­æ­ GMII æ¨¡å¼ | **PASS** | 4.2 | 2278 | `829AEFE3CEAEFE6495D51D6837C0C18356976214A36746CD9EB9BE2B86E64B4D` |
+-| 32 | T12c | ç©çå± CRC æ ¡éªéè¯¯éç¦» | **PASS** | 3.5 | 1639 | `84F07FAAAAE924B224E60931215B17743AE068CE8396D762F64560EC0A41508D` |
+-| 33 | T12f | ç©çå±å¸§å¯¹é½ä¸åå¯¼ç ç¸åå®¹é | **PASS** | 3.4 | 1629 | `F39EC4223A4D00701FCE0B9B3206D0C54784AC18C28A6D3A0A7712E351475A18` |
+-| 34 | T12fg | ç©çå±å¸§å¯¹é½ GMII æ¨¡å¼ | **PASS** | 3.5 | 1631 | `C5CE813B24F333CA2FDBA3C08A495EC24E61356A5AF1842C485ED8D595DF7E89` |
+-| 35 | T12h | ç©çå±è½½æ³¢ä¸¢å¤±ä¸å²çªæ¢å¤ | **PASS** | 3.5 | 1629 | `2E51A7A71657A84988F965103E798BC997E3F10815316447C105ED162BF35817` |
+-| 36 | T12r | ç©çå±è¶
+-é¿è¶
+-ç­å¸§ä¸¢å¼ | **PASS** | 3.5 | 1629 | `46387063FAEBACCFCC982362C07D78DE6FA405FF5EB7E8F7A1891EC9576EFE49` |
+-| 37 | T12s | ç©çå±èé èæå°å¸§é´é (IFG) æµè¯ | **PASS** | 3.4 | 1629 | `9F00D604C835E3B30685A90192A09BE660B9096245C4B47B8097E4E987DA5DCE` |
+-| 38 | T13 | ç«¯å°ç«¯å¾è¿æ¶å»¶æµé (MII æ¨¡å¼) | **PASS** | 4.3 | 2404 | `F0FD88D278FE3C33E646450A84EB66F31693895A971168BFFD89C40409A6553B` |
+-| 39 | T13g | ç«¯å°ç«¯å¾è¿æ¶å»¶æµé (GMII æ¨¡å¼) | **PASS** | 4.3 | 2406 | `56F7499DCD43F6E45E8BCBD43834E3F7A16892EB3F421C2B0138AC39CEF17109` |
+-| 40 | T17 | ä¸»æºæ··åè¯»åä¸åç½æå°å¸§é¥±ååæµ | **PASS** | 10.3 | 2470 | `FE4FE8667AC1767C7DEE535C53CD5CE3E0D80EAFEC54B64B605D8EC7ACF8A0F2` |
+-| 41 | T17g | ä¸»æºæ··åè¯»å GMII é¥±ååæµ | **PASS** | 10.3 | 2472 | `6FE694EBE92275CF3440CE80026AF95DCBEEF4BA616FFFC86D22B7F498CCEB82` |
+-| 42 | T18 | 25 è½®å¹¶åå¤ç«¯å£éæºé¿æ¶ååæµè¯ | **PASS** | 18.5 | 2379 | `9AE385AFE131828CC87BCAC3632906DB4AE7A6CC2ECFE9B9F0C731A88AEF521E` |
+-| 43 | T18g | 25 è½®å¹¶åéæºé¿æ¶åæµ GMII æ¨¡å¼ | **PASS** | 8.4 | 2381 | `A09B6DE5BCFB0A763EAE4B01E55DF59CE59473872288019C3CE87ACEE7C7B035` |
+-| 44 | T21 | RX ç¼å²åæ± èå°½ãååä¸éæ¾æ¢å¤ | **PASS** | 4.4 | 2476 | `E031E9748FF0A1C80689FE499CDE40B8CEB5CD59781B8466184C0B6EC610B5BD` |
+-| 45 | T21g | RX ç¼å²åæ± èå°½ä¸æ¢å¤ GMII æ¨¡å¼ | **PASS** | 4.3 | 2478 | `F0F672465CDDA28020A12A66C1E9BE367464CF9FF7DE15F1C42930263673F749` |
+-| 46 | T22 | TX->RX çå®åç½å·å¯å¨é­ç¯åç¯ | **PASS** | 5.2 | 2351 | `C55923507BCEBC76686358C89BD91F5B2FDF6ECA17EC0B5D99FDFDAFE997A492` |
+-| 47 | T22a | åç¯åç½éå¯¹ç§°æ¶éä¸åæå®¹é | **PASS** | 5.0 | 2355 | `A236968B359F7C442BE61BD6C9C4EAF914E874C4012DEB705BA0A0C53F629ED7` |
+-| 48 | T22g | åç¯åç½ GMII é«éæ¨¡å¼ | **PASS** | 5.1 | 2353 | `0EB72FF0A6321BCB9C2A4FF13C47DC8048A54B4B98E7B152EF7CD2BCDA11C6FA` |
+-| 49 | T23 | SAP (type=2) ç®¡çé¢æå°é­ç¯ | **PASS** | 4.4 | 2399 | `0015505C4FD45B7B12C26C4EBDD091157D0BD7320DDEBC8A46BBD722B34B9DA3` |
+-| 50 | T23g | SAP ç®¡çé¢æå°é­ç¯ GMII æ¨¡å¼ | **PASS** | 4.4 | 2401 | `D3A8F537CCF6AF9FE3A4DBC7BDCA332E9D404A8168B5BE3C7EB13EC6C47A7363` |
+-
+----
+-
+-## 5. äº¤ä»å·¥ä»¶ä¸è¡¥ä¸ç´¢å¼
+-
+-| æä»¶ç¸å¯¹è·¯å¾ | è¯´æ | SHA-256 |
++# DIANSAI 修复与复验报告（2026-09-25）
++
++- 工作区：`C:/Workspace/diansai`；依据：`out/arena-debug/MISSION-FIX.md`、`REVIEW-REPORT.md`。
++- **总体结论**：Questa 完整清单 **50/50 PASS**（编译 rc=0、0 errors，耗时 276.3 s）；Lint 与严格文档门通过。`AFDX_top` **综合仍失败**，未进行 STA；不得将功能仿真、AST 解析或 12 个独立子模块综合等同于整机综合/时序收敛。
++- 原工作树含大量既存未提交、未跟踪修改；本轮没有 reset/commit/push，也没有碰 `competition_case/`。每处源文件修改前均备份到 `out/arena-debug/backup/fix_20260925/`，保留复现失败证据。原报告文件含乱码及工具回包包装文本，原样备份后重写为本报告。
++
++## 复验索引
++
++| 项目 | 本轮客观结果 | 主要证据 |
+ |---|---|---|
+-| `out/arena-debug/diansai.patch` | å
+-¨å·¥ç¨å¢éä»£ç ä¸ææ¡£ç»ä¸ UTF-8 è¡¥ä¸ | `2E2867126B6DC6F8CAE1952BA0B1202351E4219C2C4F68955028148B2C5A4FD5` |
+-| `sim/out/regress.csv` | 50/50 å®æ´åå½ç»æ CSV å½æ¡£ | `3489370D42031B05D3D10373C3EB85E97D4537D06634C312061A00F7A5980070` |
+-| `sim/out/compile_console.txt` | å
+-¨éæµè¯å¹³å°ä¸ RTL ç¼è¯æ§å¶å°æ¥å¿ (0 errors) | `269DBC871BC148C56B2BD71ECF54AF462A08FFC973F0BA361B1ED9F5DDC3C06A` |
+-| `out/arena-debug/DIANSAI-REPORT.md` | æ¬å
+-¨éæ»ç»æ¶å£æ¥å | å®æ¶æ´æ° |
+---- CONTENT END ---
+-=== FILE END ===
+-=== SUMMARY ===
+-1
+-1
+-0
+-0
+-0
+-=== READ_FILES END ===
++| B2 FIFO | 模块综合 `rc=0`、全日志 `^ERROR=0`；FIFO/链路定向 4/4 PASS | `elinx/prj/sub_sync_fifo.log`；`out/arena-debug/checks/B2_questa.log` |
++| B3/B4 满载抖动 | T05b/T05bg 2/2 PASS；每 VL 首发相位至实际出帧最大发送延迟 4/4 µs（硬界 500 µs）；稳态最大 3/3 µs | `sim/out/T05b_console.txt`、`T05bg_console.txt`；`checks/B3_questa.log` |
++| B5 SAP 归还 | T21/T21g/T23/T23g 定向 4/4 PASS；持续 PB1 归还下 SAP 冲突观测各 1 次、等待 ≤1 拍 | `checks/B5_questa.log`；`elinx/prj/sub_rx_block_pool.log` |
++| B6/B7 T18 | T18/T18g 2/2 PASS；种子 `51c0ffee`、长度覆盖 17..1471B、97 帧施加解析反压；去重精确 +1 | `checks/B67_questa.log`；`sim/out/T18_console.txt` |
++| B10 SAP 禁用负例 | T23/T23g 2/2 PASS，`R_SAP` 各恰好 1 次，管理受理 0，RX 块归还 | `checks/B10_questa.log` |
++| B1 顶层综合 | **FAIL**：原脚本 `memory_map` 报 `invalid vector<T> subscript`；BRAM 探针的 `memory_collect` 报 `dict::at()` | `elinx/prj/AFDX_top_synth.log`；`checks/B1_bram_probe.log` |
++| 门禁 | Lint 0 Error；`tools/run_all.py --strict` 5/5 + selfcheck 通过；子模块日志核验 12/12（**不是**顶层） | `checks/final_lint.log`、`final_docgate.log`、`B9_table.md` |
++| 全量回归 | **50/50 PASS**；与 50 条 manifest 同序，无跳项 | `out/arena-debug/checks/final_full50.log`、`sim/out/regress.csv` |
++
++> 上述均为 RTL 周期级验证及部分前端综合证据，不是器件 STA、覆盖率或 ARINC 664P7 正式认证。
++
++## B2 — `sync_fifo` 多驱动（已修）
++
++**Before**：`rtl/common/sync_fifo.v` 的二维 `mem` 经 eLinx `synth` 生成同一 `rd_data[7:0]` 被 `$mem.RD_DATA` 与 `$mem.RD_DATA_B` 双驱动；原 `sub_sync_fifo.log:571` 的 `ERROR` 出现在 `stat` 80 cells **之后**，该数不能用作综合成功证据。**After**：小深度（≤32）FIFO 改用一维 `mem_bits[W*D-1:0]` 的单次注册读取/写入，消除冲突，原 FIFO 满/空、同步读行为不变。新日志 1433 个逻辑 cell、0 个 `$mem`；较大数量是寄存器实现代价，不是 LUT/布局面积结论。
++
++复现/验证：`Select-String elinx/prj/sub_sync_fifo.log -Pattern '^ERROR'`（旧日志备份在 `backup/fix_20260925/B2/sub_sync_fifo_before.log`）；`& "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe" -s elinx/prj/sub_sync_fifo.ys -l elinx/prj/sub_sync_fifo.log` → `rc=0` 且无 `^ERROR`。`powershell -NoProfile -ExecutionPolicy Bypass -File sim/run_regress.ps1 -Tests T00,T04,T08a,T08ag` → 4/4 PASS；`B2_lint.log`、`B2_docgate.log` 均通过。
++
++## B3 — T05b 500 µs 真判据（已修）
++
++**Before**：同相批量提交的 MII 首帧总跨度 781 µs 已超文字所称 500 µs，断言却用 867 µs 判 PASS。**After**：每一轮的 `MSG_WR` 按 `i*BAG/32` **实际错相提交**（BAG=828 µs）；按各 VL 的**预设相位到首帧发送**计算最大发送延迟，用**周期精度** `>500*125` 判失败，不再用理论上界或微秒截断放水；稳态界限同样以周期精度判 50 µs。增加逐 VL 帧数及稳态间隔数检查。
++
++定向命令：`powershell -NoProfile -ExecutionPolicy Bypass -File sim/run_regress.ps1 -Tests T05b,T05bg` → 2/2 PASS，96 帧/档；MII/GMII 首发延迟 4/4 µs、稳态最大间隔偏差 3/3 µs。**原始首帧总跨度为 800/799 µs，含人为相位差，单独打印而不称“抖动”**；该 TB 的首发定义并非标准认证全套判据。`B3_lint.log`、`B3_docgate.log` 通过。
++
++## B4 — “同相/错相”文档口径（已修）
++
++**Before**：`doc/当前进度_20260923.md` 把旧同相测试写成“错相”，且误称 32 条 VL 的 BAG 为 1..128 ms。**After**：标注旧 781/96 µs 为**同相**及旧 867 µs 误判；本轮才是按 `i*828µs/32` 错相，记录相位相对延迟与总跨度的不同定义。`tools/run_all.py --strict` 通过。
++
++## B5 — SAP 归还公平且不丢普通 RX 块（已修）
++
++**Before**：`AFDX_top.v` 固定 `pb_free1` 优先，持续 PB1 脉冲可令 `mgmt_free_take=0` 无上界。**After**：主槽按竞争事件轮转；增加 `rx_block_pool.free_spill` 释放口接纳本拍落选者。普通 PB1 是**无 ready 的脉冲**，若只轮转覆盖它会永久丢块；新电路冲突时两路**同拍**释放，`mgmt_free_take=mgmt_free_req`，请求服务上界 1 拍。T23/T23g 在真实 SAP 帧处理期间于 PB1 槽持续注入普通归还脉冲，检查碰撞、两 ID 的归属与 SAP 有界返回；各观测一次冲突。T21/T21g 块池耗尽恢复也通过。`sub_rx_block_pool.ys` 重跑 `rc=0`、`^ERROR=0`；`B5_lint.log`、`B5_docgate.log` 通过。
++
++局限：PB1 冲突为 TB 定向槽级注入，不等于含真实普通帧流的长期混合负载验证。
++
++## B6 — T18 真随机激励（已修、范围已限）
++
++**Before**：长度仅由 `%8` 固定查表，且无 RNG/种子、所谓“四端口并发”实际逐帧串行。**After**：一次 `$urandom(seed)` 初始化，之后连续 `$urandom()` 生成可重放的长度、发送间隙、A/B 错峰、MII 字节间隔、解析→端口握手反压及每帧 payload 盐；PASS 摘要含种子与覆盖统计。首次试跑发现 Questa 每次带同一 seed 重置 RNG、导致 100 帧长度都 465B，被覆盖断言**正确判 FAIL**；改为只初始化一次后通过，失败日志保留 `checks/B67_debug_questa.log`。
++
++`-Tests T18,T18g` → 2/2 PASS；两档各 100 **串行消息事务**，A/B 副本同时回灌，长度覆盖 17..1471B，97 帧施加反压、100 帧具非零额外间隔，固定种子 `51c0ffee`。**未**证明四端口多个不同消息同时在飞，也无 UCDB/功能覆盖率统计。`B67_lint.log`、`B67_docgate.log` 通过。
++
++## B7 — 去重及计数断言（已修）
++
++**Before**：T18 仅判 `deliver_cnt` 有增加，双网重复交付两次也能漏过；`MSG_CNT` 仅判非零，极大长度时末尾 payload 字节未全部遍历。**After**：两网流水线排空后强判 `deliver_cnt === prev_deliv + 1` 且等于累计事务数；`MSG_CNT` 接收后 `===1`、`MSG_RD` 后 `===0`；payload 循环覆盖末字节。`T18/T18g` 2/2 PASS（如双交付会触发明确 FAIL，不以 `>0` 判定）。
++
++## B1 — 顶层综合（**仍未闭环，已纠正状态**）
++
++`& "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe" -s elinx/prj/AFDX_top_synth.ys -l elinx/prj/AFDX_top_synth.log`：**rc=1**，`MEMORY_MAP → ERROR: invalid vector<T> subscript`。以现有 `bram_sdp_smoke.ys` 的 `memory_collect → memory_bram → techmap` 顺序生成 `checks/B1_bram_probe.ys` 复试：**rc=1**，顶层在 `MEMORY_COLLECT → ERROR: dict::at()`，尚未进入 BRAM 映射。单独的 BRAM/PSN 冒烟日志与所选小模块成功，均不能替代顶层验证；未把失败改写成成功。
++
++`doc/当前进度_20260923.md` 已将“芯片逻辑综合”改为 **[ ] 部分完成**。若继续推进，需要定位 eLinx 旧 Yosys 在顶层混合存储的故障模块，尝试受支持 BRAM/IP 或较新综合器复现，并完成全顶层网表与器件后端。此轮没有强行大范围替换 RAM 实现。
++
++## B8 — 时序表述（已订正）
++
++**Before**：原报告将 Questa 的零延时周期级仿真描述为“时序分析完成”。**After**：明确 **时序收敛未验证；当前仅有周期级功能仿真**。本轮没有时钟/IO 约束下的 P&R、建立/保持/关键路径报告，不能声称 125 MHz 收敛或 STA PASS。
++
++## B9 — 综合表格路径及判据（已订正）
++
++**Before**：原表误写 `init_sweep → rtl/mgmt/`、`mac_tx_if → rtl/mac/`，还在 `CHECK` 报错的日志上将 `sync_fifo` 记 PASS。**After**：`python tools/gen_synth_table.py --out out/arena-debug/checks/B9_table.md` 从 `sub_*.ys` 解析真实源码（含依赖文件），逐个检查源码存在、**整份日志**无 `^ERROR` 且有 `Yosys execute success!`；不读取 `stat` 之前的中间状态充当成功。此脚本核验已有日志；本轮实际重跑了 `sync_fifo` 和 `rx_block_pool`，其余为既有单模块日志。
++
++| 子模块 | 实际 RTL 路径 | 全日志核验 | Cells（仅统计） |
++|---|---|---|---:|
++| `crc32` | `rtl/common/crc32.v` | **PASS** | 352 |
++| `init_sweep` | `rtl/top/init_sweep.v` | **PASS** | 152 |
++| `mac_tx_if` | `rtl/tx/mac_tx_if.v (依赖: rtl/common/crc32.v)` | **PASS** | 983 |
++| `mgmt_sap_rx` | `rtl/mgmt/mgmt_sap_rx.v` | **PASS** | 373 |
++| `rst_sync` | `rtl/common/rst_sync.v` | **PASS** | 3 |
++| `rx_block_pool` | `rtl/rx/rx_block_pool.v` | **PASS** | 959 |
++| `rx_flt` | `rtl/rx/rx_flt.v` | **PASS** | 852 |
++| `sync_fifo` | `rtl/common/sync_fifo.v` | **PASS** | 1433 |
++| `timebase` | `rtl/common/timebase.v` | **PASS** | 506 |
++| `tx_frame_builder` | `rtl/tx/tx_frame_builder.v` | **PASS** | 5430 |
++| `tx_pace` | `rtl/tx/tx_pace.v` | **PASS** | 42 |
++| `tx_sn_gen` | `rtl/tx/tx_sn_gen.v` | **PASS** | 7626 |
++
++**口径：12/12 仅对上述已有独立子模块日志有效，未包括大容量存储子模块或顶层，不代表 FPGA 综合/STA。**
++
++## B10 — T23 负例及弱断言（已修一部分）
++
++**Before**：仅一帧使能 SAP 正例，块号弱判 `>=6`。**After**：正例精确断言块号 `6` 且验证 PB1 冲突；复位重新配置后在 `SNMP_EN=0` 发送**有效 SAP 帧**，精确断言 `R_SAP` 1 次、MGMT accept/free 均 0、端口/总 drop 各 1、块池恢复 `FFC0`。`-Tests T23,T23g` → 2/2 PASS，`disabled_rsap=1`。背靠背两个**不同序号** SAP 的反压覆盖仍未补，列为剩余工作，不称完全覆盖。
++
++## B11 — 文档门自述（已订正）
++
++**Before**：`selfcheck_claims.py` 把已经存在的 T05b/T22 用例写成“仍未取证”，并称错相“待做”。**After**：C3 明确是**旧同相启动风险的理论模型**，说明现有 TB 用例可查但脚本不读取其结果；通过与否以回归 CSV/Questa 日志为准，理论模型不等于 STA。`python tools/run_all.py --strict` → 5/5 + selfcheck 通过。
++
++## 最终回归、门禁与剩余项
++
++- 回归命令（执行前确认无 `vsim/vopt/vlog` 残留，**仅运行一份**）：`powershell -NoProfile -ExecutionPolicy Bypass -File sim/run_regress.ps1`。
++- 本轮结果：50/50 PASS；`sim/tests.manifest` = 50 项；`sim/out/regress.csv` = 50 行，PASS=50、FAIL=0；编译 rc=0、0 errors；总耗时 276.3 s。逐项原始输出：`checks/final_full50.log`、`sim/out/*_console.txt`。
++- 证据 SHA-256：`sim/out/regress.csv` = `023E9CF471DE0E4C2662DEC6C4CB02A40476FFC24534DB591148AD13220EDD57`；`sim/out/compile_console.txt` = `0822DAC6FCE9B7EC7CD4008BE8602BFCA622596BB832BAF30C69AA3A2CD01BA4`。本轮重新生成的日志不能借旧报告所列哈希充数。
++- 最终门禁：`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools_lint.ps1` → 0 Error；`python tools/run_all.py --strict` → 5/5 + selfcheck；`python tools/gen_synth_table.py --out out/arena-debug/checks/B9_table.md` → 12/12 **所选子模块日志核验**。
++- **未修/未验证**：B1 全顶层 eLinx 综合仍失败，STA/125 MHz 收敛、实际 BRAM 资源/布局、形式化与 UCDB 覆盖率未做；T23 背靠背新 SN 的 pending 反压、T18 四端口真正多事务并发未覆盖；完整 SNMP/ARINC 615A 应用协议不是本次 RTL 范围。以上不随 50/50 功能仿真变为 PASS。
++
++## 备份、补丁与回滚
++
++- 备份：`out/arena-debug/backup/fix_20260925/{B2,B3,B5,B67,B1,B8_B11,pre_full50}/`。原报告也已备份于 `B8_B11/DIANSAI-REPORT_before.md`。
++- 补丁：`out/arena-debug/fixes.patch`，使用 **`git diff --no-index` 对本轮改前备份与改后文件生成**；仅包含本轮实际修改的 10 条源码/文档路径，避免把项目原已存在的大量未提交、未跟踪修改混进补丁。它是 Git 统一格式补丁，可用 `git apply -R --check out/arena-debug/fixes.patch` 检查、`git apply -R out/arena-debug/fixes.patch` 回滚到**本轮开始时**（不是回退到仓库 HEAD）；生成时对隔离目录做正向和反向字节比较。仿真生成的 `sim/out/` 文件不属于源代码补丁，原件另在 `pre_full50/` 中。
+diff --git a/rtl/common/sync_fifo.v b/rtl/common/sync_fifo.v
+index 4f53cab..04fa84c 100644
+--- a/rtl/common/sync_fifo.v
++++ b/rtl/common/sync_fifo.v
+@@ -18,7 +18,9 @@ module sync_fifo #(
+ );
+   // D 必为 2 的幂（2/4/8/16/32）
+   localparam integer AW = (D <= 2) ? 1 : (D <= 4) ? 2 : (D <= 8) ? 3 : (D <= 16) ? 4 : 5;
+-  reg [W-1:0] mem [0:D-1];
++  // Small flop-backed store: a flat vector avoids the eLinx $mem backend's
++  // duplicate RD_DATA/RD_DATA_B drivers on the registered FIFO output.
++  reg [W*D-1:0] mem_bits;
+   reg [AW:0]  wr_ptr, rd_ptr, cnt;
+   wire wr = wr_en & ~full;
+   wire rd = rd_en & ~empty;
+@@ -31,11 +33,11 @@ module sync_fifo #(
+       cnt    <= {(AW+1){1'b0}};
+     end else begin
+       if (wr) begin
+-        mem[wr_ptr[AW-1:0]] <= wr_data;
++        mem_bits[wr_ptr[AW-1:0]*W +: W] <= wr_data;
+         wr_ptr              <= wr_ptr + 1'b1;
+       end
+       if (rd) begin
+-        rd_data <= mem[rd_ptr[AW-1:0]];
++        rd_data <= mem_bits[rd_ptr[AW-1:0]*W +: W];
+         rd_ptr  <= rd_ptr + 1'b1;
+       end
+       cnt <= cnt + (wr ? inc : {(AW+1){1'b0}})
+diff --git a/rtl/rx/rx_block_pool.v b/rtl/rx/rx_block_pool.v
+index b91f343..3b0a6a5 100644
+--- a/rtl/rx/rx_block_pool.v
++++ b/rtl/rx/rx_block_pool.v
+@@ -9,8 +9,8 @@ module rx_block_pool (
+   input wire free_a, free_b, free_pipe,
+   input wire [3:0] free_id_a, free_id_b, free_id_pipe,
+   // v0.5.16: rx_port_buf 释放口（主机 MSG_RD / 覆盖 / 队列满 / 解析丢弃），同拍至多 2 块
+-  input wire free_pb0, free_pb1,
+-  input wire [3:0] free_id_pb0, free_id_pb1,
++  input wire free_pb0, free_pb1, free_spill,
++  input wire [3:0] free_id_pb0, free_id_pb1, free_id_spill,
+   output reg [15:0] free_map,
+   output reg [15:0] exhaust_cnt,
+   output reg [15:0] borrow_cnt
+@@ -36,6 +36,7 @@ module rx_block_pool (
+     if (free_pipe && free_id_pipe >= 4'd6) free_bits[free_id_pipe] = 1'b1;
+     if (free_pb0 && free_id_pb0 >= 4'd6) free_bits[free_id_pb0] = 1'b1;
+     if (free_pb1 && free_id_pb1 >= 4'd6) free_bits[free_id_pb1] = 1'b1;
++    if (free_spill && free_id_spill >= 4'd6) free_bits[free_id_spill] = 1'b1;
+   end
+   always @(posedge clk) begin
+     if (rst_sync) begin
+diff --git a/rtl/top/AFDX_top.v b/rtl/top/AFDX_top.v
+index 127c753..45864ab 100644
+--- a/rtl/top/AFDX_top.v
++++ b/rtl/top/AFDX_top.v
+@@ -592,11 +592,21 @@ module AFDX_top #(
+   wire [15:0] rx_exh_cnt, rx_borrow_cnt;
+   reg rx_pipe_free;
+   reg [3:0] rx_pipe_free_id;
+-  // The existing pool has two independent port-side release slots. SAP uses
+-  // slot 1 only when it is otherwise idle, holding free_req until accepted.
+-  wire pool_free_pb1 = pb_free1 | (mgmt_free_req && !pb_free1);
+-  wire [3:0] pool_free_pb1_id = pb_free1 ? pb_free1_id : mgmt_free_id;
+-  assign mgmt_free_take = mgmt_free_req && !pb_free1;
++  // Round-robin the primary slot on contention. Port-buffer free1 is a pulse
++  // with NO ready/hold handshake: the loser must use an independent spill slot
++  // or its block would be leaked. Both returns are accepted in the same clock,
++  // so SAP cannot be starved by continuous port-buffer releases.
++  reg sap_pb1_turn;
++  always @(posedge clk) begin
++    if (rst_sync) sap_pb1_turn <= 1'b0;
++    else if (pb_free1 && mgmt_free_req) sap_pb1_turn <= ~sap_pb1_turn;
++  end
++  wire sap_uses_pb1 = mgmt_free_req && (!pb_free1 || sap_pb1_turn);
++  wire pool_free_pb1 = pb_free1 || mgmt_free_req;
++  wire [3:0] pool_free_pb1_id = sap_uses_pb1 ? mgmt_free_id : pb_free1_id;
++  wire pool_free_spill = pb_free1 && mgmt_free_req;
++  wire [3:0] pool_free_spill_id = sap_pb1_turn ? pb_free1_id : mgmt_free_id;
++  assign mgmt_free_take = mgmt_free_req; // primary or spill, never dropped
+   wire rx_stream_en = ctl_r[1] && hash_image_valid && init_done && !ctl_r[13];
+   wire rx_first_a = rx_stream_en && rx_valid && (IF_MODE != 0 || rx_ready) && !rx_busy_a;
+   wire rx_first_b = rx_stream_en && (DUAL_NET_EN != 0) && rx_valid_b &&
+@@ -611,7 +621,8 @@ module AFDX_top #(
+     .free_b(rx_rel_b), .free_id_b(rx_rel_id_b),
+     .free_pipe(rx_pipe_free), .free_id_pipe(rx_pipe_free_id),
+     .free_pb0(pb_free0), .free_id_pb0(pb_free0_id),
+-        .free_pb1(pool_free_pb1), .free_id_pb1(pool_free_pb1_id),
++    .free_pb1(pool_free_pb1), .free_id_pb1(pool_free_pb1_id),
++    .free_spill(pool_free_spill), .free_id_spill(pool_free_spill_id),
+     .free_map(rx_free_map), .exhaust_cnt(rx_exh_cnt), .borrow_cnt(rx_borrow_cnt));
+   wire rxw_en_a, rxw_en_b, rxd_vld_a, rxd_vld_b;
+   wire [12:0] rxw_addr_a, rxw_addr_b;
+diff --git a/sim/tb/tb_t05b_jitter.v b/sim/tb/tb_t05b_jitter.v
+index 6451a5f..eb51ca0 100644
+--- a/sim/tb/tb_t05b_jitter.v
++++ b/sim/tb/tb_t05b_jitter.v
+@@ -2,8 +2,8 @@
+ // tb_t05b_jitter.v -- Saturated load jitter measurement (T05b / T05bg)
+ // 32 VLs configured with saturated load (Lmax=303B, payload=256B, BAG=828us,
+ // Q20 share = 32724 per VL, total = 1047168 / 2^20 = 99.86% load).
+-// Measures startup transient jitter (t=0 concurrent commit) and steady-state
+-// inter-frame departure interval jitter against ARINC 664P7 compliance
++// Measures first-departure delay relative to EACH VL's staggered phase, plus
++// steady-state inter-frame departure interval jitter against ARINC 664P7
+ // bound (MaxJitter <= 500 us) and engineering target (steady <= 30 us).
+ // =====================================================================
+ `timescale 1 ns / 1 ps
+@@ -46,6 +46,7 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+   integer f_first_seen [0:NVL-1];
+   integer f_last_seen [0:NVL-1];
+   integer f_count [0:NVL-1];
++  integer first_nominal_cyc [0:NVL-1];
+   integer f_start_cyc;
+   reg in_frame = 0;
+   reg [7:0] frame_bytes [0:512];
+@@ -55,6 +56,7 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+   // Jitter statistics
+   integer startup_max_cyc = 0, startup_min_cyc = 0;
+   integer startup_jitter_us = 0;
++  integer startup_max_delay_cyc = 0;
+   integer max_steady_jitter_cyc = 0;
+   integer total_steady_jitter_cyc = 0;
+   integer steady_intervals = 0;
+@@ -110,6 +112,10 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+           f_first_seen[vl_id] = f_start_cyc;
+           if (startup_min_cyc == 0 || f_start_cyc < startup_min_cyc) startup_min_cyc = f_start_cyc;
+           if (f_start_cyc > startup_max_cyc) startup_max_cyc = f_start_cyc;
++          if (f_start_cyc < first_nominal_cyc[vl_id])
++            bad("First departure before this VL's scheduled phase");
++          else if (f_start_cyc - first_nominal_cyc[vl_id] > startup_max_delay_cyc)
++            startup_max_delay_cyc = f_start_cyc - first_nominal_cyc[vl_id];
+         end else begin
+           interval_cyc = f_start_cyc - f_last_seen[vl_id];
+           if (interval_cyc < expected_bag_cyc - 20) begin
+@@ -134,7 +140,7 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+     end
+   end
+ 
+-  task send_message(input integer port_id, input integer len);
++  task send_message(input integer port_id, input integer len, input integer target_cyc);
+     integer j, waitc, blk;
+     reg [31:0] rd;
+     begin
+@@ -153,6 +159,8 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+         host_write(16'h8800 + (blk << 9) + j, 32'hA500_0000 | (port_id << 16) | j);
+       end
+ 
++      // Stagger the actual MSG_WR, not just the start of payload preparation.
++      while (current_cycle < target_cyc) @(negedge clk);
+       // Commit via MSG_WR (0x8280 + port_id)
+       host_write(16'h8280 + port_id, len);
+     end
+@@ -164,6 +172,7 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+   initial begin
+     for (i = 0; i < NVL; i = i + 1) begin
+       f_first_seen[i] = 0; f_last_seen[i] = 0; f_count[i] = 0;
++      first_nominal_cyc[i] = 0;
+     end
+ 
+     repeat (7) @(negedge clk); reset <= 1'b0;
+@@ -199,11 +208,13 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+     @(negedge clk);
+     t_start_cyc = current_cycle;
+ 
+-    // Periodic commit for NUM_ROUNDS at precise BAG intervals
++    // Each VL has its own phase i*BAG/NVL, repeated every BAG. The initial
++    // first-frame span includes these deliberate offsets: do NOT call it jitter.
+     for (r = 0; r < NUM_ROUNDS; r = r + 1) begin
+-      while (current_cycle < t_start_cyc + r * expected_bag_cyc) @(negedge clk);
+       for (i = 0; i < NVL; i = i + 1) begin
+-        send_message(i, PLEN);
++        if (r == 0) first_nominal_cyc[i] = t_start_cyc + i * expected_bag_cyc / NVL;
++        send_message(i, PLEN, t_start_cyc + r * expected_bag_cyc +
++                              i * expected_bag_cyc / NVL);
+       end
+     end
+ 
+@@ -214,12 +225,15 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
+     end
+     if (frames_seen < NUM_ROUNDS * NVL) bad("Did not complete all rounds");
+ 
+-    startup_jitter_us = (startup_max_cyc - startup_min_cyc) / 125;
+-    $display("  [T05b INFO] Round 1 (Startup Transient): min=%0d cyc, max=%0d cyc, jitter=%0d us (bound <= 500 us, max theoretical 867 us)",
+-             startup_min_cyc, startup_max_cyc, startup_jitter_us);
++    for (i = 0; i < NVL; i = i + 1)
++      if (f_count[i] != NUM_ROUNDS) bad("Missing/extra frame for a VL");
++    if (steady_intervals != (NUM_ROUNDS-1)*NVL) bad("Missing/extra steady interval");
++    startup_jitter_us = (startup_max_delay_cyc + 124) / 125; // ceil for display
++    $display("  [T05b INFO] Round 1: max per-VL phase-to-departure delay=%0d us (bound <= 500 us); raw first-departure span=%0d us (includes deliberate phase offsets)",
++             startup_jitter_us, (startup_max_cyc - startup_min_cyc) / 125);
+ 
+-    if (startup_jitter_us > 867) bad("Startup transient jitter exceeded theoretical maximum");
+-    if ((max_steady_jitter_cyc / 125) > 50) bad("Steady state jitter exceeded 50 us upper limit");
++    if (startup_max_delay_cyc > 500*125) bad("Startup phase-to-departure delay exceeded 500 us");
++    if (max_steady_jitter_cyc > 50*125) bad("Steady state jitter exceeded 50 us upper limit");
+ 
+     if (errors == 0) begin
+       $display("T05b SATURATED JITTER PASS (IF_MODE=%0d VLs=32 frames=%0d startup_jitter=%0dus steady_max_jitter=%0dus avg_steady_jitter=%0dus link_load=99.86%%)",
+diff --git a/sim/tb/tb_t18_random_stress.v b/sim/tb/tb_t18_random_stress.v
+index f384a90..16e6647 100644
+--- a/sim/tb/tb_t18_random_stress.v
++++ b/sim/tb/tb_t18_random_stress.v
+@@ -57,6 +57,18 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+ 
+   reg [31:0] err_count = 0;
+   reg [31:0] test_count = 0;
++  // Reproducible RNG: override with +T18_SEED=<hex> in a direct vsim run.
++  reg [31:0] initial_seed;
++  integer rng_seed;
++  reg [31:0] rng_first;
++  integer min_plen=1471, max_plen=17, stalled_frames=0, spaced_frames=0;
++  integer extra_gap=0, stall_cycles=0, skew_a=0, skew_b=0, payload_salt=0;
++  integer idle_cycles, bp_wait;
++  function integer draw(input integer count);
++    reg [31:0] bits;
++    // Questa's $urandom(seed) RESEEDS on every call; seed only once below.
++    begin bits=$urandom(); draw=bits % count; end
++  endfunction
+ 
+   task bad;
+     input [255:0] msg;
+@@ -121,51 +133,32 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+     end
+   end
+ 
+-  task replay_a;
++  task replay_a(input integer start_skew);
+     integer b;
+     begin
+-      repeat (2) @(negedge clk);
++      repeat (start_skew) @(negedge clk);
+       for (b = 0; b < nrx_a; b = b + 1) begin
+         @(negedge clk); rx_ready = 1; rx_valid = 1; rx_data = rxbuf_a[b];
+-        if (IF_MODE == 0) begin @(negedge clk); rx_valid = 0; repeat (8) @(negedge clk); end
++        if (IF_MODE == 0) begin @(negedge clk); rx_valid = 0; repeat (8+extra_gap) @(negedge clk); end
+       end
+       @(negedge clk); rx_ready = 0; rx_valid = 0;
+       repeat (4) @(negedge clk); rx_ready = 1;
+     end
+   endtask
+ 
+-  task replay_b;
++  task replay_b(input integer start_skew);
+     integer b;
+     begin
+-      repeat (8) @(negedge clk);
++      repeat (start_skew) @(negedge clk);
+       for (b = 0; b < nrx_b; b = b + 1) begin
+         @(negedge clk); rx_ready_b = 1; rx_valid_b = 1; rx_data_b = rxbuf_b[b];
+-        if (IF_MODE == 0) begin @(negedge clk); rx_valid_b = 0; repeat (8) @(negedge clk); end
++        if (IF_MODE == 0) begin @(negedge clk); rx_valid_b = 0; repeat (8+extra_gap) @(negedge clk); end
+       end
+       @(negedge clk); rx_ready_b = 0; rx_valid_b = 0;
+       repeat (4) @(negedge clk); rx_ready_b = 1;
+     end
+   endtask
+ 
+-  // Helper function for pseudo-random payload sizes
+-  function [10:0] get_rand_plen;
+-    input integer seed_idx;
+-    reg [10:0] val;
+-    begin
+-      case (seed_idx % 8)
+-        0: val = 11'd17;
+-        1: val = 11'd64;
+-        2: val = 11'd128;
+-        3: val = 11'd256;
+-        4: val = 11'd512;
+-        5: val = 11'd768;
+-        6: val = 11'd1024;
+-        7: val = 11'd1471;
+-      endcase
+-      get_rand_plen = val;
+-    end
+-  endfunction
+-
+   integer r, p, i, k, waitc, blk, prev_deliv;
+   reg [31:0] rd, w;
+   reg [15:0] word_addr;
+@@ -175,6 +168,11 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+   integer tx_p, rx_p;
+ 
+   initial begin
++    initial_seed=32'h51C0_FFEE;
++    if ($value$plusargs("T18_SEED=%h", initial_seed))
++      $display("  [T18 INFO] user seed=%08h", initial_seed);
++    rng_seed=initial_seed;
++    rng_first=$urandom(rng_seed); // initialize the calling process's RNG once
+     repeat (7) @(negedge clk);
+     reset = 0;
+ 
+@@ -233,13 +231,28 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+ 
+     #1000;
+ 
+-    // Run randomized stress testing rounds
++    // Serial message ownership/readback with randomized sizes, TX idle gaps,
++    // A/B skew, MII inter-byte gaps and true parser->port ready backpressure.
+     for (r = 0; r < NUM_ROUNDS; r = r + 1) begin
+       for (p = 0; p < NUM_TEST_PORTS; p = p + 1) begin
+         test_count = test_count + 1;
+         tx_p = p;
+         rx_p = 16 + p;
+-        cur_plen = get_rand_plen(r * NUM_TEST_PORTS + p);
++        case (draw(8))
++          0: cur_plen = 17;
++          1: cur_plen = 1471;
++          default: cur_plen = 17 + draw(1455);
++        endcase
++        if (cur_plen < min_plen) min_plen=cur_plen;
++        if (cur_plen > max_plen) max_plen=cur_plen;
++        idle_cycles=draw(81);
++        if (idle_cycles>0) spaced_frames=spaced_frames+1;
++        repeat(idle_cycles) @(negedge clk);
++        skew_a=draw(17); skew_b=draw(17);
++        extra_gap=draw(5); // IF_MODE=1 requires contiguous rx_valid
++        stall_cycles=draw(31);
++        if (stall_cycles>0) stalled_frames=stalled_frames+1;
++        payload_salt=draw(256);
+         expected_wire_bytes = (cur_plen < 17) ? 64 : (42 + cur_plen + 1 + 4);
+         prev_deliv = dut.u_rxpb.deliver_cnt;
+ 
+@@ -253,12 +266,12 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+         if (!rd[4]) bad("No free TX PMEM block available");
+         blk = rd[3:0];
+ 
+-        // Write payload pattern
++        // Write per-frame seeded payload pattern
+         for (i = 0; i < (cur_plen + 3) / 4; i = i + 1) begin
+-          w = { (8'(((r*13 + p*7 + 4*i + 0) & 255))),
+-                (8'(((r*13 + p*7 + 4*i + 1) & 255))),
+-                (8'(((r*13 + p*7 + 4*i + 2) & 255))),
+-                (8'(((r*13 + p*7 + 4*i + 3) & 255))) };
++          w = { (8'(((payload_salt + 4*i + 0) & 255))),
++                (8'(((payload_salt + 4*i + 1) & 255))),
++                (8'(((payload_salt + 4*i + 2) & 255))),
++                (8'(((payload_salt + 4*i + 3) & 255))) };
+           host_write(16'h8800 + (blk << 9) + i, w);
+         end
+ 
+@@ -283,9 +296,21 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+         for (i = 0; i < na; i = i + 1) rxbuf_a[i] = ca[i];
+         for (i = 0; i < nb; i = i + 1) rxbuf_b[i] = cb[i];
+ 
++        if (stall_cycles>0) force dut.u_rxpb.in_ready = 1'b0;
+         fork
+-          replay_a;
+-          replay_b;
++          replay_a(skew_a);
++          replay_b(skew_b);
++          begin
++            if (stall_cycles>0) begin
++              bp_wait=0;
++              while (dut.prs_out_vld !== 1'b1 && bp_wait<250000) begin
++                @(negedge clk); bp_wait=bp_wait+1;
++              end
++              if (bp_wait>=250000) bad("Parser did not reach randomized backpressure");
++              else repeat(stall_cycles) @(negedge clk);
++              release dut.u_rxpb.in_ready;
++            end
++          end
+         join
+ 
+         // Wait for RX delivery to port buffer
+@@ -296,22 +321,26 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+         if (dut.u_rxpb.deliver_cnt <= prev_deliv) begin
+           bad("Timeout waiting for frame delivery");
+         end
++        // Drain both A and B through RM before checking exact single delivery.
++        repeat(96) @(negedge clk);
++        if (dut.u_rxpb.deliver_cnt !== prev_deliv + 1 ||
++            dut.u_rxpb.deliver_cnt !== test_count) bad("A/B dedup: delivery count not exactly +1");
+ 
+         // 4. Host readback from rx_p
+         host_read(16'h8480 + rx_p, rd); // MSG_CNT
+-        if (rd == 0) bad("MSG_CNT is zero after delivery");
++        if (rd !== 32'd1) bad("MSG_CNT must equal exactly one before MSG_RD");
+         host_read(16'h8180 + rx_p, rd); // PORT_DESC
+         if (rd[31] !== 1'b1 || rd[10:0] !== cur_plen) bad("PORT_DESC mismatch");
+         blk = rd[23:20];
+ 
+         // Verify payload bytes in RX PMEM
+-        for (i = 10; i < 10 + (cur_plen + 3) / 4; i = i + 1) begin
++        for (i = 10; i < (42 + cur_plen + 3) / 4; i = i + 1) begin
+           word_addr = 16'h8800 + (blk << 9) + i;
+           host_read(word_addr, w);
+           for (k = 0; k < 4; k = k + 1) begin
+             if (4*i + k >= 42 && 4*i + k < 42 + cur_plen) begin
+               actual_byte = w[31 - 8*k -: 8];
+-              exp_byte = (r*13 + p*7 + (4*i + k - 42)) & 255;
++              exp_byte = (payload_salt + (4*i + k - 42)) & 255;
+               if (actual_byte !== exp_byte) begin
+                 bad("Payload byte mismatch in PMEM");
+               end
+@@ -321,18 +350,30 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
+ 
+         // Free RX block
+         host_write(16'h8380 + rx_p, 32'd0);
++        host_read(16'h8480 + rx_p, rd);
++        if (rd !== 32'd0) bad("MSG_CNT must be zero after MSG_RD");
+       end
+     end
+ 
+     #1000;
++    $display("  [T18 INFO] seed=%08h first=%08h min=%0d max=%0d stalled=%0d spaced=%0d",
++             initial_seed, rng_first, min_plen, max_plen, stalled_frames, spaced_frames);
++    if (min_plen>17 || max_plen<1471 || stalled_frames==0 || spaced_frames==0)
++      bad("Random length/spacing/backpressure coverage missing");
+     if (err_count == 0) begin
+-      $display("T18 RANDOM STRESS PASS (IF_MODE=%0d rounds=%0d frames=%0d)", IF_MODE, NUM_ROUNDS, test_count);
++      $display("T18 RANDOM STRESS PASS (IF_MODE=%0d rounds=%0d frames=%0d seed=%08h min=%0d max=%0d stalls=%0d spaced=%0d)",
++               IF_MODE, NUM_ROUNDS, test_count, initial_seed, min_plen, max_plen, stalled_frames, spaced_frames);
+     end else begin
+-      $display("T18 RANDOM STRESS FAIL (IF_MODE=%0d errors=%0d)", IF_MODE, err_count);
++      $display("T18 RANDOM STRESS FAIL (IF_MODE=%0d errors=%0d seed=%08h)", IF_MODE, err_count, initial_seed);
+     end
+     $finish;
+   end
+ 
++  initial begin
++    #180_000_000;
++    $display("T18 RANDOM STRESS FAIL (IF_MODE=%0d watchdog seed=%08h)", IF_MODE, initial_seed);
++    $finish;
++  end
+ endmodule
+ 
+ module tb_t18_random_stress;  tb_t18_core #(.IF_MODE(0)) core(); endmodule
+diff --git a/sim/tb/tb_t23_sap_min.v b/sim/tb/tb_t23_sap_min.v
+index 1dba6f4..e7ad9bf 100644
+--- a/sim/tb/tb_t23_sap_min.v
++++ b/sim/tb/tb_t23_sap_min.v
+@@ -25,6 +25,7 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     .host_irq(),.pps_in(1'b0),.pps_out(),.rtc_time_us(),.dbg_frame_event());
+   reg [31:0] vec [0:1144];
+   integer errors=0,i,k,b,waitc,blk,sap_fire=0,sap_return=0;
++  integer collision_cnt=0, mgmt_wait=0, disabled_sap=0;
+   reg [31:0] rd,w;
+   task bad;
+     input [8*104-1:0] reason;
+@@ -63,8 +64,22 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+   endtask
+   always @(posedge clk) if(!reset) begin
+     if(dut.rx_ovf_a||dut.rx_ovf_b) bad("RX FIFO overflow");
++    if(dut.prs_out_vld && dut.prs_out_drop && dut.prs_out_reason==3'd5 && dut.pb_in_ready)
++      disabled_sap=disabled_sap+1; // R_SAP must return its block via port-buffer drop
+     if(dut.prs_to_sap && dut.sap_in_ready) sap_fire=sap_fire+1;
+     if(dut.mgmt_free_take) sap_return=sap_return+1;
++    if(dut.mgmt_free_req) begin
++      if(!dut.mgmt_free_take) mgmt_wait=mgmt_wait+1;
++      else mgmt_wait=0;
++      if(mgmt_wait>1) bad("SAP return starved by ordinary RX frees");
++      if(dut.pb_free1) begin
++        collision_cnt=collision_cnt+1;
++        if(!dut.pool_free_spill || !dut.pool_free_pb1 ||
++           !((dut.pool_free_pb1_id==dut.mgmt_free_id && dut.pool_free_spill_id==dut.pb_free1_id) ||
++             (dut.pool_free_spill_id==dut.mgmt_free_id && dut.pool_free_pb1_id==dut.pb_free1_id)))
++          bad("simultaneous SAP/PB1 return lost a block");
++      end
++    end
+   end
+   initial begin
+     $readmemh("vec/t08a_frames.hex",vec);
+@@ -83,18 +98,25 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+     host_read(PT_SAP,rd);if(rd!==32'h8006_0000) bad("SAP port readback mismatch");
+     // RX_EN and SNMP_EN are both set in 0x051E; CTL.SNMP_EN gates SAP routing.
+     host_write(16'h0008,32'h051E);
++    // Inject a sustained ordinary PB1 return stream across SAP acceptance.
++    // Only the release slot is driven; no second RX frame is synthesized.
++    force dut.pb_free1 = 1'b1;
++    force dut.pb_free1_id = 4'd15;
+     drive_case0_a();
+     waitc=0;while(dut.mgmt_accept_cnt<1 && waitc<10000) begin @(negedge clk);waitc=waitc+1;end
+     if(waitc>=10000) bad("SAP management accept timeout");
++    repeat(16) @(negedge clk);
++    release dut.pb_free1; release dut.pb_free1_id;
+     repeat(100) @(negedge clk);
+     host_read(16'hAC10,rd);if(rd!==32'd1) bad("MGMT accept counter wrong");
+     host_read(16'hAC11,rd);if(rd!==32'd1) bad("MGMT block-return counter wrong");
+     host_read(16'hAC12,rd);
+-    if(rd[31]!==1'b1 || rd[22:15]!==P_SAP || rd[10:0]!==11'd8 || rd[14:11]<4'd6)
++    if(rd[31]!==1'b1 || rd[22:15]!==P_SAP || rd[10:0]!==11'd8 || rd[14:11]!==4'd6)
+       bad("MGMT descriptor window wrong");
+     blk=rd[14:11];
+     host_read(16'hAC13,rd);if(rd!==32'd0) bad("MGMT still busy after return");
+     if(sap_fire!==1 || sap_return!==1) bad("SAP handshake/return count wrong");
++    if(collision_cnt<1 || mgmt_wait>1) bad("SAP/PB1 collision or bounded return not observed");
+     // Empty PORT_DESC leaves its unused block field unspecified; check only
+     // defined empty-state fields rather than comparing the entire word.
+     host_read(16'h8180+P_SAP,rd);
+@@ -110,8 +132,32 @@ module tb_t23_sap_core #(parameter integer IF_MODE=0);
+         if(w[31-8*k -:8]!==frame_byte(4*i+k)) bad("SAP PMEM payload differs from frame");
+     end
+     if(dut.rx_free_map!==16'hFFC0) bad("SAP block not returned to RX pool");
++
++    // Negative case: reset RM history, configure the same valid fixture but
++    // leave CTL.SNMP_EN=0; it must drop specifically with R_SAP and free blk 6.
++    reset=1; repeat(7) @(negedge clk); reset=0;
++    waitc=0;while(dut.init_done!==1 && waitc<26000) begin @(negedge clk);waitc=waitc+1;end
++    if(waitc>=26000) bad("INIT_DONE timeout in disabled-SAP case");
++    host_write(16'h0008,32'h2000);
++    host_write(16'h0078,32'h172D);host_write(16'h007C,32'hAB61);
++    host_write(16'h42B2,32'h1010_0100);host_write(16'h0080,32'h1);
++    host_write(16'h1F80,W0_VL);host_write(16'h1F81,32'h0000_0100);
++    host_write(PT_SAP,32'h8006_0000);host_write(PT_SAP+1,32'h0000_1388);
++    host_write(PT_SAP+2,32'd0);host_write(PT_SAP+3,32'd1);
++    host_write(16'h0008,32'h041E); // RX enabled, SNMP_EN bit8 cleared
++    drive_case0_a();
++    waitc=0;while(disabled_sap<1 && waitc<10000) begin @(negedge clk);waitc=waitc+1;end
++    if(waitc>=10000) bad("Disabled SAP never produced R_SAP drop");
++    repeat(32) @(negedge clk);
++    if(disabled_sap!==1) bad("Disabled SAP dropped more than once");
++    host_read(16'hAC10,rd);if(rd!==32'd0) bad("Disabled SAP entered MGMT accept");
++    host_read(16'hAC11,rd);if(rd!==32'd0) bad("Disabled SAP entered MGMT return");
++    host_read(16'h0101,rd);if(rd!==32'd1) bad("Disabled SAP port drop count wrong");
++    host_read(16'h001C,rd);if(rd!==32'd1) bad("Disabled SAP total drop count wrong");
++    if(sap_fire!==1 || sap_return!==1 || dut.rx_free_map!==16'hFFC0)
++      bad("Disabled SAP ownership/block return wrong");
+     if(errors==0)
+-      $display("T23 SAP MINIMAL PASS (IF_MODE=%0d accept=1 return=1 port=5 plen=8 pmem=8B)",IF_MODE);
++      $display("T23 SAP MINIMAL PASS (IF_MODE=%0d accept=1 return=1 port=5 plen=8 pmem=8B pb1_collisions=%0d max_wait<=1 disabled_rsap=%0d)",IF_MODE,collision_cnt,disabled_sap);
+     else $display("T23 SAP MINIMAL FAIL (IF_MODE=%0d errors=%0d)",IF_MODE,errors);
+     $finish;
+   end
+diff --git a/tools/gen_synth_table.py b/tools/gen_synth_table.py
+new file mode 100644
+index 0000000..31b9201
+--- /dev/null
++++ b/tools/gen_synth_table.py
+@@ -0,0 +1,68 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""Generate a checked *submodule-only* synthesis table from eLinx logs.
++
++Usage: python tools/gen_synth_table.py --out out/arena-debug/checks/B9_table.md
++The verdict checks the ENTIRE log for ^ERROR, including CHECK after stat.
++It does not prove AFDX_top synthesis, placement, or static timing closure.
++"""
++import argparse
++from pathlib import Path
++import re
++import shlex
++import sys
++
++ROOT = Path(__file__).resolve().parents[1]
++PRJ = ROOT / "elinx" / "prj"
++
++
++def table():
++    scripts = sorted(PRJ.glob("sub_*.ys"))
++    rows = ["| 子模块 | 实际 RTL 路径 | 全日志核验 | Cells（仅统计） |",
++            "|---|---|---|---:|"]
++    passed = 0
++    for script in scripts:
++        name = script.stem.removeprefix("sub_")
++        script_text = script.read_text(encoding="utf-8")
++        match = re.search(r"^read_verilog\s+(.+?)\s*$", script_text, re.M)
++        sources = [Path(x) for x in shlex.split(match.group(1))] if match else []
++        sources = [p if p.is_absolute() else ROOT / p for p in sources]
++        paths = []
++        for source in sources:
++            try:
++                paths.append(source.relative_to(ROOT).as_posix())
++            except ValueError:
++                paths.append("OUTSIDE_WORKSPACE")
++        path_ok = bool(sources) and all(p.is_file() and rel.startswith("rtl/")
++                                        for p, rel in zip(sources, paths))
++        primary = next((rel for p, rel in zip(sources, paths)
++                        if p.name == f"{name}.v"), "MISSING")
++        relative = primary + (" (依赖: " + ", ".join(p for p in paths if p != primary) + ")"
++                              if len(paths) > 1 else "")
++        path_ok = path_ok and primary != "MISSING"
++        log = script.with_suffix(".log")
++        text = log.read_text(encoding="utf-8", errors="replace") if log.is_file() else ""
++        errors = re.findall(r"^ERROR\b", text, re.M)
++        success = "Yosys execute success!" in text
++        ok = path_ok and success and not errors
++        passed += int(ok)
++        counts = re.findall(r"^\s*Number of cells:\s*(\d+)", text, re.M)
++        cells = counts[-1] if ok and counts else "—"
++        verdict = "PASS" if ok else f"FAIL (errors={len(errors)}, marker={success}, source={path_ok})"
++        rows.append(f"| `{name}` | `{relative}` | **{verdict}** | {cells} |")
++    rows.append(f"\n仅子模块日志：{passed}/{len(scripts)} PASS；判据=源码存在+全日志无 `^ERROR`+执行成功标记。")
++    rows.append("**不包含大容量存储子模块或 AFDX_top；不代表顶层综合/STA。**")
++    return "\n".join(rows) + "\n", passed == len(scripts) and len(scripts) == 12
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--out", type=Path, help="write UTF-8 Markdown table here")
++    args = parser.parse_args()
++    markdown, ok = table()
++    if args.out:
++        args.out.parent.mkdir(parents=True, exist_ok=True)
++        args.out.write_text(markdown, encoding="utf-8")
++    else:
++        print(markdown, end="")
++    sys.exit(0 if ok else 1)
+diff --git a/tools/selfcheck_claims.py b/tools/selfcheck_claims.py
+index f47babc..5ae4690 100644
+--- a/tools/selfcheck_claims.py
++++ b/tools/selfcheck_claims.py
+@@ -73,7 +73,8 @@ def c3_jitter(n_vl=32, lmax=303):
+     print("  末条仅排队至少 (%d-1)×%.2f=%.2f μs（未计扫描/握手），%s 500 μs 合规线" %
+           (n_vl, frame_us, tail_wait_us, "超过" if tail_wait_us > 500 else "未超过"))
+     assert tail_wait_us > 500, "同步启动风险样例变了，需重估 T05"
+-    print("  待做：起始相位错开 RTL/脚本，T05 同时记录启动瞬态与稳态；不能仅凭带宽合规声称抖动达标。")
++    print("  这是旧同相起发的解析风险样例；当前 T05b/T05bg 已按每 VL 错相提交并以 500 μs 为硬判据，")
++    print("  其周期级实测见对应 Questa 日志；本模型不读取仿真结果，也不证明 STA/标准认证。")
+     return tail_wait_us
+ 
+ 
+@@ -81,4 +82,5 @@ if __name__ == "__main__":
+     c1_config_load()
+     c2_bag_rule()
+     c3_jitter()
+-    print("\n自查通过：模型/文档相符；T05c 前门有单项 RTL 仿真，T05b 满载抖动/T22 端到端仍未取证。")
++    print("\n自查通过：模型/文档相符；T05b/T05bg、T22/T22g 已有 RTL 用例，")
++    print("每次是否 PASS 应查看对应回归 CSV/Questa 日志；本脚本仅验算理论与文档，不替代 RTL 仿真或 STA。")

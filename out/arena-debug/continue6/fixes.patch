@@ -1,0 +1,117 @@
+diff --git "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\AFDX_top.qsf" "b/C:\\Workspace\\diansai\\elinx\\prj\\quartus\\AFDX_top.qsf"
+index 9010968..ddd6556 100644
+--- "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\AFDX_top.qsf"
++++ "b/C:\\Workspace\\diansai\\elinx\\prj\\quartus\\AFDX_top.qsf"
+@@ -68,5 +68,9 @@ set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/rx/rx_rm.v"
+ set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v"
+ set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/rx/rx_port_buf.v"
+ set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v"
++set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/mgmt/snmp_lite.v"
++set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/mgmt/a615a_tftp.v"
++set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/mgmt/rtc_sync.v"
++set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/top/stats_regs.v"
+ set_global_assignment -name VERILOG_FILE "C:/Workspace/diansai/rtl/top/AFDX_top.v"
+ set_global_assignment -name SDC_FILE "C:/Workspace/diansai/elinx/sdc/AFDX_top.sdc"
+\ No newline at end of file
+diff --git "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\snmp_lite.v" "b/C:\\Workspace\\diansai\\rtl\\mgmt\\snmp_lite.v"
+index b9f0181..a95a4f2 100644
+--- "a/C:\\Workspace\\diansai\\out\\arena-debug\\continue6\\backup\\snmp_lite.v"
++++ "b/C:\\Workspace\\diansai\\rtl\\mgmt\\snmp_lite.v"
+@@ -194,14 +194,42 @@ module snmp_lite #(
+     begin inst_i = (i >= 10'd4 && i < 10'd644) ? ((i - 10'd4) % 10'd128) : 8'd0; end
+   endfunction
+   // GETNEXT 有序游走；indexed 对象按 instance 递增。
++  // continue6: 目录是四段连续区间，直接做区间译码，避免把 696 次
++  // 24-bit 比较/优先选择完全展开成一条巨型组合链。
+   function [9:0] walk; input [7:0] g; input [7:0] l; input [7:0] x; input hi;
+-    integer k; reg found; reg [23:0] key, cur;
++    reg [9:0] base;
+     begin
+-      walk = 10'h3FF; found = 1'b0; key = {g, l, x};
+-      for (k = 0; k < 696; k = k + 1) begin
+-        cur = {grp_i(k[9:0]), leaf_i(k[9:0]), inst_i(k[9:0])};
+-        if (!found && ((cur > key) || (!hi && cur == key))) begin
+-          walk = k[9:0]; found = 1'b1;
++      walk = 10'h3FF;
++      base = 10'd0;
++      if (g < 8'd1) begin
++        walk = 10'd0;
++      end else if (g == 8'd1) begin
++        if (l < 8'd1) begin
++          walk = 10'd0;
++        end else if (l <= 8'd4) begin
++          base = {2'd0, l} - 10'd1;
++          if (!hi)        walk = base;
++          else if (l < 4) walk = base + 10'd1;
++          else            walk = 10'd4;
++        end else if (l <= 8'd9) begin
++          base = 10'd4 + ((l - 8'd5) * 10'd128);
++          if (!hi)          walk = base;
++          else if (x < 127) walk = base + {2'd0, x} + 10'd1;
++          else if (l < 9)   walk = base + 10'd128;
++          else              walk = 10'd644;
++        end else if (l <= 8'd13) begin
++          base = 10'd644 + (l - 8'd10);
++          if (!hi)         walk = base;
++          else if (l < 13) walk = base + 10'd1;
++          else             walk = 10'd648;
++        end else begin
++          walk = 10'd648;
++        end
++      end else if (g == 8'd2) begin
++        if (l < 8'd48) begin
++          base = 10'd648 + {2'd0, l};
++          if (!hi)         walk = base;
++          else if (l < 47) walk = base + 10'd1;
+         end
+       end
+     end
+@@ -284,13 +312,15 @@ module snmp_lite #(
+   end
+ 
+   // ================= 编码期的每 VarBind 取值 =================
+-  wire        e_err   = (err_st != 4'd0);
+-  wire [7:0]  e_tag   = e_err ? T_NUL : vb_tag[vi[2:0]];
+-  wire        e_isstr = !e_err && vb_str[vi[2:0]];
+-  wire [3:0]  e_vlen  = e_err   ? 4'd0 :
+-                        e_isstr ? 4'd0 : ilen(vb_val[vi[2:0]]);
++  reg [7:0]  e_tag_q;
++  reg        e_isstr_q;
++  reg [3:0]  e_vlen_q;
++  reg [31:0] e_val_q;
++  wire [7:0]  e_tag   = e_tag_q;
++  wire        e_isstr = e_isstr_q;
++  wire [3:0]  e_vlen  = e_vlen_q;
+   wire [7:0]  e_vlen8 = e_isstr ? 8'd16 : {4'd0, e_vlen};
+-  wire [7:0]  e_vbyte = e_isstr ? dch({4'd0, ek}) : ibyte(vb_val[vi[2:0]], e_vlen, ek);
++  wire [7:0]  e_vbyte = e_isstr ? dch({4'd0, ek}) : ibyte(e_val_q, e_vlen, ek);
+   wire [7:0]  e_oidb  = (ek < 4'd8) ? pfx_ch({4'd0, ek}) :
+                         (ek == 4'd8) ? vb_grp[vi[2:0]] :
+                         (ek == 4'd9) ? vb_leaf[vi[2:0]] : 8'h00;
+@@ -311,6 +341,7 @@ module snmp_lite #(
+       lp <= 1'b0; pp <= 9'd0; ep <= 9'd0; vi <= 4'd0; ek <= 4'd0;
+       comm_ok <= 1'b0; vb_ovf <= 1'b0; emit_done <= 1'b0;
+       msg_len <= 9'd0; pdu_len <= 9'd0; vbl_len <= 9'd0;
++      e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
+     end else begin
+       ctl_we <= 1'b0;
+       vl_bag_we <= 1'b0;
+@@ -567,7 +598,17 @@ module snmp_lite #(
+           vi <= 4'd0; ek <= 4'd0;
+           st <= (nvb == 4'd0) ? E_FIN : E_VBT;
+         end
+-        E_VBT:   begin rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_VBL; end
++        E_VBT:   begin
++          rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_VBL;
++          if (err_st != 4'd0) begin
++            e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
++          end else begin
++            e_tag_q   <= vb_tag[vi[2:0]];
++            e_isstr_q <= vb_str[vi[2:0]];
++            e_vlen_q  <= vb_str[vi[2:0]] ? 4'd0 : ilen(vb_val[vi[2:0]]);
++            e_val_q   <= vb_val[vi[2:0]];
++          end
++        end
+         E_VBL:   begin rsp[ep[7:0]] <= vb_tl[vi[2:0]]; ep <= ep + 9'd1; st <= E_OIDT; end
+         E_OIDT:  begin rsp[ep[7:0]] <= T_OID; ep <= ep + 9'd1; st <= E_OIDL; end
+         E_OIDL:  begin rsp[ep[7:0]] <= 8'd11; ep <= ep + 9'd1; ek <= 4'd0; st <= E_OIDB; end

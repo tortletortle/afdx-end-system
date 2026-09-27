@@ -1,0 +1,11 @@
+# Hash image must survive as FOUR distinct synchronous BRAM banks.
+# A synthesis exit code of 0 alone is not sufficient (cf. rx_ic FF pitfall).
+read_verilog rtl/rx/rx_vl_lookup.v
+hierarchy -top rx_vl_lookup
+proc
+opt
+memory_dff
+opt_clean
+memory_collect
+stat
+select -assert-count 4 t:$mem

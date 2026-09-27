@@ -1,0 +1,2124 @@
+----------------
+; Command Info ;
+----------------
+Report Timing: Found 20 setup paths (20 violated).  Worst case slack is -17.279 
+
+Tcl Command:
+    report_timing -setup -file {C:\Workspace\diansai\out\arena-debug\continue6\step1_sta/post_map_setup.rpt} -npaths 20 -detail full_path
+
+Options:
+    -setup 
+    -npaths 20 
+    -detail full_path 
+    -file {C:\Workspace\diansai\out\arena-debug\continue6\step1_sta/post_map_setup.rpt} 
+
+Delay Model:
+    Slow 900mV 85C Model
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Summary of Paths                                                                                                                                        ;
++---------+-----------------------------------+-------------------------------------+--------------+-------------+--------------+------------+------------+
+; Slack   ; From Node                         ; To Node                             ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++---------+-----------------------------------+-------------------------------------+--------------+-------------+--------------+------------+------------+
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[255][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[239][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[223][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[207][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[127][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[111][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[95][0]  ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[79][0]  ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[247][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[231][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[215][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[199][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[119][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[103][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[87][0]  ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[71][0]  ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[253][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[221][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[245][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
+; -17.279 ; snmp_lite:g_snmp.u_snmp|err_st[0] ; snmp_lite:g_snmp.u_snmp|rsp[213][0] ; clk          ; clk         ; 8.000        ; -0.013     ; 24.756     ;
++---------+-----------------------------------+-------------------------------------+--------------+-------------+--------------+------------+------------+
+
+Path #1: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[255][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[255][0]~2310|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[255][0]~2310|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[255][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[255][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[255][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[255][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[255][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #2: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[239][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[239][0]~2301|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[239][0]~2301|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[239][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[239][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[239][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[239][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[239][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #3: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[223][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[223][0]~2292|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[223][0]~2292|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[223][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[223][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[223][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[223][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[223][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #4: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[207][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[207][0]~2283|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[207][0]~2283|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[207][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[207][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[207][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[207][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[207][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #5: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[127][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[127][0]~2274|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[127][0]~2274|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[127][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[127][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[127][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[127][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[127][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #6: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[111][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[111][0]~2265|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[111][0]~2265|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[111][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[111][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[111][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[111][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[111][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #7: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++---------------------------------------------------------+
+; Path Summary                                            ;
++--------------------+------------------------------------+
+; Property           ; Value                              ;
++--------------------+------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]  ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[95][0] ;
+; Launch Clock       ; clk                                ;
+; Latch Clock        ; clk                                ;
+; Data Arrival Time  ; 30.425                             ;
+; Data Required Time ; 13.146                             ;
+; Slack              ; -17.279 (VIOLATED)                 ;
++--------------------+------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                               ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                      ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                            ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                        ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                   ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                           ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                           ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                             ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa         ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout       ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad         ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout       ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab      ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout    ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa      ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout    ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa         ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout       ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac      ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout    ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad      ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout    ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad      ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout    ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad      ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout    ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[95][0]~2256|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[95][0]~2256|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[95][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[95][0]    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+
++---------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                            ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                    ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                         ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                     ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                        ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                        ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[95][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[95][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                  ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[95][0] ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #8: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++---------------------------------------------------------+
+; Path Summary                                            ;
++--------------------+------------------------------------+
+; Property           ; Value                              ;
++--------------------+------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]  ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[79][0] ;
+; Launch Clock       ; clk                                ;
+; Latch Clock        ; clk                                ;
+; Data Arrival Time  ; 30.425                             ;
+; Data Required Time ; 13.146                             ;
+; Slack              ; -17.279 (VIOLATED)                 ;
++--------------------+------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                               ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                      ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                            ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                        ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                   ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                           ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                           ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                             ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa         ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout       ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad         ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout       ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab      ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout    ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa      ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout    ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa         ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout       ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac      ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout    ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad      ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout    ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad      ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout    ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad      ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout    ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[79][0]~2247|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[79][0]~2247|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[79][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[79][0]    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+
++---------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                            ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                    ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                         ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                     ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                        ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                        ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[79][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[79][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                  ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[79][0] ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #9: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[247][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[247][0]~2238|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[247][0]~2238|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[247][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[247][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[247][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[247][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[247][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #10: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[231][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[231][0]~2229|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[231][0]~2229|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[231][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[231][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[231][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[231][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[231][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #11: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[215][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[215][0]~2220|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[215][0]~2220|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[215][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[215][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[215][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[215][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[215][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #12: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[199][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[199][0]~2211|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[199][0]~2211|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[199][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[199][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[199][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[199][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[199][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #13: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[119][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[119][0]~2202|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[119][0]~2202|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[119][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[119][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[119][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[119][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[119][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #14: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[103][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[103][0]~2193|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[103][0]~2193|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[103][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[103][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[103][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[103][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[103][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #15: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++---------------------------------------------------------+
+; Path Summary                                            ;
++--------------------+------------------------------------+
+; Property           ; Value                              ;
++--------------------+------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]  ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[87][0] ;
+; Launch Clock       ; clk                                ;
+; Latch Clock        ; clk                                ;
+; Data Arrival Time  ; 30.425                             ;
+; Data Required Time ; 13.146                             ;
+; Slack              ; -17.279 (VIOLATED)                 ;
++--------------------+------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                               ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                      ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                            ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                        ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                   ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                           ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                           ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                             ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa         ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout       ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad         ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout       ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab      ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout    ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa      ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout    ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa         ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout       ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac      ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout    ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad      ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout    ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad      ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout    ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad      ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout    ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[87][0]~2184|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[87][0]~2184|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[87][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[87][0]    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+
++---------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                            ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                    ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                         ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                     ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                        ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                        ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[87][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[87][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                  ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[87][0] ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #16: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++---------------------------------------------------------+
+; Path Summary                                            ;
++--------------------+------------------------------------+
+; Property           ; Value                              ;
++--------------------+------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]  ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[71][0] ;
+; Launch Clock       ; clk                                ;
+; Latch Clock        ; clk                                ;
+; Data Arrival Time  ; 30.425                             ;
+; Data Required Time ; 13.146                             ;
+; Slack              ; -17.279 (VIOLATED)                 ;
++--------------------+------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                               ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                      ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                            ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                        ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                   ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                           ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                           ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk           ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                             ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]     ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q             ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa         ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout       ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad         ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout       ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab      ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout    ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa      ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout    ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa         ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout       ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac      ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout    ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad      ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout    ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad      ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout    ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad      ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout    ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[71][0]~2175|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[71][0]~2175|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[71][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[71][0]    ;
++----------+---------+----+------+--------+------------+-------+---------------------------------------+
+
++---------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                            ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                    ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                         ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                     ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                        ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                        ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[71][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[71][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                  ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[71][0] ;
++----------+---------+----+------+--------+------------+-------+------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #17: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[253][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[253][0]~2166|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[253][0]~2166|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[253][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[253][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[253][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[253][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[253][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #18: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[221][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[221][0]~2157|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[221][0]~2157|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[221][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[221][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[221][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[221][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[221][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #19: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[245][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[245][0]~2148|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[245][0]~2148|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[245][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[245][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[245][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[245][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[245][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+
+Path #20: Setup slack is -17.279 (VIOLATED)
+===============================================================================
++----------------------------------------------------------+
+; Path Summary                                             ;
++--------------------+-------------------------------------+
+; Property           ; Value                               ;
++--------------------+-------------------------------------+
+; From Node          ; snmp_lite:g_snmp.u_snmp|err_st[0]   ;
+; To Node            ; snmp_lite:g_snmp.u_snmp|rsp[213][0] ;
+; Launch Clock       ; clk                                 ;
+; Latch Clock        ; clk                                 ;
+; Data Arrival Time  ; 30.425                              ;
+; Data Required Time ; 13.146                              ;
+; Slack              ; -17.279 (VIOLATED)                  ;
++--------------------+-------------------------------------+
+
++------------------------------------------------------------------------------------+
+; Statistics                                                                         ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Property               ; Value  ; Count ; Total Delay ; % of Total ; Min   ; Max   ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+; Setup Relationship     ; 8.000  ;       ;             ;            ;       ;       ;
+; Clock Skew             ; -0.013 ;       ;             ;            ;       ;       ;
+; Data Delay             ; 24.756 ;       ;             ;            ;       ;       ;
+; Number of Logic Levels ;        ; 10    ;             ;            ;       ;       ;
+; Physical Delays        ;        ;       ;             ;            ;       ;       ;
+;  Arrival Path          ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 90         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.519       ; 9          ; 0.145 ; 0.374 ;
+;   Data                 ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 11    ; 21.830      ; 88         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 12    ; 2.889       ; 11         ; 0.000 ; 0.356 ;
+;    uTco                ;        ; 1     ; 0.037       ; 0          ; 0.037 ; 0.037 ;
+;  Required Path         ;        ;       ;             ;            ;       ;       ;
+;   Clock                ;        ;       ;             ;            ;       ;       ;
+;    IC                  ;        ; 2     ; 5.150       ; 91         ; 0.150 ; 5.000 ;
+;    Cell                ;        ; 2     ; 0.506       ; 8          ; 0.132 ; 0.374 ;
++------------------------+--------+-------+-------------+------------+-------+-------+
+Note: Negative delays are omitted from totals when calculating percentages
+
++-------------------------------------------------------------------------------------------------------+
+; Data Arrival Path                                                                                     ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                                ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+; 0.000    ; 0.000   ;    ;      ;        ;            ;       ; launch edge time                       ;
+; 5.669    ; 5.669   ;    ;      ;        ;            ;       ; clock path                             ;
+;   0.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                         ;
+;   0.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                    ;
+;   0.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                            ;
+;   0.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                            ;
+;   5.524  ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|clk            ;
+;   5.669  ;   0.145 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+; 30.425   ; 24.756  ;    ;      ;        ;            ;       ; data path                              ;
+;   5.706  ;   0.037 ;    ; uTco ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|err_st[0]      ;
+;   5.706  ;   0.000 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|err_st[0]|q              ;
+;   10.706 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|dataa          ;
+;   11.052 ;   0.346 ; RF ; CELL ; 836    ; Unassigned ;       ; g_snmp.u_snmp|Equal20~0|combout        ;
+;   16.052 ;   5.000 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|datad          ;
+;   16.287 ;   0.235 ; FF ; CELL ; 16     ; Unassigned ;       ; g_snmp.u_snmp|e_isstr~1|combout        ;
+;   16.887 ;   0.600 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|datab       ;
+;   17.215 ;   0.328 ; FR ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[2]~0|combout     ;
+;   17.395 ;   0.180 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|dataa       ;
+;   17.751 ;   0.356 ; RR ; CELL ; 264    ; Unassigned ;       ; g_snmp.u_snmp|e_vlen8[0]~1|combout     ;
+;   22.751 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|dataa          ;
+;   23.107 ;   0.356 ; RR ; CELL ; 4      ; Unassigned ;       ; g_snmp.u_snmp|Equal21~0|combout        ;
+;   23.347 ;   0.240 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|datac       ;
+;   23.564 ;   0.217 ; RF ; CELL ; 2      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~2|combout     ;
+;   23.744 ;   0.180 ; FF ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|datad       ;
+;   23.988 ;   0.244 ; FR ; CELL ; 7      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[4]~5|combout     ;
+;   24.318 ;   0.330 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|datad       ;
+;   24.565 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|e_vbyte[0]~9|combout     ;
+;   24.715 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|datad       ;
+;   24.962 ;   0.247 ; RR ; CELL ; 256    ; Unassigned ;       ; g_snmp.u_snmp|rsp[0][0]~14|combout     ;
+;   29.962 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[213][0]~2139|datad   ;
+;   30.209 ;   0.247 ; RR ; CELL ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[213][0]~2139|combout ;
+;   30.359 ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[213][0]|d            ;
+;   30.425 ;   0.066 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[213][0]    ;
++----------+---------+----+------+--------+------------+-------+----------------------------------------+
+
++----------------------------------------------------------------------------------------------------+
+; Data Required Path                                                                                 ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; Total    ; Incr    ; RF ; Type ; Fanout ; Location   ; HS/LP ; Element                             ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+; 8.000    ; 8.000   ;    ;      ;        ;            ;       ; latch edge time                     ;
+; 13.656   ; 5.656   ;    ;      ;        ;            ;       ; clock path                          ;
+;   8.000  ;   0.000 ;    ;      ;        ;            ;       ; source latency                      ;
+;   8.000  ;   0.000 ;    ;      ; 1      ; Unassigned ;       ; clk                                 ;
+;   8.150  ;   0.150 ; RR ; IC   ; 1      ; Unassigned ;       ; clk~input|i                         ;
+;   8.524  ;   0.374 ; RR ; CELL ; 105801 ; Unassigned ;       ; clk~input|o                         ;
+;   13.524 ;   5.000 ; RR ; IC   ; 1      ; Unassigned ;       ; g_snmp.u_snmp|rsp[213][0]|clk       ;
+;   13.656 ;   0.132 ; RR ; CELL ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[213][0] ;
+; 13.206   ; -0.450  ;    ;      ;        ;            ;       ; clock uncertainty                   ;
+; 13.146   ; -0.060  ;    ; uTsu ; 1      ; Unassigned ;       ; snmp_lite:g_snmp.u_snmp|rsp[213][0] ;
++----------+---------+----+------+--------+------------+-------+-------------------------------------+
+
+----------------------------
+; Extra Fitter Information ;
+----------------------------
+HTML report is unavailable in plain text report export.
+
+

@@ -1,0 +1,3 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T17,min-frame-dual-net-512,tb_t17_min_frame_stress,PASS,na,6.8,# T17 MIN-FRAME STRESS PASS (IF_MODE=0 pairs=512 host_writes=4096 reads=256 deferred=4096 max_wait=2 crc_reject=1 free=FFC0)
+T17g,min-frame-dual-net-512-gmii,tb_t17g_min_frame_stress,PASS,na,4.2,# T17 MIN-FRAME STRESS PASS (IF_MODE=1 pairs=512 host_writes=4096 reads=256 deferred=4096 max_wait=2 crc_reject=1 free=FFC0)

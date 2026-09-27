@@ -1,0 +1,12 @@
+{
+  "response":{
+    "numFound":1,
+    "start":0,
+    "maxScore":5.950166,
+    "numFoundExact":true,
+    "docs":[{
+      "title_s":["The Trajectory approach for AFDX FIFO networks revisited and corrected"],
+      "fileMain_s":"https://hal.science/hal-00975730/document"
+    }]
+  }
+}

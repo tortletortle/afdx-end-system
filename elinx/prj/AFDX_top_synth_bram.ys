@@ -1,0 +1,50 @@
+# =====================================================================
+# AFDX_top_synth_bram.ys - continue2（2026-09-25）器件级 BRAM 映射综合流程
+# 与 AFDX_top_synth.ys 的差别：在 memory_map 之前插入
+#   memory_collect -> memory_bram -rules brams.txt -> techmap brams_map.v
+# 目的：让 rx_cfg（bram_1w1r ×6，4096×32）、PMEM（bram_sdp_core ×4，8192×8）
+# 等存储落到器件 BRAM，而不是被 memory_map 全部展开成寄存器+多路选择器。
+# 该 eLinx 分支没有 memory_libmap（probe_writers.log:351 "No such command"），
+# 因此只能使用 legacy memory_bram -rules 流程。
+# 运行（工作目录 C:\Workspace\diansai）：
+#   powershell -NoProfile -ExecutionPolicy Bypass -File \
+#     out/arena-debug/continue2/synth/run_syn.ps1 \
+#     -Ys elinx/prj/AFDX_top_synth_bram.ys -Name top_bram -TimeoutS 900
+# =====================================================================
+read_verilog \
+  C:/Workspace/diansai/rtl/common/rst_sync.v \
+  C:/Workspace/diansai/rtl/common/timebase.v \
+  C:/Workspace/diansai/rtl/common/sync_fifo.v \
+  C:/Workspace/diansai/rtl/common/crc32.v \
+  C:/Workspace/diansai/rtl/common/bram_sdp.v \
+  C:/Workspace/diansai/rtl/top/init_sweep.v \
+  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
+  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
+  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
+  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
+  C:/Workspace/diansai/rtl/tx/tx_rm.v \
+  C:/Workspace/diansai/rtl/tx/tx_pace.v \
+  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
+  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
+  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
+  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
+  C:/Workspace/diansai/rtl/rx/rx_ic.v \
+  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
+  C:/Workspace/diansai/rtl/rx/rx_flt.v \
+  C:/Workspace/diansai/rtl/rx/rx_rm.v \
+  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
+  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
+  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
+  C:/Workspace/diansai/rtl/top/AFDX_top.v
+hierarchy -top AFDX_top
+proc
+opt
+memory_dff
+opt_clean
+memory_collect
+memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
+techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
+memory_map
+opt
+stat
+write_verilog -noattr C:/Workspace/diansai/out/arena-debug/continue2/synth/AFDX_top_bram_netlist.v

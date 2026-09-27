@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/common/crc32.v
+hierarchy -top crc32
+synth
+stat

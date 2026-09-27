@@ -8,8 +8,8 @@
 // P2 端口匹配（v0.5.16 定案，见设计书 §7.13 实现状态）:
 //   port = RX_VL_CFG.w0.port_base[11:0]；须 < NUM_PORTS、端口表 w0.valid=1、
 //   w0[18] dir=1（RX 端口）、w0[17:16] type ∈ {0 采样, 1 队列}、端口表
-//   w1[15:0] == 帧 UDP 目的端口。SAP(type=2) 需 mgmt/ 接收，未实现前按
-//   R_SAP 丢弃并计数；type=3 保留同 R_CFG。
+//   w1[15:0] == 帧 UDP 目的端口。SAP(type=2) 在 sap_enable 时交给顶层
+//   管理面 descriptor handoff；关断时按 R_SAP 丢弃并计数；type=3 保留同 R_CFG。
 // 输出: 每个输入恰好一个结果 {drop, reason, port, type, depth, blk, plen}，
 //   out_vld 保持到 out_ready；drop=1 时由 rx_port_buf 归还块（不占 free_pipe）。
 // 端口表字由顶层组合读出（port_w0/w1/w3 按 in_w0.port_base 索引）；BRAM 化
@@ -30,6 +30,7 @@ module rx_ip_udp_parse #(
   input  wire [31:0]   port_w0,        // port table w0 @ in_w0.port_base
   input  wire [31:0]   port_w1,        // port table w1 (UDP dst port [15:0])
   input  wire [31:0]   port_w3,        // port table w3 (queue depth [3:0])
+  input  wire          sap_enable,     // CTL.SNMP_EN: enable SAP -> mgmt handoff
   output reg           out_vld,
   input  wire          out_ready,
   output reg           out_drop,
@@ -50,7 +51,7 @@ module rx_ip_udp_parse #(
     if (!range_ok)                     rsn = R_RANGE;
     else if (!port_w0[31])             rsn = R_CFG;
     else if (!port_w0[18])             rsn = R_DIR;
-    else if (port_w0[17:16] == 2'd2)   rsn = R_SAP;
+    else if (port_w0[17:16] == 2'd2 && !sap_enable) rsn = R_SAP;
     else if (port_w0[17:16] == 2'd3)   rsn = R_CFG;
     else if (port_w1[15:0] != in_desc[15:0]) rsn = R_DPORT;
     else                               rsn = R_OK;

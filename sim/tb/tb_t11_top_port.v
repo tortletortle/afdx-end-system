@@ -11,10 +11,10 @@
 //   * queue port depth 3: FIFO order, overflow drops (Q_OVF stat, DROP_CNT),
 //     fresh after pop, cnt;
 //   * parse drops: UDP dst-port mismatch, TX-direction port, unconfigured
-//     port, port_base out of range, SAP (mgmt not implemented) -> PORT_DROP;
+//     port, port_base out of range, enabled SAP -> management handoff (detailed T23);
 //   * MSG_RD to a non-RX port and TX MSG_WR to an RX port set ERR.ACC;
 //   * reset clears port state and statistics.
-// This is NOT T22 (no TX/RX cold-start loop) and not SAP/mgmt delivery.
+// This is NOT T22 (no TX/RX cold-start loop) SAP detailed checks are in T23.
 `timescale 1 ns / 1 ps
 module tb_t11_core #(parameter integer IF_MODE=0);
   reg clk=0, reset=1;
@@ -60,7 +60,7 @@ module tb_t11_core #(parameter integer IF_MODE=0);
       bad("two block releases in one cycle on shared free port");
     if(dut.pb_free0 && dut.pb_free1 && dut.pb_free0_id==dut.pb_free1_id)
       bad("port buffer released the same block twice");
-    if(dut.prs_out_vld && dut.pb_in_ready) begin
+    if(dut.prs_to_port && dut.pb_in_ready) begin
       if(dut.prs_out_drop) drops_seen=drops_seen+1; else deliveries=deliveries+1;
     end
   end
@@ -301,8 +301,8 @@ module tb_t11_core #(parameter integer IF_MODE=0);
     pair(8'hC1); settle(0); exp_pdrop=exp_pdrop+1;
     set_port(32'h8000_0000, {16'd0,dport}, 32'd1);           // TX direction
     pair(8'hC2); settle(0); exp_pdrop=exp_pdrop+1;
-    set_port(32'h8006_0000, {16'd0,dport}, 32'd1);           // SAP
-    pair(8'hC3); settle(0); exp_pdrop=exp_pdrop+1;
+    set_port(32'h8006_0000, {16'd0,dport}, 32'd1);           // SAP -> management, auto-return
+    pair(8'hC3); settle(0);
     set_port(32'h0004_0000, {16'd0,dport}, 32'd1);           // valid=0
     pair(8'hC4); settle(0); exp_pdrop=exp_pdrop+1;
     set_port(32'h8004_0000, {16'd0,dport}, 32'd1);

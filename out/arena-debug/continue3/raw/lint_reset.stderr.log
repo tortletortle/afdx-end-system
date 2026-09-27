@@ -1,0 +1,14 @@
+%Warning-BLKSEQ: sim/tb/tb_reset_copy.v:6:17: Blocking assignment '=' in sequential logic process
+                                            : ... Suggest using delayed assignment '<='
+    6 |   always #4 clk = ~clk;
+      |                 ^
+                 ... For warning description see https://verilator.org/warn/BLKSEQ?v=5.006
+                 ... Use "/* verilator lint_off BLKSEQ */" and lint_on around source to disable this message.
+%Warning-BLKSEQ: sim/tb/tb_reset_copy.v:13:12: Blocking assignment '=' in sequential logic process
+                                             : ... Suggest using delayed assignment '<='
+   13 |     cycles = cycles + 1;
+      |            ^
+%Warning-BLKSEQ: sim/tb/tb_reset_copy.v:16:18: Blocking assignment '=' in sequential logic process
+                                             : ... Suggest using delayed assignment '<='
+   16 |       mismatches = mismatches + 1;
+      |                  ^

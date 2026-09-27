@@ -1,0 +1,36 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source ../out/arena-debug/continue/session_20260925_0432/run_full_cov.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim -coverage tb_t01_reset_regs 
+# Start time: 14:24:45 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t01_reset_regs(fast)
+#   [ok] crc32 self-check 0xCBF43926
+#   [ok] init_sweep 25344 writes, DONE after last write (2 cycles), config R/W and pipeline pass
+# T01 INIT/REG PASS (25344 writes + re-reset + table R/W + pipeline + timebase)
+# ** Note: $finish    : tb/tb_t01_reset_regs.v(324)
+#    Time: 101069576 ns  Iteration: 1  Instance: /tb_t01_reset_regs
+# 
+# Coverage saving has been started
+# Coverage database has been saved successfully.
+# End time: 14:26:10 on Sep 25,2026, Elapsed time: 0:01:25
+# Errors: 0, Warnings: 0

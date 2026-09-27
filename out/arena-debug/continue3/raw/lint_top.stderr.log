@@ -1,0 +1,96 @@
+%Warning-DECLFILENAME: rtl/common/bram_sdp.v:88:8: Filename 'bram_sdp' does not match MODULE name: 'bram_1w1r'
+   88 | module bram_1w1r (clk, wr_en, wr_addr, wr_data, rd_addr, rd_data);
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/DECLFILENAME?v=5.006
+                       ... Use "/* verilator lint_off DECLFILENAME */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: rtl/tx/mac_tx_if.v:88:33: Cell pin connected by name with empty reference: 'crc_out'
+   88 |                .data(crc_din), .crc_out(), .crc_final(crc_final));
+      |                                 ^~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:731:38: Cell pin connected by name with empty reference: 'good_cnt'
+  731 |     .drop_reason(rx_drop_reason_a), .good_cnt(), .drop_cnt(), .disabled_cnt());
+      |                                      ^~~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:731:51: Cell pin connected by name with empty reference: 'drop_cnt'
+  731 |     .drop_reason(rx_drop_reason_a), .good_cnt(), .drop_cnt(), .disabled_cnt());
+      |                                                   ^~~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:731:64: Cell pin connected by name with empty reference: 'disabled_cnt'
+  731 |     .drop_reason(rx_drop_reason_a), .good_cnt(), .drop_cnt(), .disabled_cnt());
+      |                                                                ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:747:38: Cell pin connected by name with empty reference: 'good_cnt'
+  747 |     .drop_reason(rx_drop_reason_b), .good_cnt(), .drop_cnt(), .disabled_cnt());
+      |                                      ^~~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:747:51: Cell pin connected by name with empty reference: 'drop_cnt'
+  747 |     .drop_reason(rx_drop_reason_b), .good_cnt(), .drop_cnt(), .disabled_cnt());
+      |                                                   ^~~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:747:64: Cell pin connected by name with empty reference: 'disabled_cnt'
+  747 |     .drop_reason(rx_drop_reason_b), .good_cnt(), .drop_cnt(), .disabled_cnt());
+      |                                                                ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:981:6: Cell pin connected by name with empty reference: 'sn_pend'
+  981 |     .sn_pend(), .err());
+      |      ^~~~~~~
+%Warning-PINCONNECTEMPTY: rtl/top/AFDX_top.v:981:18: Cell pin connected by name with empty reference: 'err'
+  981 |     .sn_pend(), .err());
+      |                  ^~~
+%Warning-UNUSEDSIGNAL: rtl/tx/tx_port_buf.v:46:32: Bits of signal are not used: 'len'[15:13]
+                                                 : ... In instance AFDX_top.u_txbuf
+   46 |   input  wire [15:0]           len,           
+      |                                ^~~
+%Warning-UNUSEDPARAM: rtl/tx/tx_port_buf.v:78:22: Parameter is not used: 'B_AGE_HI'
+                                                : ... In instance AFDX_top.u_txbuf
+   78 |   localparam integer B_AGE_HI = 7,  B_AGE_LO = 0;
+      |                      ^~~~~~~~
+%Warning-UNUSEDPARAM: rtl/tx/tx_port_buf.v:78:37: Parameter is not used: 'B_AGE_LO'
+                                                : ... In instance AFDX_top.u_txbuf
+   78 |   localparam integer B_AGE_HI = 7,  B_AGE_LO = 0;
+      |                                     ^~~~~~~~
+%Warning-UNUSEDPARAM: rtl/tx/tx_frame_builder.v:35:21: Parameter is not used: 'BYTE_SLOT_CYC'
+                                                     : ... In instance AFDX_top.u_builder
+   35 |   parameter integer BYTE_SLOT_CYC = 10        
+      |                     ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/tx/tx_frame_builder.v:178:15: Bits of signal are not used: 'udp_fold1'[31:17]
+                                                       : ... In instance AFDX_top.u_builder
+  178 |   wire [31:0] udp_fold1 = {16'h0, udp_sum[31:16]} + {16'h0, udp_sum[15:0]};
+      |               ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/tx/tx_rm.v:49:13: Signal is not used: 'in_frame'
+                                           : ... In instance AFDX_top.u_rm
+   49 |   reg       in_frame;
+      |             ^~~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/tx/mac_tx_if.v:34:21: Signal is not used: 'in_sof'
+                                               : ... In instance AFDX_top.u_mac_b
+   34 |   input  wire       in_sof,
+      |                     ^~~~~~
+%Warning-UNUSEDSIGNAL: rtl/tx/mac_tx_if.v:63:14: Bits of signal are not used: 'rd_q'[8]
+                                               : ... In instance AFDX_top.u_mac_b
+   63 |   reg [8:0]  rd_q;                          
+      |              ^~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/mac_rx_if.v:72:18: Bits of signal are not used: 'b'[16]
+                                               : ... In instance AFDX_top.u_mac_rx_b
+   72 |     reg [16:0] a,b;
+      |                  ^
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_ip_udp_parse.v:28:24: Bits of signal are not used: 'in_desc'[158:148,123:16]
+                                                     : ... In instance AFDX_top.u_rxprs
+   28 |   input  wire [DW-1:0] in_desc,
+      |                        ^~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_ip_udp_parse.v:29:24: Bits of signal are not used: 'in_w0'[31:24,11:0]
+                                                     : ... In instance AFDX_top.u_rxprs
+   29 |   input  wire [31:0]   in_w0,           
+      |                        ^~~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_ip_udp_parse.v:30:24: Bits of signal are not used: 'port_w0'[30:19,15:0]
+                                                     : ... In instance AFDX_top.u_rxprs
+   30 |   input  wire [31:0]   port_w0,         
+      |                        ^~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_ip_udp_parse.v:31:24: Bits of signal are not used: 'port_w1'[31:16]
+                                                     : ... In instance AFDX_top.u_rxprs
+   31 |   input  wire [31:0]   port_w1,         
+      |                        ^~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_ip_udp_parse.v:32:24: Bits of signal are not used: 'port_w3'[31:4]
+                                                     : ... In instance AFDX_top.u_rxprs
+   32 |   input  wire [31:0]   port_w3,         
+      |                        ^~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_flt.v:28:23: Bits of signal are not used: 'in_w0'[30,27:12]
+                                            : ... In instance AFDX_top.u_rxflt
+   28 |   input  wire [31:0]  in_w0,        
+      |                       ^~~~~
+%Warning-UNUSEDSIGNAL: rtl/rx/rx_flt.v:29:23: Bits of signal are not used: 'in_w1'[31:16]
+                                            : ... In instance AFDX_top.u_rxflt
+   29 |   input  wire [31:0]  in_w1,        
+      |                       ^~~~~

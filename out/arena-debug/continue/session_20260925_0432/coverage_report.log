@@ -1,0 +1,5 @@
+Questa Altera Starter FPGA Edition-64 vcover 2025.3 Coverage Utility 2025.09 Sep 15 2025
+Start time: 12:39:03 on Sep 25,2026
+vcover report -code sb -summary -output C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\merged_summary.txt C:\Workspace\diansai\out\arena-debug\continue\session_20260925_0432\coverage\full50.ucdb 
+End time: 12:39:03 on Sep 25,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0

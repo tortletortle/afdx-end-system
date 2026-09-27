@@ -1,0 +1,3 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T17,min-frame-dual-net-512,tb_t17_min_frame_stress,FAIL,na,6.8,# T17 MIN-FRAME STRESS FAIL (IF_MODE=0 errors=1)
+T17g,min-frame-dual-net-512-gmii,tb_t17g_min_frame_stress,FAIL,na,5.3,# T17 MIN-FRAME STRESS FAIL (IF_MODE=1 errors=1)

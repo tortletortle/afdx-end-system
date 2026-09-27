@@ -1,0 +1,1578 @@
+# fixes.patch - MISSION-CONTINUE2 (2026-09-25): source/script/doc changes of THIS round.
+# 
+# BASELINE: out/arena-debug/backup/continue2_20250925/  - the working tree as handed over
+# at the start of this round: rx_cfg already converted to bram_1w1r by the previous,
+# interrupted session, but with the host-readback defect still present and 5 testbenches
+# failing.  Exception: out/arena-debug/finalize/sta/README.md comes from
+# backup/continue_20250925/session_20260925_0432/ (the interrupted session never copied it).
+# 
+# APPLY :  git apply    out/arena-debug/fixes.patch
+# REVERT:  git apply -R out/arena-debug/fixes.patch   -> back to the baseline above,
+#                                                        NOT back to git HEAD.
+# 
+# SCOPE: RTL, synthesis/STA scripts, constraints and documentation only.  Generated
+# artefacts (logs, *.ucdb, the 49 MB netlist, *.rpt, Quartus db/) are deliberately
+# excluded; they are archived under out/arena-debug/continue2/ instead.
+# 
+# For the COMPLETE RTL delta that takes top-level synthesis from FAIL to rc=0 - i.e.
+# including the previous session's rx_cfg BRAM rework - see
+# out/arena-debug/continue2/continue2_full_rtl.patch.
+# 
+# Both patches were verified by replaying them onto a copy of their own baseline with
+# git apply and byte-comparing the result against the current tree:
+# out/arena-debug/continue2/patch_verify.log.
+#
+diff --git a/doc/后续计划.md b/doc/后续计划.md
+index 1472324..5468a9b 100644
+--- a/doc/后续计划.md
++++ b/doc/后续计划.md
+@@ -1,14 +1,45 @@
+-# 后续计划增量 — MISSION-CONTINUE（2026-09-25）
++# 后续计划增量 — MISSION-CONTINUE2（2026-09-25）
+ 
+-本节优先于下方历史计划，已完成项不重复造报告。
++本节优先于下方历史计划。已在 continue2 完成的项不再列为待办。
+ 
+-1. **DONE**：全 manifest 50 UCDB 已实跑并合并；后续可新增 RTL-only / 按设计单元统计与未命中路径分析，但不能把现有含 TB 百分比改称 RTL-only。
+-2. **BLOCKED_TOOL / P0**：eLinx 32 位综合器在顶层存储展开/优化时 bad allocation 或访问异常。先对 rx_cfg/tx_cfg/port_cfg 等组合多读口做银行划分、复制或寄存握手设计；每次改动先备份，逐项验证读延迟/配置生效/反压语义。也可验证供应商受支持的 64 位流程。完成条件：同参数完整顶层 rc=0、全日志无 ERROR、可审查网表/器件资源；部分 stat 不算完成。
+-3. **BLOCKED_NO_REVISION_OR_TIMING_NETLIST / P0**：建立真实器件 revision 和可用 timing netlist 后跑 setup/hold，记录 WNS/TNS/Fmax/关键路径。沿用已核对的 8ns 内部约束；板级 IO delay 只能来自实测/批准预算，内部分析与外部签核分开报告。
+-4. **OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP / P1**：snmp_lite、a615a_tftp、rtc_sync、rtl/top/stats_regs 均为空壳；按设计书 §7.15–7.18 实现真实端到端闭环、T14/T15/T16 及负例/超时/回绕/失步 TB，加入 manifest 和覆盖率，或取得正式书面需求豁免。当前没有豁免。
+-5. 任何后续 RTL 变更后再次串行执行 50 项功能回归、lint、严格文档门，保留失败、真实 rc、命令和哈希；不能以本轮功能 PASS 宣称整机设计/时序完成。
++## 已关闭
+ 
+-本轮证据：out/arena-debug/continue/session_20260925_0432/；统一入口：out/arena-debug/finalize/CONTINUE-20260925.md。
++- **顶层 eLinx 综合（原 P0 BLOCKED_TOOL）→ DONE**：`AFDX_top_synth.ys` rc=0；新增
++  `AFDX_top_synth_bram.ys` 器件 BRAM 流程 rc=0（439 altsyncram，网表已导出）。
++- **STA 前置（原 P0 BLOCKED_NO_REVISION）→ 已解除**：真实 Quartus 工程与 revision 已建立，
++  TimeQuest 实跑成功并产出 WNS/TNS/Fmax/关键路径。
++- **覆盖率**：已在改造后的 RTL 上重采并合并（1440 instances，62.51%/73.12%/67.82%，含 TB）。
++
++## P0 —— 时序收敛（当前唯一的整机级硬阻塞）
++
++实测 **Fmax 42.56 MHz vs 要求 125 MHz，Setup WNS −15.498 ns**，缺口约 2.94 倍。按收益排序：
++
++1. **复位扇出**：关键路径起点是 `rst_sync:u_rstsync|r[2]`，终点是 `rx_port_buf` 的 256 端口
++   计数器组 `p_cnt~*`。做复位树分级/流水（每级寄存、按 bank 分发），消除单点扇出 22.975 ns。
++2. **`rx_port_buf` 分银行**：256 端口计数器/描述符按 bank 切分，读写走仲裁而非全展开比较。
++3. **宽比较链打拍**：BRAM 映射后顶层仍有 19,019 个 `$eq`（地址译码/命中判断），
++   对多周期可容忍的路径改为寄存后比较或预译码。
++4. 每步改完**先跑 50 项回归确认功能不变**，再跑 post-map STA 看 Fmax 变化；两者都留 rc 与哈希。
++5. Fmax 接近目标后再跑 `quartus_fit` + post-fit setup/hold STA，那才是 sign-off 口径；
++   同时需要目标板引脚与实测 IO 预算才能写 `set_input_delay/set_output_delay`。
++
++## P1 —— 管理面 `OPEN_SPEC_GAP`
++
++`snmp_lite`、`a615a_tftp`、`rtc_sync`、`rtl/top/stats_regs` 仍为无端口空壳、顶层未例化、
++manifest 无 T14/T15/T16、无书面豁免。最小可验收定义见
++`out/arena-debug/continue2/MANAGEMENT-SCOPE.md` §5（实现 + TB + 进 manifest，50 → 53 项）。
++
++## P2 —— 覆盖率深化
++
++现有是含 TB 的分支/语句覆盖率。后续可加 RTL-only 过滤、按设计单元统计、未命中路径分析，
++以及 covergroup 功能覆盖率；**不得**把现有含 TB 百分比改称 RTL-only 或功能覆盖率。
++
++## 纪律（保持不变）
++
++任何 RTL 变更后串行重跑 50 项回归 + lint + 严格文档门，保留失败原件、真实 rc、命令与哈希；
++不得以功能仿真 PASS 宣称综合/时序/认证完成。
++
++本轮证据：`out/arena-debug/continue2/`（含 `SHA256SUMS.txt`）；上一轮：`continue/session_20260925_0432/`。
+ 
+ ---
+ 
+diff --git a/doc/当前进度_20260923.md b/doc/当前进度_20260923.md
+index 26512cc..00c0b61 100644
+--- a/doc/当前进度_20260923.md
++++ b/doc/当前进度_20260923.md
+@@ -1,13 +1,27 @@
+-# 当前进度增量 — MISSION-CONTINUE（2026-09-25）
+-
+-本节为最新状态，下面原始历史正文/编码内容保留；详细证据以 out/arena-debug/DIANSAI-REPORT.md 的 MISSION-CONTINUE 为准。
+-
+-- **DONE**：全 50 项 `+cover=sb` 回归、50 UCDB 合并；含 TB 的实例统计分支 62.14%、语句 73.62%，不是 RTL-only/功能覆盖率。
+-- **DONE**：最终普通回归 50/50、编译 0 errors、lint 0 Error、严格文档门通过；原始日志与 SHA-256 在 out/arena-debug/continue/session_20260925_0432/。
+-- **BLOCKED_TOOL**：顶层综合原流程、opt -fast、显式 BRAM 尝试仍失败；tx_rm 旧数组故障已隔离并复验上轮修复，不能算本轮顶层 PASS。
+-- **BLOCKED_NO_REVISION_OR_TIMING_NETLIST**：TimeQuest rc=3 缺 active revision；8ns 内部约束已有，WNS/TNS/Fmax N/A，未填假 IO delay。
+-- **OUT_OF_SCOPE_FINALIZE / OPEN_SPEC_GAP**：完整 SNMP/TFTP/RTC/统计面未实现；stats_regs 实际存在于 rtl/top/，也是未例化空壳，纠正旧报告路径核查错误。
+-- 整机目标未完成、没有正式需求豁免；本轮 RTL/TB 保持不变。备份 continue_20250925/session_20260925_0432；fixes.patch 仅包含本轮修改。
++# 当前进度增量 — MISSION-CONTINUE2（2026-09-25）
++
++本节为最新状态，取代下方 MISSION-CONTINUE 快照；下面原始历史正文/编码内容保留。
++详细证据以 out/arena-debug/DIANSAI-REPORT.md 的 **MISSION-CONTINUE2** 一节与 out/arena-debug/continue2/ 为准。
++
++- **修复（本轮真实缺陷）**：上一轮 RX_VL_CFG 改 BRAM 后 `assign host_rdata` 漏接 `rxc_host_rdata`，
++  主机回读 RX_VL_CFG 恒为 0，T01/T08f/T08fg/T22/T22g 五项 FAIL。已在选择器最前接入，语义不变。
++- **DONE（顶层综合，原 BLOCKED_TOOL 解除）**：`elinx/prj/AFDX_top_synth.ys` **rc=0**（177 s、0 ERROR、0 Warning、
++  `Yosys execute success!`、473,423 cells）；新增 `elinx/prj/AFDX_top_synth_bram.ys` 器件 BRAM 流程 **rc=0**
++  （130 s、**47,041 cells 含 439 altsyncram**、导出网表 49,126,317 B）。24 模块完整层次，无 blackbox。
++  根因是顶层 `rx_cfg_mem`（8192×32、**6 个组合读口**），已改为 6 个 `bram_1w1r` 同步读副本。
++- **MEASURED_NOT_MET（STA，原 BLOCKED 解除但结论是不合格）**：本机 eLinx 捆绑完整 Quartus II 13.0.1（Stratix IV）。
++  新建真实工程 `elinx/prj/quartus/`（revision AFDX_top，器件 EP4SGX230HF35C2），`quartus_map` rc=0
++  （139,607 logic cells、731 RAM segments），`quartus_sta` post-map rc=0：
++  **Fmax 42.56 MHz、Setup WNS −15.498 ns / TNS −567,452 ns**，关键路径
++  `rst_sync|r[2] → rx_port_buf|p_cnt~*`（22.975 ns）。**125 MHz 明确不收敛**；post-map 无布线延时，非签核。
++- **DONE（变更后复验）**：RTL 本轮真改过，旧 50/50 不适用，已重跑全量 **50/50 PASS**（rc=0、335 s、编译 0 errors）；
++  lint `0 %Error`、`tools/run_all.py --strict` 5/5 均 rc=0。
++- **DONE_PARTIAL（覆盖率，已在新 RTL 上重采）**：50 UCDB + `vcover merge/report` 均 rc=0；
++  1440 instances，分支 **62.51%**、语句 **73.12%**、total **67.82%**。含 TB、仅分支+语句，不是 RTL-only/功能覆盖率。
++- **OPEN_SPEC_GAP**：`snmp_lite.v`/`a615a_tftp.v`/`rtc_sync.v`/`stats_regs.v` 均为无端口空壳，
++  顶层引用数 0，manifest 无 T14/T15/T16，无书面豁免 —— 不是 DONE，也不是 OUT_OF_SCOPE。
++- 整机目标**未完成**：时序不收敛 + 管理协议缺口。备份 `backup/continue2_20250925/`；
++  `fixes.patch` 仅含本轮源码/脚本/文档改动；无 commit/push/reset。
+ 
+ ---
+ 
+diff --git a/after/elinx/prj/AFDX_top_synth_bram.ys b/elinx/prj/AFDX_top_synth_bram.ys
+new file mode 100644
+index 0000000..a962727
+--- /dev/null
++++ b/elinx/prj/AFDX_top_synth_bram.ys
+@@ -0,0 +1,50 @@
++# =====================================================================
++# AFDX_top_synth_bram.ys - continue2（2026-09-25）器件级 BRAM 映射综合流程
++# 与 AFDX_top_synth.ys 的差别：在 memory_map 之前插入
++#   memory_collect -> memory_bram -rules brams.txt -> techmap brams_map.v
++# 目的：让 rx_cfg（bram_1w1r ×6，4096×32）、PMEM（bram_sdp_core ×4，8192×8）
++# 等存储落到器件 BRAM，而不是被 memory_map 全部展开成寄存器+多路选择器。
++# 该 eLinx 分支没有 memory_libmap（probe_writers.log:351 "No such command"），
++# 因此只能使用 legacy memory_bram -rules 流程。
++# 运行（工作目录 C:\Workspace\diansai）：
++#   powershell -NoProfile -ExecutionPolicy Bypass -File \
++#     out/arena-debug/continue2/synth/run_syn.ps1 \
++#     -Ys elinx/prj/AFDX_top_synth_bram.ys -Name top_bram -TimeoutS 900
++# =====================================================================
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++opt_clean
++memory_collect
++memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
++techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
++memory_map
++opt
++stat
++write_verilog -noattr C:/Workspace/diansai/out/arena-debug/continue2/synth/AFDX_top_bram_netlist.v
+diff --git a/after/elinx/prj/quartus/mk_project.tcl b/elinx/prj/quartus/mk_project.tcl
+new file mode 100644
+index 0000000..f6d2f24
+--- /dev/null
++++ b/elinx/prj/quartus/mk_project.tcl
+@@ -0,0 +1,27 @@
++# continue2（2026-09-25）：为 AFDX_top 建立真实 Quartus(Passkey/Quartus II 13.0.1)
++# 工程与 revision，用于取得可审计的 Analysis&Synthesis / Fit / TimeQuest 结果。
++# 器件族与型号取自本机实际安装清单（out/arena-debug/continue2/sta/part_list.txt）。
++package require ::quartus::project
++project_new -overwrite -revision AFDX_top AFDX_top
++set_global_assignment -name FAMILY "Stratix IV"
++set_global_assignment -name DEVICE EP4SGX230HF35C2
++set_global_assignment -name TOP_LEVEL_ENTITY AFDX_top
++set_global_assignment -name VERILOG_INPUT_VERSION VERILOG_2001
++set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
++# 无板级引脚约束：允许自动引脚分配，结论仅覆盖内部寄存器到寄存器路径。
++set_global_assignment -name AUTO_RESTART_CONFIGURATION OFF
++set R C:/Workspace/diansai/rtl
++foreach f [list \
++  $R/common/rst_sync.v $R/common/timebase.v $R/common/sync_fifo.v \
++  $R/common/crc32.v $R/common/bram_sdp.v $R/top/init_sweep.v \
++  $R/tx/tx_sn_gen.v $R/tx/tx_port_buf.v $R/tx/tx_frame_builder.v \
++  $R/tx/tx_vl_scheduler.v $R/tx/tx_rm.v $R/tx/tx_pace.v $R/tx/mac_tx_if.v \
++  $R/rx/mac_rx_if.v $R/rx/rx_block_pool.v $R/rx/rx_pmem_queue.v $R/rx/rx_ic.v \
++  $R/rx/rx_vl_lookup.v $R/rx/rx_flt.v $R/rx/rx_rm.v $R/rx/rx_ip_udp_parse.v \
++  $R/rx/rx_port_buf.v $R/mgmt/mgmt_sap_rx.v $R/top/AFDX_top.v] {
++  set_global_assignment -name VERILOG_FILE $f
++}
++set_global_assignment -name SDC_FILE C:/Workspace/diansai/elinx/sdc/AFDX_top.sdc
++export_assignments
++puts "PROJECT_CREATED revision=[get_current_revision]"
++project_close
+diff --git a/after/elinx/prj/quartus/sta_post_map.tcl b/elinx/prj/quartus/sta_post_map.tcl
+new file mode 100644
+index 0000000..075867b
+--- /dev/null
++++ b/elinx/prj/quartus/sta_post_map.tcl
+@@ -0,0 +1,19 @@
++# continue2（2026-09-25）：post-map（综合后、布局布线前）TimeQuest 分析。
++# 边界：post-map 网表没有布线延时与最终布局，**不是时序签核**；
++#       其 setup slack 是乐观上界，hold 结论无意义，故只取 setup/Fmax 并明确标注。
++package require ::quartus::sta
++project_open AFDX_top -revision AFDX_top
++create_timing_netlist -post_map
++read_sdc
++update_timing_netlist
++set out C:/Workspace/diansai/out/arena-debug/continue2/sta
++report_clocks -file $out/post_map_clocks.rpt
++report_timing -setup -npaths 20 -detail full_path -file $out/post_map_setup.rpt
++report_clock_fmax_summary -file $out/post_map_fmax.rpt
++report_sdc -file $out/post_map_sdc.rpt
++foreach_in_collection p [get_timing_paths -setup -npaths 1] {
++  puts "POST_MAP_WORST_SETUP_SLACK_NS=[get_path_info $p -slack]"
++}
++puts "POST_MAP_STA_DONE"
++delete_timing_netlist
++project_close
+diff --git a/after/elinx/prj/quartus/sta_summary.tcl b/elinx/prj/quartus/sta_summary.tcl
+new file mode 100644
+index 0000000..43d8ead
+--- /dev/null
++++ b/elinx/prj/quartus/sta_summary.tcl
+@@ -0,0 +1,13 @@
++# continue2（2026-09-25）：post-map TimeQuest 汇总 —— TNS/WNS 与未约束路径取证。
++package require ::quartus::sta
++project_open AFDX_top -revision AFDX_top
++create_timing_netlist -post_map
++read_sdc
++update_timing_netlist
++set out C:/Workspace/diansai/out/arena-debug/continue2/sta
++create_timing_summary -setup -file $out/post_map_setup_summary.rpt
++create_timing_summary -hold  -file $out/post_map_hold_summary.rpt
++report_ucp -file $out/post_map_unconstrained.rpt
++puts "SUMMARY_DONE"
++delete_timing_netlist
++project_close
+diff --git a/after/elinx/sdc/AFDX_top.sdc b/elinx/sdc/AFDX_top.sdc
+new file mode 100644
+index 0000000..9640b2a
+--- /dev/null
++++ b/elinx/sdc/AFDX_top.sdc
+@@ -0,0 +1,34 @@
++# =====================================================================
++# AFDX_top.sdc - Quartus/TimeQuest timing constraints (MISSION-CONTINUE2)
++#
++# This file MUST stay in sync with elinx/sdc/AFDX_top.edc (the eLinx-side
++# copy).  Both encode design book 11.2: a single 125 MHz system clock.
++#
++# Deliberate boundary: there is NO set_input_delay / set_output_delay here.
++# The design book lists nominal 3.2 ns IO delays only as a commented
++# *example*, not as a measured board budget, and no pinout or board exists.
++# Inventing IO delays to manufacture a PASS is forbidden.  Consequently every
++# conclusion drawn from this file covers REGISTER-TO-REGISTER INTERNAL PATHS
++# ONLY; all IO ports are reported as unconstrained and that is expected.
++#
++# If this file is absent, Quartus silently falls back to a default 1 ns
++# (1 GHz) clock and every slack number becomes meaningless - that failure
++# mode actually occurred once in this project; see out/arena-debug/continue2/
++# sta/default_1ns_no_sdc/ for the discarded reports.
++# =====================================================================
++
++# NOTE on syntax divergence from the .edc: Quartus TimeQuest does NOT accept the
++# Synopsys form "set_clock_uncertainty <value> <object>" (it rejects the file and
++# then falls back to a default 1 ns clock).  It requires -from/-to plus an explicit
++# -setup/-hold.  "set_clock_transition" is a Synopsys DC command with no Quartus
++# TimeQuest equivalent, so it is intentionally not replicated here; the 0.30 ns
++# transition stays in the .edc for the eLinx flow only.
++
++create_clock -name clk -period 8.000 [get_ports clk]
++
++set_clock_uncertainty -setup -from [get_clocks clk] -to [get_clocks clk] 0.45
++set_clock_uncertainty -hold  -from [get_clocks clk] -to [get_clocks clk] 0.45
++
++# PPS is an asynchronous 1 Hz pulse captured by a synchroniser inside the
++# design; it is not a timed interface.
++set_false_path -from [get_ports pps_in]
+diff --git a/out/arena-debug/DIANSAI-REPORT.md b/out/arena-debug/DIANSAI-REPORT.md
+index d9b8040..2e8063b 100644
+--- a/out/arena-debug/DIANSAI-REPORT.md
++++ b/out/arena-debug/DIANSAI-REPORT.md
+@@ -1,6 +1,96 @@
+ # DIANSAI 修复与复验报告（2026-09-25）
+ 
+-## MISSION-CONTINUE — 2026-09-25 最新收口结论
++## MISSION-CONTINUE2 — 2026-09-25 最新收口结论（优先于本文件下方所有历史快照）
++
++> **本轮是状态变化最大的一轮：顶层 eLinx 综合从 BLOCKED 变成 rc=0；STA 从"无数据"变成
++> 有实测数据且结论是"125 MHz 不收敛"；并修复了一个会让整机主机接口 RX_VL_CFG 回读恒为 0 的真实缺陷。
++> 整机仍未完成：时序不收敛，T14–T16 管理协议仍是 `OPEN_SPEC_GAP`。**
++
++### 0. 本轮开始时的真实状态（必须先承认）
++
++接手时工作树**是坏的**，不是上一节所写的"50/50 PASS"：上一轮（13:16–13:19）把 `rx_cfg_mem`
++改成 BRAM 后**没有跑完验证就中断**（`continue2/dbg_t08f.do` 停在调试态）。实测 13:22 的
++`sim/out/regress.csv`：**T01 / T08f / T08fg / T22 / T22g 五项 FAIL**
++（`T01 [err] RX CFG readback 00000000`、`T08f errors=8191`、`T22 [err] RX_VL_CFG readback`）。
++原件备份在 `backup/continue2_20250925/out/arena-debug/regress_pre_continue2fix.csv`。
++
++**根因**：`rtl/top/AFDX_top.v` 把 `rdata_r` 在 `rx_hit` 时改成常 0 并新增 `rxc_rd_d/rxc_host_rdata`，
++但 `assign host_rdata` 的选择器**漏接了 `rxc_host_rdata`**。属接线遗漏，不是工具限制。
++**修复**：在 `host_rdata` 选择器最前插入 `rxc_rd_d ? rxc_host_rdata :`（地址域互斥，不改其他读路径优先级）。
++
++### 1. 本轮结果总表
++
++| 项目 | 本轮实际结果 | 判定 |
++|---|---|---|
++| **顶层 eLinx 综合** | `AFDX_top_synth.ys` **rc=0**／177 s／`^ERROR`=0／`^Warning`=0／`Yosys execute success!`／473,423 cells；`AFDX_top_synth_bram.ys`（新增 BRAM 映射流程）**rc=0**／130 s／0 ERROR／**47,041 cells 含 439 `altsyncram`**／导出网表 `AFDX_top_bram_netlist.v` 49,126,317 B。两次均为 24 模块完整层次，无 blackbox。 | **DONE** |
++| **STA** | 本机 eLinx 捆绑完整 Quartus II 13.0.1（Passkey），已装 **Stratix IV**。新建真实工程 `elinx/prj/quartus/AFDX_top.q{pf,sf}`、revision `AFDX_top`、器件 **EP4SGX230HF35C2**。`quartus_map` **rc=0**（12:10，0 errors/66 warnings，139,607 logic cells、731 RAM segments、73 in/123 out pins）；`quartus_sta` post-map **rc=0**：**Fmax 42.56 MHz**、**Setup WNS −15.498 ns / TNS −567,451.740 ns**、Hold WNS −0.128 ns / TNS −35.706 ns、关键路径 `rst_sync:u_rstsync\|r[2] → rx_port_buf:u_rxpb\|p_cnt~508`（数据延时 22.975 ns、时钟不确定度 0.450 ns）。**这组数字是第三次运行才拿到的**：头两次分别因 `.sdc` 文件缺失（Quartus 静默退回默认 1 ns 时钟）与 Quartus/Synopsys 约束语法差异而作废，错误报告归档在 `continue2/sta/default_1ns_no_sdc/`，经过见 `continue2/STA.md` §3。 | **MEASURED_NOT_MET**（125 MHz **不收敛**，非 BLOCKED） |
++| **功能回归（变更后复验）** | RTL 本轮真改过，旧 50/50 结论不适用，故**必须**重跑：`sim/run_regress.ps1` 全量 **rc=0**、**50/50 PASS**、335 s、manifest 50 项、编译 0 errors。先行定向 8 项（T01,T08b,T08c,T08f,T08fg,T22,T22g,T22a）也 **8/8 PASS**。 | **DONE** |
++| **覆盖率** | 在**改造后**的 RTL 上重采：50 个 UCDB、`vcover merge` **rc=0**、`vcover report` **rc=0**（Errors 0/Warnings 0）。1440 instances：分支 36788/58849=**62.51%**、语句 65555/89642=**73.12%**、total **67.82%**。**含 TB 实例，仅分支+语句，非 RTL-only、非功能覆盖率、非认证指标。** | **DONE_PARTIAL** |
++| **门禁** | `tools_lint.ps1` **rc=0**、`LINT GATE: PASS (all gates 0 %Error)`；`python tools/run_all.py --strict` **rc=0**、5/5 + selfcheck。 | **DONE** |
++| **管理面 T14–T16** | `snmp_lite.v`(7 行)/`a615a_tftp.v`(6)/`rtc_sync.v`(6)/`stats_regs.v`(7) 均为**无端口空壳**，在 `AFDX_top.v` 中引用数 **0**，manifest 中 T14/T15/T16 **各 0 条**，无书面豁免。 | **OPEN_SPEC_GAP**（不是 DONE，也不是 OUT_OF_SCOPE） |
++
++### 2. 综合为什么能通过（根因与修复，不是碰运气）
++
++二分实验证明决定变量是 **`NUM_RX_VL`** 而非 `NUM_PORTS`（全部子模块 blackbox，只留顶层自身）：
++`iso_top_only`（4096）→ `ERROR: bad allocation`；`iso_top_rxvl64`（64）→ **rc=0**；
++`iso_top_ports16`（NUM_PORTS=16、RX_VL 不变）→ 300 s 超时仍卡在 `OPT_MUXTREE`。
++被压垮的是顶层 `rx_cfg_mem [0:2*NUM_RX_VL-1]`（8192×32 bit）**6 个组合读口**。
++修复为 6 个 `bram_1w1r` 同步读副本（流水读口用 `RD_NEG=1` 负沿读，**逐拍等价、无额外气泡**；
++主机读口正沿读、ACK 拍直出），PMEM 的 byte-enable 按 lane 拆成 4 个整字写体。
++**没有删功能、没有缩地址空间、没有屏蔽错误换通过**——证据是同一份 RTL 跑出 50/50 PASS。
++详见 `continue2/SYNTH.md`。
++
++### 3. 本轮**不能**宣称的事
++
++- **不能说时序收敛**。post-map 已测 Fmax 42.56 MHz，距 125 MHz 差约 2.94 倍；且 post-map
++  **不含布线延时**，真实结果只会更差。未跑 `quartus_fit`，**不是 sign-off**。
++- **不能说器件资源占用 X%**。eLinx 侧只到通用 cell + `altsyncram`，无 LUT/ALM 映射与布局布线；
++  Quartus 侧只到 Analysis & Synthesis，139,607 logic cells 是估计值，未经 Fit 验证能否装下。
++- **不能说 IO 时序合格**。`.sdc` 故意不写 `set_input_delay/set_output_delay`（无板级预算），
++  未约束端口：输入 71、输出 120。结论只覆盖寄存器到寄存器内部路径。
++- **不能把覆盖率 67.82% 说成功能覆盖率**（含 TB、仅分支+语句、无 covergroup）。
++- **不能说管理协议已交付**。
++
++### 4. 本轮证据、备份与补丁
++
++- 证据目录：`out/arena-debug/continue2/`
++  —— `SYNTH.md`、`STA.md`、`COVERAGE.md`、`MANAGEMENT-SCOPE.md`、`COMMANDS.md`、
++  `synth/`（.ys/.log/_rc.txt/网表）、`sta/`（.rpt/console/part_list）、
++  `coverage/`（50 UCDB + full50.ucdb + merge/report 日志）、`sim/`、`gates/`、
++  逐文件 SHA-256 清单 `SHA256SUMS.txt`（由 `make_sha256.ps1` 生成）。
++- 关键原始件 SHA-256：
++  `continue2/synth/top_after_rxcfg_bram.log` = `08AE03026CAAACBEBE039B53429D74D2FA33F5F6C20368D24B227B88D85819C9`；
++  `continue2/synth/top_bram.log` = `EDC7AF03BE0B7D5C694BB32C46E613DF693A360C2568AE0F465922B86803B3C9`；
++  `sim/out/regress.csv` = `367DF048C236D38AA710E5A736FF72D46FA84596AFA28B7D7CC90B3A96AEE07A`。
++- 备份：`out/arena-debug/backup/continue2_20250925/`（改动前的 `AFDX_top.v`、`bram_sdp.v`、
++  `.ys`、两份 doc、旧 `DIANSAI-REPORT.md`、旧 `fixes.patch`、失败态 `regress_pre_continue2fix.csv`）。
++  **没有 commit/push/reset；未触碰 `competition_case/` 与凭据。**
++- 补丁：本轮产出**两份**，均由 `continue2/make_fixes_patch.ps1` 用 `git diff --no-index`
++  对「备份镜像树 / 当前文件」生成，头部写明各自基线，**只含源码/脚本/约束/文档**
++  （不含日志、UCDB、49 MB 网表、`.rpt`、Quartus `db/` 等生成物）：
++  1. `out/arena-debug/fixes.patch` —— **本轮改动**，基线 `backup/continue2_20250925/`（接手时状态，
++     即 rx_cfg 已被上一轮改成 `bram_1w1r` 但主机回读仍坏、5 个 TB FAIL）。21 个文件。
++  2. `out/arena-debug/continue2/continue2_full_rtl.patch` —— **完整 RTL 改造差异**，基线
++     `backup/continue_20250925/session_20260925_0432/`（改造前，9 处 `rx_cfg_mem`、0 个 `bram_1w1r`）。
++     3 个文件，这份才是"顶层综合由 FAIL 变 rc=0"的完整代码依据。
++  - **两份补丁都做过回放校验**：把补丁 `git apply` 到各自基线的副本上，再与当前树逐字节比对，
++    `git_apply_rc=0` 且 `byte_identical=0`，记录见 `continue2/patch_verify.log`。
++    回滚用 `git apply -R <patch>`，回到的是**对应基线**，不是仓库 HEAD。
++  - 校验过程中发现并规避了两个会导致"假通过"的陷阱：`git apply` 在仓库子目录内运行会
++    **静默跳过**该子目录外的路径（校验目录已移到仓库外）；`doc/*.md` 混合 UTF-8 与历史 GBK
++    字节，按文本 UTF-8 往返会损坏补丁（改为字节级处理）。
++- 未并行运行 Questa 与 eLinx/Quartus；每次运行前检查无 `vsim/vopt/vlog` 残留。
++
++### 5. 下一步（按工程收益排序，均为可执行动作）
++
++1. **时序**：`rst_sync` 复位扇出分级/流水化；`rx_port_buf` 256 端口计数器组分银行；
++   顶层 19,019 个 `$eq` 比较链打拍。改完重跑 post-map STA 看 Fmax 是否越过 125 MHz。
++2. **Fit**：时序接近目标后再跑 `quartus_fit` + post-fit setup/hold STA，才谈 sign-off。
++3. **管理面**：按 `continue2/MANAGEMENT-SCOPE.md` §5 的最小可验收定义实现 T14–T16 并入 manifest。
++
++---
++
++## MISSION-CONTINUE — 2026-09-25 收口结论（已被上节取代，保留存档）
+ 
+ > **本节优先于下方所有历史 FINALIZE / MISSION-FIX 快照。整机仍未完成：综合 BLOCKED_TOOL，STA 无有效数据，完整管理协议未交付。** 本轮没有把已有 tx_rm 修复冒充新修改，没有改变 RTL/TB 功能。
+ 
+diff --git a/after/out/arena-debug/continue2/COMMANDS.md b/out/arena-debug/continue2/COMMANDS.md
+new file mode 100644
+index 0000000..4a4ea40
+--- /dev/null
++++ b/out/arena-debug/continue2/COMMANDS.md
+@@ -0,0 +1,199 @@
++# continue2 — 完整命令清单、退出码与耗时
++
++本文件列出本轮**实际执行过**的每一条命令。所有 shell 均为 Windows PowerShell 5.1，
++工作目录统一为 `C:\Workspace\diansai`（PowerShell 不支持 `&&`，命令前需 `Set-Location`）。
++耗时来源：运行器脚本写入的 `*_rc.txt`，或 Quartus 日志里的 `Info: Elapsed time`。
++未在此列出的命令都是只读查询（`Get-ChildItem` / `Select-String` / `Get-FileHash`），不改变状态。
++
++## 0. 总表
++
++| # | 步骤 | rc | 耗时 | 证据 |
++|---|---|---|---|---|
++| 1 | 改前备份 | 0 | <1 s | `backup/continue2_20250925/` |
++| 2 | RTL 修复 `host_rdata` mux | — | — | `AFDX_top.v` +10/-4 |
++| 3 | 定向回归（8 TB） | **0** | 86 s | `continue2/sim/fix1_targeted_rc.txt` |
++| 4 | eLinx 顶层综合（generic） | **0** | 177 s | `continue2/synth/top_after_rxcfg_bram_rc.txt` |
++| 5 | eLinx 顶层综合（器件 BRAM） | **0** | 130 s | `continue2/synth/top_bram_rc.txt` |
++| 6 | Quartus 器件列表查询 | 0 | 2 s | `continue2/sta/part_list.txt` |
++| 7 | 建 Quartus revision | **0** | 1 s | `continue2/sta/mk_project.log` |
++| 8 | `quartus_map`（Analysis & Synthesis） | **0** | **730 s** | `continue2/sta/qmap_console.log` |
++| 9a | post-map TimeQuest（**作废**：`.sdc` 缺失，默认 1 ns 时钟） | 0 | 55+115 s | `continue2/sta/default_1ns_no_sdc/` |
++| 9b | post-map TimeQuest（**作废**：Quartus 约束语法错误） | **3** | 11+11 s | 见 §6 说明 |
++| 9 | post-map TimeQuest 主报告（有效） | **0** | 57 s | `continue2/sta/sta_post_map_console.log` |
++| 10 | post-map TimeQuest 摘要/关键路径（有效） | **0** | 118 s | `continue2/sta/sta_summary_console.log` |
++| 11 | 全量功能回归 50/50（改造后 RTL） | **0** | 335 s | `continue2/sim/full50_after_fix_rc.txt` |
++| 12 | 覆盖率重采（50 用例带 coverage） | **0** | 378 s | `continue2/coverage/run_full_cov_rc.txt` |
++| 13 | `vcover merge` + `report` | **0 / 0** | ~2 s | `continue2/coverage/vcover_rc.txt` |
++| 14 | lint 门禁 | **0** | 40 s | `continue2/gates/lint.log` |
++| 15 | docgate `run_all.py --strict` | **0** | 6 s | `continue2/gates/docgate.log` |
++| 16 | 生成并自校验补丁 | 0 | 3 s | `continue2/patch_verify.log` |
++| 17 | 生成 SHA-256 清单 | 0 | 20 s | `continue2/SHA256SUMS.txt` |
++
++## 1. 备份（改动前，强制）
++
++备份根目录：`out/arena-debug/backup/continue2_20250925/`。**实际清单**（44 个文件）：
++
++- `rtl/**` — 完整 24 个 RTL 源文件（含 `rtl/top/AFDX_top.v`、`rtl/common/bram_sdp.v`）
++- `elinx/prj/AFDX_top_synth.ys`
++- `doc/当前进度_20260923.md`、`doc/后续计划.md`
++- `out/arena-debug/DIANSAI-REPORT.md`、`out/arena-debug/fixes.patch`
++- `out/arena-debug/regress_pre_continue2fix.csv` — **修复前的失败态回归结果**（5 项 FAIL 的证据）
++- 根目录下另有上一轮中断会话留下的副本（`AFDX_top_synth.ys`、`DIANSAI-REPORT.md`、
++  `fixes.patch`、`当前进度_20260923.md`、4 个 `tb_*.v`），本轮未删除，原样保留。
++
++> 注意：`backup/continue2_20250925/rtl/top/AFDX_top.v` 是**上一轮 BRAM 改造之后、本轮修复之前**
++> 的状态（含 6 个 `bram_1w1r`）。BRAM 改造**之前**的 RTL 在
++> `backup/continue_20250925/session_20260925_0432/rtl/`（含 9 处 `rx_cfg_mem`、0 个 `bram_1w1r`）。
++> 两个基线分别对应下文第 16 步生成的两份补丁。
++
++## 2. RTL 修复
++
++通过 MCP `apply_patch` 编辑 `rtl/top/AFDX_top.v`（+10/-4，`host_rdata` mux 补回 `rxc_rd_d` 分支）。
++
++- 改前 sha256：见 `backup/continue2_20250925/` 同目录清单
++- 改后 sha256：`F975BDC6BF9B672DE250CF119346BFB2C30A7B3927AA5DF3CF130F47CA95BB6D`
++- 等价补丁：`out/arena-debug/fixes.patch`（本轮）与 `continue2/continue2_full_rtl.patch`（含上一轮 BRAM 改造的完整 RTL 差异）
++
++## 3. 定向回归（先于全量，快速证伪）
++
++```powershell
++Set-Location C:\Workspace\diansai\sim
++powershell -NoProfile -ExecutionPolicy Bypass -File .\run_regress.ps1 -Tests T01,T08b,T08c,T08f,T08fg,T22,T22g,T22a
++# rc=0, elapsed_s=86, "REGRESS SUMMARY: 8/8 pass, wall_s=85.6"
++# 这 8 项覆盖修复前失败的 T01/T08f/T08fg 及其相邻的主机接口/顶层通路用例
++# 日志 out/arena-debug/continue2/sim/fix1_targeted.log
++```
++
++## 4–5. eLinx 顶层综合（**目标 1**）
++
++运行器 `continue2/synth/run_syn.ps1` 固定记录 rc / 耗时 / ERROR 行数 / 成功横幅 / 日志 SHA256。
++被调用的可执行文件：`C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe -s <ys> -l <log>`
++
++```powershell
++Set-Location C:\Workspace\diansai
++# 5-1 generic 流程（沿用原 .ys，未改）
++powershell -NoProfile -ExecutionPolicy Bypass -File out/arena-debug/continue2/synth/run_syn.ps1 `
++  -Ys elinx/prj/AFDX_top_synth.ys -Name top_after_rxcfg_bram -TimeoutS 900
++# -> exit_code=0 elapsed_s=177 error_lines=0 success_banner=1
++#    log_sha256=08AE03026CAAACBEBE039B53429D74D2FA33F5F6C20368D24B227B88D85819C9
++
++# 5-2 器件级 BRAM 流程（本轮新建 .ys，映射到 altsyncram 并导出网表）
++powershell -NoProfile -ExecutionPolicy Bypass -File out/arena-debug/continue2/synth/run_syn.ps1 `
++  -Ys elinx/prj/AFDX_top_synth_bram.ys -Name top_bram -TimeoutS 900
++# -> exit_code=0 elapsed_s=130 error_lines=0 success_banner=1
++#    log_sha256=EDC7AF03BE0B7D5C694BB32C46E613DF693A360C2568AE0F465922B86803B3C9
++#    网表 out/arena-debug/continue2/synth/AFDX_top_bram_netlist.v = 49,126,317 B
++```
++
++## 6–10. Quartus / TimeQuest（**目标 2**）
++
++后端可执行文件目录：`C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/`（Quartus II 13.0.1 64-Bit）。
++**所有多语句 Tcl 必须写成 `.tcl` 文件用 `-t` 调用**：`quartus_sh --tcl_eval` 只接受单条简单命令。
++
++```powershell
++Set-Location C:\Workspace\diansai
++$Q = "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin"
++
++# 6 列出该安装实际支持的器件（确认 Stratix IV 可用，避免拍脑袋选型）
++& "$Q/quartus_sh.exe" -t out/arena-debug/continue2/sta/list_parts.tcl > out/arena-debug/continue2/sta/part_list.txt
++
++# 7 建 revision：EP4SGX230HF35C2 / TOP=AFDX_top / 24 个 VERILOG_FILE / SDC_FILE
++Set-Location C:\Workspace\diansai\elinx\prj\quartus
++& "$Q/quartus_sh.exe" -t mk_project.tcl            # rc=0
++
++# 8 Analysis & Synthesis
++& "$Q/quartus_map.exe" AFDX_top -c AFDX_top        # rc=0, Elapsed 00:12:10, CPU 00:21:56
++
++# 9 post-map 时序分析（setup/hold/fmax/clocks/sdc/unconstrained 报告）
++& "$Q/quartus_sta.exe" -t sta_post_map.tcl         # rc=0, 57 s
++
++# 10 摘要 + 关键路径明细
++& "$Q/quartus_sta.exe" -t sta_summary.tcl          # rc=0, 118 s
++```
++
++### 9/10 一共跑了三轮，前两轮作废——必须照抄的教训
++
++```powershell
++# 第 1 轮：.qsf 里写了 SDC_FILE，但 elinx/sdc/AFDX_top.sdc 文件根本不在磁盘上。
++#          Quartus 不报错，静默使用默认 1 ns 时钟；rc=0，数字全错。
++#          发现方式：post_map_sdc.rpt 里 create_clock 周期是 1.000 而不是 8.000。
++#          作废报告已归档：out/arena-debug/continue2/sta/default_1ns_no_sdc/（9 个文件）
++
++# 第 2 轮：补出 .sdc，但沿用 .edc 的 Synopsys 写法 ->
++#          "set_clock_uncertainty 0.45 [get_clocks clk]" 被 TimeQuest 拒绝，
++#          Critical Warning (332008) + Error (23031)，rc=3。
++
++# 第 3 轮（有效）：改成 Quartus 语法后 rc=0
++#   create_clock -name clk -period 8.000 [get_ports clk]
++#   set_clock_uncertainty -setup -from [get_clocks clk] -to [get_clocks clk] 0.45
++#   set_clock_uncertainty -hold  -from [get_clocks clk] -to [get_clocks clk] 0.45
++#   set_false_path -from [get_ports pps_in]
++# 注：set_clock_transition 是 Synopsys DC 命令，TimeQuest 无对应，只保留在 .edc。
++
++# 验收任何 TimeQuest 结果前，先执行这一条自检：
++Select-String out/arena-debug/continue2/sta/post_map_sdc.rpt -Pattern "create_clock"
++# 必须看到 period = 8.000，否则所有 slack 数字无效。
++```
++
++> `quartus_fit`（布局布线）**本轮未执行**，因此所有时序数字都是 **post-map 乐观上界**，不是 sign-off。
++
++## 11. 全量功能回归（改造后 RTL）
++
++```powershell
++Set-Location C:\Workspace\diansai
++powershell -NoProfile -ExecutionPolicy Bypass -File sim/run_regress.ps1
++# rc=0, 335 s, compile 0 error, 50/50 PASS
++# sim/out/regress.csv sha256=367DF048C236D38AA710E5A736FF72D46FA84596AFA28B7D7CC90B3A96AEE07A
++```
++
++## 12–13. 覆盖率（**目标 3**）
++
++```powershell
++Set-Location C:\Workspace\diansai
++# 12 在新 RTL 上重采 50 个用例（每例一个 UCDB）；不含 merge
++powershell -NoProfile -ExecutionPolicy Bypass -File out/arena-debug/continue2/coverage/run_full_cov.ps1
++# rc=0, 378 s, 生成 50 个 *.ucdb
++
++# 13 合并 + 摘要（上一轮缺失的一步）
++Set-Location C:\Workspace\diansai\out\arena-debug\continue2\coverage
++$u = (Get-ChildItem *.ucdb | Where-Object { $_.Name -ne "full50.ucdb" }).Name
++& C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe merge -out full50.ucdb @u   # rc=0
++& C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe report -summary full50.ucdb > merged_summary.txt  # rc=0
++# -> 1440 instances / branches 36788-58849 62.51% / statements 65555-89642 73.12% / total 67.82%
++```
++
++## 14–15. 门禁（串行，Questa 与 eLinx 不并行）
++
++```powershell
++Set-Location C:\Workspace\diansai
++powershell -NoProfile -ExecutionPolicy Bypass -File ./tools_lint.ps1   # rc=0 -> "LINT GATE: PASS (all gates 0 %Error)"
++python tools/run_all.py --strict                                       # rc=0 -> 5/5
++```
++
++## 16–17. 补丁与校验清单
++
++```powershell
++Set-Location C:\Workspace\diansai
++powershell -NoProfile -ExecutionPolicy Bypass -File out/arena-debug/continue2/make_fixes_patch.ps1
++# -> out/arena-debug/fixes.patch                      （本轮改动，基线 backup/continue2_20250925）
++# -> out/arena-debug/continue2/continue2_full_rtl.patch（完整 RTL 改造，基线 backup/continue_20250925/session_20260925_0432）
++# 两份补丁均经过 git apply 回放 + 与目标树逐字节比对（rc 记录在 continue2/patch_verify.log）
++
++powershell -NoProfile -ExecutionPolicy Bypass -File out/arena-debug/continue2/make_sha256.ps1
++# -> out/arena-debug/continue2/SHA256SUMS.txt
++```
++
++## 附：本轮踩过的工具坑（供复现者避让）
++
++1. `quartus_sh --tcl_eval` 不支持 `foreach`/多语句 → 一律 `.tcl` 文件 + `-t`。
++2. TimeQuest `get_timing_paths -less_than_slack 1e9` 是非法参数，会让整个脚本 rc=3；
++   改用 `get_timing_paths -setup -npaths N` + `foreach_in_collection` + `get_path_info -slack`。
++3. 上一轮 `create_timing_netlist` 报 `Can't find active revision`，根因是**没有 Quartus 工程**，
++   不是工具缺陷；建出 revision 后即可。
++4. PowerShell 的 `>` 会把输出重编码成 UTF-16；生成二进制/混合编码文本（如补丁）必须
++   用 `cmd /c "... > file"` 或 `[IO.File]::WriteAllBytes`。
++5. `git apply` 在仓库子目录里运行时会**静默跳过**该子目录之外的补丁路径，
++   校验目录必须放到仓库之外（本脚本用 `$env:TEMP`），否则校验会假通过。
++6. 本仓库 `doc/*.md` 混合 UTF-8（新增段）与历史 GBK 字节，任何按 UTF-8 的文本
++   往返都会损坏它们；补丁生成走字节级（ISO-8859-1 无损映射）处理。
++7. `.ps1` 脚本保持纯 ASCII：PS 5.1 会把无 BOM 的 UTF-8 脚本按 GBK 解析。
+diff --git a/after/out/arena-debug/continue2/COVERAGE.md b/out/arena-debug/continue2/COVERAGE.md
+new file mode 100644
+index 0000000..a0abc64
+--- /dev/null
++++ b/out/arena-debug/continue2/COVERAGE.md
+@@ -0,0 +1,40 @@
++# 覆盖率 —— continue2（2026-09-25）：在**改造后**的 RTL 上重新生成
++
++## 1. 为什么必须重跑（而不是引用旧数字）
++
++旧 50 UCDB 在 `out/arena-debug/continue/session_20260925_0432/coverage/`，
++是在 `rx_cfg_mem` 还是"组合读大数组"的 RTL 上采集的。本轮 RTL 发生了结构性变化
++（6 个 `bram_1w1r` 副本 + PMEM lane 拆分 + `host_rdata` 选择器修复），
++旧 UCDB 的实例数与分母已经失效。**引用旧数字会构成失真**，因此本轮重跑。
++
++## 2. 本轮结果（全部 rc=0）
++
++| 项目 | 值 |
++|---|---|
++| 覆盖率回归 | `out/arena-debug/continue2/coverage/run_full_cov.ps1`，**rc=0**，378 s |
++| 用例 | `regress.csv` 50 行，**PASS=50 / FAIL=0** |
++| UCDB | **50 个**（每用例一个，`coverage save -onexit`） |
++| 合并 | `vcover merge -out full50.ucdb <50 个>` → **rc=0** |
++| 报告 | `vcover report -summary full50.ucdb` → **rc=0**，`Errors: 0, Warnings: 0` |
++
++```
++Coverage Report Totals BY INSTANCES: Number of Instances 1440
++    Branches      58849 bins  36788 hits  22061 misses   62.51%
++    Statements    89642 bins  65555 hits  24087 misses   73.12%
++Total coverage (filtered view): 67.82%
++```
++
++对照上一轮（旧 RTL）：1083 instances / 62.14% / 73.62% / 67.88%。
++实例数从 1083 升到 1440，主要来自新增的 6 个 `bram_1w1r` 与 4 个 PMEM lane 实例。
++
++## 3. 边界（必须随数字一起引用）
++
++- **含 TB 实例**：1440 个 instance 里包含 testbench 层次，**不是 RTL-only 覆盖率**。
++  分子分母都被 TB 稀释，**不得**与任何 RTL-only 指标或旧四例数字直接比较。
++- 只有 **分支（branch）+ 语句（statement）** 两种代码覆盖率。
++  **没有**条件/表达式/FSM/toggle 覆盖，**没有**功能覆盖率（无 covergroup/covpoint），
++  因此 **67.82% 不是"功能覆盖率"，也不是任何认证指标**。
++- 未做覆盖率排除（exclusion）文件，未做 DO-254/ARINC 664P7 结构覆盖分析。
++- 原始件：`coverage/full50.ucdb`、`coverage/*.ucdb`（50）、`coverage/vcover_merge.log`、
++  `coverage/vcover_rc.txt`、`coverage/merged_summary.txt`、`coverage/regress.csv`、
++  `coverage/run_full_cov_console.log`。
+diff --git a/after/out/arena-debug/continue2/MANAGEMENT-SCOPE.md b/out/arena-debug/continue2/MANAGEMENT-SCOPE.md
+new file mode 100644
+index 0000000..8599cff
+--- /dev/null
++++ b/out/arena-debug/continue2/MANAGEMENT-SCOPE.md
+@@ -0,0 +1,47 @@
++# 管理面范围裁定 —— continue2（2026-09-25）
++
++## 1. 客观现状（本轮实测，非转述）
++
++| 文件 | 行数 | 内容 | 在 `AFDX_top.v` 中被例化？ |
++|---|---:|---|---|
++| `rtl/mgmt/snmp_lite.v` | 7 | `module snmp_lite; // TODO endmodule`，**无端口** | **否**（grep 命中 0） |
++| `rtl/mgmt/a615a_tftp.v` | 6 | 同上，仅壳 | **否** |
++| `rtl/mgmt/rtc_sync.v` | 6 | 同上，仅壳 | **否** |
++| `rtl/top/stats_regs.v` | 7 | 同上，仅壳（文件**存在**，旧报告"缺失"的说法此前已纠正） | **否** |
++
++`sim/tests.manifest`（50 项）中 **T14 / T15 / T16 各 0 条**。
++`AFDX_top.v` 里对 `snmp_lite|a615a_tftp|rtc_sync|stats_regs` 的引用数为 **0**。
++
++## 2. 与设计书的关系
++
++- 《AFDX端系统_总体设计书》§7.16（SNMP 精简代理）、§9（统计寄存器页 0x0100~0x01FF）、
++  ARINC 615A TFTP、RTC 同步都**仍是设计书要求项**，四个文件自己的注释也写明
++  "第 0 周骨架 —— 仅模块壳，未例化（§13 第 4/5 周展开）"。
++- 本轮**没有**收到书面的需求豁免/范围裁剪文件。
++
++## 3. 裁定：`OPEN_SPEC_GAP`（不是 DONE，也不是 OUT_OF_SCOPE）
++
++**不能标 DONE**：四个模块是无端口空壳，未例化、无 TB、无 manifest 用例，
++顶层地址页 0x0100~0x01FF 的统计语义由 `AFDX_top` 内的少量计数器临时承担，不等于 §9 的统计页。
++
++**不能标 OUT_OF_SCOPE**：没有任何书面豁免；设计书要求仍然有效。
++
++因此本轮的正式状态是 **`OPEN_SPEC_GAP`：整机目标未完成，缺口已登记、未关闭**。
++本轮**不**把它计入交付，也**不**用 50/50 功能回归或覆盖率去冲抵它。
++
++## 4. 为什么本轮没有实现它们（诚实说明，不是借口）
++
++本轮优先级由 `MISSION-CONTINUE2.md` 指定为：目标 1 顶层综合 > 目标 2 STA > 目标 3 覆盖率/管理面。
++目标 1、2 都从 BLOCKED 推进到了有实测结论（综合 rc=0；STA 拿到 Fmax 42.56 MHz 的反证），
++并且**发现并修复了一个会让整机主机接口读全 0 的真实回归缺陷**。
++在 125 MHz 时序已证明不收敛的前提下，先补 T14–T16 协议只会增加不收敛的逻辑量，
++工程上应先做时序收敛与架构分银行，再展开管理协议。该判断已写入 `doc/后续计划.md`。
++
++## 5. 关闭该缺口的最小可验收定义（给下一轮）
++
++1. `stats_regs`：按 §9 定义端口，接 `AFDX_top` 0x0100~0x01FF 页，TB `T14` 校验
++   帧/字节/丢弃计数与直方图分桶，含复位清零与读清语义。
++2. `snmp_lite`：GET/GETNEXT/SET + STATS_BLOCK 只读组，走 `mgmt_sap_rx` 的 SAP 描述符通路，
++   TB `T15` 用真实 SAP 帧驱动，校验 PDU 编解码与错误码。
++3. `a615a_tftp` + `rtc_sync`：TFTP RRQ/WRQ/DATA/ACK 状态机与 PPS 对时，TB `T16`。
++4. 三条用例进 `sim/tests.manifest`（50 → 53），全量回归与 lint/docgate 同时通过。
+diff --git a/after/out/arena-debug/continue2/STA.md b/out/arena-debug/continue2/STA.md
+new file mode 100644
+index 0000000..878dbfe
+--- /dev/null
++++ b/out/arena-debug/continue2/STA.md
+@@ -0,0 +1,98 @@
++# STA —— continue2（2026-09-25）：从 BLOCKED 变成有实测数据，且**明确不收敛**
++
++## 1. 前置条件如何被解除
++
++旧状态 `BLOCKED_NO_REVISION_OR_TIMING_NETLIST` 的直接原因是
++`create_timing_netlist` 报 `Can't find active revision` —— 本机**从来没有 Quartus 工程**。
++本轮查明：eLinx3.0 捆绑了**完整 Quartus II 13.0.1 后端**
++（`bin/Passkey/bin/` 下有 `quartus_sh/map/fit/sta/asm/cdb/...`），
++已安装器件族 **Stratix IV 与 Stratix**（`common/devinfo/`、`sta/part_list.txt` 共 256 个型号）。
++于是本轮**真的建了工程**，而不是继续写 BLOCKED。
++
++- 工程：`elinx/prj/quartus/AFDX_top.qpf` / `AFDX_top.qsf`，revision **AFDX_top**
++- 器件：**EP4SGX230HF35C2**（取自本机实际型号清单）
++- 约束：`elinx/sdc/AFDX_top.sdc`（本轮新增）。**注意它与 `AFDX_top.edc` 并非逐字一致**：
++  Quartus TimeQuest 不接受 Synopsys 写法 `set_clock_uncertainty <值> <对象>`，
++  必须写成 `-setup/-hold -from ... -to ... <值>`；`set_clock_transition` 在 TimeQuest
++  中没有对应命令，只保留在 `.edc` 里供 eLinx 流程使用。两处差异已写进 `.sdc` 头部注释。
++- 建工程脚本：`elinx/prj/quartus/mk_project.tcl`（rc=0）
++
++## 2. Analysis & Synthesis（quartus_map）
++
++`quartus_map AFDX_top -c AFDX_top` → **rc=0**，12 分 10 秒，**0 errors / 66 warnings**：
++
++| 指标 | 值 |
++|---|---:|
++| Implemented device resources | 140,534 |
++| Implemented logic cells | 139,607 |
++| Implemented RAM segments | 731 |
++| Implemented input pins | 73 |
++| Implemented output pins | 123 |
++
++（`Warning (21074)`：`pps_in` 不驱动任何逻辑——与 `.sdc` 里 `set_false_path -from [get_ports pps_in]` 一致。）
++
++## 3. 一次必须记录的事故：约束文件缺失 → 默认 1 ns 时钟 → 数字全错
++
++本轮 STA **跑了两遍**，第一遍的数字是**错的**，此处完整披露：
++
++- 第一遍运行时，`.qsf` 里已写 `SDC_FILE "C:/Workspace/diansai/elinx/sdc/AFDX_top.sdc"`，
++  但该文件**实际并不存在于磁盘上**（创建步骤此前失败且未被发现）。
++- Quartus **不会因此报错**：`read_sdc` 找不到文件就静默回退到**默认 1 ns（1 GHz）时钟**。
++  `post_map_sdc.rpt` 里写着 `create_clock ; clk ; 1.000`，是唯一能发现问题的地方。
++- 后果：第一遍得到的 `WNS -22.048` / `TNS -1,103,482.274` / `Fmax 43.39 MHz`
++  全部是**对着 1 GHz 时钟**算出来的，不能用。
++- 处置：补齐 `.sdc` → 第二遍 `read_sdc` 又因 Quartus/Synopsys 语法差异 **rc=3** 报错
++  （见 §1 说明）→ 改正语法后第三次运行 rc=0，才得到下表数字。
++- 第一遍的错误报告**没有删除**，原样归档在 `sta/default_1ns_no_sdc/`（9 个文件）作为反例。
++
++**经验**：Quartus 的 SDC 缺失是静默失败。任何 TimeQuest 结论都必须先核对
++`report_sdc` 输出里的 `create_clock` 周期是不是你要的值，再看 slack。
++
++## 4. TimeQuest 实测结果（post-map，8.000 ns 约束真实生效）
++
++`quartus_sta -t sta_post_map.tcl` / `sta_summary.tcl`，rc=0，Slow 900mV 85C 模型：
++
++| 项目 | 实测值 | 要求 | 判定 |
++|---|---:|---:|---|
++| **Fmax（clk）** | **42.56 MHz**（Restricted 42.56） | 125 MHz | **不满足（差 2.94 倍）** |
++| Setup WNS | **-15.498 ns** | ≥ 0 | **违规** |
++| Setup End-Point TNS | **-567,451.740 ns** | — | 大面积违规 |
++| Hold WNS | -0.128 ns | ≥ 0 | 违规（post-map 无布线，仅供参考） |
++| Hold End-Point TNS | -35.706 ns | — | — |
++| 约束时钟 | clk **8.000 ns**（波形 0.000/4.000），uncertainty 0.45（setup+hold 各一条） | — | 未约束时钟 0、非法时钟 0 |
++
++`report_sdc` 已确认约束来自 `AFDX_top.sdc:27/30/34`，周期 8.000 —— 与事故那轮的 1.000 形成对照。
++
++**关键路径（20 条最差路径同值 -15.498）**：
++
++```
++From : rst_sync:u_rstsync|r[2]
++To   : rx_port_buf:u_rxpb|p_cnt~508 （以及 ~28/~60/.../~500 等 256 端口计数器组）
++Data Arrival 28.644 ns / Data Required 13.146 ns / Data Delay 22.975 ns
++Clock Skew -0.013 ns / Clock Uncertainty -0.450 ns / Relationship 8.000 ns
++```
++
++即**同步复位 `rst_sync` 扇出到 `rx_port_buf` 256 端口计数器组**的组合路径，单条 22.975 ns。
++注意 `Data Delay` 与时钟周期无关，所以事故那轮和本轮的 22.975 ns 是同一条物理路径——
++变的只是它被拿去和 1 ns 还是 8 ns 比较。完整明细：`sta/post_map_setup.rpt`（153,236 B，20 条 full_path）。
++
++## 5. 边界（这些话不能说）
++
++- 这是 **post-map（综合后、布局布线前）** 分析：**没有布线延时**。
++  因此 setup 结果是**乐观上界**——真实布线后只会更差；hold 结论在此阶段**无参考价值**。
++  **不是时序签核（sign-off）**，没跑 `quartus_fit`。
++- **没有板级引脚分配与实测 IO 预算**，因此 `.sdc` 里**故意不写** `set_input_delay/set_output_delay`。
++  未约束路径：输入端口 71 个、输出端口 120 个（`sta/post_map_unconstrained.rpt`）。
++  **结论只对寄存器到寄存器的内部路径有效。**
++- 器件 EP4SGX230HF35C2 是**本机可用型号中的选择**，不是项目指定的目标器件；
++  139,607 logic cells 是综合估计，**未经 Fit 验证能否装下**。
++
++## 6. 由此产生的、必须承认的新结论
++
++> **整机在 125 MHz 下时序不收敛，且差距很大：实测 Fmax 42.56 MHz，需要约 2.94 倍改善。**
++> 这不是"未验证"，是"已验证为不满足"。之前所有"周期级功能仿真 50/50 PASS"
++> **不能**推出时序收敛；本轮首次拿到可审计的反证。
++
++下一步的真实工程动作（按收益排序）见 `../../doc/后续计划.md`：
++复位扇出流水化/分级、`rx_port_buf` 256 端口计数器组分银行、
++大位宽比较链（`$eq` 19,019 个）打拍，然后再做 Fit + post-fit STA。
+diff --git a/after/out/arena-debug/continue2/SYNTH.md b/out/arena-debug/continue2/SYNTH.md
+new file mode 100644
+index 0000000..35c6048
+--- /dev/null
++++ b/out/arena-debug/continue2/SYNTH.md
+@@ -0,0 +1,64 @@
++# 顶层 eLinx 综合 —— continue2（2026-09-25）从 BLOCKED 到 rc=0
++
++## 1. 结论
++
++| 流程 | 脚本 | exit_code | 耗时 | `^ERROR` | `^Warning` | 成功横幅 | 结果 |
++|---|---|---:|---:|---:|---:|---|---|
++| 通用（memory_map 全展开） | `elinx/prj/AFDX_top_synth.ys` | **0** | 177 s | 0 | 0 | `Yosys execute success!` | 473,423 cells / 83,219 `$dff` |
++| 器件 BRAM 映射 | `elinx/prj/AFDX_top_synth_bram.ys` | **0** | 130 s | 0 | 0 | `Yosys execute success!` | 47,041 cells，含 **439 `altsyncram`** |
++
++两次都是 `hierarchy -top AFDX_top` 的**完整层次**（24 个模块全部实例化，日志无 blackbox/未解析模块），
++不是子模块探针、不是 pre-opt 中间态。原始日志、rc、SHA-256 见本目录 `synth/`。
++
++## 2. 根因（二分定位，可复现）
++
++顶层 `OPT_MUXTREE / OPT_MERGE: ERROR: bad allocation` 的决定性变量是 **`NUM_RX_VL`**，
++不是 `NUM_PORTS`。三个隔离实验（全部子模块 `blackbox`，只留 `AFDX_top` 自身逻辑与存储）：
++
++| 实验 | 参数 | 结果 | 停在 |
++|---|---|---|---|
++| `synth/iso_top_only` | 默认 `NUM_RX_VL=4096` | **失败** `ERROR: bad allocation`（55 s） | `OPT_MERGE` |
++| `synth/iso_top_rxvl64` | `NUM_RX_VL=64` | **exit_code=0**（29 s） | 正常结束 |
++| `synth/iso_top_ports16` | `NUM_PORTS=16`，RX_VL 不变 | 超时被杀（300 s） | `OPT_MUXTREE` |
++
++被压垮的结构是顶层 `reg [31:0] rx_cfg_mem [0:2*NUM_RX_VL-1]`（8192×32 bit）
++带 **6 个组合读口**（FLT w0/w1、RM w0、解析 w0、主机 w0/w1）。旧 Yosys 分支在
++32 位进程里把它展开成多路选择器树，内存耗尽。
++
++## 3. 已采用的修复（功能等价，未削功能/未缩地址/未屏蔽错误）
++
++1. `rtl/common/bram_sdp.v` 新增 `bram_1w1r`（1 写口 + 1 同步读口，`RD_NEG` 选择读口时钟沿）。
++2. `rtl/top/AFDX_top.v` 把 `rx_cfg_mem` 换成 **6 个 `bram_1w1r` 副本**，每个消费者独占一个读口：
++   `u_rxcfg_flt0/flt1/rm0/prs0`（`RD_NEG=1`，读地址是上升沿寄存的级输出，下降沿采样，
++   与原组合读**逐拍等价、无额外气泡**，代价是读出到消费寄存器为半周期路径）；
++   `u_rxcfg_h0/h1`（`RD_NEG=0`，主机读在 ACK 拍直出）。写口全部同源，扫描优先级不变。
++3. `rtl/common/bram_sdp.v` 的 `BYTE_EN=1`（PMEM）按 lane 拆成 4 个 8 bit 整字写存储体，
++   因为"同一 `$mem` 上按 lane 部分写"不被 `memory_bram` 接受，会退化成 8192×32 触发器。
++
++**本轮修复的真实缺陷**：上一轮把 `rdata_r` 在 `rx_hit` 时改成常 0 并新增 `rxc_rd_d/rxc_host_rdata`，
++但 **`assign host_rdata` 选择器漏接了 `rxc_host_rdata`**，导致所有 RX_VL_CFG 主机回读恒为 0。
++这不是工具问题而是接线遗漏，现场证据是 `T01 [err] RX CFG readback 00000000`、
++`T08f/T08fg errors=8191`、`T22/T22g [err] RX_VL_CFG readback`。修复见 `fixes.patch`。
++
++## 4. 存储是否真的进了 BRAM
++
++`memory_bram -rules .../stratix/common/brams.txt` + `techmap .../brams_map.v` 装入
++`$__M4K_ALTSYNCRAM_{DUALPORT,SINGLEPORT,ROM,BIDIRDUALPORT}_FULL`，最终 `stat`：
++
++- `bram_1w1r W=32 D=4096 RD_NEG=0`：35 cells = **32 `altsyncram`** + 3 `$mux`（×2 实例）
++- `bram_1w1r W=32 D=4096 RD_NEG=1`：同上（×4 实例）
++- `bram_sdp_core W=8 AW=13 D=8192`：`altsyncram`（×4 lane）
++- 顶层合计 **439 `altsyncram`**，`Number of memories: 0`（已全部映射，无残留 `$mem`）
++
++对照：不做 BRAM 映射时同一 `bram_1w1r` 是 20,659 cells（4,097 `$dff` + 8,194 `$mux`），
++顶层 473,423 cells。**10 倍差距就是"存储落 BRAM"与"存储展开成寄存器"的区别。**
++
++## 5. 边界（不得越界宣称）
++
++- 这是**前端综合**：通用 cell + `altsyncram` 原语。eLinx 这条路径**没有** LUT/ALM 技术映射、
++  没有布局布线、没有器件利用率百分比，因此**不能**说"FPGA 资源占用 X%"。
++- 该 eLinx 分支**没有** `memory_libmap`（`synth/probe_writers.log:351 No such command`），
++  只能用 legacy `memory_bram -rules`。
++- 网表 `synth/AFDX_top_bram_netlist.v`（49,126,317 B）由 `write_verilog -noattr` 导出，
++  是 RTLIL 级网表，**未**做等价性检查（LEC），不能当作签核网表。
++- 器件级资源/时序请看 `STA.md`（Quartus 真实工程），不要用本文件的 cell 数替代。
+diff --git a/after/out/arena-debug/continue2/coverage/compile_full_cov.tcl b/out/arena-debug/continue2/coverage/compile_full_cov.tcl
+new file mode 100644
+index 0000000..fef09a2
+--- /dev/null
++++ b/out/arena-debug/continue2/coverage/compile_full_cov.tcl
+@@ -0,0 +1,17 @@
++# =====================================================================
++# compile.tcl - fresh work lib + vlog all RTL & TB (called by run_regress.ps1)
++# File list comes from env VLOG_SRC (space separated, forward slashes,
++# relative to sim/). Kept as a file so the vsim cmdline stays quote-free.
++# =====================================================================
++if {![info exists env(VLOG_SRC)]} {
++  puts "ERROR: VLOG_SRC env not set"
++  quit -f -code 1
++}
++file delete -force work
++vlib work
++if {[catch {vlog -sv +cover=sb +notimingcheck {*}$env(VLOG_SRC)} msg]} {
++  puts "VLOG-ERROR: $msg"
++  quit -f -code 1
++}
++quit -f
++
+diff --git a/after/out/arena-debug/continue2/coverage/run_full_cov.ps1 b/out/arena-debug/continue2/coverage/run_full_cov.ps1
+new file mode 100644
+index 0000000..9072c47
+--- /dev/null
++++ b/out/arena-debug/continue2/coverage/run_full_cov.ps1
+@@ -0,0 +1,229 @@
++# =====================================================================
++# run_regress.ps1 - regression runner (design doc 12.4, week-1 skeleton)
++# Usage (from sim/):  powershell -ExecutionPolicy Bypass -File .\run_regress.ps1
++#   optional:  -Tests T00,T01   (subset)   -KeepWork  (skip recompile)
++# Reads tests.manifest, compiles once, runs each TB in its own vsim
++# session (600 s cap per test), writes ../out/arena-debug/continue2/coverage/regress.csv and per-test logs
++# ../out/arena-debug/continue2/coverage/<id>_console.txt. Exit 0 only if every test PASSes.
++# NOTE (week0 pitfall #5): whole-regression wall time can exceed the
++# MCP-bridge ~120 s foreground limit - launch detached and poll the log:
++#   Start-Process powershell -ArgumentList '-ExecutionPolicy','Bypass',
++#     '-File','C:\Workspace\diansai\sim\run_regress.ps1' ...
++# ASCII-only on purpose (week0 pitfall #3: PS 5.1 parses BOM-less UTF-8
++# .ps1 as GBK, stray bytes can silently break script behaviour).
++# =====================================================================
++param(
++  [string[]]$Tests = @(),
++  [switch]$KeepWork,
++  [switch]$Acc          # pass -voptargs=+acc so $dumpvars VCDs have
++                        # content (week-0 pitfall #11); costs sim time
++)
++$ErrorActionPreference = 'Stop'
++
++# --- locate vsim (same candidate list as run_t01.ps1) ---
++$cands = @(
++  "C:\altera_pro\26.1.1\questa_fse\win64\vsim.exe",
++  "C:\altera_pro\26.1.1\modelsim_ase\win32aloem\vsim.exe",
++  "C:\altera_pro\26.1.1\modelsim_ae\win32aloem\vsim.exe"
++)
++$vsim = $null
++foreach ($c in $cands) { if (Test-Path $c) { $vsim = $c; break } }
++if (-not $vsim) {
++  $f = Get-ChildItem "C:\altera_pro" -Recurse -Filter "vsim.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
++  if ($f) { $vsim = $f.FullName }
++}
++if (-not $vsim) { Write-Output "ERROR: vsim.exe not found"; exit 1 }
++
++# --- license env (Starter SALT keyring, see run_t01.ps1) ---
++$licUser = [Environment]::GetEnvironmentVariable('SALT_LICENSE_SERVER','User')
++if (-not $env:SALT_LICENSE_SERVER -and $licUser) { $env:SALT_LICENSE_SERVER = $licUser }
++if (-not $env:SALT_LICENSE_SERVER) { Write-Output "ERROR: SALT_LICENSE_SERVER not set"; exit 1 }
++
++# --- kill leftovers from a previous killed run (week0 pitfall #5) ---
++foreach ($pn in @('vsim','vish','vlm','vlog','vcom','vopt')) {
++  Get-Process -Name $pn -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
++}
++
++$sim = 'C:/Workspace/diansai/sim'
++Set-Location $sim
++New-Item -ItemType Directory -Force -Path ../out/arena-debug/continue2/coverage | Out-Null
++
++# --- manifest ---
++$manifest = @()
++foreach ($line in (Get-Content (Join-Path $sim 'tests.manifest') -Encoding UTF8)) {
++  $t = "$line".Trim()
++  if ($t -eq '' -or $t.StartsWith('#')) { continue }
++  $p = $t -split '\s+'
++  $cfg = if ($p.Count -gt 2) { $p[2] } else { 'default' }
++  $manifest += [pscustomobject]@{ Id = $p[0]; Tb = $p[1]; Cfg = $cfg }
++}
++# powershell -File passes "-Tests T00,T01" as one string (not a string[]).
++# Accept both that documented spelling and -Command's array spelling.
++if ($Tests.Count -gt 0) {
++  $selected = @($Tests | ForEach-Object { $_ -split ',' } |
++                ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
++  $manifest = @($manifest | Where-Object { $selected -contains $_.Id })
++}
++if ($manifest.Count -eq 0) { Write-Output "ERROR: no tests selected"; exit 1 }
++if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -gt 0) {
++  # Generate the oracle before any T09 session; a failed model is a failed run.
++  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t09_vectors.py')
++  if ($LASTEXITCODE -ne 0) {
++    Write-Output "ERROR: T09 Python golden vector generation failed"
++    exit 1
++  }
++}
++if (@($manifest | Where-Object { $_.Id -like 'T08*' -or $_.Id -like 'T11*' -or $_.Id -like 'T17*' -or $_.Id -like 'T21*' -or $_.Id -like 'T22*' -or $_.Id -like 'T23*' }).Count -gt 0) {
++  # T08/T11/T17/T21/T22/T23 share independently FCS-checked real-frame golden vectors.
++  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t08a_vectors.py')
++  if ($LASTEXITCODE -ne 0) {
++    Write-Output "ERROR: T08 RX Python golden vector generation failed"
++    exit 1
++  }
++}
++if (@($manifest | Where-Object { $_.Id -like 'T12*' -or $_.Id -like 'T08f*' }).Count -gt 0) {
++  # T12 and T08f need both tables and independent key lists; offline rejection
++  # must fail the regression instead of running against an old partial image.
++  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t12_vectors.py')
++  if ($LASTEXITCODE -ne 0) {
++    Write-Output "ERROR: T12 offline hash image generation failed"
++    exit 1
++  }
++}
++if ($Acc) { $env:VSIM_ACC = '1' } else { $env:VSIM_ACC = '0' }
++
++# --- vsim batch helper: cmd-level redirect (byte-transparent, pitfall #4),
++#     detached so the 600 s cap is enforced by us, not the bridge ---
++function Run-Vsim {
++  param([string]$Do, [string]$Log, [int]$TimeoutSec = 600)
++  Remove-Item $Log -Force -ErrorAction SilentlyContinue
++  # cmd /c quote-stripping pitfall: with several quotes in the string,
++  # cmd strips the FIRST and LAST quote and breaks the exe path.
++  # Wrapping the whole tail in an extra outer quote pair preserves them.
++  # Start-Process -PassThru on PS 5.1 can leave ExitCode null even after
++  # WaitForExit; use System.Diagnostics.Process directly instead.
++  $cmdline = '/c ""' + $vsim + '" -c -do "' + $Do + '" > ' + $Log + ' 2>&1"'
++  $psi = New-Object System.Diagnostics.ProcessStartInfo
++  $psi.FileName = 'cmd.exe'
++  $psi.Arguments = $cmdline
++  $psi.WorkingDirectory = $sim
++  $psi.UseShellExecute = $false
++  $p = [System.Diagnostics.Process]::Start($psi)
++  if (-not $p.WaitForExit($TimeoutSec * 1000)) {
++    taskkill /PID $p.Id /T /F 2>$null | Out-Null
++    foreach ($pn in @('vsim','vish','vlm')) {
++      Get-Process -Name $pn -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
++    }
++    return -1
++  }
++  return $p.ExitCode
++}
++
++$t0 = [Diagnostics.Stopwatch]::StartNew()
++
++# --- compile once (fresh work lib) ---
++if (-not $KeepWork) {
++  $rtl = @(
++    '../rtl/common/rst_sync.v', '../rtl/common/timebase.v',
++    '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
++    '../rtl/common/bram_sdp.v',  '../rtl/top/init_sweep.v', '../rtl/top/AFDX_top.v',
++    '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
++    '../rtl/tx/tx_frame_builder.v', '../rtl/tx/tx_vl_scheduler.v',
++    '../rtl/tx/tx_rm.v',            '../rtl/tx/tx_pace.v',
++    '../rtl/tx/mac_tx_if.v',   '../rtl/rx/mac_rx_if.v',
++    '../rtl/rx/rx_block_pool.v', '../rtl/rx/rx_pmem_queue.v',
++    '../rtl/rx/rx_ic.v', '../rtl/rx/rx_vl_lookup.v', '../rtl/rx/rx_flt.v',
++    '../rtl/rx/rx_rm.v', '../rtl/rx/rx_ip_udp_parse.v', '../rtl/rx/rx_port_buf.v',
++    '../rtl/mgmt/mgmt_sap_rx.v'
++  )
++  # TB file = tb/<tb>.v; a TB whose file hosts several top modules (e.g.
++  # tb_t04g_tx_chain lives in tb_t04_tx_chain.v) is mapped here.
++  $tbfile = @{ 'tb_t04g_tx_chain' = 'tb_t04_tx_chain';
++               'tb_t08ag_rx_ingress' = 'tb_t08a_rx_ingress';
++               'tb_t08bg_top_rx' = 'tb_t08b_top_rx';
++               'tb_t08cg_host_arb' = 'tb_t08c_host_arb';
++               'tb_t08dg_top_flt' = 'tb_t08d_top_flt';
++               'tb_t08eg_top_ic' = 'tb_t08e_top_ic';
++               'tb_t08fg_full_scoreboard' = 'tb_t08f_full_scoreboard';
++               'tb_t05bg_jitter' = 'tb_t05b_jitter';
++               'tb_t13g_latency' = 'tb_t13_latency';
++               'tb_t18g_random_stress' = 'tb_t18_random_stress';
++               'tb_t23g_sap_min' = 'tb_t23_sap_min';
++               'tb_t10g_top_rm' = 'tb_t10_top_rm';
++               'tb_t11g_top_port' = 'tb_t11_top_port';
++               'tb_t11ig_top_int' = 'tb_t11i_top_int';
++               'tb_t17g_min_frame_stress' = 'tb_t17_min_frame_stress';
++               'tb_t21g_block_pool' = 'tb_t21_block_pool';
++               'tb_t22g_top_loopback' = 'tb_t22_top_loopback';
++               'tb_t09s_rx_ic' = 'tb_t09_rx_ic';
++               'tb_t09ps_rx_ic' = 'tb_t09p_rx_ic';
++               'tb_t12c_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12r_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12s_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12h_lookup' = 'tb_t12_rx_lookup';
++               'tb_t12fg_top_lookup' = 'tb_t12f_top_lookup' }
++  $tbs = @(); foreach ($m in $manifest) {
++    $f = if ($tbfile.ContainsKey($m.Tb)) { $tbfile[$m.Tb] } else { $m.Tb }
++    $tbs += ('tb/' + $f + '.v')
++  }
++  $env:VLOG_SRC = (($rtl + ($tbs | Select-Object -Unique)) -join ' ')
++  $sw = [Diagnostics.Stopwatch]::StartNew()
++  $rc = Run-Vsim 'source ../out/arena-debug/continue/session_20260925_0432/compile_full_cov.tcl' '../out/arena-debug/continue2/coverage/compile_console.txt' 300
++  Write-Output ("COMPILE rc=" + $rc + " wall_s=" + [math]::Round($sw.Elapsed.TotalSeconds,1))
++  if ($rc -ne 0) {
++    Write-Output "ERROR: compile session failed; log follows:"
++    Get-Content ../out/arena-debug/continue2/coverage/compile_console.txt -Encoding UTF8 | Write-Output
++    exit 1
++  }
++  # vlog prints "Errors: N, Warnings: M" - parse it (tcl exit code alone
++  # does not catch vlog errors when Questa still exits 0)
++  $errLine = (Select-String -Path ../out/arena-debug/continue2/coverage/compile_console.txt -Pattern 'Errors:\s*(\d+)') |
++             Select-Object -Last 1
++  $nErr = if ($errLine) { [int]$errLine.Matches[0].Groups[1].Value } else { 99 }
++  if ($nErr -ne 0) {
++    Write-Output ("ERROR: vlog reported " + $nErr + " error(s); log follows:")
++    Get-Content ../out/arena-debug/continue2/coverage/compile_console.txt -Encoding UTF8 | Write-Output
++    exit 1
++  }
++  Write-Output "COMPILE OK (0 errors)"
++}
++
++# --- run each test in its own vsim session ---
++$rows = New-Object System.Collections.Generic.List[string]
++$rows.Add('test_id,config,tb,result,max_dev,wall_s,summary')
++$npass = 0
++$idx = 0
++foreach ($m in $manifest) {
++  $idx++
++  $log = '../out/arena-debug/continue2/coverage/' + $m.Id + '_console.txt'
++  $env:TEST_TB = $m.Tb
++  $env:COV_DB = '../out/arena-debug/continue2/coverage/' + $m.Id + '.ucdb'
++  $sw = [Diagnostics.Stopwatch]::StartNew()
++  $rc = Run-Vsim 'source ../out/arena-debug/continue/session_20260925_0432/run_full_cov.tcl' $log 600
++  $wall = [math]::Round($sw.Elapsed.TotalSeconds,1)
++  $verdict = ''
++  if (Test-Path $log) {
++    foreach ($l in (Get-Content $log -Encoding UTF8)) {
++      if ("$l" -match '(PASS|FAIL)') { $verdict = "$l".Trim() }
++    }
++  }
++  $result = 'FAIL'
++  if ($rc -eq 0 -and $verdict -match 'PASS' -and $verdict -notmatch 'FAIL') {
++    $result = 'PASS'; $npass++
++  } elseif ($rc -eq -1) {
++    $verdict = 'TIMEOUT(600s)'
++  } elseif ($verdict -eq '') {
++    $verdict = ('no verdict line, vsim rc=' + $rc)
++  }
++  $summary = $verdict -replace ',', ';'
++  $rows.Add(($m.Id + ',' + $m.Cfg + ',' + $m.Tb + ',' + $result + ',na,' + $wall + ',' + $summary))
++  Write-Output ("[" + $idx + "/" + $manifest.Count + "] " + $m.Id + " " + $m.Tb + " -> " + $result + " (" + $wall + " s) " + $verdict)
++}
++
++[IO.File]::WriteAllLines((Join-Path $sim '../out/arena-debug/continue2/coverage/regress.csv'), $rows)
++Write-Output ("REGRESS SUMMARY: " + $npass + "/" + $manifest.Count + " pass, wall_s=" + [math]::Round($t0.Elapsed.TotalSeconds,1))
++Write-Output "CSV: ../out/arena-debug/continue2/coverage/regress.csv"
++$rows | Write-Output
++if ($npass -ne $manifest.Count) { exit 1 }
++exit 0
++
+diff --git a/after/out/arena-debug/continue2/coverage/run_full_cov.tcl b/out/arena-debug/continue2/coverage/run_full_cov.tcl
+new file mode 100644
+index 0000000..9be1257
+--- /dev/null
++++ b/out/arena-debug/continue2/coverage/run_full_cov.tcl
+@@ -0,0 +1,23 @@
++# =====================================================================
++# run_one.tcl - run a single TB in this vsim session (called by
++# run_regress.ps1; TB module name comes from env TEST_TB).
++# One vsim process per test case = doc 12.4 "independent vsim session".
++# Wave visibility: default vopt optimization strips all signals, so
++# $dumpvars writes a header-only VCD (week-0 pitfall #11, root-caused
++# 2026-09-22). Set env VSIM_ACC=1 to add -voptargs=+acc when you need
++# real waveforms (about 2x sim time).
++# =====================================================================
++onerror { quit -f -code 1 }
++if {![info exists env(TEST_TB)]} {
++  puts "ERROR: TEST_TB env not set"
++  quit -f -code 1
++}
++if {[info exists env(VSIM_ACC)] && $env(VSIM_ACC) == "1"} {
++  vsim -coverage -voptargs=+acc $env(TEST_TB)
++} else {
++  vsim -coverage $env(TEST_TB)
++}
++coverage save -onexit $env(COV_DB)
++run -all
++quit -f
++
+diff --git a/after/out/arena-debug/continue2/extract_cmds.ps1 b/out/arena-debug/continue2/extract_cmds.ps1
+new file mode 100644
+index 0000000..a99e457
+--- /dev/null
++++ b/out/arena-debug/continue2/extract_cmds.ps1
+@@ -0,0 +1,18 @@
++Set-Location C:\Workspace\diansai
++$d = "out/arena-debug/continue2"
++"==== quartus Info: Command lines ===="
++Get-ChildItem "$d/sta" -Filter *.log -File | Sort-Object Name | ForEach-Object {
++  $n = $_.Name
++  Select-String $_.FullName -Pattern 'Info: Command:' | ForEach-Object { "{0} :: {1}" -f $n, $_.Line.Trim() }
++}
++"==== elapsed / processing time ===="
++Get-ChildItem "$d/sta" -Filter *.log -File | Sort-Object Name | ForEach-Object {
++  $n = $_.Name
++  Select-String $_.FullName -Pattern 'Elapsed time:|Total CPU time' | Select-Object -Last 2 | ForEach-Object { "{0} :: {1}" -f $n, $_.Line.Trim() }
++}
++"==== synth rc files ===="
++Get-ChildItem "$d/synth" -Filter *_rc.txt -File | Sort-Object Name | ForEach-Object { "{0} :: {1}" -f $_.Name, (Get-Content $_.FullName -Raw).Trim() }
++"==== other rc files ===="
++Get-ChildItem $d -Recurse -File | Where-Object { $_.Name -like "*rc*.txt" -and $_.Directory.Name -ne "synth" } | Sort-Object FullName | ForEach-Object { "{0} :: {1}" -f $_.Name, ((Get-Content $_.FullName -Raw).Trim() -replace "`r`n"," | ") }
++"==== continue2 tree ===="
++Get-ChildItem $d -Recurse -File | Sort-Object FullName | ForEach-Object { "{0}  {1}" -f $_.Length, $_.FullName.Replace("C:\Workspace\diansai\","").Replace("\","/") }
+diff --git a/after/out/arena-debug/continue2/list_backups.ps1 b/out/arena-debug/continue2/list_backups.ps1
+new file mode 100644
+index 0000000..22a8aef
+--- /dev/null
++++ b/out/arena-debug/continue2/list_backups.ps1
+@@ -0,0 +1,16 @@
++Set-Location C:\Workspace\diansai
++foreach ($b in @("out/arena-debug/backup/continue_20250925","out/arena-debug/backup/continue2_20250925")) {
++  "==== $b ===="
++  if (Test-Path $b) {
++    Get-ChildItem $b -Recurse -File | Where-Object { $_.Extension -in ".v",".ys",".md",".sdc",".edc" } |
++      Sort-Object FullName | Select-Object -First 40 |
++      ForEach-Object { $_.FullName.Replace("C:\Workspace\diansai\","").Replace("\","/") }
++  } else { "MISSING" }
++}
++"==== marker check ===="
++Get-ChildItem out/arena-debug/backup -Recurse -Filter AFDX_top.v -File | ForEach-Object {
++  $p = $_.FullName
++  $a = (Select-String $p -Pattern "rx_cfg_mem" | Measure-Object).Count
++  $c = (Select-String $p -Pattern "bram_1w1r" | Measure-Object).Count
++  "{0}  rx_cfg_mem={1} bram_1w1r={2}" -f $p.Replace("C:\Workspace\diansai\","").Replace("\","/"), $a, $c
++}
+diff --git a/after/out/arena-debug/continue2/make_fixes_patch.ps1 b/out/arena-debug/continue2/make_fixes_patch.ps1
+new file mode 100644
+index 0000000..7136722
+--- /dev/null
++++ b/out/arena-debug/continue2/make_fixes_patch.ps1
+@@ -0,0 +1,182 @@
++# =====================================================================
++# continue2 patch generator.  ASCII-only on purpose (PS 5.1 reads BOM-less
++# UTF-8 .ps1 as GBK; Chinese literals would corrupt the script).  Chinese
++# doc filenames are handled by enumerating the backup directory instead of
++# hard-coding names.
++#
++# Patch A -> out/arena-debug/fixes.patch
++#   baseline: out/arena-debug/backup/continue2_20250925  (state at the start
++#   of THIS round).  Contains this round's source/script/doc changes only.
++#
++# Patch B -> out/arena-debug/continue2/continue2_full_rtl.patch
++#   baseline: out/arena-debug/backup/continue_20250925/session_20260925_0432
++#   (RTL before the whole continue2 rx_cfg BRAM rework).  Contains the
++#   complete RTL delta that takes top-level synthesis from FAIL to rc=0.
++#
++# Generated artefacts (logs, UCDB, netlist, .rpt) are deliberately NOT in
++# either patch.
++# =====================================================================
++$ErrorActionPreference = 'Stop'
++Set-Location C:\Workspace\diansai
++$root = (Get-Location).Path
++# Scratch trees MUST live outside the git work tree: "git apply" run from a
++# subdirectory of a repository silently skips patch paths that fall outside
++# that subdirectory, which would make the verification vacuously pass.
++$work = Join-Path $env:TEMP "diansai_continue2_patchwork"
++if (Test-Path $work) { Remove-Item $work -Recurse -Force }
++
++function Copy-Rel {
++  param([string]$SrcFile, [string]$DstRoot, [string]$Rel)
++  $dst = Join-Path $DstRoot $Rel
++  $dir = Split-Path $dst -Parent
++  New-Item -ItemType Directory -Force -Path $dir | Out-Null
++  Copy-Item -LiteralPath $SrcFile -Destination $dst -Force
++}
++
++function Make-Patch {
++  param([string]$Tag, [hashtable]$Map, [string]$OutFile, [string[]]$Header)
++  $before = Join-Path $work "$Tag/before"
++  $after  = Join-Path $work "$Tag/after"
++  New-Item -ItemType Directory -Force -Path $before, $after | Out-Null
++  foreach ($rel in $Map.Keys) {
++    $src = $Map[$rel]
++    if ($src -ne $null -and (Test-Path -LiteralPath $src)) { Copy-Rel $src $before $rel }
++    if (Test-Path -LiteralPath $rel) { Copy-Rel $rel $after $rel }
++  }
++  # PowerShell's ">" would re-encode git's output as UTF-16; route the
++  # redirection through cmd.exe so the raw byte stream is preserved.
++  Push-Location (Join-Path $work $Tag)
++  $raw = "$root\$OutFile.raw"
++  $cl  = 'git -c core.quotepath=false -c core.autocrlf=false diff --no-index --text -- before after > "{0}" 2>nul' -f $raw
++  & cmd /c $cl
++  Pop-Location
++  # Byte-level rewrite of the a/before -> a/ prefixes.  The tracked docs mix
++  # clean UTF-8 (new sections) with legacy GBK bytes (old sections), so any
++  # text round-trip through UTF-8 would mangle them and the patch would no
++  # longer apply.  ISO-8859-1 is a lossless byte<->char mapping.
++  # Only header lines may be rewritten: a naive global replace would also hit
++  # payload lines (this very script quotes those prefixes) and corrupt them.
++  $enc   = [Text.Encoding]::GetEncoding(28591)
++  $txt   = $enc.GetString([IO.File]::ReadAllBytes("$root\$OutFile.raw"))
++  $sp    = 'a/' + 'before/'
++  $dp    = 'b/' + 'after/'
++  $lines = $txt -split "`n"
++  for ($i = 0; $i -lt $lines.Count; $i++) {
++    $l = $lines[$i]
++    if     ($l.StartsWith('diff --git ')) { $lines[$i] = $l.Replace($sp, 'a/').Replace($dp, 'b/') }
++    elseif ($l.StartsWith('--- '))        { $lines[$i] = $l.Replace($sp, 'a/') }
++    elseif ($l.StartsWith('+++ '))        { $lines[$i] = $l.Replace($dp, 'b/') }
++  }
++  $txt = $lines -join "`n"
++  if ($Header) { $txt = (($Header | ForEach-Object { "# " + $_ }) -join "`n") + "`n#`n" + $txt }
++  [IO.File]::WriteAllBytes("$root\$OutFile", $enc.GetBytes($txt))
++  Remove-Item "$root\$OutFile.raw" -Force
++  $n = ([regex]::Matches($txt, '(?m)^diff --git ')).Count
++  "{0}: {1} files, {2} bytes, sha256={3}" -f $OutFile, $n, (Get-Item $OutFile).Length,
++    (Get-FileHash $OutFile -Algorithm SHA256).Hash
++}
++
++# ---------------- Patch A : this round ----------------
++$A = "out/arena-debug/backup/continue2_20250925"
++$mapA = @{}
++$mapA["rtl/top/AFDX_top.v"] = "$A/rtl/top/AFDX_top.v"
++$mapA["out/arena-debug/DIANSAI-REPORT.md"] = "$A/out/arena-debug/DIANSAI-REPORT.md"
++# Not present in this round's backup because the interrupted session never touched
++# it; its pre-edit state is the copy kept by the previous round's backup.
++$mapA["out/arena-debug/finalize/sta/README.md"] = "out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/sta/README.md"
++foreach ($f in Get-ChildItem "$A/doc" -Filter *.md -File) {
++  $mapA["doc/" + $f.Name] = $f.FullName
++}
++# new files this round (no baseline copy -> shown as additions)
++$newFiles = @(
++  "elinx/prj/AFDX_top_synth_bram.ys",
++  "elinx/sdc/AFDX_top.sdc",
++  "elinx/prj/quartus/mk_project.tcl",
++  "elinx/prj/quartus/sta_post_map.tcl",
++  "elinx/prj/quartus/sta_summary.tcl",
++  "out/arena-debug/continue2/SYNTH.md",
++  "out/arena-debug/continue2/STA.md",
++  "out/arena-debug/continue2/COVERAGE.md",
++  "out/arena-debug/continue2/MANAGEMENT-SCOPE.md",
++  "out/arena-debug/continue2/COMMANDS.md",
++  "out/arena-debug/continue2/make_sha256.ps1",
++  "out/arena-debug/continue2/make_fixes_patch.ps1",
++  "out/arena-debug/continue2/list_backups.ps1",
++  "out/arena-debug/continue2/extract_cmds.ps1",
++  "out/arena-debug/continue2/synth/run_syn.ps1",
++  "out/arena-debug/continue2/synth/inspect_log.ps1",
++  "out/arena-debug/continue2/synth/mem_report.ps1",
++  "out/arena-debug/continue2/synth/probe_writers.ys",
++  "out/arena-debug/continue2/sta/list_parts.tcl",
++  "out/arena-debug/continue2/coverage/run_full_cov.ps1",
++  "out/arena-debug/continue2/coverage/run_full_cov.tcl",
++  "out/arena-debug/continue2/coverage/compile_full_cov.tcl"
++)
++foreach ($f in $newFiles) { $mapA[$f] = $null }
++$hdrA = @(
++  "fixes.patch - MISSION-CONTINUE2 (2026-09-25): source/script/doc changes of THIS round.",
++  "",
++  "BASELINE: out/arena-debug/backup/continue2_20250925/  - the working tree as handed over",
++  "at the start of this round: rx_cfg already converted to bram_1w1r by the previous,",
++  "interrupted session, but with the host-readback defect still present and 5 testbenches",
++  "failing.  Exception: out/arena-debug/finalize/sta/README.md comes from",
++  "backup/continue_20250925/session_20260925_0432/ (the interrupted session never copied it).",
++  "",
++  "APPLY :  git apply    out/arena-debug/fixes.patch",
++  "REVERT:  git apply -R out/arena-debug/fixes.patch   -> back to the baseline above,",
++  "                                                       NOT back to git HEAD.",
++  "",
++  "SCOPE: RTL, synthesis/STA scripts, constraints and documentation only.  Generated",
++  "artefacts (logs, *.ucdb, the 49 MB netlist, *.rpt, Quartus db/) are deliberately",
++  "excluded; they are archived under out/arena-debug/continue2/ instead.",
++  "",
++  "For the COMPLETE RTL delta that takes top-level synthesis from FAIL to rc=0 - i.e.",
++  "including the previous session's rx_cfg BRAM rework - see",
++  "out/arena-debug/continue2/continue2_full_rtl.patch.",
++  "",
++  "Both patches were verified by replaying them onto a copy of their own baseline with",
++  "git apply and byte-comparing the result against the current tree:",
++  "out/arena-debug/continue2/patch_verify.log."
++)
++Make-Patch -Tag "A" -Map $mapA -OutFile "out/arena-debug/fixes.patch" -Header $hdrA
++
++# ---------------- Patch B : full continue2 RTL delta ----------------
++$B = "out/arena-debug/backup/continue_20250925/session_20260925_0432"
++$mapB = @{}
++$mapB["rtl/top/AFDX_top.v"]      = "$B/rtl/top/AFDX_top.v"
++$mapB["rtl/common/bram_sdp.v"]   = "$B/rtl/common/bram_sdp.v"
++$mapB["elinx/prj/AFDX_top_synth.ys"] = "$B/elinx/prj/AFDX_top_synth.ys"
++$mapB["elinx/prj/AFDX_top_synth_bram.ys"] = $null
++$hdrB = @(
++  "continue2_full_rtl.patch - COMPLETE RTL delta of the rx_cfg BRAM rework plus this",
++  "round's host-readback fix.  This is the change that turns top-level eLinx synthesis",
++  "from 'OPT_MUXTREE: bad allocation' into rc=0.",
++  "",
++  "BASELINE: out/arena-debug/backup/continue_20250925/session_20260925_0432/",
++  "          (rtl/top/AFDX_top.v with 9 x rx_cfg_mem and no bram_1w1r)",
++  "",
++  "Contents: rtl/top/AFDX_top.v, rtl/common/bram_sdp.v, elinx/prj/AFDX_top_synth_bram.ys.",
++  "elinx/prj/AFDX_top_synth.ys is unchanged against this baseline and therefore absent.",
++  "",
++  "APPLY :  git apply    out/arena-debug/continue2/continue2_full_rtl.patch",
++  "REVERT:  git apply -R out/arena-debug/continue2/continue2_full_rtl.patch"
++)
++Make-Patch -Tag "B" -Map $mapB -OutFile "out/arena-debug/continue2/continue2_full_rtl.patch" -Header $hdrB
++
++# ---------------- verification: apply each patch to its own baseline ----------------
++foreach ($t in @(@("A","out/arena-debug/fixes.patch"), @("B","out/arena-debug/continue2/continue2_full_rtl.patch"))) {
++  $tag = $t[0]; $pf = $t[1]
++  $chk = Join-Path $work "verify_$tag"
++  Copy-Item -Path (Join-Path $work "$tag/before") -Destination $chk -Recurse -Force
++  Push-Location $chk
++  & git -c core.quotepath=false -c core.autocrlf=false apply --whitespace=nowarn "$root\$pf" 2>&1 | Out-Null
++  $rc = $LASTEXITCODE
++  Pop-Location
++  & git -c core.quotepath=false -c core.autocrlf=false diff --no-index --quiet -- $chk (Join-Path $work "$tag/after") 2>$null
++  $rc2 = $LASTEXITCODE
++  "verify_{0}: git_apply_rc={1} (0=applied) byte_identical_to_after_rc={2} (0=identical)" -f $tag, $rc, $rc2
++  if ($rc2 -ne 0) {
++    "  --- residual differences (stat) ---"
++    & git -c core.quotepath=false -c core.autocrlf=false diff --no-index --stat -- $chk (Join-Path $work "$tag/after") 2>$null
++  }
++}
+diff --git a/after/out/arena-debug/continue2/make_sha256.ps1 b/out/arena-debug/continue2/make_sha256.ps1
+new file mode 100644
+index 0000000..15ada5f
+--- /dev/null
++++ b/out/arena-debug/continue2/make_sha256.ps1
+@@ -0,0 +1,36 @@
++# continue2：对本轮所有证据与被改文件生成 SHA-256 清单
++Set-Location C:\Workspace\diansai
++$out = "out/arena-debug/continue2/SHA256SUMS.txt"
++$targets = @(
++  "rtl/top/AFDX_top.v","rtl/common/bram_sdp.v",
++  "elinx/prj/AFDX_top_synth.ys","elinx/prj/AFDX_top_synth_bram.ys",
++  "elinx/sdc/AFDX_top.sdc","elinx/sdc/AFDX_top.edc",
++  "elinx/prj/quartus/AFDX_top.qpf","elinx/prj/quartus/AFDX_top.qsf",
++  "elinx/prj/quartus/mk_project.tcl","elinx/prj/quartus/sta_post_map.tcl",
++  "elinx/prj/quartus/sta_summary.tcl",
++  "sim/out/regress.csv","sim/out/compile_console.txt",
++  "out/arena-debug/fixes.patch",
++  "out/arena-debug/DIANSAI-REPORT.md",
++  "out/arena-debug/finalize/sta/README.md"
++)
++# doc/*.md enumerated instead of hard-coded: the filenames are Chinese and this
++# script must stay pure ASCII (PS 5.1 parses BOM-less UTF-8 as GBK).
++foreach ($f in (Get-ChildItem doc -Filter *.md -File | Sort-Object Name)) {
++  $targets += ("doc/" + $f.Name)
++}
++$lines = @()
++foreach ($t in $targets) {
++  if (Test-Path $t) { $lines += ("{0}  {1}" -f (Get-FileHash $t -Algorithm SHA256).Hash, $t) }
++  else { $lines += ("MISSING  {0}" -f $t) }
++}
++Get-ChildItem out/arena-debug/continue2 -Recurse -File |
++  Where-Object { $_.Name -ne "SHA256SUMS.txt" } |
++  Sort-Object FullName |
++  ForEach-Object {
++    $rel = $_.FullName.Replace("C:\Workspace\diansai\","").Replace("\","/")
++    $lines += ("{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash, $rel)
++  }
++# UTF-8 without BOM: the doc/ filenames are Chinese and -Encoding ascii would
++# write them as "???" and make the manifest useless for those entries.
++[IO.File]::WriteAllLines((Join-Path (Get-Location).Path $out), $lines, (New-Object Text.UTF8Encoding($false)))
++"entries=" + $lines.Count
+diff --git a/after/out/arena-debug/continue2/sta/list_parts.tcl b/out/arena-debug/continue2/sta/list_parts.tcl
+new file mode 100644
+index 0000000..205fe8a
+--- /dev/null
++++ b/out/arena-debug/continue2/sta/list_parts.tcl
+@@ -0,0 +1,6 @@
++# continue2: 列出本机 Quartus(Passkey) 实际安装的 Stratix IV 器件型号
++set fh [open "out/arena-debug/continue2/sta/part_list.txt" w]
++foreach f [get_family_list] { puts $fh "FAMILY: $f" }
++foreach d [get_part_list -family "Stratix IV"] { puts $fh $d }
++close $fh
++puts "part list written"
+diff --git a/after/out/arena-debug/continue2/synth/inspect_log.ps1 b/out/arena-debug/continue2/synth/inspect_log.ps1
+new file mode 100644
+index 0000000..0ec253c
+--- /dev/null
++++ b/out/arena-debug/continue2/synth/inspect_log.ps1
+@@ -0,0 +1,13 @@
++param([Parameter(Mandatory=$true)][string]$Log)
++Set-Location C:\Workspace\diansai
++$all = Get-Content $Log
++"LINES=" + $all.Count
++"ERROR=" + ((Select-String $Log -Pattern '^ERROR').Count)
++"WARNING=" + ((Select-String $Log -Pattern '^Warning').Count)
++"SUCCESS_BANNER=" + ((Select-String $Log -Pattern 'Yosys execute success!').Count)
++"SHA256=" + (Get-FileHash $Log -Algorithm SHA256).Hash
++"---- top module stat ----"
++$m = Select-String $Log -Pattern '^=== \\AFDX_top ===' | Select-Object -Last 1
++if ($m) { $all[($m.LineNumber-1)..([Math]::Min($m.LineNumber+40,$all.Count-1))] } else { "AFDX_top stat section not found" }
++"---- memory-ish cells ----"
++Select-String $Log -Pattern 'altsyncram|\$mem|RAMB|BRAM|memory_bram|Mapping' | Select-Object -First 25 | ForEach-Object { "$($_.LineNumber): $($_.Line.Trim())" }
+diff --git a/after/out/arena-debug/continue2/synth/mem_report.ps1 b/out/arena-debug/continue2/synth/mem_report.ps1
+new file mode 100644
+index 0000000..5a7681f
+--- /dev/null
++++ b/out/arena-debug/continue2/synth/mem_report.ps1
+@@ -0,0 +1,9 @@
++param([Parameter(Mandatory=$true)][string]$Log)
++Set-Location C:\Workspace\diansai
++"==== memory_bram mapping decisions ===="
++Select-String $Log -Pattern 'Mapping to bram type|Only the following options|Failed to map|no valid mapping|Assigning bram cell|Storing for later|Using non-conflicting|Creating $__|Note: Replacing memory' |
++  ForEach-Object { $_.Line.Trim() } | Group-Object | Sort-Object Count -Descending |
++  Select-Object -First 30 | ForEach-Object { "{0,6}  {1}" -f $_.Count, $_.Name }
++"==== per-memory summary lines ===="
++Select-String $Log -Pattern 'Processing .*\\\$mem|Checking rule|Mapping memory' | Select-Object -First 40 |
++  ForEach-Object { "$($_.LineNumber): $($_.Line.Trim())" }
+diff --git a/after/out/arena-debug/continue2/synth/probe_writers.ys b/out/arena-debug/continue2/synth/probe_writers.ys
+new file mode 100644
+index 0000000..78856fc
+--- /dev/null
++++ b/out/arena-debug/continue2/synth/probe_writers.ys
+@@ -0,0 +1,4 @@
++help write_verilog
++help write_json
++help write_blif
++help memory_libmap
+diff --git a/after/out/arena-debug/continue2/synth/run_syn.ps1 b/out/arena-debug/continue2/synth/run_syn.ps1
+new file mode 100644
+index 0000000..e7eeb60
+--- /dev/null
++++ b/out/arena-debug/continue2/synth/run_syn.ps1
+@@ -0,0 +1,21 @@
++# continue2 顶层综合运行器：固定记录 rc / 耗时 / 首个 ERROR / 最后一个 pass / SHA256。
++# 用法: powershell -NoProfile -ExecutionPolicy Bypass -File out/arena-debug/continue2/synth/run_syn.ps1 -Ys <path> -Name <tag> [-TimeoutS 900]
++param([Parameter(Mandatory=$true)][string]$Ys,[Parameter(Mandatory=$true)][string]$Name,[int]$TimeoutS=900)
++Set-Location C:\Workspace\diansai
++$d='out/arena-debug/continue2/synth'
++New-Item -ItemType Directory -Force -Path $d | Out-Null
++$exe='C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe'
++$t=Get-Date
++$p=Start-Process -FilePath $exe -ArgumentList @('-s',$Ys,'-l',"$d/$Name.log") -NoNewWindow -PassThru -RedirectStandardOutput "$d/${Name}_console.log" -RedirectStandardError "$d/${Name}_console.err"
++$null=$p.Handle
++$ok=$p.WaitForExit($TimeoutS*1000)
++if(-not $ok){ $p.Kill(); $p.WaitForExit(); $rc="TIMEOUT_KILLED_${TimeoutS}s" } else { $rc=$p.ExitCode }
++$el=[int]((Get-Date)-$t).TotalSeconds
++$err=(Select-String "$d/$Name.log" -Pattern '^ERROR' | Select-Object -First 1).Line
++$nerr=(Select-String "$d/$Name.log" -Pattern '^ERROR' | Measure-Object).Count
++$last=(Select-String "$d/$Name.log" -Pattern 'Executing \S+ pass' | Select-Object -Last 1).Line
++$ok2=(Select-String "$d/$Name.log" -Pattern 'Yosys execute success!' | Measure-Object).Count
++$h=(Get-FileHash "$d/$Name.log" -Algorithm SHA256).Hash
++$line="name=$Name ys=$Ys exit_code=$rc elapsed_s=$el error_lines=$nerr success_banner=$ok2 first_error=$err last_pass=$last log_sha256=$h"
++$line | Set-Content -Encoding ascii "$d/${Name}_rc.txt"
++$line
+diff --git a/out/arena-debug/finalize/sta/README.md b/out/arena-debug/finalize/sta/README.md
+index d455aea..1993183 100644
+--- a/out/arena-debug/finalize/sta/README.md
++++ b/out/arena-debug/finalize/sta/README.md
+@@ -1,3 +1,31 @@
++# STA: SUPERSEDED — this round's real TimeQuest run replaces the BLOCKED verdict
++
++> **STATUS 2026-09-25 (MISSION-CONTINUE2): the "BLOCKED" conclusion below is OBSOLETE.**
++> Top-level eLinx synthesis now completes with rc=0, a Quartus revision was created,
++> `quartus_map` ran clean and **post-map TimeQuest produced real numbers**:
++> **Fmax 42.56 MHz** against the required 125 MHz, setup **WNS -15.498 ns**,
++> **TNS -567,451.740 ns**, hold WNS -0.128 ns, 71 in / 120 out unconstrained IO ports.
++> (Earlier drafts of this note quoted 43.39 / -22.048 / -1,103,482.274.  Those came from a
++> run where elinx/sdc/AFDX_top.sdc was missing from disk, so Quartus silently fell back to a
++> default 1 ns clock.  Those reports are kept as a counter-example in
++> ../../continue2/sta/default_1ns_no_sdc/ and must not be quoted.)
++> The design is therefore **timing-FAIL, not timing-unknown**.
++> Authoritative write-up: `../../continue2/STA.md`;
++> raw reports: `../../continue2/sta/`; commands and exit codes: `../../continue2/COMMANDS.md`.
++>
++> What was actually wrong before: the blocker was **not** a tool limitation. There simply was
++> no Quartus project, so `create_timing_netlist` had no active revision to load. Creating
++> `elinx/prj/quartus/AFDX_top.qpf` + `.qsf` (EP4SGX230HF35C2, 24 Verilog sources,
++> `elinx/sdc/AFDX_top.sdc`) removed the blocker.
++>
++> Boundaries that still hold: `quartus_fit` was **not** run, so every number above is a
++> **post-map optimistic upper bound**, not sign-off; hold slack is meaningless without routing;
++> the SDC still has no `set_input_delay`/`set_output_delay`, so the results cover
++> register-to-register internal paths only; EP4SGX230HF35C2 is a stand-in device, not a
++> project-specified part.
++
++## Historical record (state before 2026-09-25, kept for audit)
++
+ # STA prerequisite and negative probe: BLOCKED_NO_PROJECT_OR_NETLIST
+ 
+ - TimeQuest exists: `C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/quartus_sta.exe`, Quartus II 13.0.1. Therefore **not** `BLOCKED_NO_TOOL`.
+diff --git a/rtl/top/AFDX_top.v b/rtl/top/AFDX_top.v
+index 2beefa6..b007276 100644
+--- a/rtl/top/AFDX_top.v
++++ b/rtl/top/AFDX_top.v
+@@ -195,7 +195,13 @@ module AFDX_top #(
+     end
+   end
+   assign host_ack = ack_r;
+-  assign host_rdata = hash_rd_d ? hash_cfg_rdata :
++  // continue2 修复（2026-09-25，本轮）：RX_VL_CFG 改为 BRAM 同步读后 rdata_r 在
++  // rx_hit 时恒为 0，主机回读必须由 rxc_host_rdata 在 ACK 拍直出。上一轮改造漏接
++  // 本选择器，导致 T01/T22/T22g 的 RX CFG 回读与 T08f/T08fg 全表记分板读回 0。
++  // 地址域互斥（RX_VL_CFG 0x1D80-0x3D7F 不与 hash/pmem/desc 段重叠），故插在最前
++  // 不改变其他读路径优先级。
++  assign host_rdata = rxc_rd_d  ? rxc_host_rdata :
++                      hash_rd_d ? hash_cfg_rdata :
+                        pmem_rd_d ? pmem_data_a :
+                       desc_rd_d ? (desc_rx_d ? rdata_r :
+                                    pb_req[desc_idx] ? pb_desc_rd_data : 32'd0) : rdata_r;

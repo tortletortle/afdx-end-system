@@ -1,0 +1,5 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T00,default,tb_t00_common,PASS,na,3.6,# T00 COMMON PASS (crc32 x9 vectors; fifo 4000; bram 1W2R 8192 + BE)
+T04,default,tb_t04_tx_chain,PASS,na,8.1,# T04 TXCHAIN PASS (IF_MODE=0; 138 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4220..4360 cyc)
+T08a,default,tb_t08a_rx_ingress,PASS,na,3,# T08a RXINGRESS PASS (IF_MODE=0; 22 model/zlib frames; bad frame isolation/PMEM BE)
+T08ag,gmii,tb_t08ag_rx_ingress,PASS,na,2.9,# T08a RXINGRESS PASS (IF_MODE=1; 22 model/zlib frames; bad frame isolation/PMEM BE)

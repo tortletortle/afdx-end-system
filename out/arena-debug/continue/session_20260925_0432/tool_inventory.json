@@ -1,0 +1,32 @@
+[
+  {
+    "path": "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/bin/eLinx_synthesis.exe",
+    "bytes": 7808000,
+    "sha256": "b022eb9361b9847d0042b234fb6ee1b584836be4c0174e94addb6d2f1d236a23",
+    "PE_machine": "0x14c"
+  },
+  {
+    "path": "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/Passkey/bin/quartus_sta.exe",
+    "bytes": 132096,
+    "sha256": "e209cd1ef3f1bd0127cab2813e3ee964f34c99ea189d9293b1997f73ddf348bc",
+    "PE_machine": "0x8664"
+  },
+  {
+    "path": "C:/altera_pro/26.1.1/questa_fse/win64/vlog.exe",
+    "bytes": 24354832,
+    "sha256": "906750a96e5d065047c157560cf6f3756551bd8e24faf19585779b791b1936de",
+    "PE_machine": "0x8664"
+  },
+  {
+    "path": "C:/altera_pro/26.1.1/questa_fse/win64/vsim.exe",
+    "bytes": 5974896,
+    "sha256": "7aa9c922812636f8644468c80f79d1bf7afaf7e269e05362350a0c999b2490b2",
+    "PE_machine": "0x8664"
+  },
+  {
+    "path": "C:/altera_pro/26.1.1/questa_fse/win64/vcover.exe",
+    "bytes": 18232336,
+    "sha256": "c2095cb93771869ea6952036b8b1037646db9916fa8eeec218d53676271ed627",
+    "PE_machine": "0x8664"
+  }
+]

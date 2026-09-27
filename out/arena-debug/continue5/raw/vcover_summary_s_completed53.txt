@@ -1,0 +1,7 @@
+Coverage Report Totals BY INSTANCES: Number of Instances 1714
+
+    Enabled Coverage              Bins      Hits    Misses    Weight  Coverage
+    ----------------              ----      ----    ------    ------  --------
+    Statements                  138059     83960     54099         1    60.81%
+Total coverage (filtered view): 60.81%
+

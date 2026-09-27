@@ -1,0 +1,209 @@
+﻿Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
+------------------------------------Coverage------------------------------------
+Coverage Category
+
+--------------------------------------------------------------------------------
++cover[=<spec>]                 <spec> is used to enable code coverage metrics
+                                for certain kinds of constructs. <spec>
+                                consists of one or more of the following letter
+                                codes:
+                                   s (statement)
+                                   b (branch)
+                                   c (condition)
+                                   e (expression)
+                                   f (finite state machine)
+                                   t (toggle)
+                                   x (extended toggle)
+                                If no <spec> characters are given, sbceft is
+                                the default.
+                                
++nocover[=<spec>]               <spec> is used to disable code coverage metrics
+                                for certain kinds of constructs. <spec>
+                                consists of one or more of the following letter
+                                codes:
+                                   s (statement)
+                                   b (branch)
+                                   c (condition)
+                                   e (expression)
+                                   f (finite state machine)
+                                   t (toggle)
+                                   x (extended toggle)
+                                If no <spec> characters are given, sbceft is
+                                the default.
+                                
+-adaptive                       Enable adaptive exclusion feature
+                                
+-adaptive_debug                 Enable debugging for adaptive exclusion feature
+                                - Dumping adaptive exclusion database data.
+                                
+-adaptivenew                    Enable adaptive exclusion feature
+                                
+-coverExcludeDefault            Automatically exclude case default clauses.
+                                
+-covercebi                      Enable collapse of else-begin-if to an 'elsif'
+                                equivalent for coverage.
+                                
+-covercells                     Enable code coverage options in cells.
+                                
+-coverdeglitch <period>         Report only the last execution of non-clocked
+                                processes/continuous assignments. Within time
+                                greater than <period>, where <period> is 0 or a
+                                time string with units
+                                
+-coverenhanced                  Enables functionality which may change the
+                                appearance or content of coverage metrics. A
+                                detailed list of these changes can be found by
+                                searching in the release notes for
+                                'coverenhanced'. This option only takes
+                                meaningful effect in letter releases (e.g.
+                                10.2b). It has no effect in initial major
+                                releases (e.g. 10.2).
+                                
+-coverexcludedefault            Automatically exclude case default clauses.
+                                
+-coverexpandrdpfx               Bit-blast multi-bit operands of reduction
+                                prefix expressions for expression/condition
+                                coverage.
+                                
+-coverfec                       Enable Focused Expression Coverage analysis for
+                                conditions and expressions.
+                                
+-covermultibit                  Enable coverage of multibit expressions.
+                                
+-coveropt <i>                   Specify a digit for code coverage optimization
+                                level: 1 through 4.
+                                
+-coveroptremoveUnref            Enabling Core Optimizations at default CoverOpt
+                                Level.
+                                
+-coverpragma=+<option>[+<option>|.]
+                                Enable options associated with coverage
+                                pragmas. Valid options are print - print all
+                                the coverage pragmas that are encountered.
+-coverrec                       Enable Rapid Expression Coverage mode of FEC
+                                for conditions and expressions.
+                                
+-coverreportcancelled           Report coverage items that have been optimized
+                                away.
+                                
+-coversub                       Include VHDL subprograms for code coverage
+                                
+-coverudp                       Enable UDP Coverage analysis for conditions and
+                                expressions.
+                                
+-coverunref+<du|instance path>  Disables hanging logic optimization and
+                                prevents auto exclusions for given du or
+                                hierarchy
+                                
+-extendedtogglemode [1|2|3]     Change the level of support for extended
+                                toggles. The levels of support are:
+                                1 - 0L->1H & 1H->0L & any one 'Z' transition
+                                (to/from 'Z')
+                                2 - 0L->1H & 1H->0L & one transition to 'Z' &
+                                one transition from 'Z'
+                                3 - 0L->1H & 1H->0L & all 'Z' transitions
+                                
+-fecudpeffort n                 Limit the size of expressions and conditions
+                                considered for expr/cond coverage. Levels
+                                supported are:
+                                1 - (low) Only small expressions and conditions
+                                considered for coverage.
+                                2 - (medium) Bigger expressions and conditions
+                                considered for coverage.
+                                3 - (high) Very large expressions and
+                                conditions considered for coverage.
+                                
+-fsmdebug                       Finite state machine recognition and debugging
+                                
+-fsmimplicittrans               Enable recognition of implicit transitions in
+                                FSMs
+                                
+-fsmmultitrans                  Enable recognition of Multi-state transitions
+                                in FSMs
+                                
+-fsmresettrans                  Enable recognition of implicit asynchronous
+                                reset transitions for FSMs
+                                
+-fsmsingle                      Enable recognition FSMs having single bit
+                                current state variable
+                                
+-fsmverbose [b|t|w]             Provides information about FSMs recognized,
+                                including state reachability analysis. There
+                                are three detail levels that can be set with
+                                this option.
+                                    b (displays only basic information)
+                                    t (displays a transition table in addition
+                                to the basic information)
+                                    w (displays any warning messages in
+                                addition to the basic information)
+                                If no character is specified, btw is the
+                                default.
+                                
+-fsmxassign                     Enable recognition of FSMs containing x
+                                assignment
+                                
+-maxfecrows n                   Max number of input patterns allowed in FEC
+                                table for code coverage.
+                                
+-maxudprows n                   Max number of rows allowed in UDP tables for
+                                code coverage.
+                                
+-nocover                        Disable code coverage even if vlog -cover was
+                                used on source files.
+                                
+-nocoverExcludeDefault          Don't automatically exclude case default
+                                clauses.
+                                
+-nocovercebi                    Disable collapse of else-begin-if to an 'elsif'
+                                equivalent for coverage.
+                                
+-nocovercells                   Disable code coverage options in cells.
+                                
+-nocoverexcludedefault          Don't automatically exclude case default
+                                clauses.
+                                
+-nocoverexpandrdpfx             Don't bit-blast multi-bit operands of reduction
+                                prefix expressions for expression/condition
+                                coverage.
+                                
+-nocoverfec                     Disable Focused Expression Coverage analysis
+                                for conditions and expressions.
+                                
+-nocoverrec                     Disable Rapid Expression Coverage mode of FEC
+                                for conditions and expressions.
+                                
+-nocovershort                   Disable short circuiting of
+                                expressions/condition when coverage is enabled.
+                                
+-nocoversub                     Ignore VHDL subprograms for code coverage
+                                
+-nocoverudp                     Disable UDP Coverage analysis for conditions
+                                and expressions.
+                                
+-noexcludeternary <design_unit> Disables exclusion of ternary expressions in
+                                UCDB.
+                                
+-nofsmimplicittrans             Disable recognition of implicit transitions in
+                                FSMs
+                                
+-nofsmresettrans                Disable recognition of implicit asynchronous
+                                reset transitions for FSMs
+                                
+-nofsmsingle                    Disable recognition FSMs having single bit
+                                current state variable
+                                
+-nofsmxassign                   Disable recognition of FSMs containing x
+                                assignment
+                                
+-svcoversingleterm              Enables coverage of single term expressions and
+                                conditions in verilog
+                                
+-togglecountlimit n             Quit collecting toggle info after count n is
+                                reached.
+                                
+-toggleportsonly                Enable toggle statistics collection only for
+                                ports.
+                                
+-togglewidthlimit n             Don't collect toggle data on reg's or arrays
+                                wider than n.
+                                

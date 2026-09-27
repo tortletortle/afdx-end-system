@@ -1,0 +1,34 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t13g_latency 
+# Start time: 11:27:27 on Sep 25,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t13g_latency(fast)
+#   [T13 CASE 1] Plen=17B (Frame=64B): TX_pipe=2.528us, Wire=0.504us, RX_pipe=0.656us, HW_E2E=3.184us, Total=3.688us
+#   [T13 CASE 2] Plen=256B (Frame=303B): TX_pipe=1.904us, Wire=2.416us, RX_pipe=2.568us, HW_E2E=4.472us, Total=6.888us
+#   [T13 CASE 3] Plen=1471B (Frame=1518B): TX_pipe=4.840us, Wire=12.136us, RX_pipe=12.288us, HW_E2E=17.128us, Total=29.264us
+# T13 END-TO-END LATENCY PASS (IF_MODE=1 cases=3)
+# ** Note: $finish    : tb/tb_t13_latency.v(354)
+#    Time: 259248 ns  Iteration: 0  Instance: /tb_t13g_latency/core
+# End time: 11:27:29 on Sep 25,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

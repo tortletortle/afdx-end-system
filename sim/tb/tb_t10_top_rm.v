@@ -68,7 +68,7 @@ module tb_t10_core #(parameter integer IF_MODE=0);
       rm_seen=rm_seen+1;
       if(dut.rm_out_vl!==12'h100) bad("RM out_vl is not the looked-up index");
       if(dut.rm_out_desc[158:148]!==11'd79) bad("RM descriptor len corrupted");
-      w0 = dut.rx_cfg_mem[{12'h100,1'b0}];
+      w0 = dut.u_rxcfg_rm0.mem[12'h100];  // continue2: RX_VL_CFG w0 replica read by RM
       m_act = dut.ctl_r[3] && w0[30] && (w0[29:28]==2'b11);
       m_win = 24'd4 << w0[27:24];
       m_d = dut.rm_out_desc[147:124] - m_ts;

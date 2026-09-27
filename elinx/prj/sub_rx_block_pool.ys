@@ -1,0 +1,4 @@
+read_verilog C:/Workspace/diansai/rtl/rx/rx_block_pool.v
+hierarchy -top rx_block_pool
+synth
+stat

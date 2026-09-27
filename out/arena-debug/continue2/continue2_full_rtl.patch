@@ -1,0 +1,474 @@
+# continue2_full_rtl.patch - COMPLETE RTL delta of the rx_cfg BRAM rework plus this
+# round's host-readback fix.  This is the change that turns top-level eLinx synthesis
+# from 'OPT_MUXTREE: bad allocation' into rc=0.
+# 
+# BASELINE: out/arena-debug/backup/continue_20250925/session_20260925_0432/
+#           (rtl/top/AFDX_top.v with 9 x rx_cfg_mem and no bram_1w1r)
+# 
+# Contents: rtl/top/AFDX_top.v, rtl/common/bram_sdp.v, elinx/prj/AFDX_top_synth_bram.ys.
+# elinx/prj/AFDX_top_synth.ys is unchanged against this baseline and therefore absent.
+# 
+# APPLY :  git apply    out/arena-debug/continue2/continue2_full_rtl.patch
+# REVERT:  git apply -R out/arena-debug/continue2/continue2_full_rtl.patch
+#
+diff --git a/after/elinx/prj/AFDX_top_synth_bram.ys b/elinx/prj/AFDX_top_synth_bram.ys
+new file mode 100644
+index 0000000..a962727
+--- /dev/null
++++ b/elinx/prj/AFDX_top_synth_bram.ys
+@@ -0,0 +1,50 @@
++# =====================================================================
++# AFDX_top_synth_bram.ys - continue2（2026-09-25）器件级 BRAM 映射综合流程
++# 与 AFDX_top_synth.ys 的差别：在 memory_map 之前插入
++#   memory_collect -> memory_bram -rules brams.txt -> techmap brams_map.v
++# 目的：让 rx_cfg（bram_1w1r ×6，4096×32）、PMEM（bram_sdp_core ×4，8192×8）
++# 等存储落到器件 BRAM，而不是被 memory_map 全部展开成寄存器+多路选择器。
++# 该 eLinx 分支没有 memory_libmap（probe_writers.log:351 "No such command"），
++# 因此只能使用 legacy memory_bram -rules 流程。
++# 运行（工作目录 C:\Workspace\diansai）：
++#   powershell -NoProfile -ExecutionPolicy Bypass -File \
++#     out/arena-debug/continue2/synth/run_syn.ps1 \
++#     -Ys elinx/prj/AFDX_top_synth_bram.ys -Name top_bram -TimeoutS 900
++# =====================================================================
++read_verilog \
++  C:/Workspace/diansai/rtl/common/rst_sync.v \
++  C:/Workspace/diansai/rtl/common/timebase.v \
++  C:/Workspace/diansai/rtl/common/sync_fifo.v \
++  C:/Workspace/diansai/rtl/common/crc32.v \
++  C:/Workspace/diansai/rtl/common/bram_sdp.v \
++  C:/Workspace/diansai/rtl/top/init_sweep.v \
++  C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
++  C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
++  C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
++  C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
++  C:/Workspace/diansai/rtl/tx/tx_rm.v \
++  C:/Workspace/diansai/rtl/tx/tx_pace.v \
++  C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
++  C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
++  C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
++  C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
++  C:/Workspace/diansai/rtl/rx/rx_ic.v \
++  C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
++  C:/Workspace/diansai/rtl/rx/rx_flt.v \
++  C:/Workspace/diansai/rtl/rx/rx_rm.v \
++  C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
++  C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
++  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
++  C:/Workspace/diansai/rtl/top/AFDX_top.v
++hierarchy -top AFDX_top
++proc
++opt
++memory_dff
++opt_clean
++memory_collect
++memory_bram -rules "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams.txt"
++techmap -map "C:/Program Files (x86)/eHiWay/eLinx3.0/bin/shell/share/stratix/common/brams_map.v"
++memory_map
++opt
++stat
++write_verilog -noattr C:/Workspace/diansai/out/arena-debug/continue2/synth/AFDX_top_bram_netlist.v
+diff --git a/rtl/common/bram_sdp.v b/rtl/common/bram_sdp.v
+index 0b6d517..9a2bd0d 100644
+--- a/rtl/common/bram_sdp.v
++++ b/rtl/common/bram_sdp.v
+@@ -1,79 +1,152 @@
+-// =====================================================================
+-// bram_sdp.v —— BRAM 封装（1 写口 + 2 读口 A/B，读延迟 1 拍）
+-// 设计书 §7.14（PMEM 需求: 读口 A 给 flt/parse 控制流、读口 B 给
+-//   CRC/校验和，与写口并行）、§7.19（公共模块表）、§8.6（PMEM 规格）
+-// 推断要点（O-20 第 3 条冒烟对象，doc_AFDX设计书_优化增量_r1.md）：
+-//   同步读（rd_data_* 寄存输出）、地址/数据寄存、无复位、
+-//   不做同拍读写假设——同地址同拍读写结果未定义，
+-//   调用方不得依赖该行为（如需先读后写须隔拍）。
+-// eLinx 冒烟结论（2026-09-22，elinx/prj/bram_sdp_smoke.ys）：
+-//   该 Yosys 分支的 $mem 即 1W2R cell（RD_DATA/RD_DATA_B 双读口）；
+-//   单读口写法会被双驱动 rd_data（CHECK 报错），1W2R 一一映射通过。
+-//   若后续满配规模推断失败，按 §7.19 走 `ifdef ELINX_SYNTH` 例化
+-//   eLinx BRAM IP（elinx/ip/）。
+-// 端口风格: 非 ANSI。原因: AW 需由 D 经 clog2 派生，而 V2001 ANSI
+-//   参数表不能调用函数；体内声明顺序 = 参数 → clog2 → AW → 端口，
+-//   与 vlog-2730 教训（声明前置）一致。
+-// 命名/握手: §10（与 sync_fifo 一致: wr_en/rd_en）
+-// =====================================================================
+-`timescale 1 ns / 1 ps
+-module bram_sdp (
+-  clk,
+-  wr_en, wr_addr, wr_data, wr_be,
+-  rd_en_a, rd_addr_a, rd_data_a,
+-  rd_en_b, rd_addr_b, rd_data_b
+-);
+-  parameter integer W = 32;    // 数据位宽（PMEM: 32 bit 字）
+-  parameter integer D = 8192;  // 深度（PMEM: 8192 字 = 32 KB；须为 2 的幂）
+-  parameter integer BYTE_EN = 0; // 仅 PMEM 打开；其他旧实例保留整字写，不依赖悬空 wr_be
+-
+-  // 自备 clog2（$clog2 是 2005 项，O-20 第 4 条）
+-  function integer clog2;
+-    input integer value;
+-    integer v;
+-    begin
+-      v = value - 1;
+-      for (clog2 = 0; v > 0; clog2 = clog2 + 1)
+-        v = v >> 1;
+-    end
+-  endfunction
+-  localparam integer AW = (D <= 2) ? 1 : clog2(D);
+-
+-  input  wire            clk;
+-  input  wire            wr_en;
+-  input  wire [AW-1:0]   wr_addr;
+-  input  wire [W-1:0]    wr_data;
+-  input  wire [W/8-1:0]  wr_be; // [W/8-1] 控制最高 8 bit，PMEM 时 [3]=[31:24]
+-  input  wire            rd_en_a;
+-  input  wire [AW-1:0]   rd_addr_a;
+-  output reg  [W-1:0]    rd_data_a;
+-  input  wire            rd_en_b;
+-  input  wire [AW-1:0]   rd_addr_b;
+-  output reg  [W-1:0]    rd_data_b;
+-
+-  // no_rw_check: 规范本就"不做同拍读写假设"（O-20 第 3 条），
+-  // 告知 Yosys 无需生成读写冲突逻辑。ram_style 为推断提示，
+-  // 本 Yosys 分支不识别则忽略。
+-  (* no_rw_check *)
+-  reg [W-1:0] mem [0:D-1];
+-
+-  // 1W2R：按字节使能写同一 32 bit 逻辑字；不同读口同步一拍。
+-  // BYTE_EN=0 保留原冒烟路径（整字写）；开启后在同一时钟过程内按 lane 更新。
+-  // 同地址读写依旧未定义，调用方不得依赖 bypass。
+-  integer byte_lane;
+-  always @(posedge clk) begin
+-    if (wr_en) begin
+-      if (BYTE_EN != 0) begin
+-        for (byte_lane=0; byte_lane<W/8; byte_lane=byte_lane+1)
+-          if (wr_be[byte_lane])
+-            mem[wr_addr][8*byte_lane +: 8] <= wr_data[8*byte_lane +: 8];
+-      end else mem[wr_addr] <= wr_data;
+-    end
+-  end
+-  always @(posedge clk) begin
+-    if (rd_en_a) rd_data_a <= mem[rd_addr_a];
+-  end
+-  always @(posedge clk) begin
+-    if (rd_en_b) rd_data_b <= mem[rd_addr_b];
+-  end
+-endmodule
++// =====================================================================
++// bram_sdp.v —— BRAM 封装（1 写口 + 2 读口 A/B，读延迟 1 拍）
++// 设计书 §7.14（PMEM 需求: 读口 A 给 flt/parse 控制流、读口 B 给
++//   CRC/校验和，与写口并行）、§7.19（公共模块表）、§8.6（PMEM 规格）
++// 推断要点（O-20 第 3 条冒烟对象，doc_AFDX设计书_优化增量_r1.md）：
++//   同步读（rd_data_* 寄存输出）、地址/数据寄存、无复位、
++//   不做同拍读写假设——同地址同拍读写结果未定义，
++//   调用方不得依赖该行为（如需先读后写须隔拍）。
++// eLinx 冒烟结论（2026-09-22，elinx/prj/bram_sdp_smoke.ys）：
++//   该 Yosys 分支的 $mem 即 1W2R cell（RD_DATA/RD_DATA_B 双读口）；
++//   单读口写法会被双驱动 rd_data（CHECK 报错），1W2R 一一映射通过。
++//   若后续满配规模推断失败，按 §7.19 走 `ifdef ELINX_SYNTH` 例化
++//   eLinx BRAM IP（elinx/ip/）。
++// 端口风格: 非 ANSI。原因: AW 需由 D 经 clog2 派生，而 V2001 ANSI
++//   参数表不能调用函数；体内声明顺序 = 参数 → clog2 → AW → 端口，
++//   与 vlog-2730 教训（声明前置）一致。
++// 命名/握手: §10（与 sync_fifo 一致: wr_en/rd_en）
++// =====================================================================
++`timescale 1 ns / 1 ps
++module bram_sdp (
++  clk,
++  wr_en, wr_addr, wr_data, wr_be,
++  rd_en_a, rd_addr_a, rd_data_a,
++  rd_en_b, rd_addr_b, rd_data_b
++);
++  parameter integer W = 32;    // 数据位宽（PMEM: 32 bit 字）
++  parameter integer D = 8192;  // 深度（PMEM: 8192 字 = 32 KB；须为 2 的幂）
++  parameter integer BYTE_EN = 0; // 仅 PMEM 打开；其他旧实例保留整字写，不依赖悬空 wr_be
++
++  // 自备 clog2（$clog2 是 2005 项，O-20 第 4 条）
++  function integer clog2;
++    input integer value;
++    integer v;
++    begin
++      v = value - 1;
++      for (clog2 = 0; v > 0; clog2 = clog2 + 1)
++        v = v >> 1;
++    end
++  endfunction
++  localparam integer AW = (D <= 2) ? 1 : clog2(D);
++
++  input  wire            clk;
++  input  wire            wr_en;
++  input  wire [AW-1:0]   wr_addr;
++  input  wire [W-1:0]    wr_data;
++  input  wire [W/8-1:0]  wr_be; // [W/8-1] 控制最高 8 bit，PMEM 时 [3]=[31:24]
++  input  wire            rd_en_a;
++  input  wire [AW-1:0]   rd_addr_a;
++  output reg  [W-1:0]    rd_data_a;
++  input  wire            rd_en_b;
++  input  wire [AW-1:0]   rd_addr_b;
++  output reg  [W-1:0]    rd_data_b;
++
++  // continue2（2026-09-25）：eLinx 隔离综合 iso_bram_sdp_pmem 证明
++  // "同一 $mem 上按 lane 部分写" 不被 memory_bram 接受，退化为 8192×32
++  // 触发器 + 24k $eq（顶层 OPT_MUXTREE 内存爆炸的来源之一）。
++  // 修复：BYTE_EN=1 时拆成 W/8 个独立 8 bit 整字写存储体（每 lane 1W2R，
++  // wr_en & wr_be[l] 为其写使能）。读口语义完全不变：同拍同地址读写
++  // 仍未定义，读延迟 1 拍，rd_en 门控寄存输出。
++  wire [W-1:0] rd_a_w, rd_b_w;
++  genvar lane;
++  generate
++    if (BYTE_EN != 0) begin : g_lanes
++      for (lane = 0; lane < W/8; lane = lane + 1) begin : g_lane
++        bram_sdp_core #(.W(8), .AW(AW), .D(D)) u_lane (
++          .clk(clk), .wr_en(wr_en & wr_be[lane]), .wr_addr(wr_addr),
++          .wr_data(wr_data[8*lane +: 8]),
++          .rd_en_a(rd_en_a), .rd_addr_a(rd_addr_a), .rd_data_a(rd_a_w[8*lane +: 8]),
++          .rd_en_b(rd_en_b), .rd_addr_b(rd_addr_b), .rd_data_b(rd_b_w[8*lane +: 8]));
++      end
++    end else begin : g_word
++      bram_sdp_core #(.W(W), .AW(AW), .D(D)) u_word (
++        .clk(clk), .wr_en(wr_en), .wr_addr(wr_addr), .wr_data(wr_data),
++        .rd_en_a(rd_en_a), .rd_addr_a(rd_addr_a), .rd_data_a(rd_a_w),
++        .rd_en_b(rd_en_b), .rd_addr_b(rd_addr_b), .rd_data_b(rd_b_w));
++    end
++  endgenerate
++  always @(*) begin
++    rd_data_a = rd_a_w;
++    rd_data_b = rd_b_w;
++  end
++endmodule
++
++// 1W1R 存储（continue2）：写口 posedge；RD_NEG=1 时读口 negedge 同步读。
++// 用于把"寄存地址 + 组合读"的配置表改为 BRAM 而保持逐拍等价（读地址须为
++// 上升沿寄存信号；读数据到消费寄存器为半周期路径）。eLinx brams.txt
++// clocks 2 3 / clkpol 2 3 支持端口独立极性。同拍同地址读写未定义。
++module bram_1w1r (clk, wr_en, wr_addr, wr_data, rd_addr, rd_data);
++  parameter integer W = 32;
++  parameter integer D = 4096;
++  parameter integer RD_NEG = 0;
++  function integer clog2;
++    input integer value;
++    integer v;
++    begin
++      v = value - 1;
++      for (clog2 = 0; v > 0; clog2 = clog2 + 1) v = v >> 1;
++    end
++  endfunction
++  localparam integer AW = (D <= 2) ? 1 : clog2(D);
++  input  wire          clk;
++  input  wire          wr_en;
++  input  wire [AW-1:0] wr_addr;
++  input  wire [W-1:0]  wr_data;
++  input  wire [AW-1:0] rd_addr;
++  output reg  [W-1:0]  rd_data;
++  (* no_rw_check *)
++  reg [W-1:0] mem [0:D-1];
++  always @(posedge clk) begin
++    if (wr_en) mem[wr_addr] <= wr_data;
++  end
++  generate
++    if (RD_NEG != 0) begin : g_rneg
++      always @(negedge clk) rd_data <= mem[rd_addr];
++    end else begin : g_rpos
++      always @(posedge clk) rd_data <= mem[rd_addr];
++    end
++  endgenerate
++endmodule
++
++// 整字写 1W2R 存储核（原 BYTE_EN=0 冒烟路径，eLinx 可映射 altsyncram）
++module bram_sdp_core (
++  clk, wr_en, wr_addr, wr_data,
++  rd_en_a, rd_addr_a, rd_data_a,
++  rd_en_b, rd_addr_b, rd_data_b
++);
++  parameter integer W  = 32;
++  parameter integer AW = 13;
++  parameter integer D  = 8192;
++  input  wire          clk;
++  input  wire          wr_en;
++  input  wire [AW-1:0] wr_addr;
++  input  wire [W-1:0]  wr_data;
++  input  wire          rd_en_a;
++  input  wire [AW-1:0] rd_addr_a;
++  output reg  [W-1:0]  rd_data_a;
++  input  wire          rd_en_b;
++  input  wire [AW-1:0] rd_addr_b;
++  output reg  [W-1:0]  rd_data_b;
++  // no_rw_check: 规范本就"不做同拍读写假设"（O-20 第 3 条）
++  (* no_rw_check *)
++  reg [W-1:0] mem [0:D-1];
++  always @(posedge clk) begin
++    if (wr_en) mem[wr_addr] <= wr_data;
++  end
++  always @(posedge clk) begin
++    if (rd_en_a) rd_data_a <= mem[rd_addr_a];
++  end
++  always @(posedge clk) begin
++    if (rd_en_b) rd_data_b <= mem[rd_addr_b];
++  end
++endmodule
+diff --git a/rtl/top/AFDX_top.v b/rtl/top/AFDX_top.v
+index 45864ab..b007276 100644
+--- a/rtl/top/AFDX_top.v
++++ b/rtl/top/AFDX_top.v
+@@ -80,7 +80,21 @@ module AFDX_top #(
+   // PSN RAM 由 u_rxic 唯一持有（init_sweep T_PSN 直写其单写口）；哈希 RAM
+   // 由 u_rxlookup 唯一持有；RM_ST 由 u_rxrm、RX 端口描述符由 u_rxpb 持有。
+   // 其他配置字不复位；w0.valid 清零后读取未启用项返回零，避免暴露 X 内容。
+-  reg [31:0] rx_cfg_mem   [0:2*NUM_RX_VL-1];
++  // continue2（2026-09-25）：rx_cfg_mem（2×NUM_RX_VL×32，6 个组合读口）是顶层
++  // eLinx OPT_MUXTREE "bad allocation" 的决定性根因（iso_top_only 失败、
++  // iso_top_rxvl64 通过）。改为 w0/w1 两张同步读 BRAM（bram_sdp 1W2R 副本），
++  // 每个读口带"地址命中"握手门控：读地址与上拍寄存地址一致且上拍无写入时
++  // 数据有效，消费者 in_vld/上游 ready 以此门控；主机读未命中不 ACK（保持重试）。
++  // 语义不变，仅新 VL 地址首拍多 1 拍等待。
++  function integer clog2_f;
++    input integer value;
++    integer v;
++    begin
++      v = value - 1;
++      for (clog2_f = 0; v > 0; clog2_f = clog2_f + 1) v = v >> 1;
++    end
++  endfunction
++  localparam integer RXA = (NUM_RX_VL <= 2) ? 1 : clog2_f(NUM_RX_VL);
+   reg [31:0] tx_cfg_mem   [0:5*NUM_TX_VL-1];
+   // §8.2/O-27: 与 TX w0~w4 分离的 Q20 份额表，0x0480+VL；数据 BRAM 不整片复位。
+   // loaded 位复用 init_sweep 的 TXCFG 扫描清零，扫描写拍数仍为 25_344。
+@@ -124,6 +138,11 @@ module AFDX_top #(
+   reg  [31:0] rm_dup_cnt, rm_fwd_cnt, rm_skew_cnt;
+   wire rm_out_ready, rm_fire, rm_dup_fire;
+   wire prs_in_ready, prs_out_vld, prs_out_drop;
++  // continue2：RX_VL_CFG BRAM 化后主机读直出（见 u_rxcfg_h*）
++  wire host_rxc_wait;
++  reg  rxc_rd_d, rxc_sel_d;
++  wire [31:0] rxc_host_rdata;
++  wire [31:0] rxq_host_w0, rxq_host_w1;
+   wire [2:0] prs_out_reason;
+   wire [7:0] prs_out_port;
+   wire [1:0] prs_out_type;
+@@ -166,7 +185,8 @@ module AFDX_top #(
+     end
+     else begin
+       // 运行期 RX 块读与 builder 抢读口 A 时不 ACK，主机保持请求到 ACK（重试）。
+-      ack_r <= (hs && (!host_pmem_req || host_commit_now) && !host_rx_rd_wait) ||
++      ack_r <= (hs && (!host_pmem_req || host_commit_now) && !host_rx_rd_wait &&
++                !host_rxc_wait) ||
+                host_commit_pending;
+       pmem_rd_d <= host_pmem_rd;
+       desc_rd_d <= hs && !host_we && desc_hit;
+@@ -175,7 +195,13 @@ module AFDX_top #(
+     end
+   end
+   assign host_ack = ack_r;
+-  assign host_rdata = hash_rd_d ? hash_cfg_rdata :
++  // continue2 修复（2026-09-25，本轮）：RX_VL_CFG 改为 BRAM 同步读后 rdata_r 在
++  // rx_hit 时恒为 0，主机回读必须由 rxc_host_rdata 在 ACK 拍直出。上一轮改造漏接
++  // 本选择器，导致 T01/T22/T22g 的 RX CFG 回读与 T08f/T08fg 全表记分板读回 0。
++  // 地址域互斥（RX_VL_CFG 0x1D80-0x3D7F 不与 hash/pmem/desc 段重叠），故插在最前
++  // 不改变其他读路径优先级。
++  assign host_rdata = rxc_rd_d  ? rxc_host_rdata :
++                      hash_rd_d ? hash_cfg_rdata :
+                        pmem_rd_d ? pmem_data_a :
+                       desc_rd_d ? (desc_rx_d ? rdata_r :
+                                    pb_req[desc_idx] ? pb_desc_rd_data : 32'd0) : rdata_r;
+@@ -246,7 +272,55 @@ module AFDX_top #(
+   assign desc_idx = host_addr - 16'h8180;
+   wire [9:0] vs_idx   = host_addr - 16'hA810;
+   wire tx_cfg_valid = tx_cfg_mem[(tx_idx / 10'd5) * 10'd5][31];
+-  wire rx_cfg_valid = rx_cfg_mem[(rx_idx / 13'd2) * 13'd2][31];
++  // ---- RX_VL_CFG 存储（continue2：w0/w1 分表 BRAM 副本，写口全部同源）----
++  // 流水线读口（FLT w0/w1、RM 入口 w0、解析 w0）：写口 posedge、读口 negedge。
++  //   读地址均为上升沿寄存的级输出（lookup_out_vl/rm_in_vl/rm_out_vl），在
++  //   下降沿采样，数据于下一上升沿前稳定 → 与原组合读逐拍等价（无额外气泡）；
++  //   代价：读出到消费寄存器为半周期路径（STA 须按半周期约束核对）。
++  //   brams.txt: clocks 2 3 / clkpol 2 3（端口独立时钟与极性）可映射。
++  // 主机读口：posedge 同步读，数据在 ACK 拍直接经 rxc_rd_d 选出（原 rdata_r 同拍）。
++  wire rxc_init_we = init_we && (init_target == 3'd3);
++  wire rxc_host_we = cfg_write && rx_hit;
++  wire rxc_w0_we = rxc_init_we || (rxc_host_we && !rx_idx[0]);
++  wire rxc_w1_we = !rxc_init_we && rxc_host_we && rx_idx[0];
++  wire [RXA-1:0] rxc_waddr = rxc_init_we ? init_addr[RXA-1:0] : rx_idx[RXA:1];
++  wire [31:0] rxc_wdata = rxc_init_we ? 32'd0 : host_wdata;
++  wire rxc_any_we = rxc_w0_we || rxc_w1_we;
++  wire [RXA-1:0] rxa_flt  = lookup_out_vl[RXA-1:0];
++  wire [RXA-1:0] rxa_rm   = rm_in_vl[RXA-1:0];
++  wire [RXA-1:0] rxa_prs  = rm_out_vl[RXA-1:0];
++  wire [RXA-1:0] rxa_host = rx_idx[RXA:1];
++  wire [31:0] rxq_flt_w0, rxq_rm_w0, rxq_prs_w0, rxq_flt_w1;
++  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_flt0 (
++    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
++    .rd_addr(rxa_flt), .rd_data(rxq_flt_w0));
++  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_flt1 (
++    .clk(clk), .wr_en(rxc_w1_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
++    .rd_addr(rxa_flt), .rd_data(rxq_flt_w1));
++  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_rm0 (
++    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
++    .rd_addr(rxa_rm), .rd_data(rxq_rm_w0));
++  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_prs0 (
++    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
++    .rd_addr(rxa_prs), .rd_data(rxq_prs_w0));
++  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(0)) u_rxcfg_h0 (
++    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
++    .rd_addr(rxa_host), .rd_data(rxq_host_w0));
++  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(0)) u_rxcfg_h1 (
++    .clk(clk), .wr_en(rxc_w1_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
++    .rd_addr(rxa_host), .rd_data(rxq_host_w1));
++  // 主机读与 init 扫描写同拍（仅 INIT 期间可能）时不 ACK，主机保持重试。
++  assign host_rxc_wait = hs && !host_we && rx_hit && rxc_any_we;
++  always @(posedge clk) begin
++    if (rst_sync) begin rxc_rd_d <= 1'b0; rxc_sel_d <= 1'b0; end
++    else begin
++      rxc_rd_d  <= hs && !host_we && rx_hit && !rxc_any_we;
++      rxc_sel_d <= rx_idx[0];
++    end
++  end
++  // 读未启用项（w0.valid=0）返回零，语义同原 rx_cfg_valid。
++  assign rxc_host_rdata = !rxq_host_w0[31] ? 32'd0 :
++                          (rxc_sel_d ? rxq_host_w1 : rxq_host_w0);
+   wire port_cfg_valid = port_cfg_mem[(port_idx / 10'd4) * 10'd4][31];
+   assign cfg_write = we & init_done & ctl_r[13] & !(|ctl_r[1:0]);
+   wire share_wr = cfg_write && share_hit && share_format_ok;
+@@ -325,8 +399,7 @@ module AFDX_top #(
+ 
+   // 扫描优先于配置期前门写；无同步复位整片 BRAM 的写法。
+   always @(posedge clk) begin
+-    if (init_we && init_target == 3'd3) rx_cfg_mem[init_addr * 13'd2] <= 32'd0;
+-    else if (cfg_write && rx_hit) rx_cfg_mem[rx_idx] <= host_wdata;
++    // RX_VL_CFG 写口已移入 u_rxcfg_w0a/w0b/w1（见上文），扫描优先级不变。
+     if (init_we && init_target == 3'd4) tx_cfg_mem[init_addr * 13'd5] <= 32'd0;
+     else if (cfg_write && tx_hit) tx_cfg_mem[tx_idx] <= host_wdata;
+     if (init_we && init_target == 3'd5) port_cfg_mem[init_addr * 13'd4] <= 32'd0;
+@@ -452,7 +525,7 @@ module AFDX_top #(
+       else if (tx_hit) rdata_r <= tx_cfg_valid ? tx_cfg_mem[tx_idx] : 32'd0;
+       else if (share_hit) rdata_r <= (init_done && cfg_share_loaded[share_idx]) ?
+                                    {11'd0,cfg_share_mem[share_idx]} : 32'd0;
+-      else if (rx_hit) rdata_r <= rx_cfg_valid ? rx_cfg_mem[rx_idx] : 32'd0;
++      else if (rx_hit) rdata_r <= 32'd0;  // continue2：由 rxc_rd_d/rxc_host_rdata 直出
+       else if (port_hit) rdata_r <= port_cfg_valid ? port_cfg_mem[port_idx] : 32'd0;
+       else if (desc_hit) rdata_r <= hop_is_rx ? rxpb_desc_word : 32'd0;  // TX: PB 读出经 desc_rd_d 选
+       else if (msg_cnt_hit) rdata_r <= hop_is_rx ? {28'd0,rxpb_cnt_word} : 32'd0;
+@@ -722,8 +795,8 @@ module AFDX_top #(
+     .in_vld(lookup_out_vld), .in_ready(flt_in_ready),
+     .in_hit(lookup_out_hit), .in_vl(lookup_out_vl),
+     .in_desc(lookup_out_desc),
+-    .in_w0(rx_cfg_mem[{lookup_out_vl,1'b0}]),
+-    .in_w1(rx_cfg_mem[{lookup_out_vl,1'b1}]),
++    .in_w0(rxq_flt_w0),
++    .in_w1(rxq_flt_w1),
+     .out_vld(flt_out_vld), .out_ready(flt_out_ready),
+     .out_pass(flt_out_pass), .out_reason(flt_out_reason),
+     .out_vl(flt_out_vl), .out_desc(flt_out_desc));
+@@ -749,7 +822,7 @@ module AFDX_top #(
+   assign rm_in_vld  = ic_to_rm || (flt_out_vld && flt_to_rm && !ic_out_vld);
+   assign rm_in_desc = ic_to_rm ? ic_out_desc : flt_out_desc;
+   assign rm_in_vl   = ic_to_rm ? ic_out_vl   : flt_out_vl;
+-  wire [31:0] rm_in_w0 = rx_cfg_mem[{rm_in_vl,1'b0}];
++  wire [31:0] rm_in_w0 = rxq_rm_w0;
+   rx_ic #(.DW(RXD_W), .NUM_RX_VL(NUM_RX_VL)) u_rxic (
+     .clk(clk), .rst_sync(rst_sync), .init_done(init_done),
+     .init_we(init_we && (init_target == 3'd0)), .init_addr(init_addr),
+@@ -779,7 +852,7 @@ module AFDX_top #(
+   assign rm_out_ready = rm_out_fwd ? prs_in_ready : 1'b1;
+   assign rm_fire      = rm_out_vld && rm_out_ready;
+   assign rm_dup_fire  = rm_out_vld && !rm_out_fwd;
+-  wire [31:0] prs_w0  = rx_cfg_mem[{rm_out_vl,1'b0}];
++  wire [31:0] prs_w0  = rxq_prs_w0;
+   wire [7:0]  prs_pb  = prs_w0[19:12];
+   rx_ip_udp_parse #(.DW(RXD_W), .NUM_PORTS(NUM_PORTS)) u_rxprs (
+     .clk(clk), .rst_sync(rst_sync),

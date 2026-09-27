@@ -17,6 +17,7 @@ param(
   [switch]$KeepWork,
   [switch]$Acc          # pass -voptargs=+acc so $dumpvars VCDs have
                         # content (week-0 pitfall #11); costs sim time
+  ,[switch]$Coverage    # compile +cover=sb and save one UCDB per test
 )
 $ErrorActionPreference = 'Stop'
 
@@ -47,6 +48,14 @@ foreach ($pn in @('vsim','vish','vlm','vlog','vcom','vopt')) {
 $sim = $PSScriptRoot
 Set-Location $sim
 if (-not (Test-Path out)) { New-Item -ItemType Directory -Path out | Out-Null }
+$coverageRoot = Join-Path (Split-Path -Parent $sim) 'out/arena-debug/continue5/ucdb'
+if ($Coverage) {
+  New-Item -ItemType Directory -Force -Path $coverageRoot | Out-Null
+  $env:VLOG_COVERAGE = '1'
+} else {
+  $env:VLOG_COVERAGE = '0'
+  Remove-Item Env:UCDB_OUT -ErrorAction SilentlyContinue
+}
 
 # --- manifest ---
 $manifest = @()
@@ -73,17 +82,26 @@ if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -
     exit 1
   }
 }
-if (@($manifest | Where-Object { $_.Id -like 'T08*' }).Count -gt 0) {
-  # T08a/b/c share independently FCS-checked real-frame golden vectors.
+if (@($manifest | Where-Object { $_.Id -like 'T15*' -or $_.Id -like 'T16*' }).Count -gt 0) {
+  # continue4: T15/T16 use their own SAP golden frames carrying real SNMP BER
+  # PDUs and ARINC-615A TFTP packets (same afdx_model + zlib wire-order FCS).
+  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t15_vectors.py')
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "ERROR: T15/T16 management golden vector generation failed"
+    exit 1
+  }
+}
+if (@($manifest | Where-Object { $_.Id -like 'T08*' -or $_.Id -like 'T11*' -or $_.Id -like 'T14*' -or $_.Id -like 'T15*' -or $_.Id -like 'T16*' -or $_.Id -like 'T17*' -or $_.Id -like 'T21*' -or $_.Id -like 'T22*' -or $_.Id -like 'T23*' }).Count -gt 0) {
+  # T08/T11/T14/T15/T16/T17/T21/T22/T23 share independently FCS-checked real-frame golden vectors.
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t08a_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T08 RX Python golden vector generation failed"
     exit 1
   }
 }
-if (@($manifest | Where-Object { $_.Id -like 'T12*' }).Count -gt 0) {
-  # Regenerate BOTH tables and independent key lists; offline rejection must
-  # fail the regression instead of running against an old partial image.
+if (@($manifest | Where-Object { $_.Id -like 'T12*' -or $_.Id -like 'T08f*' }).Count -gt 0) {
+  # T12 and T08f need both tables and independent key lists; offline rejection
+  # must fail the regression instead of running against an old partial image.
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t12_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T12 offline hash image generation failed"
@@ -127,13 +145,16 @@ if (-not $KeepWork) {
     '../rtl/common/rst_sync.v', '../rtl/common/timebase.v',
     '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
     '../rtl/common/bram_sdp.v',  '../rtl/top/init_sweep.v', '../rtl/top/AFDX_top.v',
+    '../rtl/top/stats_regs.v',
     '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
     '../rtl/tx/tx_frame_builder.v', '../rtl/tx/tx_vl_scheduler.v',
     '../rtl/tx/tx_rm.v',            '../rtl/tx/tx_pace.v',
     '../rtl/tx/mac_tx_if.v',   '../rtl/rx/mac_rx_if.v',
     '../rtl/rx/rx_block_pool.v', '../rtl/rx/rx_pmem_queue.v',
     '../rtl/rx/rx_ic.v', '../rtl/rx/rx_vl_lookup.v', '../rtl/rx/rx_flt.v',
-    '../rtl/rx/rx_rm.v', '../rtl/rx/rx_ip_udp_parse.v', '../rtl/rx/rx_port_buf.v'
+    '../rtl/rx/rx_rm.v', '../rtl/rx/rx_ip_udp_parse.v', '../rtl/rx/rx_port_buf.v',
+    '../rtl/mgmt/mgmt_sap_rx.v', '../rtl/mgmt/snmp_lite.v',
+    '../rtl/mgmt/a615a_tftp.v',  '../rtl/mgmt/rtc_sync.v'
   )
   # TB file = tb/<tb>.v; a TB whose file hosts several top modules (e.g.
   # tb_t04g_tx_chain lives in tb_t04_tx_chain.v) is mapped here.
@@ -143,9 +164,16 @@ if (-not $KeepWork) {
                'tb_t08cg_host_arb' = 'tb_t08c_host_arb';
                'tb_t08dg_top_flt' = 'tb_t08d_top_flt';
                'tb_t08eg_top_ic' = 'tb_t08e_top_ic';
+               'tb_t08fg_full_scoreboard' = 'tb_t08f_full_scoreboard';
+               'tb_t05bg_jitter' = 'tb_t05b_jitter';
+               'tb_t13g_latency' = 'tb_t13_latency';
+               'tb_t18g_random_stress' = 'tb_t18_random_stress';
+               'tb_t23g_sap_min' = 'tb_t23_sap_min';
                'tb_t10g_top_rm' = 'tb_t10_top_rm';
                'tb_t11g_top_port' = 'tb_t11_top_port';
                'tb_t11ig_top_int' = 'tb_t11i_top_int';
+               'tb_t17g_min_frame_stress' = 'tb_t17_min_frame_stress';
+               'tb_t21g_block_pool' = 'tb_t21_block_pool';
                'tb_t22g_top_loopback' = 'tb_t22_top_loopback';
                'tb_t09s_rx_ic' = 'tb_t09_rx_ic';
                'tb_t09ps_rx_ic' = 'tb_t09p_rx_ic';
@@ -153,7 +181,10 @@ if (-not $KeepWork) {
                'tb_t12r_lookup' = 'tb_t12_rx_lookup';
                'tb_t12s_lookup' = 'tb_t12_rx_lookup';
                'tb_t12h_lookup' = 'tb_t12_rx_lookup';
-               'tb_t12fg_top_lookup' = 'tb_t12f_top_lookup' }
+               'tb_t12fg_top_lookup' = 'tb_t12f_top_lookup';
+               'tb_t14_stats_regs_gmii' = 'tb_t14_stats_regs';
+               'tb_t15_snmp_gmii' = 'tb_t15_snmp';
+               'tb_t16_tftp_rtc_gmii' = 'tb_t16_tftp_rtc' }
   $tbs = @(); foreach ($m in $manifest) {
     $f = if ($tbfile.ContainsKey($m.Tb)) { $tbfile[$m.Tb] } else { $m.Tb }
     $tbs += ('tb/' + $f + '.v')
@@ -189,6 +220,12 @@ foreach ($m in $manifest) {
   $idx++
   $log = 'out/' + $m.Id + '_console.txt'
   $env:TEST_TB = $m.Tb
+  if ($Coverage) {
+    $env:UCDB_OUT = Join-Path $coverageRoot ($m.Id + '.ucdb')
+    Remove-Item $env:UCDB_OUT -Force -ErrorAction SilentlyContinue
+  } else {
+    Remove-Item Env:UCDB_OUT -ErrorAction SilentlyContinue
+  }
   $sw = [Diagnostics.Stopwatch]::StartNew()
   $rc = Run-Vsim 'source run_one.tcl' $log 600
   $wall = [math]::Round($sw.Elapsed.TotalSeconds,1)

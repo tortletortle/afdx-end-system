@@ -32,7 +32,13 @@ module AFDX_top #(
   parameter integer RTC_EN        = 1,
   parameter integer SUBVL_MAX     = 8,
   parameter integer TICK_US       = 1,
-  parameter integer STATS_EN      = 1
+  parameter integer STATS_EN      = 1,
+  // continue4：管理面 SAP 端口号→服务映射（按 SAP 端口路由，不动 UDP 端口基址）
+  parameter integer SNMP_SAP_PORT = 6,
+  parameter integer TFTP_SAP_PORT = 7,
+  parameter integer RTC_US_PER_SEC = 1000000,
+  parameter integer RTC_SYNC_TO_US = 4000,
+  parameter integer TFTP_TIMEOUT_US = 5000
 ) (
   // ---- 模板 8 端口（§5.2: 保留原样，方向与位宽不动）----
   input  wire        clk,
@@ -80,7 +86,21 @@ module AFDX_top #(
   // PSN RAM 由 u_rxic 唯一持有（init_sweep T_PSN 直写其单写口）；哈希 RAM
   // 由 u_rxlookup 唯一持有；RM_ST 由 u_rxrm、RX 端口描述符由 u_rxpb 持有。
   // 其他配置字不复位；w0.valid 清零后读取未启用项返回零，避免暴露 X 内容。
-  reg [31:0] rx_cfg_mem   [0:2*NUM_RX_VL-1];
+  // continue2（2026-09-25）：rx_cfg_mem（2×NUM_RX_VL×32，6 个组合读口）是顶层
+  // eLinx OPT_MUXTREE "bad allocation" 的决定性根因（iso_top_only 失败、
+  // iso_top_rxvl64 通过）。改为 w0/w1 两张同步读 BRAM（bram_sdp 1W2R 副本），
+  // 每个读口带"地址命中"握手门控：读地址与上拍寄存地址一致且上拍无写入时
+  // 数据有效，消费者 in_vld/上游 ready 以此门控；主机读未命中不 ACK（保持重试）。
+  // 语义不变，仅新 VL 地址首拍多 1 拍等待。
+  function integer clog2_f;
+    input integer value;
+    integer v;
+    begin
+      v = value - 1;
+      for (clog2_f = 0; v > 0; clog2_f = clog2_f + 1) v = v >> 1;
+    end
+  endfunction
+  localparam integer RXA = (NUM_RX_VL <= 2) ? 1 : clog2_f(NUM_RX_VL);
   reg [31:0] tx_cfg_mem   [0:5*NUM_TX_VL-1];
   // §8.2/O-27: 与 TX w0~w4 分离的 Q20 份额表，0x0480+VL；数据 BRAM 不整片复位。
   // loaded 位复用 init_sweep 的 TXCFG 扫描清零，扫描写拍数仍为 25_344。
@@ -93,6 +113,9 @@ module AFDX_top #(
   wire cfg_missing = (cfg_missing_cnt != 8'd0);
   reg [31:0] port_cfg_mem [0:4*NUM_PORTS-1];
   reg [31:0] vl_stat_mem  [0:NUM_TX_VL-1];
+  reg [31:0] vl_tx_frame_cnt [0:NUM_TX_VL-1];
+  reg [31:0] vl_rx_accept_cnt[0:NUM_TX_VL-1];
+  reg [31:0] vl_drop_cnt     [0:NUM_TX_VL-1];
 
   // RX 描述符（v0.5.16 起 174 bit）：{plen[10:0], blk, len, ts, vlid, sn, net,
   // ifid, src, dst, sport, dport}；低 163 bit 布局与 rx_ic 单元测试一致。
@@ -124,6 +147,11 @@ module AFDX_top #(
   reg  [31:0] rm_dup_cnt, rm_fwd_cnt, rm_skew_cnt;
   wire rm_out_ready, rm_fire, rm_dup_fire;
   wire prs_in_ready, prs_out_vld, prs_out_drop;
+  // continue2：RX_VL_CFG BRAM 化后主机读直出（见 u_rxcfg_h*）
+  wire host_rxc_wait;
+  reg  rxc_rd_d, rxc_sel_d;
+  wire [31:0] rxc_host_rdata;
+  wire [31:0] rxq_host_w0, rxq_host_w1;
   wire [2:0] prs_out_reason;
   wire [7:0] prs_out_port;
   wire [1:0] prs_out_type;
@@ -131,6 +159,11 @@ module AFDX_top #(
   wire [10:0] prs_out_plen;
   wire [23:0] prs_out_ts;
   wire pb_in_ready, pb_free0, pb_free1, pb_ev_drop, pb_ev_sample, pb_ev_queue, pb_ev_ovf;
+  // SAP bypasses rx_port_buf only after its normal P2 validation. The
+  // descriptor handoff owns its block until it requests an arbitrated return.
+  wire prs_to_sap, prs_to_port, sap_in_ready, mgmt_free_req, mgmt_free_take;
+  wire [3:0] mgmt_free_id;
+  wire [31:0] mgmt_accept_cnt, mgmt_free_cnt, mgmt_last_desc;
   wire rx_crc_err_a, rx_crc_err_b;
   wire [3:0] pb_free0_id, pb_free1_id, rxpb_cnt_word;
   wire [31:0] rxpb_desc_word, rxpb_deliver_cnt, rxpb_port_drop_cnt,
@@ -146,6 +179,44 @@ module AFDX_top #(
   wire [NUM_PORTS-1:0] pb_req;
   reg ack_r, pmem_rd_d, desc_rd_d, hash_rd_d, desc_rx_d;
   wire host_rx_rd, host_rx_rd_wait, hop_desc_rd, fb_rd_en_a;
+  // continue4：全局统计页 0x0100~0x01FF 由 stats_regs 承担（前置声明，§10/vlog-2730）
+  wire [31:0] stats_rdata;
+  wire        stats_wr_ok;
+  wire [7:0]  stats_snmp_off;
+  wire [31:0] stats_snmp_rdata;
+  // continue4：管理面（SNMP / A615-A TFTP / RTC）前置声明
+  wire        sap_pm_req, sap_pm_gnt;
+  wire [12:0] sap_pm_addr;
+  wire        sap_out_vld, sap_out_sop, sap_out_eop;
+  wire [7:0]  sap_out_data;
+  wire [15:0] sap_out_sport, sap_out_dport;
+  wire [31:0] sap_out_srcip;
+  wire [31:0] mgmt_pay_cnt;
+  wire [31:0] snmp_st_w, snmp_cnt_rx, snmp_cnt_tx, snmp_cnt_drop;
+  wire [10:0] snmp_resp_len;
+  wire        snmp_resp_vld;
+  wire [7:0]  snmp_resp_byte;
+  wire        snmp_ctl_we;
+  wire [15:0] snmp_ctl_wdata;
+  wire [7:0]  snmp_mib_group, snmp_mib_leaf, snmp_mib_index;
+  wire [31:0] snmp_vl_data;
+  wire        snmp_vl_bag_allowed, snmp_vl_bag_we;
+  wire [7:0]  snmp_vl_bag_index;
+  wire [31:0] snmp_vl_bag_wdata;
+  wire [31:0] tftp_st_w, tftp_bytes, tftp_crc, tftp_pkt, tftp_de, tftp_tr, tftp_fnh;
+  wire [10:0] tftp_resp_len;
+  wire        tftp_resp_vld;
+  wire [7:0]  tftp_resp_byte;
+  wire [31:0] tftp_load_rdata;
+  wire [31:0] rtc_st_w, rtc_err_w, rtc_jump_w, rtc_step_w, rtc_pps_w, rtc_phase_w;
+  wire [63:0] rtc_corrected;
+  wire        rtc_pps_pulse, rtc_locked, rtc_sloss;
+  reg         load_rd_d;
+  wire [31:0] stats_jit_max, stats_drop_total;
+  reg  [15:0] snmp_ctl_shadow;
+  reg  [7:0]  mgmt_bidx;
+  reg  [31:0] uptime_cs;
+  reg  [13:0] cs_div;
   reg host_pmem_pending;
   reg [12:0] host_pmem_pending_addr;
   reg [31:0] host_pmem_pending_data;
@@ -161,7 +232,8 @@ module AFDX_top #(
     end
     else begin
       // 运行期 RX 块读与 builder 抢读口 A 时不 ACK，主机保持请求到 ACK（重试）。
-      ack_r <= (hs && (!host_pmem_req || host_commit_now) && !host_rx_rd_wait) ||
+      ack_r <= (hs && (!host_pmem_req || host_commit_now) && !host_rx_rd_wait &&
+                !host_rxc_wait) ||
                host_commit_pending;
       pmem_rd_d <= host_pmem_rd;
       desc_rd_d <= hs && !host_we && desc_hit;
@@ -170,7 +242,14 @@ module AFDX_top #(
     end
   end
   assign host_ack = ack_r;
-  assign host_rdata = hash_rd_d ? hash_cfg_rdata :
+  // continue2 修复（2026-09-25，本轮）：RX_VL_CFG 改为 BRAM 同步读后 rdata_r 在
+  // rx_hit 时恒为 0，主机回读必须由 rxc_host_rdata 在 ACK 拍直出。上一轮改造漏接
+  // 本选择器，导致 T01/T22/T22g 的 RX CFG 回读与 T08f/T08fg 全表记分板读回 0。
+  // 地址域互斥（RX_VL_CFG 0x1D80-0x3D7F 不与 hash/pmem/desc 段重叠），故插在最前
+  // 不改变其他读路径优先级。
+  assign host_rdata = rxc_rd_d  ? rxc_host_rdata :
+                      load_rd_d ? tftp_load_rdata :
+                      hash_rd_d ? hash_cfg_rdata :
                        pmem_rd_d ? pmem_data_a :
                       desc_rd_d ? (desc_rx_d ? rdata_r :
                                    pb_req[desc_idx] ? pb_desc_rd_data : 32'd0) : rdata_r;
@@ -196,6 +275,13 @@ module AFDX_top #(
   assign desc_hit = (host_addr >= 16'h8180 && host_addr <= 16'h827F) &&
                   ((host_addr - 16'h8180) < NUM_PORTS);
   wire vlstat_hit = (host_addr >= 16'hA810 && host_addr <= 16'hAC0F);
+  // MGMT_WIN follows VL_STATS without aliasing it. Table/window words are:
+  // 0 accept count, 1 block-return count, 2 latest descriptor, 3 busy.
+  wire mgmt_hit = (host_addr >= 16'hAC10 && host_addr <= 16'hAC13);
+  // continue4：管理面观测窗 0xAC14~0xAC3F（SNMP/TFTP/RTC 状态与响应字节口）
+  wire mgmt2_hit = (host_addr >= 16'hAC14 && host_addr <= 16'hAC3F);
+  // continue4：A615-A 加载区 0xCC20~0xEC1F（8192 字 = 32 KB），同步读
+  wire load_hit  = (host_addr >= 16'hCC20 && host_addr <= 16'hEC1F);
   wire pmem_hit = (host_addr >= 16'h8800 && host_addr <= 16'hA7FF);
   wire msg_wr_hit = (host_addr >= 16'h8280 && host_addr <= 16'h837F);
   // v0.5.16 RX 端口主机操作：PORT_DESC 0x8180+p（RX 端口读即清 fresh/ovf）、
@@ -238,7 +324,64 @@ module AFDX_top #(
   assign desc_idx = host_addr - 16'h8180;
   wire [9:0] vs_idx   = host_addr - 16'hA810;
   wire tx_cfg_valid = tx_cfg_mem[(tx_idx / 10'd5) * 10'd5][31];
-  wire rx_cfg_valid = rx_cfg_mem[(rx_idx / 13'd2) * 13'd2][31];
+  wire snmp_vl_valid = (snmp_mib_index < NUM_TX_VL);
+  wire [9:0] snmp_vl_base = {2'd0,snmp_mib_index} * 10'd5;
+  assign snmp_vl_bag_allowed = snmp_vl_valid && (snmp_mib_leaf == 8'd5);
+  assign snmp_vl_data = !snmp_vl_valid ? 32'd0 :
+                        (snmp_mib_leaf == 8'd5) ? {8'd0,tx_cfg_mem[snmp_vl_base+10'd1][31:8]} :
+                        (snmp_mib_leaf == 8'd6) ? vl_tx_frame_cnt[snmp_mib_index] :
+                        (snmp_mib_leaf == 8'd7) ? vl_rx_accept_cnt[snmp_mib_index] :
+                        (snmp_mib_leaf == 8'd8) ? vl_drop_cnt[snmp_mib_index] :
+                        (snmp_mib_leaf == 8'd9) ? vl_stat_mem[snmp_mib_index] : 32'd0;
+  // ---- RX_VL_CFG 存储（continue2：w0/w1 分表 BRAM 副本，写口全部同源）----
+  // 流水线读口（FLT w0/w1、RM 入口 w0、解析 w0）：写口 posedge、读口 negedge。
+  //   读地址均为上升沿寄存的级输出（lookup_out_vl/rm_in_vl/rm_out_vl），在
+  //   下降沿采样，数据于下一上升沿前稳定 → 与原组合读逐拍等价（无额外气泡）；
+  //   代价：读出到消费寄存器为半周期路径（STA 须按半周期约束核对）。
+  //   brams.txt: clocks 2 3 / clkpol 2 3（端口独立时钟与极性）可映射。
+  // 主机读口：posedge 同步读，数据在 ACK 拍直接经 rxc_rd_d 选出（原 rdata_r 同拍）。
+  wire rxc_init_we = init_we && (init_target == 3'd3);
+  wire rxc_host_we = cfg_write && rx_hit;
+  wire rxc_w0_we = rxc_init_we || (rxc_host_we && !rx_idx[0]);
+  wire rxc_w1_we = !rxc_init_we && rxc_host_we && rx_idx[0];
+  wire [RXA-1:0] rxc_waddr = rxc_init_we ? init_addr[RXA-1:0] : rx_idx[RXA:1];
+  wire [31:0] rxc_wdata = rxc_init_we ? 32'd0 : host_wdata;
+  wire rxc_any_we = rxc_w0_we || rxc_w1_we;
+  wire [RXA-1:0] rxa_flt  = lookup_out_vl[RXA-1:0];
+  wire [RXA-1:0] rxa_rm   = rm_in_vl[RXA-1:0];
+  wire [RXA-1:0] rxa_prs  = rm_out_vl[RXA-1:0];
+  wire [RXA-1:0] rxa_host = rx_idx[RXA:1];
+  wire [31:0] rxq_flt_w0, rxq_rm_w0, rxq_prs_w0, rxq_flt_w1;
+  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_flt0 (
+    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
+    .rd_addr(rxa_flt), .rd_data(rxq_flt_w0));
+  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_flt1 (
+    .clk(clk), .wr_en(rxc_w1_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
+    .rd_addr(rxa_flt), .rd_data(rxq_flt_w1));
+  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_rm0 (
+    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
+    .rd_addr(rxa_rm), .rd_data(rxq_rm_w0));
+  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(1)) u_rxcfg_prs0 (
+    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
+    .rd_addr(rxa_prs), .rd_data(rxq_prs_w0));
+  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(0)) u_rxcfg_h0 (
+    .clk(clk), .wr_en(rxc_w0_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
+    .rd_addr(rxa_host), .rd_data(rxq_host_w0));
+  bram_1w1r #(.W(32), .D(NUM_RX_VL), .RD_NEG(0)) u_rxcfg_h1 (
+    .clk(clk), .wr_en(rxc_w1_we), .wr_addr(rxc_waddr), .wr_data(rxc_wdata),
+    .rd_addr(rxa_host), .rd_data(rxq_host_w1));
+  // 主机读与 init 扫描写同拍（仅 INIT 期间可能）时不 ACK，主机保持重试。
+  assign host_rxc_wait = hs && !host_we && rx_hit && rxc_any_we;
+  always @(posedge clk) begin
+    if (rst_sync) begin rxc_rd_d <= 1'b0; rxc_sel_d <= 1'b0; end
+    else begin
+      rxc_rd_d  <= hs && !host_we && rx_hit && !rxc_any_we;
+      rxc_sel_d <= rx_idx[0];
+    end
+  end
+  // 读未启用项（w0.valid=0）返回零，语义同原 rx_cfg_valid。
+  assign rxc_host_rdata = !rxq_host_w0[31] ? 32'd0 :
+                          (rxc_sel_d ? rxq_host_w1 : rxq_host_w0);
   wire port_cfg_valid = port_cfg_mem[(port_idx / 10'd4) * 10'd4][31];
   assign cfg_write = we & init_done & ctl_r[13] & !(|ctl_r[1:0]);
   wire share_wr = cfg_write && share_hit && share_format_ok;
@@ -317,13 +460,19 @@ module AFDX_top #(
 
   // 扫描优先于配置期前门写；无同步复位整片 BRAM 的写法。
   always @(posedge clk) begin
-    if (init_we && init_target == 3'd3) rx_cfg_mem[init_addr * 13'd2] <= 32'd0;
-    else if (cfg_write && rx_hit) rx_cfg_mem[rx_idx] <= host_wdata;
+    // RX_VL_CFG 写口已移入 u_rxcfg_w0a/w0b/w1（见上文），扫描优先级不变。
     if (init_we && init_target == 3'd4) tx_cfg_mem[init_addr * 13'd5] <= 32'd0;
     else if (cfg_write && tx_hit) tx_cfg_mem[tx_idx] <= host_wdata;
+    else if (snmp_vl_bag_we && (snmp_vl_bag_index < NUM_TX_VL))
+      tx_cfg_mem[({2'd0,snmp_vl_bag_index} * 10'd5) + 10'd1][31:8] <= snmp_vl_bag_wdata[23:0];
     if (init_we && init_target == 3'd5) port_cfg_mem[init_addr * 13'd4] <= 32'd0;
     else if (cfg_write && port_hit) port_cfg_mem[port_idx] <= host_wdata;
-    if (init_we && init_target == 3'd7) vl_stat_mem[init_addr] <= 32'd0;
+    if (init_we && init_target == 3'd7) begin
+      vl_stat_mem[init_addr] <= 32'd0;
+      vl_tx_frame_cnt[init_addr] <= 32'd0;
+      vl_rx_accept_cnt[init_addr] <= 32'd0;
+      vl_drop_cnt[init_addr] <= 32'd0;
+    end
   end
 
   // 时基（RTC 同步留待管理面）；静态网络发送依赖真实 rtc64[23:0]。
@@ -332,8 +481,10 @@ module AFDX_top #(
   timebase #(.TICK_US(TICK_US)) u_timebase (
     .clk(clk), .rst(rst_sync), .rtc_hold(ctl_r[11]),
     .freq_adj(16'd524), .rtc64(rtc64), .tick_us(tick_us), .alive(alive));
-  assign rtc_time_us = rtc64;
-  assign pps_out = 1'b0;
+  // continue4：对外 RTC 走 rtc_sync 的校正结果（无对时事件时 offset=0，等于 rtc64）；
+  // 片内 TX 时间戳仍直接用 rtc64，避免改变既有发送时序语义。
+  assign rtc_time_us = (RTC_EN != 0) ? rtc_corrected : rtc64;
+  assign pps_out     = (RTC_EN != 0) ? rtc_pps_pulse : 1'b0;
 
   localparam [31:0] REG_ID    = {16'hAF07, NUM_RX_VL[15:0]};
   localparam [31:0] REG_REV   = 32'h4_0000;
@@ -367,12 +518,15 @@ module AFDX_top #(
                       (off == 8'h7C) || (off == 8'h80) || (off == 8'hFC);
   wire rd_known = (reg_page && reg_align && reg_known) || stats_hit ||
                   tx_hit || share_hit || rx_hit || hash_rd_accept ||
-                  port_hit || desc_hit || vlstat_hit || msg_cnt_hit || host_rx_rd ||
+                  port_hit || desc_hit || vlstat_hit || mgmt_hit || mgmt2_hit ||
+                  (load_hit && (TFTP_EN != 0)) || msg_cnt_hit || host_rx_rd ||
                   (pmem_hit && init_done && ctl_r[13] && !ctl_r[0] && !fb_busy);
+  wire stats_wr = we && stats_hit && stats_wr_ok;   // continue4：统计页 W1C
+  wire mgmt2_wr = we && mgmt2_hit;                  // continue4：观测窗控制字
   wire wr_known = (reg_page && reg_align && reg_writable) ||
                   (cfg_write && (tx_hit || rx_hit || port_hit)) ||
                   hash_wr_accept ||
-                  share_wr ||
+                  share_wr || stats_wr || mgmt2_wr ||
                   pmem_wok || msg_valid || msg_rd_ok;
   wire rd_miss = hs && !host_we && !rd_known;
   wire hash_reg_bad = (hash_seed0_addr && !hash_seed0_wr) ||
@@ -437,20 +591,58 @@ module AFDX_top #(
       // 全局统计页（v0.5.16 起接 RX 端口面，其余仍读 0）：0x0100 RX 交付消息数，
       // 0x0101 解析丢弃（端口未配/方向/UDP 目的端口/SAP），0x0102 采样覆盖，
       // 0x0103 队列满丢弃。
-      end else if (stats_hit) rdata_r <= (host_addr[7:0] == 8'h00) ? rxpb_deliver_cnt :
-                                         (host_addr[7:0] == 8'h01) ? rxpb_port_drop_cnt :
-                                         (host_addr[7:0] == 8'h02) ? rxpb_ovr_cnt :
-                                         (host_addr[7:0] == 8'h03) ? rxpb_qovf_cnt : 32'd0;
+      // continue4：整页交给 stats_regs；0x00~0x03 仍是 rx_port_buf 既有口径镜像。
+      end else if (stats_hit) rdata_r <= stats_rdata;
       else if (tx_hit) rdata_r <= tx_cfg_valid ? tx_cfg_mem[tx_idx] : 32'd0;
       else if (share_hit) rdata_r <= (init_done && cfg_share_loaded[share_idx]) ?
                                    {11'd0,cfg_share_mem[share_idx]} : 32'd0;
-      else if (rx_hit) rdata_r <= rx_cfg_valid ? rx_cfg_mem[rx_idx] : 32'd0;
+      else if (rx_hit) rdata_r <= 32'd0;  // continue2：由 rxc_rd_d/rxc_host_rdata 直出
       else if (port_hit) rdata_r <= port_cfg_valid ? port_cfg_mem[port_idx] : 32'd0;
       else if (desc_hit) rdata_r <= hop_is_rx ? rxpb_desc_word : 32'd0;  // TX: PB 读出经 desc_rd_d 选
       else if (msg_cnt_hit) rdata_r <= hop_is_rx ? {28'd0,rxpb_cnt_word} : 32'd0;
       else if (vlstat_hit) rdata_r <= (vs_idx[2:0] == 3'd0 &&
                             ((vs_idx >> 3) < NUM_TX_VL)) ? vl_stat_mem[vs_idx >> 3] : 32'd0;
-      else rdata_r <= 32'hDEAD_BEEF;
+             else if (mgmt_hit) rdata_r <= (host_addr[1:0] == 2'd0) ? mgmt_accept_cnt :
+                                      (host_addr[1:0] == 2'd1) ? mgmt_free_cnt :
+                                      (host_addr[1:0] == 2'd2) ? mgmt_last_desc :
+                                      {31'd0,mgmt_free_req};
+       // continue4：管理面观测窗（只读为主，0xAC1A/0xAC1C/0xAC28 为控制字）
+       else if (mgmt2_hit) begin
+         case (host_addr[5:0])
+           6'h14: rdata_r <= snmp_st_w;
+           6'h15: rdata_r <= {21'd0, snmp_resp_len};
+           6'h16: rdata_r <= snmp_cnt_rx;
+           6'h17: rdata_r <= snmp_cnt_tx;
+           6'h18: rdata_r <= snmp_cnt_drop;
+           6'h19: rdata_r <= mgmt_pay_cnt;
+           6'h1A: rdata_r <= {24'd0, mgmt_bidx};
+           6'h1B: rdata_r <= {24'd0, snmp_resp_byte};
+           6'h1C: rdata_r <= {31'd0, snmp_resp_vld};
+           6'h1D: rdata_r <= {16'd0, sap_out_dport};
+           6'h1E: rdata_r <= {16'd0, sap_out_sport};
+           6'h1F: rdata_r <= sap_out_srcip;
+           6'h20: rdata_r <= tftp_st_w;
+           6'h21: rdata_r <= tftp_bytes;
+           6'h22: rdata_r <= tftp_crc;
+           6'h23: rdata_r <= tftp_pkt;
+           6'h24: rdata_r <= tftp_de;
+           6'h25: rdata_r <= tftp_tr;
+           6'h26: rdata_r <= {20'd0, tftp_resp_vld, tftp_resp_len};
+           6'h27: rdata_r <= {24'd0, tftp_resp_byte};
+           6'h29: rdata_r <= tftp_fnh;
+           6'h30: rdata_r <= rtc_st_w;
+           6'h31: rdata_r <= rtc_err_w;
+           6'h32: rdata_r <= rtc_jump_w;
+           6'h33: rdata_r <= rtc_step_w;
+           6'h34: rdata_r <= rtc_pps_w;
+           6'h35: rdata_r <= rtc_phase_w;
+           6'h36: rdata_r <= rtc_corrected[31:0];
+           6'h37: rdata_r <= rtc_corrected[63:32];
+           6'h38: rdata_r <= uptime_cs;
+           default: rdata_r <= 32'd0;
+         endcase
+       end
+       else rdata_r <= 32'hDEAD_BEEF;
     end
   end
 
@@ -567,8 +759,9 @@ module AFDX_top #(
   bram_sdp #(.W(32), .D(PMEM_KB*256), .BYTE_EN(1)) u_pmem (
     .clk(clk), .wr_en(pmem_wr_en), .wr_addr(pmem_wr_addr),
     .wr_data(pmem_wr_data), .wr_be(pmem_wr_be),
-    .rd_en_a(host_pmem_rd | fb_rd_en_a),
-    .rd_addr_a(host_pmem_rd ? host_pmem_addr : fb_rd_addr_a), .rd_data_a(pmem_data_a),
+    .rd_en_a(host_pmem_rd | fb_rd_en_a | sap_pm_gnt),
+    .rd_addr_a(host_pmem_rd ? host_pmem_addr :
+               fb_rd_en_a  ? fb_rd_addr_a    : sap_pm_addr), .rd_data_a(pmem_data_a),
     .rd_en_b(fb_rd_en_b), .rd_addr_b(fb_rd_addr_b), .rd_data_b(pmem_data_b));
 
   // RX 双网入口各自获块（不能给同拍两网同一块），仅好帧进入写完成标记 FIFO。
@@ -580,6 +773,21 @@ module AFDX_top #(
   wire [15:0] rx_exh_cnt, rx_borrow_cnt;
   reg rx_pipe_free;
   reg [3:0] rx_pipe_free_id;
+  // Round-robin the primary slot on contention. Port-buffer free1 is a pulse
+  // with NO ready/hold handshake: the loser must use an independent spill slot
+  // or its block would be leaked. Both returns are accepted in the same clock,
+  // so SAP cannot be starved by continuous port-buffer releases.
+  reg sap_pb1_turn;
+  always @(posedge clk) begin
+    if (rst_sync) sap_pb1_turn <= 1'b0;
+    else if (pb_free1 && mgmt_free_req) sap_pb1_turn <= ~sap_pb1_turn;
+  end
+  wire sap_uses_pb1 = mgmt_free_req && (!pb_free1 || sap_pb1_turn);
+  wire pool_free_pb1 = pb_free1 || mgmt_free_req;
+  wire [3:0] pool_free_pb1_id = sap_uses_pb1 ? mgmt_free_id : pb_free1_id;
+  wire pool_free_spill = pb_free1 && mgmt_free_req;
+  wire [3:0] pool_free_spill_id = sap_pb1_turn ? pb_free1_id : mgmt_free_id;
+  assign mgmt_free_take = mgmt_free_req; // primary or spill, never dropped
   wire rx_stream_en = ctl_r[1] && hash_image_valid && init_done && !ctl_r[13];
   wire rx_first_a = rx_stream_en && rx_valid && (IF_MODE != 0 || rx_ready) && !rx_busy_a;
   wire rx_first_b = rx_stream_en && (DUAL_NET_EN != 0) && rx_valid_b &&
@@ -594,7 +802,8 @@ module AFDX_top #(
     .free_b(rx_rel_b), .free_id_b(rx_rel_id_b),
     .free_pipe(rx_pipe_free), .free_id_pipe(rx_pipe_free_id),
     .free_pb0(pb_free0), .free_id_pb0(pb_free0_id),
-    .free_pb1(pb_free1), .free_id_pb1(pb_free1_id),
+    .free_pb1(pool_free_pb1), .free_id_pb1(pool_free_pb1_id),
+    .free_spill(pool_free_spill), .free_id_spill(pool_free_spill_id),
     .free_map(rx_free_map), .exhaust_cnt(rx_exh_cnt), .borrow_cnt(rx_borrow_cnt));
   wire rxw_en_a, rxw_en_b, rxd_vld_a, rxd_vld_b;
   wire [12:0] rxw_addr_a, rxw_addr_b;
@@ -694,8 +903,8 @@ module AFDX_top #(
     .in_vld(lookup_out_vld), .in_ready(flt_in_ready),
     .in_hit(lookup_out_hit), .in_vl(lookup_out_vl),
     .in_desc(lookup_out_desc),
-    .in_w0(rx_cfg_mem[{lookup_out_vl,1'b0}]),
-    .in_w1(rx_cfg_mem[{lookup_out_vl,1'b1}]),
+    .in_w0(rxq_flt_w0),
+    .in_w1(rxq_flt_w1),
     .out_vld(flt_out_vld), .out_ready(flt_out_ready),
     .out_pass(flt_out_pass), .out_reason(flt_out_reason),
     .out_vl(flt_out_vl), .out_desc(flt_out_desc));
@@ -721,7 +930,7 @@ module AFDX_top #(
   assign rm_in_vld  = ic_to_rm || (flt_out_vld && flt_to_rm && !ic_out_vld);
   assign rm_in_desc = ic_to_rm ? ic_out_desc : flt_out_desc;
   assign rm_in_vl   = ic_to_rm ? ic_out_vl   : flt_out_vl;
-  wire [31:0] rm_in_w0 = rx_cfg_mem[{rm_in_vl,1'b0}];
+  wire [31:0] rm_in_w0 = rxq_rm_w0;
   rx_ic #(.DW(RXD_W), .NUM_RX_VL(NUM_RX_VL)) u_rxic (
     .clk(clk), .rst_sync(rst_sync), .init_done(init_done),
     .init_we(init_we && (init_target == 3'd0)), .init_addr(init_addr),
@@ -751,22 +960,34 @@ module AFDX_top #(
   assign rm_out_ready = rm_out_fwd ? prs_in_ready : 1'b1;
   assign rm_fire      = rm_out_vld && rm_out_ready;
   assign rm_dup_fire  = rm_out_vld && !rm_out_fwd;
-  wire [31:0] prs_w0  = rx_cfg_mem[{rm_out_vl,1'b0}];
+  wire [31:0] prs_w0  = rxq_prs_w0;
   wire [7:0]  prs_pb  = prs_w0[19:12];
   rx_ip_udp_parse #(.DW(RXD_W), .NUM_PORTS(NUM_PORTS)) u_rxprs (
     .clk(clk), .rst_sync(rst_sync),
     .in_vld(rm_out_vld && rm_out_fwd), .in_ready(prs_in_ready),
     .in_desc(rm_out_desc), .in_w0(prs_w0),
     .port_w0(port_cfg_mem[{prs_pb,2'b00}]), .port_w1(port_cfg_mem[{prs_pb,2'b01}]),
-    .port_w3(port_cfg_mem[{prs_pb,2'b11}]),
-    .out_vld(prs_out_vld), .out_ready(pb_in_ready),
+    .port_w3(port_cfg_mem[{prs_pb,2'b11}]), .sap_enable(ctl_r[8]),
+        .out_vld(prs_out_vld), .out_ready(prs_to_sap ? sap_in_ready : pb_in_ready),
     .out_drop(prs_out_drop), .out_reason(prs_out_reason), .out_port(prs_out_port),
     .out_type(prs_out_type), .out_depth(prs_out_depth), .out_blk(prs_out_blk),
     .out_plen(prs_out_plen), .out_ts(prs_out_ts));
+    assign prs_to_sap  = prs_out_vld && !prs_out_drop && (prs_out_type == 2'd2);
+  assign prs_to_port = prs_out_vld && !prs_to_sap;
+  mgmt_sap_rx #(.PAY_OFF(42), .PBUF_W(160)) u_mgmt_sap (
+    .pm_req(sap_pm_req), .pm_addr(sap_pm_addr), .pm_gnt(sap_pm_gnt),
+    .pm_data(pmem_data_a),
+    .out_vld(sap_out_vld), .out_sop(sap_out_sop), .out_eop(sap_out_eop),
+    .out_data(sap_out_data), .out_sport(sap_out_sport), .out_dport(sap_out_dport),
+    .out_srcip(sap_out_srcip), .out_plen(), .pay_cnt(mgmt_pay_cnt), .trunc_cnt(),
+    .clk(clk), .rst_sync(rst_sync), .in_vld(prs_to_sap), .in_ready(sap_in_ready),
+    .in_port(prs_out_port), .in_blk(prs_out_blk), .in_plen(prs_out_plen),
+    .free_req(mgmt_free_req), .free_take(mgmt_free_take), .free_id(mgmt_free_id),
+    .accept_cnt(mgmt_accept_cnt), .free_cnt(mgmt_free_cnt), .last_desc(mgmt_last_desc));
   rx_port_buf #(.NUM_PORTS(NUM_PORTS)) u_rxpb (
     .clk(clk), .rst_sync(rst_sync),
     .init_we(init_we && (init_target == 3'd6)), .init_addr(init_addr),
-    .in_vld(prs_out_vld), .in_ready(pb_in_ready), .in_drop(prs_out_drop),
+        .in_vld(prs_to_port), .in_ready(pb_in_ready), .in_drop(prs_out_drop),
     .in_port(prs_out_port), .in_type(prs_out_type), .in_depth(prs_out_depth),
     .in_blk(prs_out_blk), .in_plen(prs_out_plen),
     .hop_desc_rd(hop_desc_rd), .hop_msg_rd(hop_msg_rd), .hop_port(hop_port),
@@ -776,6 +997,8 @@ module AFDX_top #(
     .ev_ovf(pb_ev_ovf), .deliver_cnt(rxpb_deliver_cnt),
     .port_drop_cnt(rxpb_port_drop_cnt), .ovr_cnt(rxpb_ovr_cnt), .qovf_cnt(rxpb_qovf_cnt));
   wire ic_rej_fire = ic_rej && ic_fire;
+  wire rm_frame_done;
+  wire [7:0] rm_done_vl;
   // DROP_CNT_K 登记 FLT 层原因（unconf 含 NET/VLID 不一致，lmax 单列）、IC
   // 拒绝（0x48）与 RM 重复副本（0x4C）；DROP_CNT 合计含全部。mac_rx_if 的
   // CRC/长度类拒绝仍由其内部计数。计数按握手拍（各级可能被反压保持多拍）。
@@ -797,6 +1020,12 @@ module AFDX_top #(
       if (ic_rej_fire) ic_drop_cnt <= ic_drop_cnt + 32'd1;
       if (ic_to_rm && rm_in_ready) ic_accept_cnt <= ic_accept_cnt + 32'd1;
       if (rm_dup_fire) rm_dup_cnt <= rm_dup_cnt + 32'd1;
+      if (rm_frame_done && (rm_done_vl < NUM_TX_VL))
+        vl_tx_frame_cnt[rm_done_vl] <= vl_tx_frame_cnt[rm_done_vl] + 32'd1;
+      if ((rm_fire && rm_out_fwd) && (rm_out_vl < NUM_TX_VL))
+        vl_rx_accept_cnt[rm_out_vl] <= vl_rx_accept_cnt[rm_out_vl] + 32'd1;
+      if (rm_dup_fire && (rm_out_vl < NUM_TX_VL))
+        vl_drop_cnt[rm_out_vl] <= vl_drop_cnt[rm_out_vl] + 32'd1;
       if (rm_fire && rm_out_fwd) rm_fwd_cnt <= rm_fwd_cnt + 32'd1;
       if (rm_fire && rm_out_skew) rm_skew_cnt <= rm_skew_cnt + 32'd1;
     end
@@ -843,7 +1072,7 @@ module AFDX_top #(
   wire [NUM_PORTS-1:0] sched_ready = sch_enable ? pb_req : {NUM_PORTS{1'b0}};
   assign sch_enable = init_done && ctl_r[0] && !ctl_r[13];
   wire fb_done, fb_len_err;
-  wire rm_frame_start, rm_frame_done;
+  wire rm_frame_start;
   tx_vl_scheduler #(.NUM_TX_VL(NUM_TX_VL), .NUM_PORTS(NUM_PORTS)) u_sched (
     .clk(clk), .rst_sync(rst_sync), .enable(sch_enable), .tb_us(rtc64[23:0]),
     .cfg_we(cfg_sch_we), .cfg_vl(cfg_sch_vl), .cfg_valid(host_wdata[31]),
@@ -888,7 +1117,7 @@ module AFDX_top #(
 
   wire rm_a_vld, rm_b_vld, rm_a_sof, rm_a_eof, rm_b_sof, rm_b_eof;
   wire rm_a_rdy, rm_b_rdy, mac_a_start, mac_a_done, mac_b_start, mac_b_done;
-  wire [7:0] rm_a_byte, rm_b_byte, rm_done_vl;
+  wire [7:0] rm_a_byte, rm_b_byte;
   wire [15:0] rm_frames_a, rm_frames_b;
   tx_rm u_rm (
     .clk(clk), .rst_sync(rst_sync), .net_mode(active_net_mode), .in_vl(fb_cur_vl),
@@ -917,6 +1146,195 @@ module AFDX_top #(
     .link_rdy(rx_ready_b), .frame_start(mac_b_start), .frame_done(mac_b_done),
     .busy(mac_b_busy), .underrun_cnt(mac_b_underrun));
   assign dbg_frame_event = {2'b00, rm_frame_start, rm_frame_done};
+
+  // =====================================================================
+  // continue4：全局统计页 stats_regs（0x0100~0x01FF）
+  // 事件源都取既有流水的握手拍，不新增反压，也不改变任何数据通路。
+  // 已知边界：dmac / ip_csum / udp_csum 三类在当前 RX 链路没有独立判决源，
+  // 对应计数器恒 0；同拍两网同类丢弃按单拍脉冲合并记 1。
+  // =====================================================================
+  reg [12:0] tx_len_q;                      // 调度器给出的本帧载荷长度
+  reg        ferr_a_d, ferr_b_d;
+  always @(posedge clk) begin
+    if (rst_sync) begin
+      tx_len_q <= 13'd0; ferr_a_d <= 1'b0; ferr_b_d <= 1'b0;
+    end else begin
+      if (sch_start_vld) tx_len_q <= sch_start_len;
+      ferr_a_d <= rx_frame_err_a;
+      ferr_b_d <= rx_frame_err_b;
+    end
+  end
+  wire ferr_a_p = rx_frame_err_a & ~ferr_a_d;
+  wire ferr_b_p = rx_frame_err_b & ~ferr_b_d;
+  // mac_rx_if drop_reason: 01 CRC, 02 IP, 04 UDP, 08 HDR, 10 LEN, 20 PAD, 40 NO_BLK, 80 ABORT
+  wire ev_crc  = (ferr_a_p & rx_drop_reason_a[0]) | (ferr_b_p & rx_drop_reason_b[0]);
+  wire ev_ipv  = (ferr_a_p & rx_drop_reason_a[1]) | (ferr_b_p & rx_drop_reason_b[1]);
+  wire ev_udpl = (ferr_a_p & rx_drop_reason_a[2]) | (ferr_b_p & rx_drop_reason_b[2]);
+  wire ev_etht = (ferr_a_p & rx_drop_reason_a[3]) | (ferr_b_p & rx_drop_reason_b[3]);
+  wire ev_len  = (ferr_a_p & (rx_drop_reason_a[4] | rx_drop_reason_a[5])) |
+                 (ferr_b_p & (rx_drop_reason_b[4] | rx_drop_reason_b[5]));
+  wire [11:0] stats_drop_evt = { rm_dup_fire,                            // [11] rm
+                                 ic_rej_fire,                           // [10] ic
+                                 (flt_free && (flt_out_reason == 3'd3)), // [9]  lmax
+                                 (flt_free && (flt_out_reason != 3'd3)), // [8]  unconf
+                                 ev_crc,                                // [7]  crc
+                                 1'b0,                                  // [6]  udp_csum 未接线
+                                 ev_udpl,                               // [5]  udp_len
+                                 1'b0,                                  // [4]  ip_csum  未接线
+                                 ev_ipv,                                // [3]  ip_ver
+                                 ev_etht,                               // [2]  ethtype
+                                 1'b0,                                  // [1]  dmac     未接线
+                                 ev_len };                              // [0]  len
+  wire stats_page_rd = hs && !host_we && stats_hit;
+  wire stats_page_wr = we && stats_hit;
+  generate if (STATS_EN != 0) begin : g_stats
+    stats_regs u_stats (
+      .clk(clk), .rst_sync(rst_sync), .freeze(dbg_ctrl_r[6]),
+      .rx_in_evt(lookup_take),  .rx_in_len(lookup_in_desc[158:148]),
+      .rx_acc_evt(rm_fire && rm_out_fwd),
+      .rx_acc_len(rm_out_desc[158:148]),
+      .rx_acc_vl(rm_out_vl),
+      .rx_acc_ts(rm_out_desc[147:124]),
+      .tx_evt(rm_frame_done), .tx_len(tx_len_q),
+      .drop_evt(stats_drop_evt),
+      .pb_deliver_cnt(rxpb_deliver_cnt), .pb_port_drop_cnt(rxpb_port_drop_cnt),
+      .pb_ovr_cnt(rxpb_ovr_cnt), .pb_qovf_cnt(rxpb_qovf_cnt),
+      .host_rd(stats_page_rd), .host_wr(stats_page_wr),
+      .host_off(host_addr[7:0]), .host_wdata(host_wdata),
+      .host_rdata(stats_rdata), .wr_ok(stats_wr_ok),
+      .snmp_off(stats_snmp_off), .snmp_rdata(stats_snmp_rdata),
+      .jit_max_o(stats_jit_max), .drop_total_o(stats_drop_total));
+  end else begin : g_nostats
+    assign stats_rdata = 32'd0;
+    assign stats_wr_ok = 1'b0;
+    assign stats_snmp_rdata = 32'd0;
+    assign stats_jit_max = 32'd0;
+    assign stats_drop_total = 32'd0;
+  end endgenerate
+
+  // =====================================================================
+  // continue4：管理面（SNMP / A615-A TFTP / RTC 同步）
+  // SAP 载荷按 SAP 端口号路由：SNMP_SAP_PORT → snmp_lite，TFTP_SAP_PORT →
+  // a615a_tftp。其余 SAP 端口保持 continue3 的"只登记、只归还"语义。
+  // 覆盖边界：两个引擎的响应只做编码并经 MGMT 观测窗读出，没有接入 TX
+  // 帧构建器（管理面回包不上线），这一点在 REPORT 里单独登记。
+  // =====================================================================
+  assign sap_pm_gnt = sap_pm_req && !host_pmem_rd && !fb_rd_en_a;
+  wire [7:0] sap_port_q = mgmt_last_desc[22:15];
+  wire sap_to_snmp = (SNMP_EN != 0) && ctl_r[8] && (sap_port_q == SNMP_SAP_PORT[7:0]);
+  wire sap_to_tftp = (TFTP_EN != 0) && (sap_port_q == TFTP_SAP_PORT[7:0]);
+  wire load_rd = hs && !host_we && load_hit && (TFTP_EN != 0);
+  wire snmp_resp_ack = we && (host_addr == 16'hAC1C);
+  wire tftp_resp_ack = we && (host_addr == 16'hAC28);
+
+  always @(posedge clk) begin
+    if (rst_sync) begin
+      load_rd_d <= 1'b0; mgmt_bidx <= 8'd0;
+      cs_div <= 14'd0; uptime_cs <= 32'd0;
+      snmp_ctl_shadow <= CTL_RST[15:0];
+    end else begin
+      load_rd_d <= load_rd;
+      if (we && (host_addr == 16'hAC1A)) mgmt_bidx <= host_wdata[7:0];
+      else if (hs && !host_we && ((host_addr == 16'hAC1B) || (host_addr == 16'hAC27)))
+        mgmt_bidx <= mgmt_bidx + 8'd1;
+      if (tick_us) begin
+        if (cs_div >= 14'd9999) begin cs_div <= 14'd0; uptime_cs <= uptime_cs + 32'd1; end
+        else cs_div <= cs_div + 14'd1;
+      end
+      if (snmp_ctl_we) snmp_ctl_shadow <= snmp_ctl_wdata;
+    end
+  end
+
+  generate if (SNMP_EN != 0) begin : g_snmp
+    wire [3:0] s_err, s_idx, s_vb;
+    wire [7:0] s_pdu;
+    wire [15:0] s_peer;
+    snmp_lite #(.NUM_TX_VL(NUM_TX_VL), .NUM_RX_VL(NUM_RX_VL), .MAX_VB(8)) u_snmp (
+      .clk(clk), .rst_sync(rst_sync), .en(ctl_r[8]),
+      .in_vld(sap_out_vld && sap_to_snmp), .in_sop(sap_out_sop),
+      .in_eop(sap_out_eop), .in_data(sap_out_data), .in_sport(sap_out_sport),
+      .in_ready(),
+      .uptime_cs(uptime_cs), .ctl_val(snmp_ctl_shadow),
+      .drop_total(stats_drop_total), .jit_max_us(stats_jit_max),
+      .buf_util({26'd0, popcnt16(~rx_free_map)}),
+      .stats_off(stats_snmp_off), .stats_data(stats_snmp_rdata),
+      .ctl_we(snmp_ctl_we), .ctl_wdata(snmp_ctl_wdata),
+      .vl_data(snmp_vl_data), .vl_bag_allowed(snmp_vl_bag_allowed),
+      .vl_bag_we(snmp_vl_bag_we), .vl_bag_index(snmp_vl_bag_index),
+      .vl_bag_wdata(snmp_vl_bag_wdata), .mib_group(snmp_mib_group),
+      .mib_leaf(snmp_mib_leaf), .mib_index(snmp_mib_index),
+      .resp_vld(snmp_resp_vld), .resp_len(snmp_resp_len),
+      .resp_ack(snmp_resp_ack), .resp_rd_addr({3'd0, mgmt_bidx}),
+      .resp_byte(snmp_resp_byte),
+      .rx_pdu_cnt(snmp_cnt_rx), .resp_cnt(snmp_cnt_tx), .drop_pdu_cnt(snmp_cnt_drop),
+      .last_err(s_err), .last_idx(s_idx), .last_pdu(s_pdu),
+      .peer_port(s_peer), .vb_n(s_vb), .state_o());
+    // [19:12]=PDU 类型 [11:8]=VarBind 数 [7:4]=error-index [3:0]=error-status
+    assign snmp_st_w = {12'd0, s_pdu, s_vb, s_idx, s_err};
+  end else begin : g_nosnmp
+    assign snmp_resp_vld = 1'b0; assign snmp_resp_len = 11'd0;
+    assign snmp_resp_byte = 8'd0; assign snmp_st_w = 32'd0;
+    assign snmp_cnt_rx = 32'd0; assign snmp_cnt_tx = 32'd0; assign snmp_cnt_drop = 32'd0;
+    assign snmp_ctl_we = 1'b0; assign snmp_ctl_wdata = 16'd0;
+    assign snmp_vl_bag_we = 1'b0; assign snmp_vl_bag_index = 8'd0;
+    assign snmp_vl_bag_wdata = 32'd0; assign snmp_mib_group = 8'd0;
+    assign snmp_mib_leaf = 8'd0; assign snmp_mib_index = 8'd0;
+    assign stats_snmp_off = 8'd0;
+  end endgenerate
+
+  generate if (TFTP_EN != 0) begin : g_tftp
+    wire        t_ok;
+    wire [15:0] t_err, t_tid, t_blk;
+    wire [31:0] t_pkt, t_dup, t_ecnt, t_to;
+    wire [7:0]  t_retry;
+    wire [3:0]  t_st;
+    a615a_tftp #(.LOAD_WORDS(8192), .RETRY_MAX(3), .TIMEOUT_US(TFTP_TIMEOUT_US)) u_tftp (
+      .clk(clk), .rst_sync(rst_sync), .en(1'b1), .tick_us(tick_us),
+      .in_vld(sap_out_vld && sap_to_tftp), .in_sop(sap_out_sop),
+      .in_eop(sap_out_eop), .in_data(sap_out_data), .in_sport(sap_out_sport),
+      .in_ready(),
+      .resp_vld(tftp_resp_vld), .resp_len(tftp_resp_len),
+      .resp_ack(tftp_resp_ack), .resp_rd_addr({3'd0, mgmt_bidx}),
+      .resp_byte(tftp_resp_byte),
+      .host_rd(load_rd), .host_addr(host_addr - 16'hCC20),
+      .host_rdata(tftp_load_rdata),
+      .loaded_ok(t_ok), .err_code(t_err), .tid(t_tid), .blk_expect(t_blk),
+      .bytes_rcvd(tftp_bytes), .crc32_val(tftp_crc), .pkt_cnt(t_pkt),
+      .dup_cnt(t_dup), .err_cnt(t_ecnt), .timeout_cnt(t_to), .retry_cnt(t_retry),
+      .fname_head(tftp_fnh), .state_o(t_st));
+    assign tftp_st_w = {t_ok, 3'd0, t_st, 8'd0, t_err};
+    assign tftp_pkt  = t_pkt;
+    assign tftp_de   = {t_dup[7:0], t_ecnt[7:0], t_tid};
+    assign tftp_tr   = {t_blk, t_to[7:0], t_retry};
+  end else begin : g_notftp
+    assign tftp_resp_vld = 1'b0; assign tftp_resp_len = 11'd0;
+    assign tftp_resp_byte = 8'd0; assign tftp_load_rdata = 32'd0;
+    assign tftp_st_w = 32'd0; assign tftp_bytes = 32'd0; assign tftp_crc = 32'd0;
+    assign tftp_pkt = 32'd0; assign tftp_de = 32'd0; assign tftp_tr = 32'd0;
+    assign tftp_fnh = 32'd0;
+  end endgenerate
+
+  generate if (RTC_EN != 0) begin : g_rtc
+    wire [31:0] r_err, r_jmp, r_stp, r_pps, r_ph;
+    rtc_sync #(.US_PER_SEC(RTC_US_PER_SEC), .SYNC_TIMEOUT(RTC_SYNC_TO_US), .LOCK_N(3))
+    u_rtc (
+      .clk(clk), .rst_sync(rst_sync), .en(ctl_r[10]), .hold(ctl_r[11]),
+      .tick_us(tick_us), .rtc_free_us(rtc64), .pps_in(pps_in),
+      .sync_vld(1'b0), .sync_master_ts(64'd0),
+      .path_est_us(16'd0), .th_jump_us(8'd100), .log2_avg(4'd2),
+      .rtc_time_us(rtc_corrected), .pps_out(rtc_pps_pulse),
+      .sync_loss(rtc_sloss), .locked(rtc_locked), .last_err_us(r_err),
+      .jump_cnt(r_jmp), .step_cnt(r_stp), .pps_cnt(r_pps), .sec_phase(r_ph));
+    assign rtc_st_w    = {29'd0, rtc_pps_pulse, rtc_sloss, rtc_locked};
+    assign rtc_err_w   = r_err;   assign rtc_jump_w  = r_jmp;
+    assign rtc_step_w  = r_stp;   assign rtc_pps_w   = r_pps;
+    assign rtc_phase_w = r_ph;
+  end else begin : g_nortc
+    assign rtc_corrected = rtc64; assign rtc_pps_pulse = 1'b0;
+    assign rtc_sloss = 1'b0; assign rtc_locked = 1'b0;
+    assign rtc_st_w = 32'd0; assign rtc_err_w = 32'd0; assign rtc_jump_w = 32'd0;
+    assign rtc_step_w = 32'd0; assign rtc_pps_w = 32'd0; assign rtc_phase_w = 32'd0;
+  end endgenerate
 
   // TODO: RX 后级与管理面仍是桩；T22 全流程需补哈希映像校验/接收回环。
   // Q20 前门判决属于 T05c 单项，不替代 T05b 的满载抖动取证。
