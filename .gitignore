@@ -67,3 +67,23 @@ elinx/prj/quartus/*.smsg
 *.cdb
 *.qmsg
 **/output_files/
+
+# ==== 2026-10-02 整理：隔离巨型诊断产物 ====
+# out/ 实测约 18.4 GB（单 postsyn_quartus_eda 的 .vo 网表即约 11.6 GB），内含中断/
+# 失败/被替代的诊断原件。赛题评阅只看主体程序、仿真环境与设计文档，这些不属于评阅
+# 范围，也无法进版本库，故整目录排除。需要长期保存的结论写进 doc/ 状态页并记录原
+# 路径，不要把原件提交进来。
+out/
+
+# eLinx 工程数据库与报告（elinx/ 实测约 497 MB，可由 .ys / quartus_map 重新生成）
+elinx/prj/quartus/db/
+elinx/prj/quartus/incremental_db/
+elinx/prj/quartus/output_files/
+
+# 隔离仿真/探针工作库
+*_work/
+*_work_iso/
+
+# 归档区的第三方二进制（非 AFDX 工程内容；archive/ 其余文本材料仍纳入版本管理，
+# 见 archive/README.md 的逐项清单与 out/arena-debug/folder_cleanup_20261001/）
+archive/20261001_root_capture/unrelated_installer/

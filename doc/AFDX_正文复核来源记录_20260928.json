@@ -1,0 +1,221 @@
+{
+  "review_time": "2026-09-28T17:23:22.237241+08:00",
+  "uploaded_pdf_count": 6,
+  "unique_pdf_count": 3,
+  "unique_pdf_page_total": 148,
+  "sources": [
+    {
+      "project_literature_id": "L044",
+      "title_file": "AFDX端系统通信端口的设计与实现_武华.pdf",
+      "sha256": "235943bd6c1d60caeb9224e9026560adadb26d048d94ca991d5352f5739157d2",
+      "bytes": 306844,
+      "pdf_pages": 4,
+      "identical_uploads": [
+        "AFDX端系统通信端口的设计与实现_武华 - 副本.pdf",
+        "AFDX端系统通信端口的设计与实现_武华.pdf"
+      ],
+      "full_text_indexed": true,
+      "focused_text_review_pdf_pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "visually_checked_pdf_pages": [
+        4
+      ],
+      "page_number_rule": "printed journal page = PDF page + 55",
+      "scope_note": "Focused reading of the listed sections, not a claim that every page/figure was read word for word. Uploaded duplicates are not independent corroboration."
+    },
+    {
+      "project_literature_id": "L074",
+      "title_file": "基于AFDX网络的网络管理与数据加载协议研究及应用_黄玉港 (1).pdf",
+      "sha256": "bcea1529c24ebe0e8a059ce05418fb9d7d1885e700bc810425a27ea129a257ac",
+      "bytes": 9229519,
+      "pdf_pages": 85,
+      "identical_uploads": [
+        "基于AFDX网络的网络管理与数据加载协议研究及应用_黄玉港 (1) - 副本.pdf",
+        "基于AFDX网络的网络管理与数据加载协议研究及应用_黄玉港 (1).pdf"
+      ],
+      "full_text_indexed": true,
+      "focused_text_review_pdf_pages": [
+        20,
+        21,
+        23,
+        24,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        60,
+        63,
+        64,
+        65,
+        66
+      ],
+      "visually_checked_pdf_pages": [
+        41,
+        42
+      ],
+      "page_number_rule": "for cited body pages: printed page = PDF page - 8",
+      "scope_note": "Focused reading of the listed sections, not a claim that every page/figure was read word for word. Uploaded duplicates are not independent corroboration."
+    },
+    {
+      "project_literature_id": "L071",
+      "title_file": "基于协议符合性的AFDX端系统自动化测试软件设计_黎万山.pdf",
+      "sha256": "aa61002ac52a6747737a4353894ddbcee9dfd9698b46d1cf6001472c69956b14",
+      "bytes": 2397676,
+      "pdf_pages": 59,
+      "identical_uploads": [
+        "基于协议符合性的AFDX端系统自动化测试软件设计_黎万山 - 副本.pdf",
+        "基于协议符合性的AFDX端系统自动化测试软件设计_黎万山.pdf"
+      ],
+      "full_text_indexed": true,
+      "focused_text_review_pdf_pages": [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        48,
+        49,
+        53,
+        54,
+        55
+      ],
+      "visually_checked_pdf_pages": [
+        25,
+        27
+      ],
+      "page_number_rule": "for cited body pages: printed page = PDF page - 6",
+      "scope_note": "Focused reading of the listed sections, not a claim that every page/figure was read word for word. Uploaded duplicates are not independent corroboration."
+    }
+  ],
+  "project_source_context": {
+    "rtl/mgmt/snmp_lite.v": "684f45052471fb435fe39e53c6cdfc061c08e5524088dea2296a9fbdec29a4dd",
+    "rtl/top/AFDX_top.v": "b7f46e90ae8441912686eb2875456f9dca4212dad04c62bceb33152549ea20b8"
+  },
+  "key_findings": [
+    {
+      "id": "PAPER-01",
+      "source": "L044",
+      "printed_pages": "57-59",
+      "pdf_pages": [
+        2,
+        3,
+        4
+      ],
+      "finding": "Sampling overwrite and FIFO queue semantics differ; the paper explicitly defers SAP extension to future work."
+    },
+    {
+      "id": "PAPER-02",
+      "source": "L074",
+      "printed_pages": "33-35",
+      "pdf_pages": [
+        41,
+        42,
+        43
+      ],
+      "finding": "Node lookup and callback invocation are not proof of all-VarBind SET validation/atomic commit. Figures separate parsing, buffering, MIB operations and response handling."
+    },
+    {
+      "id": "PAPER-03",
+      "source": "L074",
+      "printed_pages": "55-58",
+      "pdf_pages": [
+        63,
+        64,
+        65,
+        66
+      ],
+      "finding": "Section 6.1 is primarily UI, MIB-browsing and alarm demonstrations, not a quantitative SNMP atomicity/burst/FPGA timing suite."
+    },
+    {
+      "id": "PAPER-04",
+      "source": "L071",
+      "printed_pages": "12-14,18,34-38",
+      "pdf_pages": [
+        18,
+        19,
+        20,
+        24,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "finding": "Command/response, independent expected payload/order/counters, negative/boundary/recovery scenarios and versioned case-level reports are directly useful verification methods."
+    },
+    {
+      "id": "PAPER-05",
+      "source": "L071",
+      "printed_pages": "19,21",
+      "pdf_pages": [
+        25,
+        27
+      ],
+      "finding": "Visual check confirms 100 8K messages versus +60 frames in Table 3-4, and frame/payload naming inconsistencies in Table 3-7. Re-derive counts and lengths before making an oracle."
+    },
+    {
+      "id": "PAPER-06",
+      "source": "L071",
+      "printed_pages": "20,47-48",
+      "pdf_pages": [
+        26,
+        53,
+        54
+      ],
+      "finding": "RTC progression tests do not quantify 1 us accuracy; automated/manual efficiency comparison excluded reliability testing and is not universal protocol coverage."
+    },
+    {
+      "id": "PAPER-07",
+      "source": "L074",
+      "printed_pages": "39,52",
+      "pdf_pages": [
+        47,
+        60
+      ],
+      "finding": "TFTP is a component of the larger loading workflow, not evidence of a complete ARINC615A implementation."
+    }
+  ],
+  "normative_references_reused_from_prior_review": [
+    {
+      "document": "RFC1157",
+      "section": "4.1.5",
+      "url": "https://www.rfc-editor.org/rfc/rfc1157"
+    },
+    {
+      "document": "RFC3416",
+      "section": "4.2.5",
+      "url": "https://www.rfc-editor.org/rfc/rfc3416.html"
+    }
+  ],
+  "method_boundary": {
+    "new_rtl_changes": false,
+    "new_testbench_changes": false,
+    "new_simulations": false,
+    "new_timing_runs": false,
+    "proposed_test_matrix_status": "PROPOSED_NOT_RUN",
+    "original_uploads_modified": false,
+    "original_downloads_cross_hash_checked": false,
+    "note": "Paper IDs are matched by title/author. No claim that an uninspected Downloads copy has the same hash as these uploads."
+  }
+}

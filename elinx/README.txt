@@ -1,5 +1,22 @@
 # elinx/ — eLinx 3.0.7 工作目录
 
+## 2026-09-29 当前合并版完整顶层综合（优先看这里）
+
+早期 `prj/AFDX_top_synth_bram.ys` 的 RTL 列表**缺少现有三个管理模块**（`snmp_lite` / `a615a_tftp` / `rtc_sync`）；不得拿其旧 `hierarchy -top` 结果证明当前顶层已综合。新隔离运行从当前版 QSF 对应的 **28 个**冻结 RTL 重新生成 `hierarchy -check -top AFDX_top` 的 eLinx 脚本，在本机获得 **rc=0、197.33 s、零 `ERROR` 行、成功标志**。证据：`../out/arena-debug/elinx_current_20260929/` 里的 `SOURCE_BINDING.json`、`AFDX_top_current.ys`、`synth.log`、`AFDX_top_current_netlist.elinx.rpt`、`synth_status.json`；58,076,177 B 网表 SHA-256 `926eb1af6e2ab92e618b2d9bf293afd592adfc3015945abfe17021f3562448a3`。该输出仍是含 `altsyncram` 的综合网表，不是 post-fit／门级带 SDF 仿真或资源签核。
+
+在**相同本机环境及未变更的 RTL**复跑，请到项目根目录的 PowerShell 建立全新同级证据目录（不要覆盖既有结果；运行前不要有别的 eLinx 综合进程）：
+
+```powershell
+New-Item -ItemType Directory .\out\arena-debug\elinx_current_recheck_002 | Out-Null
+Copy-Item .\out\arena-debug\elinx_current_20260929\run_synth.py .\out\arena-debug\elinx_current_recheck_002\run_synth.py
+python .\out\arena-debug\elinx_current_recheck_002\run_synth.py prepare
+python .\out\arena-debug\elinx_current_recheck_002\run_synth.py synth
+```
+
+环境依赖：本机 `C:\Program Files (x86)\eHiWay\eLinx3.0` 及 vendor BRAM 映射规则、`out/arena-debug/timing_current_20260929/source/` 的冻结输入、原 QSF 与对应生产 RTL。脚本逐哈希比对全部 28 文件，独占新证据目录。尚未复核 eLinx GUI 打开／点击仿真；Questa RTL 全量 65/65 PASS 详见 `../doc/AFDX端系统_测试仿真报告.md` A 节。**另有独立的真实后综合功能仿真**：Quartus EDA Writer 在冻结版 map 工程导出 `AFDX_top.vo`（不是上文 eLinx Yosys 的 `write_verilog` 网表），Questa 加载 eLinx Stratix IV 功能原语完成全顶层寄存器接口短时 smoke，原始状态在 `../out/arena-debug/postsyn_quartus_eda_20260930/gate_full_compile/simulation_status.json`。这不是网表全量帧仿真、SDF、Fit/STA 或 GUI 已复现。
+
+## 以下为历史冒烟与工具研究（不能替代当前版证据）
+
 ## 空壳综合（第 1 周出口条件后半，已通过 2026-09-21）
 
 ```bat

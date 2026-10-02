@@ -33,12 +33,31 @@
 //   - OID 叶子号限 0..127（单字节子标识符），不支持多字节叶子；
 //   - request-id 与 community 在响应中按原始字节回抄，不做重新编码；
 //   - 每 VarBind 的取值在解析当拍锁存，同一响应内不保证跨对象的原子快照。
+//
+// 核查 20260928 修复（A01 / A02）：
+//   - SET 两阶段提交（RFC 3416 §4.2.5 "as if simultaneously"）：解析阶段只校验
+//     并登记每个 VarBind，全部校验通过且未判 tooBig 后才在 P_COMMIT 按请求顺序
+//     每拍提交一个写；任一 VarBind 出错 → 一个都不写（此前成功前缀会先落地）。
+//   - 单待处理槽 + 整包拒收计数：上游 mgmt_sap_rx 无 out_ready（顶层 in_ready
+//     悬空），无法反压。req 缓存在解析/编码期间被回抄 community/request-id，
+//     故仅当 st==P_IDLE 且无待处理包时才接收新包（响应等待主机取走期间可再收
+//     1 包排队）；其余情况在 SOP 处整包丢弃并计入 drop_pdu_cnt，不再静默覆盖。
+//     无 SOP 的游离字节不写缓存。in_ready 仅作状态指示（=可接收新包）。
+//   - repair 20260928: actual received length + each enclosing TLV bound is
+//     checked before consumption; oversize packets saturate/drop, no stale tail.
+//     Full response capacity is checked before SET commit. Unsigned writable
+//     integers must be 1..4 bytes and non-negative; BAG is 1..0x7FFFFE us so
+//     BAG+1 stays below the signed half-range of the 24-bit scheduler clock.
+//   - SET_ACK_EN=1: set_active serializes host configuration, one write pulse
+//     is followed by set_ack before the next write/response. Default 0 keeps
+//     the existing standalone pulse-sink interface. Response peer is held.
 // =====================================================================
 `timescale 1 ns / 1 ps
 module snmp_lite #(
   parameter integer NUM_TX_VL = 128,
   parameter integer NUM_RX_VL = 4096,
-  parameter integer MAX_VB    = 8
+  parameter integer MAX_VB    = 8,
+  parameter integer SET_ACK_EN = 0 // 0: legacy pulse sink; 1: wait for actual commit ack
 )(
   input  wire        clk,
   input  wire        rst_sync,
@@ -69,6 +88,10 @@ module snmp_lite #(
   output wire [7:0]  mib_group,
   output wire [7:0]  mib_leaf,
   output wire [7:0]  mib_index,
+  // Optional SET transaction integration. set_active covers validation/commit;
+  // downstream acknowledges a write only when its side effects really commit.
+  input  wire        set_ack,
+  output wire        set_active,
   // 响应
   output reg         resp_vld,
   output reg  [10:0] resp_len,
@@ -100,7 +123,12 @@ module snmp_lite #(
   reg [8:0] wp;
   reg [8:0] req_len;
   reg       have_pkt;
-  assign in_ready = 1'b1;
+  reg       rx_acc;            // 当前入站包已被接收（A02）
+  reg       rx_overflow, pkt_oversize;
+  reg [15:0] rx_peer, req_peer; // response peer is latched when its request starts
+  wire      rx_can_take;       // 可接收新包：解析空闲且无待处理包（定义见状态寄存器后）
+  wire      rx_rej;            // 本拍 SOP 被整包拒收
+  assign in_ready = !rst_sync && rx_can_take;
 
   // ---------------- 解析状态 ----------------
   localparam [6:0]
@@ -110,6 +138,10 @@ module snmp_lite #(
     P_EIL=18,  P_EIV=19,  P_VBLT=20, P_VBLL=21, P_VBT=22,  P_VBLN=23,
     P_OIDT=24, P_OIDL=25, P_OIDB=26, P_VALT=27, P_VALL=28, P_VALB=29,
     P_RESOLVE=30, P_BUILD=31, P_DROP=32,
+    P_BUILD2=67, P_BUILD3=68, P_BUILD4=69,   // 长度计算流水（continue10 时序修复）
+    P_RESOLVE2=70,                           // OID 解析结果寄存后再取值（continue10 时序修复）
+    P_COMMIT=71,                             // SET 两阶段提交（核查 A01）
+    P_BUILD5=72, P_COMMIT_WAIT=73,           // full response bound; commit acknowledgement
     E_SEQT=33, E_SEQL1=34, E_SEQL2=35, E_VER0=36, E_VER1=37, E_VER2=38,
     E_COMT=39, E_COML=40, E_COMB=41, E_PDUT=42, E_PDUL1=43, E_PDUL2=44,
     E_RIDT=45, E_RIDL=46, E_RIDB=47, E_ES0=48, E_ES1=49, E_ES2=50,
@@ -118,8 +150,11 @@ module snmp_lite #(
     E_VALT=62, E_VALL=63, E_VALB=64, E_NEXT=65, E_FIN=66;
 
   reg [6:0]  st;
+  reg [3:0]  ci;               // P_COMMIT 提交序号
+  assign rx_can_take = !have_pkt && !rx_acc && (st == P_IDLE);
+  assign rx_rej      = en && in_vld && in_sop && !rx_can_take;
   reg [8:0]  pp;               // 解析指针
-  reg [8:0]  msg_end, pdu_end, vbl_end;
+  reg [8:0]  msg_end, pdu_end, vbl_end, vb_end;
   reg        lp;               // 长式长度待读
   reg [7:0]  ver;
   reg [8:0]  comm_pos; reg [7:0] comm_len; reg [7:0] comm_i; reg comm_ok;
@@ -128,6 +163,7 @@ module snmp_lite #(
   reg [7:0]  oid_len, oid_i;
   reg [7:0]  sv_tag, sv_len, sv_i;
   reg [31:0] sv_val;
+  reg        sv_neg;
   reg [3:0]  nvb;
   reg [3:0]  ei;               // 当前 VarBind 序号（0 起）
   reg [3:0]  err_st, err_ix;
@@ -140,6 +176,28 @@ module snmp_lite #(
   reg [31:0] vb_val  [0:7];
   reg        vb_str  [0:7];
 
+  // Bound every request byte by both received length and its containing TLV.
+  // Use 10-bit arithmetic BEFORE narrowing: pp + 1 + length must not wrap.
+  wire [7:0] req_b = req[pp[7:0]];
+  wire [9:0] tlv_end = {1'b0,pp} + 10'd1 + {2'd0,req_b};
+  wire parse_outer = (st == P_SEQT) || (st == P_SEQL) ||
+                     (st == P_VERT) || (st == P_VERL) || (st == P_VERV) ||
+                     (st == P_COMT) || (st == P_COML) || (st == P_COMB) ||
+                     (st == P_PDUT) || (st == P_PDUL);
+  wire parse_pdu = (st == P_RIDT) || (st == P_RIDL) || (st == P_EST) ||
+                   (st == P_ESL) || (st == P_ESV) || (st == P_EIT) ||
+                   (st == P_EIL) || (st == P_EIV) || (st == P_VBLT) ||
+                   (st == P_VBLL);
+  wire parse_list = (st == P_VBT) || (st == P_VBLN);
+  wire parse_vb = (st == P_OIDT) || (st == P_OIDL) || (st == P_OIDB) ||
+                  (st == P_VALT) || (st == P_VALL) || (st == P_VALB);
+  wire parse_byte = parse_outer || parse_pdu || parse_list || parse_vb;
+  wire [8:0] parse_limit = (st == P_SEQT || st == P_SEQL) ? req_len :
+                          parse_outer ? msg_end :
+                          parse_pdu ? pdu_end :
+                          parse_list ? vbl_end : vb_end;
+  wire read_oob = parse_byte && (pp >= parse_limit);
+
   // ---------------- 编码 ----------------
   reg [8:0]  ep;               // 响应写指针
   reg [3:0]  vi, ek;
@@ -147,6 +205,12 @@ module snmp_lite #(
   reg [7:0]  vb_tl [0:7];      // 每个 VarBind 的内容长度
   reg        emit_done;
 
+  wire is_set = (pdu_t == PDU_SET);
+  // This is a transaction lock, not an input-byte ready signal. It also
+  // prevents host TX configuration writes racing a validated multi-object SET.
+  assign set_active = (SET_ACK_EN != 0) && is_set && (err_st == 4'd0) &&
+                      (((st >= P_PDUL) && (st <= P_BUILD)) ||
+                       ((st >= P_BUILD2) && (st <= P_COMMIT_WAIT)));
   assign state_o = st[5:0];
   assign resp_byte = rsp[resp_rd_addr[7:0]];
 
@@ -267,7 +331,6 @@ module snmp_lite #(
   wire [9:0] wi  = walk(o_g, o_l, o_i, has_inst);
   wire       is_get = (pdu_t == PDU_GET);
   wire       is_nxt = (pdu_t == PDU_NXT);
-  wire       is_set = (pdu_t == PDU_SET);
   wire       index_obj = (o_g == 8'd1) && (o_l >= 8'd5) && (o_l <= 8'd9);
   wire       instance_ok = index_obj ? (has_inst && o_i < 8'd128)
                                      : (has_inst && o_i == 8'd0);
@@ -282,18 +345,24 @@ module snmp_lite #(
                    : is_get ? (get_ok ? 4'd0 : 4'd2)
                    : (!get_ok)              ? 4'd2
                    : (!set_rw)              ? 4'd4
-                   : (sv_tag != T_INT)      ? 4'd3
+                   : (sv_tag != T_INT || sv_len == 8'd0 || sv_len > 8'd4 || sv_neg) ? 4'd3
+                   : ((o_g == 8'd1 && o_l == 8'd5) &&
+                      (sv_val == 32'd0 || sv_val > 32'h007F_FFFE)) ? 4'd3
                    : (((o_g == 8'd1 && o_l == 8'd5) && (sv_val > 32'h00FF_FFFF)) ||
                       (!(o_g == 8'd1 && o_l == 8'd5) && (sv_val > 32'h0000_FFFF))) ? 4'd3 : 4'd0;
-  assign stats_off = r_l;
-  assign mib_group = r_g;
-  assign mib_leaf  = r_l;
-  assign mib_index = r_i;
+  // 解析结果寄存一拍：原 P_RESOLVE 在同一拍内完成 walk() 解析 → 组合输出 mib_* → 顶层
+  // 索引 tx_cfg_mem/统计表 → stats_data/vl_data 回流 → n_val 选择 → 写 vb_val，
+  // post-fit 11.4 ns（continue10/p1-snmp）。现由 rq_* 驱动对外查询口，P_RESOLVE2 取值。
+  reg [7:0] rq_g, rq_l, rq_i;
+  assign stats_off = rq_l;
+  assign mib_group = rq_g;
+  assign mib_leaf  = rq_l;
+  assign mib_index = rq_i;
   reg [7:0]  n_tag; reg [31:0] n_val; reg n_str;
   always @(*) begin
     n_tag = T_CNT; n_val = 32'd0; n_str = 1'b0;
-    if (r_g == 8'd2) begin n_tag = T_CNT; n_val = stats_data; end
-    else case (r_l)
+    if (rq_g == 8'd2) begin n_tag = T_CNT; n_val = stats_data; end
+    else case (rq_l)
       8'd1:  begin n_tag = T_OCT; n_str = 1'b1; end
       8'd2:  begin n_tag = T_TIM; n_val = uptime_cs; end
       8'd3:  begin n_tag = T_INT; n_val = NUM_TX_VL[31:0]; end
@@ -325,14 +394,33 @@ module snmp_lite #(
                         (ek == 4'd8) ? vb_grp[vi[2:0]] :
                         (ek == 4'd9) ? vb_leaf[vi[2:0]] : 8'h00;
 
-  integer j; // indexed OID encoder workspace
   wire [7:0] e_inst_byte = vb_inst[vi[2:0]];
-  reg [8:0] acc, vbl_l, vbl_tl, pdu_l, pdu_tl, msg_l;
-  reg [7:0] tl;
+  // 长度计算：原 P_BUILD 在一拍内对 8 个 VarBind 做 ilen 比较 + 串行累加 + 4 级 TLV 加法，
+  // post-fit 关键路径 28 级 / 12.5 ns（continue10/POST-FIT-FINDINGS.md 根因 A）。
+  // 现拆为：P_BUILD 每拍处理一个 VarBind 累加到 acc_r；P_BUILD2 tooBig 判决；
+  // P_BUILD3 求 vbl/pdu 长度；P_BUILD4 求 msg 长度。响应延迟增加 ≤ 11 拍，语义不变。
+  reg [3:0] bi;                // 当前累加的 VarBind 序号
+  reg [8:0] acc_r;             // VarBind 列表内容长度累加器
+  wire [7:0] tl_w = (err_st != 4'd0)    ? 8'd15 :                       // OID TLV(13) + NULL TLV(2)
+                    vb_str[bi[2:0]]     ? 8'd31 :                       // + OCTET STRING(16)
+                    8'd15 + {4'd0, ilen(vb_val[bi[2:0]])};             // + INTEGER(2+ilen)
+  wire [8:0] vbl_tl_w = 9'd2 + ((acc_r   > 9'd127) ? 9'd1 : 9'd0) + acc_r;
+  wire [8:0] pdu_tl_w = 9'd2 + ((pdu_len > 9'd127) ? 9'd1 : 9'd0) + pdu_len;
+  wire [9:0] rsp_total = {1'b0,msg_len} + ((msg_len > 9'd127) ? 10'd3 : 10'd2);
+`ifndef SYNTHESIS
+  initial begin
+    if (MAX_VB < 1 || MAX_VB > 8) $fatal(1, "snmp_lite MAX_VB must be 1..8");
+  end
+`endif
 
   always @(posedge clk) begin
     if (rst_sync) begin
       wp <= 9'd0; req_len <= 9'd0; have_pkt <= 1'b0; st <= P_IDLE;
+      rx_acc <= 1'b0; ci <= 4'd0;
+      rx_overflow <= 1'b0; pkt_oversize <= 1'b0;
+      rx_peer <= 16'd0; req_peer <= 16'd0;
+      msg_end <= 9'd0; pdu_end <= 9'd0; vbl_end <= 9'd0; vb_end <= 9'd0;
+      sv_neg <= 1'b0;
       resp_vld <= 1'b0; resp_len <= 11'd0; ctl_we <= 1'b0; ctl_wdata <= 16'd0;
       vl_bag_we <= 1'b0; vl_bag_index <= 8'd0; vl_bag_wdata <= 32'd0;
       rx_pdu_cnt <= 32'd0; resp_cnt <= 32'd0; drop_pdu_cnt <= 32'd0;
@@ -341,27 +429,50 @@ module snmp_lite #(
       lp <= 1'b0; pp <= 9'd0; ep <= 9'd0; vi <= 4'd0; ek <= 4'd0;
       comm_ok <= 1'b0; vb_ovf <= 1'b0; emit_done <= 1'b0;
       msg_len <= 9'd0; pdu_len <= 9'd0; vbl_len <= 9'd0;
+      bi <= 4'd0; acc_r <= 9'd0;
+      rq_g <= 8'd0; rq_l <= 8'd0; rq_i <= 8'd0;
       e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
     end else begin
       ctl_we <= 1'b0;
       vl_bag_we <= 1'b0;
       if (resp_ack && resp_vld) resp_vld <= 1'b0;
 
-      // ---------- 收包 ----------
+      // ---------- 收包（A02：单待处理槽，忙则整包拒收并计数）----------
       if (en && in_vld) begin
-        if (in_sop) begin req[0] <= in_data; wp <= 9'd1; end
-        else if (wp < 9'd256) begin req[wp[7:0]] <= in_data; wp <= wp + 9'd1; end
-        if (in_eop) begin
-          req_len  <= in_sop ? 9'd1 : (wp + 9'd1);
-          have_pkt <= 1'b1;
-          peer_port <= in_sport;
+        if (in_sop) begin
+          if (rx_can_take) begin
+            req[0] <= in_data; wp <= 9'd1;
+            rx_acc <= !in_eop; rx_overflow <= 1'b0; rx_peer <= in_sport;
+            if (in_eop) begin
+              req_len <= 9'd1; have_pkt <= 1'b1; req_peer <= in_sport;
+              pkt_oversize <= 1'b0;
+            end
+          end else begin
+            rx_acc <= 1'b0;                        // 本包其余字节全部忽略
+          end
+        end else if (rx_acc) begin
+          if (wp < 9'd256) begin req[wp[7:0]] <= in_data; wp <= wp + 9'd1; end
+          else rx_overflow <= 1'b1; // saturate the pointer, never wrap a long PDU
+          if (in_eop) begin
+            req_len  <= (wp < 9'd256) ? wp + 9'd1 : 9'd256;
+            pkt_oversize <= rx_overflow || (wp >= 9'd256);
+            have_pkt <= 1'b1; req_peer <= rx_peer;
+            rx_acc   <= 1'b0;
+          end
         end
       end
+      // 解析非法（P_DROP）与忙拒收可能同拍发生，合并累加
+      drop_pdu_cnt <= drop_pdu_cnt + {31'd0, rx_rej} + {31'd0, (st == P_DROP)};
 
-      case (st)
+      if (read_oob) begin
+        st <= P_DROP; // no request read, metadata update, or SET side effect
+      end else case (st)
         // =============== 解析 ===============
         P_IDLE: if (have_pkt && !resp_vld) begin
-          have_pkt <= 1'b0; pp <= 9'd0; lp <= 1'b0; st <= P_SEQT;
+          have_pkt <= 1'b0; pp <= 9'd0; lp <= 1'b0;
+          st <= (pkt_oversize || req_len < 9'd2 || req_len > 9'd256) ? P_DROP : P_SEQT;
+          peer_port <= req_peer;
+          bi <= 4'd0; acc_r <= 9'd0; ci <= 4'd0;
           nvb <= 4'd0; ei <= 4'd0; err_st <= 4'd0; err_ix <= 4'd0; vb_ovf <= 1'b0;
           rx_pdu_cnt <= rx_pdu_cnt + 32'd1;
         end
@@ -370,21 +481,30 @@ module snmp_lite #(
           else begin pp <= pp + 9'd1; st <= P_SEQL; end
         end
         P_SEQL: begin
-          if (lp) begin msg_end <= pp + 9'd1 + {1'b0, req[pp[7:0]]}; lp <= 1'b0;
-                        pp <= pp + 9'd1; st <= P_VERT; end
-          else if (req[pp[7:0]] < 8'h80) begin
-                        msg_end <= pp + 9'd1 + {1'b0, req[pp[7:0]]};
-                        pp <= pp + 9'd1; st <= P_VERT; end
-          else if (req[pp[7:0]] == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
-          else st <= P_DROP;
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(tlv_end == {1'b0,req_len})) st <= P_DROP;
+            else begin
+              msg_end <= tlv_end[8:0];
+              pp <= pp + 9'd1; st <= P_VERT;
+            end
+          end else st <= P_DROP;
         end
         P_VERT: begin
           if (req[pp[7:0]] != T_INT) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_VERL; end
         end
         P_VERL: begin
-          if (req[pp[7:0]] != 8'd1) st <= P_DROP;
-          else begin pp <= pp + 9'd1; st <= P_VERV; end
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(req_b == 8'd1 && tlv_end <= {1'b0,msg_end})) st <= P_DROP;
+            else begin
+              
+              pp <= pp + 9'd1; st <= P_VERV;
+            end
+          end else st <= P_DROP;
         end
         P_VERV: begin
           ver <= req[pp[7:0]];
@@ -396,12 +516,15 @@ module snmp_lite #(
           else begin pp <= pp + 9'd1; st <= P_COML; end
         end
         P_COML: begin
-          comm_len <= req[pp[7:0]];
-          comm_pos <= pp + 9'd1;
-          comm_i   <= 8'd0;
-          comm_ok  <= (req[pp[7:0]] == COMM_N[7:0]);
-          pp <= pp + 9'd1;
-          st <= (req[pp[7:0]] == 8'd0) ? P_DROP : P_COMB;
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(req_b == COMM_N[7:0] && tlv_end <= {1'b0,msg_end})) st <= P_DROP;
+            else begin
+              comm_len <= req_b; comm_pos <= pp + 9'd1; comm_i <= 8'd0; comm_ok <= 1'b1;
+              pp <= pp + 9'd1; st <= P_COMB;
+            end
+          end else st <= P_DROP;
         end
         P_COMB: begin
           if (req[pp[7:0]] != comm_ch(comm_i)) comm_ok <= 1'b0;
@@ -418,59 +541,95 @@ module snmp_lite #(
           else begin pp <= pp + 9'd1; st <= P_PDUL; end
         end
         P_PDUL: begin
-          if (lp) begin pdu_end <= pp + 9'd1 + {1'b0, req[pp[7:0]]}; lp <= 1'b0;
-                        pp <= pp + 9'd1; st <= P_RIDT; end
-          else if (req[pp[7:0]] < 8'h80) begin
-                        pdu_end <= pp + 9'd1 + {1'b0, req[pp[7:0]]};
-                        pp <= pp + 9'd1; st <= P_RIDT; end
-          else if (req[pp[7:0]] == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
-          else st <= P_DROP;
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(tlv_end == {1'b0,msg_end})) st <= P_DROP;
+            else begin
+              pdu_end <= tlv_end[8:0];
+              pp <= pp + 9'd1; st <= P_RIDT;
+            end
+          end else st <= P_DROP;
         end
         P_RIDT: begin
           if (req[pp[7:0]] != T_INT) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_RIDL; end
         end
         P_RIDL: begin
-          rid_len <= req[pp[7:0]];
-          rid_pos <= pp + 9'd1;
-          if (req[pp[7:0]] == 8'd0 || req[pp[7:0]] > 8'd5) st <= P_DROP;
-          else begin pp <= pp + 9'd1 + {1'b0, req[pp[7:0]]}; st <= P_EST; end
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (req_b == 8'd0 || req_b > 8'd5 || tlv_end > {1'b0,pdu_end}) st <= P_DROP;
+            else begin rid_len <= req_b; rid_pos <= pp + 9'd1;
+              pp <= tlv_end[8:0]; st <= P_EST; end
+          end else st <= P_DROP;
         end
         P_EST:  begin if (req[pp[7:0]] != T_INT) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_ESL; end end
-        P_ESL:  begin if (req[pp[7:0]] != 8'd1) st <= P_DROP;
-                      else begin pp <= pp + 9'd1; st <= P_ESV; end end
+        P_ESL: begin
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(req_b == 8'd1 && tlv_end <= {1'b0,pdu_end})) st <= P_DROP;
+            else begin
+              
+              pp <= pp + 9'd1; st <= P_ESV;
+            end
+          end else st <= P_DROP;
+        end
         P_ESV:  begin pp <= pp + 9'd1; st <= P_EIT; end
         P_EIT:  begin if (req[pp[7:0]] != T_INT) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_EIL; end end
-        P_EIL:  begin if (req[pp[7:0]] != 8'd1) st <= P_DROP;
-                      else begin pp <= pp + 9'd1; st <= P_EIV; end end
+        P_EIL: begin
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(req_b == 8'd1 && tlv_end <= {1'b0,pdu_end})) st <= P_DROP;
+            else begin
+              
+              pp <= pp + 9'd1; st <= P_EIV;
+            end
+          end else st <= P_DROP;
+        end
         P_EIV:  begin pp <= pp + 9'd1; st <= P_VBLT; end
         P_VBLT: begin if (req[pp[7:0]] != T_SEQ) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_VBLL; end end
         P_VBLL: begin
-          if (lp) begin vbl_end <= pp + 9'd1 + {1'b0, req[pp[7:0]]}; lp <= 1'b0;
-                        pp <= pp + 9'd1;
-                        st <= (req[pp[7:0]] == 8'd0) ? P_BUILD : P_VBT; end
-          else if (req[pp[7:0]] < 8'h80) begin
-                        vbl_end <= pp + 9'd1 + {1'b0, req[pp[7:0]]};
-                        pp <= pp + 9'd1;
-                        st <= (req[pp[7:0]] == 8'd0) ? P_BUILD : P_VBT; end
-          else if (req[pp[7:0]] == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
-          else st <= P_DROP;
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(tlv_end == {1'b0,pdu_end})) st <= P_DROP;
+            else begin
+              vbl_end <= tlv_end[8:0];
+              pp <= pp + 9'd1; st <= (req_b == 8'd0) ? P_BUILD : P_VBT;
+            end
+          end else st <= P_DROP;
         end
         P_VBT:  begin if (req[pp[7:0]] != T_SEQ) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_VBLN; end end
         P_VBLN: begin
-          if (req[pp[7:0]] >= 8'h80) st <= P_DROP;
-          else begin pp <= pp + 9'd1; st <= P_OIDT; end
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(req_b != 8'd0 && tlv_end <= {1'b0,vbl_end})) st <= P_DROP;
+            else begin
+              vb_end <= tlv_end[8:0];
+              pp <= pp + 9'd1; st <= P_OIDT;
+            end
+          end else st <= P_DROP;
         end
         P_OIDT: begin if (req[pp[7:0]] != T_OID) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_OIDL; end end
         P_OIDL: begin
-          oid_len <= req[pp[7:0]]; oid_i <= 8'd0;
-          if (req[pp[7:0]] == 8'd0 || req[pp[7:0]] > 8'd16) st <= P_DROP;
-          else begin pp <= pp + 9'd1; st <= P_OIDB; end
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(req_b != 8'd0 && req_b <= 8'd16 && tlv_end <= {1'b0,vb_end})) st <= P_DROP;
+            else begin
+              oid_len <= req_b; oid_i <= 8'd0;
+              pp <= pp + 9'd1; st <= P_OIDB;
+            end
+          end else st <= P_DROP;
         end
         P_OIDB: begin
           oidb[oid_i[3:0]] <= req[pp[7:0]];
@@ -478,17 +637,21 @@ module snmp_lite #(
           pp <= pp + 9'd1;
           if (oid_i + 8'd1 >= oid_len) st <= P_VALT;
         end
-        P_VALT: begin sv_tag <= req[pp[7:0]]; sv_val <= 32'd0;
+        P_VALT: begin sv_tag <= req[pp[7:0]]; sv_val <= 32'd0; sv_neg <= 1'b0;
                       pp <= pp + 9'd1; st <= P_VALL; end
         P_VALL: begin
-          sv_len <= req[pp[7:0]]; sv_i <= 8'd0;
-          if (req[pp[7:0]] >= 8'h80) st <= P_DROP;
-          else begin
-            pp <= pp + 9'd1;
-            st <= (req[pp[7:0]] == 8'd0) ? P_RESOLVE : P_VALB;
-          end
+          if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
+          else if (lp || req_b < 8'h80) begin
+            lp <= 1'b0;
+            if (!(tlv_end == {1'b0,vb_end} && (sv_tag != T_NUL || req_b == 8'd0))) st <= P_DROP;
+            else begin
+              sv_len <= req_b; sv_i <= 8'd0;
+              pp <= pp + 9'd1; st <= (req_b == 8'd0) ? P_RESOLVE : P_VALB;
+            end
+          end else st <= P_DROP;
         end
         P_VALB: begin
+          if (sv_i == 8'd0) sv_neg <= req_b[7];
           if (sv_i < 8'd4) sv_val <= {sv_val[23:0], req[pp[7:0]]};
           sv_i <= sv_i + 8'd1;
           pp <= pp + 9'd1;
@@ -497,56 +660,85 @@ module snmp_lite #(
         P_RESOLVE: begin
           if (ei >= MAX_VB[3:0]) begin
             vb_ovf <= 1'b1;
-            st <= P_BUILD;
+            st <= (pp == vbl_end) ? P_BUILD : P_VBT; // validate all excess TLVs, no writes
           end else begin
-            vb_grp [ei[2:0]] <= r_g;
-            vb_leaf[ei[2:0]] <= r_l;
-            vb_inst[ei[2:0]] <= r_i;
-            vb_tag [ei[2:0]] <= n_tag;
-            vb_val [ei[2:0]] <= n_val;
-            vb_str [ei[2:0]] <= n_str;
-            if (r_err != 4'd0 && err_st == 4'd0) begin
-              err_st <= r_err; err_ix <= ei + 4'd1;
-            end
-            if (r_err == 4'd0 && is_set && set_rw) begin
-              if (o_g == 8'd1 && o_l == 8'd5) begin
-                vl_bag_we <= 1'b1; vl_bag_index <= o_i; vl_bag_wdata <= sv_val;
-              end else begin
-                ctl_we <= 1'b1; ctl_wdata <= sv_val[15:0];
-              end
-            end
-            nvb <= ei + 4'd1;
-            ei  <= ei + 4'd1;
-            st  <= (pp >= vbl_end) ? P_BUILD : P_VBT;
+            rq_g <= r_g; rq_l <= r_l; rq_i <= r_i;   // 对外查询口下一拍稳定
+            st <= P_RESOLVE2;
           end
+        end
+        P_RESOLVE2: begin
+          vb_grp [ei[2:0]] <= rq_g;
+          vb_leaf[ei[2:0]] <= rq_l;
+          vb_inst[ei[2:0]] <= rq_i;
+          vb_tag [ei[2:0]] <= n_tag;
+          vb_val [ei[2:0]] <= n_val;
+          vb_str [ei[2:0]] <= n_str;
+          if (r_err != 4'd0 && err_st == 4'd0) begin
+            err_st <= r_err; err_ix <= ei + 4'd1;
+          end
+          // A01：此处不再直接写；SET 的目标/值已登记在 vb_grp/vb_leaf/vb_inst/vb_val，
+          // 由 P_COMMIT 在全部 VarBind 校验通过后统一提交。
+          nvb <= ei + 4'd1;
+          ei  <= ei + 4'd1;
+          st  <= (pp == vbl_end) ? P_BUILD : P_VBT;
         end
         // =============== 长度计算 ===============
         P_BUILD: begin
-          acc = 9'd0;
-          for (j = 0; j < 8; j = j + 1) begin
-            if (j < nvb) begin
-              if (err_st != 4'd0)      tl = 8'd15;                      // OID TLV(13) + NULL TLV(2)
-              else if (vb_str[j[2:0]]) tl = 8'd31;                      // + OCTET STRING(16)
-              else                     tl = 8'd15 + {4'd0, ilen(vb_val[j[2:0]])};
-              vb_tl[j[2:0]] <= tl;
-              acc = acc + 9'd2 + {1'b0, tl};
+          // 每拍一个 VarBind（bi 与 acc_r 在复位及 P_BUILD4 退出时清零，进入时恒为 0）
+          if (bi < nvb) begin
+            vb_tl[bi[2:0]] <= tl_w;
+            acc_r <= acc_r + 9'd2 + {1'b0, tl_w};
+            bi    <= bi + 4'd1;
+          end else begin
+            st <= P_BUILD2;
+          end
+        end
+        P_BUILD2: begin
+          if (vb_ovf || acc_r > 9'd255) begin                           // tooBig：空 VarBind 列表
+            err_st <= 4'd1; err_ix <= 4'd0; nvb <= 4'd0; acc_r <= 9'd0;
+          end
+          ci <= 4'd0;
+          st <= P_BUILD3;
+        end
+        P_COMMIT: begin
+          // 此拍 err_st/nvb 已含 tooBig 判决。仅无错 SET 提交，每拍一个 VarBind。
+          if (is_set && err_st == 4'd0 && ci < nvb) begin
+            if (vb_grp[ci[2:0]] == 8'd1 && vb_leaf[ci[2:0]] == 8'd5) begin
+              vl_bag_we <= 1'b1; vl_bag_index <= vb_inst[ci[2:0]]; vl_bag_wdata <= vb_val[ci[2:0]];
+            end else begin
+              ctl_we <= 1'b1; ctl_wdata <= vb_val[ci[2:0]][15:0];
             end
+            if (SET_ACK_EN != 0) st <= P_COMMIT_WAIT;
+            else ci <= ci + 4'd1;
+          end else begin
+            ci <= 4'd0;
+            st <= E_SEQT;
           end
-          if (vb_ovf || acc > 9'd255) begin                             // tooBig：空 VarBind 列表
-            err_st <= 4'd1; err_ix <= 4'd0; nvb <= 4'd0; acc = 9'd0;
-          end
-          vbl_l  = acc;
-          vbl_tl = 9'd2 + ((acc   > 9'd127) ? 9'd1 : 9'd0) + acc;
-          pdu_l  = 9'd2 + {1'b0, rid_len} + 9'd3 + 9'd3 + vbl_tl;
-          pdu_tl = 9'd2 + ((pdu_l > 9'd127) ? 9'd1 : 9'd0) + pdu_l;
-          msg_l  = 9'd3 + 9'd2 + {1'b0, comm_len} + pdu_tl;
-          vbl_len <= vbl_l; pdu_len <= pdu_l; msg_len <= msg_l;
+        end
+        P_COMMIT_WAIT: if (set_ack) begin
+          ci <= ci + 4'd1; st <= P_COMMIT;
+        end
+        P_BUILD3: begin
+          vbl_len <= acc_r;
+          pdu_len <= 9'd2 + {1'b0, rid_len} + 9'd3 + 9'd3 + vbl_tl_w;
+          st <= P_BUILD4;
+        end
+        P_BUILD4: begin
+          msg_len <= 9'd3 + 9'd2 + {1'b0, comm_len} + pdu_tl_w;
+          bi <= 4'd0; acc_r <= 9'd0;
           ep <= 9'd0; vi <= 4'd0; ek <= 4'd0;
-          st <= E_SEQT;
+          st <= P_BUILD5;
+        end
+        P_BUILD5: begin
+          // Validate EVERY response length before any SET write. If it cannot
+          // fit, rebuild the bounded empty-list tooBig response and never commit.
+          if (vbl_len > 9'd255 || pdu_len > 9'd255 || msg_len > 9'd255 || rsp_total > 10'd256) begin
+            err_st <= 4'd1; err_ix <= 4'd0; nvb <= 4'd0; acc_r <= 9'd0;
+            st <= P_BUILD3;
+          end else begin ci <= 4'd0; st <= P_COMMIT; end
         end
         P_DROP: begin
-          drop_pdu_cnt <= drop_pdu_cnt + 32'd1;
-          st <= P_IDLE;
+          st <= P_IDLE;                             // drop_pdu_cnt 在 case 外统一累加
         end
         // =============== 编码 ===============
         E_SEQT:  begin rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_SEQL1; end

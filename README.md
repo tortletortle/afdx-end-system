@@ -1,50 +1,50 @@
 # AFDX 端系统设计与仿真验证
 
+> **文件夹整理入口：[目录导览](目录导览_20261001.md)。** 过期进度/核查页见 [doc/历史/](doc/历史/README.md)；旧网页和一次性探针已带哈希归档；主工程、官方原件和原始验证证据保留可复现路径。
+
 2026 FPGA 创新设计赛道 · 中科亿海微命题 · 选题一。项目以 Verilog RTL、eLinx 工程和 Questa/ModelSim 仿真为交付主线；Python 黄金模型用于生成向量和独立对账，不能替代 RTL 仿真证据。
+
+> **收口入口：[项目收口总览（2026-10-01）](doc/收口总览_20261001.md)。** 阶段一评阅证据与工程未闭环项分开看；本新增入口不在 9/30 v2 封包内。
+
+> **当前版入口：[阶段一交付说明（2026-09-30）](doc/阶段一交付说明_20260930.md)、[比赛交付核查清单](doc/比赛交付核查清单_20260930.md)及[项目当前状态](doc/项目当前状态_20260929.md)。** 两个 v2 评阅 ZIP 已通过解包校验；65/65 RTL、eLinx 综合和真实 post-map 短时接口已有分层证据。单帧门级超时；当前版 map 通过但 Fit 布线未完成、STA 缺失；RTC 漂移目标未关闭。**数字防混用：**[版本与证据口径对照](doc/版本与证据口径对照_20261002.md)。下方 Continue12 整节是历史快照，其 56/56、Fit 仍在运行等描述**不可用于当前源码**。
 
 ## 从这里开始
 
 | 你要了解什么 | 入口 |
 |---|---|
 | 所有文档、阅读顺序与维护规则 | [文档索引](doc/README.md) |
-| **正式测试（仿真）报告：56 项逐项判据与证据哈希** | **[测试仿真报告](doc/AFDX端系统_测试仿真报告.md)** |
-| 协议、架构、地址、寄存器与目标用例 | [总体设计书](AFDX端系统_总体设计书.md)（规格基线 v0.5.12） |
+| **本轮两个已解包复验的 ZIP、9/9 扩展审计、未关闭时序及人工续跑路径** | **[阶段一交付说明](doc/阶段一交付说明_20260930.md)** |
+| **阶段一比赛交付核查／15 条只读证据审计／仍待关闭项** | **[比赛交付核查清单](doc/比赛交付核查清单_20260930.md)** |
+| **当前合并版 65/65、eLinx 综合及指标边界；下半页保留 Continue12 历史记录** | **[测试仿真报告](doc/AFDX端系统_测试仿真报告.md)**；旧 613.5 s 基线另见 [历史基线](doc/历史/AFDX端系统_测试仿真报告_历史基线.md) |
+| 协议、架构、地址、寄存器与目标用例 | [总体设计书](AFDX端系统_总体设计书.md)（版本以正文与续作增量为准） |
 | 怎么运行工具和验证 | [工具与验证说明](README_tools.md) |
 | **需求追踪：REQ / 架构决策 / 文献 / RTL / 测试 的对应关系** | **[项目应用追踪](doc/AFDX项目应用追踪.md)** |
 | **文献调研体系（登记、主题比较、工程映射）** | **[文献目录](doc/AFDX文献目录.md)** · [主题矩阵](doc/AFDX文献主题矩阵.md) · [工程映射](doc/AFDX文献工程映射.md) · [研究整理](doc/AFDX文献研究整理.md) |
 | 时序重设计的基线与决策 | `out/arena-debug/continue8/` |
-| 历史快照（**均已过期，仅供溯源**） | [当前进度](doc/当前进度_20260923.md) · [项目现状](doc/项目现状.md) · [状态核查](doc/项目状态核查_20260924.md) |
+| **防混用：56/62/65、两份网表、旧 Fit** | **[版本与证据口径对照](doc/版本与证据口径对照_20261002.md)** |
+| 历史快照（**均已过期，仅供溯源**） | [doc/历史/](doc/历史/README.md) · [当前进度](doc/历史/当前进度_20260923.md) · [项目现状](doc/历史/项目现状.md) |
 
-## 当前阶段（2026-09-27）
+## 历史记录：Continue12（2026-09-27，非当前版）
 
-### 功能验证：已完成
+### 最新续作（Continue12）
 
-- **全量回归 56/56 PASS**，累计仿真墙钟 613.5 s，编译 0 errors。数据源 `sim/out/regress.csv`
-  （SHA-256 `F4EEE57D0A4F266DCAC482F44A16EB332566802FAA8DA90505345E073A8A9B0C`），
-  清单 `sim/tests.manifest` 56 项（SHA-256 `659F8D30920BF7F979C97BE6A74B6DC6E7684F0B62BEB59B179B094EF5F92F1B`）。
-- **设计书测试矩阵 T00–T23 全部覆盖并通过**。每个顶层用例在 `IF_MODE=0`（100 Mbps，选题指南指标）
-  与 `IF_MODE=1`（GMII，约 1 Gbps）两档各跑一遍。
-- **管理面已实现并取证**（此前文档所称"空壳"结论已作废）：
-  `snmp_lite.v`(622 行) / `a615a_tftp.v`(336) / `rtc_sync.v`(132) / `stats_regs.v`(288) / `mgmt_sap_rx.v`(165)
-  均为真实实现并在顶层例化，对应 **T14 统计 / T15 SNMP / T16 TFTP+RTC** 各含单元级与顶层在线 SAP 帧证据。
-- **此前列为缺口的 T05b 满载抖动、T13 端到端时延、T17 线速最小帧冲击、T18 长时随机回归均已补齐并 PASS。**
-- **故障注入 9 套全数检出**（T11 13/13、T11i 9/9、T10 7/7、T08e 7/7、T22 6/6 等），证明测试具备发现缺陷的能力。
-- 逐项判据、实测摘要与证据索引见[测试仿真报告](doc/AFDX端系统_测试仿真报告.md)。
+- **该历史版源码的验收入口**：[续作进度与交接](doc/历史/续作进度_20260927.md)。
+- Continue11 已有 TX 间隔两拍冒险修复、配置读影子寄存器及调度/SNMP 配置写流水；接手时仅 7 项子集 PASS，不能沿用旧版 56/56 结论。
+- Continue12 将 RX 查表改为描述符/种子锁存 → 加法 → 乘法 → RAM → 比较，查表握手延迟由 2 拍改为 **5 拍**，地址、哈希结果及背压语义不变。
+- **本轮专项 6/6 PASS**：T12c/r/s/h/f/fg，包含 240,000 次独立黄金模型对账、4096 索引/四 way、各流水阶段复位及双模式顶层查表。
+- 首轮全量 54/56：T08b 两档旧固定等待在新流水下提前采样；已改为有界完成/精确两次拒绝检查，2/2 专项复验通过（17/24 拍）。失败原件保留，随后独立重新编译并完整跑出 56/56，不是 54+2 拼接。
+- **该历史版已完成：完整 56/56 PASS（672.1 s，编译 0 errors），lint rc=0，T12 故障注入 4/4 检出，严格文档门 rc=0（5/5 + selfcheck）**。证据见 `out/arena-debug/continue12/validate_status.json` 与 `tests/full56/`；CSV SHA-256 `e7f57060a43c773eacdd7b4820c8a84fcfcb971180659f6bd09fcef1638efda2`。
+- 前一版完整功能证据仍保留在 `continue10/regress_full56_post_snmp_fix.csv`。现行[测试仿真报告](doc/AFDX端系统_测试仿真报告.md)新增顶部 A 节绑定 9 月 29 日 65/65 与 eLinx 证据；其原第 0～6 节仅对应本 Continue12 历史 CSV，旧 613.5 s 正文仍在 [历史基线](doc/历史/AFDX端系统_测试仿真报告_历史基线.md)。不同版本不可混用。
 
-### 综合与时序：唯一未收敛项
+### 综合与时序：已有 post-fit 结果，125 MHz 尚未收敛
 
-- **顶层综合通过**：eLinx/Yosys `AFDX_top_synth.ys` rc=0；BRAM 映射流程 rc=0（47,041 cells 含 439 `altsyncram`）。
-  Quartus II 13.0.1 `quartus_map` rc=0，器件 **EP4SGX230HF35C2（Stratix IV）**，139,607 logic cells（**map 估计值，未经 Fit 验证**）。
-- **post-map STA 实测**：**Fmax 45.84 MHz / Setup WNS −13.815 ns / Endpoint TNS −700,108.256 ns**，
-  最差路径 `tx_port_buf:u_txbuf|s1_vld → s1_desc[*]`（数据延迟 21.292 ns）。
-- **未达成 125 MHz 时钟目标。125 MHz 是赛方硬性要求，不是自设指标**：组委会答复「给 MAC 层的
-  接口是 GMII」，即 8 bit 字节口 + 125 MHz 时钟（见 `doc_组委会问答.md` 第 10 行原文及其结论 §2）。
-  设计书据此定 `clk` = 125 MHz、`BYTE_SLOT_CYC` = 10（10 × 8 ns = 80 ns/字节）。
-  因此**不存在"降低时钟即可满足指标"的退路**，时序收敛是必须完成的交付项。
-- **未跑 `quartus_fit`**，因此无布线延迟、无 post-fit setup/hold，**不是时序签核**。
-  71 个输入、121 个输出端口未约束，整机 I/O 时序未闭合。
-- Continue7 的 `tx_port_buf` 四银行实验为负收益（45.85 → 45.84 MHz）并已按纪律回滚，
-  回滚后文件 SHA-256 与备份一致。重设计方案见 `out/arena-debug/continue8/REDESIGN-ARCHITECTURE.md`。
+- **最近一次已完成的 post-fit 是 Continue10 旧版**：EP4SGX530KF43C2，Setup WNS **−5.037 ns**，Hold WNS **+0.195 ns**，Fmax **76.7 MHz**。不是本轮新源码结果。
+- 原 EP4SGX230 实际 Fit 因容量不足失败；EP4SGX530 Fit 成功（124,689 comb ALUT / 105,658 registers / 约 1.73 Mbit RAM）。这是代理器件的自证结果，不是赛方目标器件验收。
+- 原 post-map 的 **45.84 MHz / −13.815 ns** 含未布局的固定互连估计，不能当作真实布线结果，也不能据此判定微结构优化收益。
+- 已完成/待验的修正分别针对 SNMP 长度累加（Continue10）、顶层配置表读写路径和 TX hazard（Continue11）、RX 哈希入口长路径（Continue12）。**当前 tx_cfg_mem/port_cfg_mem 仍为 FF 阵列，完整 BRAM 化未完成。**
+- **Continue12 顶层 map rc=0**（约 15 分钟），map 估计 126,575 comb ALUT / 107,507 registers / 1,740,708 RAM bits。**独立工程 Fit 已于本机 23:41 启动**，之后自动跑多角 STA；当前还没有本版 post-fit slack/Fmax，不能用 map 资源当作最终 Fit 资源。状态见 `out/arena-debug/continue12/timing_status.json`，旧工程数据库/报告未覆盖。
+- `clk` 约束保持 **8.000 ns / 125 MHz**，不通过降频、放宽约束或伪造 IO delay 掩盖违例。旧 Fit 无真实引脚/IO 预算，不属于板级签核。
+- 原始依据：[Continue10 post-fit 分析](out/arena-debug/continue10/POST-FIT-FINDINGS.md)。
 
 ### 覆盖率：部分
 
@@ -76,40 +76,32 @@ Questa `+cover=sb` 合并 50 份 UCDB，1440 instances：分支 36788/58849 = **
 
 ### 门禁
 
-`tools_lint.ps1` rc=0（`LINT GATE: PASS, all gates 0 %Error`）；
-`python tools/run_all.py --strict` rc=0（5/5 + selfcheck）。
+本轮 56/56、lint、T12 mutation 和严格文档门全部完成，逐阶段 rc、命令、耗时与日志哈希见 `out/arena-debug/continue12/validate_status.json`。
 
 ### 剩余工作
 
-1. 时序：先确定 100 Mbps 所需的真实内部时钟与 `.sdc` 约束，再决定是否投入 `tx_port_buf` 关键路径重构。
-2. `quartus_fit` + post-fit STA，取得真实资源占用与签核口径。
-3. 目标板引脚与 IO 预算，补 `set_input_delay/set_output_delay`。
-4. 覆盖率加 RTL-only 过滤与 covergroup 功能覆盖率。
+1. Continue12 全量门禁已通过；等待当前 Fit/post-fit 实测，125 MHz 目标不变，依据新热点继续优化。
+2. 若配置表仍主导时序/资源，实施同步 BRAM 化及主机/调度/RX 读延迟适配，不做无测量依据的大改。
+3. 赛题是无板仿真交付；代理器件报告与赛方 eLinx 交付分开。只有后续做真实板级签核时，才按真实板卡资料补引脚/IO delay。
+4. 评分所需的当前版指标表、56 项矩阵、失败记录和 SNMP/615A 子集已写入设计书 §2.2/§2.6 与测试报告。仍缺：关键波形截图、eLinx 一键仿真取证步骤、本版覆盖率重跑。
 
-## 常用命令
-
-在项目根目录运行，Windows PowerShell：
+## 当前版安全复现（Windows PowerShell，项目根目录）
 
 ```powershell
-# 文档、地址、寄存器与模型算术检查，不等于 RTL 验收
+# 只读检查 15 条证据绑定；审计通过 ≠ 比赛交付或协议签核
+python .\out\arena-debug\submission_audit_20260930\audit.py --check
+
+# 文档门：Windows 控制台编码必须是 UTF-8；不等于 RTL 验收
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'
 python tools/run_all.py --strict
 
-# RTL 静态检查
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools_lint.ps1
-
-# 全量：一次重新编译，按当前 manifest 运行 56 项
-powershell -NoProfile -ExecutionPolicy Bypass -File .\sim\run_regress.ps1
-
-# 子集：会覆盖 sim/out/regress.csv，不能称为全量结果
-powershell -NoProfile -ExecutionPolicy Bypass -File .\sim\run_regress.ps1 -Tests T08c,T08cg
-
-# 故障注入（与回归串行运行，会抢占同一套 Questa 许可）
-python sim/test_t11_mutants.py
-python sim/test_t10_mutants.py
-python sim/test_t22_mutants.py
+# 当前合并版 RTL 功能：新 tag，不覆盖历史结果、不全局强停其他仿真进程；有别的 Questa 作业时会拒绝启动
+python .\out\arena-debug\merge_snmp_20260929\verify_merged.py full --tag full_recheck_002
 ```
 
-更多脚本见 [README_tools.md](README_tools.md)。**回归脚本会停止同名仿真器进程；运行前确认没有其他仿真任务，且不要并行跑两份回归。**
+证据及 eLinx 综合复现细节见[当前版测试报告](doc/AFDX端系统_测试仿真报告.md) A 节、[当前状态](doc/项目当前状态_20260929.md)。eLinx 28 文件综合已通过，但尚**未**完成综合后门级仿真；125 MHz 以本版本 post-fit STA 而非本例 RTL 时钟为准。其余脚本见 [README_tools.md](README_tools.md)。
+
+历史脚本 `sim/run_regress.ps1` 可能按进程名停止**所有**仿真器、覆盖 `sim/out/` 的固定证据；它以及下面历史段落的“56/56”均**不应作为当前版的默认复现入口**。不要与任何 Questa 作业并发运行。
 
 ## 仓库布局
 

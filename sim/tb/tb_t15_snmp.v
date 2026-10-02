@@ -28,9 +28,9 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
 
   // ---------------- 金标帧 ----------------
   reg [31:0] vec [0:2047];
-  integer cbase [0:31];
-  integer clen  [0:31];
-  integer cplen [0:31];
+  integer cbase [0:63];
+  integer clen  [0:63];
+  integer cplen [0:63];
   integer ncase, vi2, cid, i, k, b, waitc;
   function [7:0] fbyte; input integer c; input integer off;
     reg [31:0] q;
@@ -161,7 +161,7 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
   wire [3:0]  s_e, s_ix, s_vbn;
   wire [7:0]  s_pdu;
   wire [15:0] s_peer;
-  snmp_lite #(.NUM_TX_VL(128), .NUM_RX_VL(4096), .MAX_VB(8)) sut (
+  snmp_lite #(.NUM_TX_VL(128), .NUM_RX_VL(4096), .MAX_VB(8), .SET_ACK_EN(1)) sut (
     .clk(clk), .rst_sync(s_rst), .en(1'b1),
     .in_vld(s_vld), .in_sop(s_sop), .in_eop(s_eop), .in_data(s_data),
     .in_sport(s_sport), .in_ready(),
@@ -172,6 +172,7 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
     .vl_data(s_vl_data), .vl_bag_allowed(s_bag_allowed),
     .vl_bag_we(s_bag_we), .vl_bag_index(s_bag_idx), .vl_bag_wdata(s_bag_wdata),
     .mib_group(), .mib_leaf(), .mib_index(),
+    .set_ack(1'b1), .set_active(),
     .resp_vld(s_rvld), .resp_len(s_rlen), .resp_ack(s_rack),
     .resp_rd_addr(s_raddr), .resp_byte(s_rbyte),
     .rx_pdu_cnt(s_rx), .resp_cnt(s_tx), .drop_pdu_cnt(s_drp),
@@ -510,9 +511,52 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
     if (d !== 32'd12) badv("B8 on-wire rx_pdu_cnt", d, 32'd12);
     host_read(16'hAC17, d);
     if (d !== 32'd11) badv("B8 on-wire resp_cnt", d, 32'd11);
+    // B9 核查 20260928 A01 顶层路径：多 VarBind SET 原子性与按序提交
+    drive_case(27); t_grab;
+    if (r_err !== 4 || r_idx !== 2) badv("B9 atomic SET must return readOnly(4) idx 2", r_err*16+r_idx, 32'h42);
+    if (dut.snmp_ctl_shadow !== 16'h1234) badv("B9 rejected SET partially wrote the control shadow",
+                                               {16'd0,dut.snmp_ctl_shadow}, 32'h1234);
+    drive_case(28); t_grab;
+    if (r_err !== 0 || r_nvb !== 2) bad("B9 two-VarBind SET must succeed");
+    if (dut.snmp_ctl_shadow !== 16'h0567) badv("B9 ctl not committed", {16'd0,dut.snmp_ctl_shadow}, 32'h0567);
+    if (dut.tx_cfg_mem[26][31:8] !== 24'h000321) badv("B9 BAG[5] not committed to tx_cfg_mem",
+                                                       {8'd0,dut.tx_cfg_mem[26][31:8]}, 32'h000321);
+    if (dut.rx_free_map !== 16'hFFC0) bad("B9 SAP blocks not returned to RX pool");
+    host_read(16'hAC16, d);
+    if (d !== 32'd14) badv("B9 on-wire rx_pdu_cnt", d, 32'd14);
+    host_read(16'hAC17, d);
+    if (d !== 32'd13) badv("B9 on-wire resp_cnt", d, 32'd13);
+    // B9b BAG 侧原子性：失败 SET 不得写 tx_cfg_mem
+    drive_case(29); t_grab;
+    if (r_err !== 2 || r_idx !== 2) badv("B9b SET with unknown leaf must return noSuchName(2) idx 2", r_err*16+r_idx, 32'h22);
+    if (dut.tx_cfg_mem[26][31:8] !== 24'h000321) badv("B9b rejected SET partially wrote BAG[5]",
+                                                       {8'd0,dut.tx_cfg_mem[26][31:8]}, 32'h000321);
+    // B10 核查 A02 顶层忙时：响应未取走时连发三个 GET（30 待取、31 暂存、32 整包拒绝并计数）
+    host_read(16'hAC18, e);
+    drive_case(30); drive_case(31); drive_case(32);
+    host_read(16'hAC18, d);
+    if (d !== (e + 32'd1)) badv("B10 busy SAP frame not rejected+counted exactly once", d, e+32'd1);
+    t_grab;
+    if (r_rid !== 32'h88 || r_err !== 0 || vbv[0] !== 32'h0567) badv("B10 first response must be id 0x88 ctl=0x0567", r_rid, 32'h88);
+    // 暂存的 31 在 ACK 后才开始解析/组包：轮询响应就绪，不假定固定延迟
+    d = 0; waitc = 0;
+    while (d[0] !== 1'b1 && waitc < 400) begin
+      repeat (50) @(negedge clk); host_read(16'hAC1C, d); waitc = waitc + 1;
+    end
+    t_grab;
+    if (r_rid !== 32'h89 || r_err !== 0) badv("B10 held request must be answered next with id 0x89", r_rid, 32'h89);
+    // 被拒的 32 不得在稍后冒出应答
+    repeat (4000) @(negedge clk);
+    host_read(16'hAC1C, d);
+    if (d[0] !== 1'b0) bad("B10 rejected request must not produce a response");
+    if (dut.rx_free_map !== 16'hFFC0) bad("B10 SAP blocks not returned to RX pool");
+    host_read(16'hAC16, d);
+    if (d !== 32'd17) badv("B10 on-wire rx_pdu_cnt", d, 32'd17);
+    host_read(16'hAC17, d);
+    if (d !== 32'd16) badv("B10 on-wire resp_cnt", d, 32'd16);
 
     if (errors == 0)
-      $display("T15 SNMP PASS (unit: 12 real BER PDUs, GET/GETNEXT/SET, STATS_BLOCK, noSuchName/readOnly/badValue/community-drop, OCTET STRING, multi-varbind; top: 12 on-wire SAP frames decoded, 11 answered, 1 dropped on community)");
+      $display("T15 SNMP PASS (unit: 12 real BER PDUs, GET/GETNEXT/SET, STATS_BLOCK, noSuchName/readOnly/badValue/community-drop, OCTET STRING, multi-varbind; top: 18 on-wire SAP frames, 16 answered, 1 community drop, 1 busy reject counted; atomic CTL/BAG SET + ordered commit)");
     else
       $display("T15 SNMP FAIL (errors=%0d)", errors);
     $finish;

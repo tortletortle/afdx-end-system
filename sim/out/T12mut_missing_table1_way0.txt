@@ -2,10 +2,10 @@ Reading pref.tcl
 
 # 2025.3
 
-# source {C:/Workspace/diansai/sim/out/t12_mut_qyzbod6m/run.tcl}
+# source {C:/Workspace/diansai/sim/out/t12_mut_198p6jhw/run.tcl}
 # Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
-# Start time: 22:17:29 on Sep 23,2026
-# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t12_mut_qyzbod6m/lib C:/Workspace/diansai/sim/out/t12_mut_qyzbod6m/rx_vl_lookup.v C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v 
+# Start time: 23:40:45 on Sep 27,2026
+# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t12_mut_198p6jhw/lib C:/Workspace/diansai/sim/out/t12_mut_198p6jhw/rx_vl_lookup.v C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v 
 # ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # -- Compiling module rx_vl_lookup
 # -- Compiling module tb_t12_core
@@ -19,12 +19,12 @@ Reading pref.tcl
 # 	tb_t12r_lookup
 # 	tb_t12s_lookup
 # 	tb_t12h_lookup
-# End time: 22:17:29 on Sep 23,2026, Elapsed time: 0:00:00
+# End time: 23:40:45 on Sep 27,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 T12_MUTANT_COMPILED
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
-# vsim -lib C:/Workspace/diansai/sim/out/t12_mut_qyzbod6m/lib tb_t12s_lookup 
-# Start time: 22:17:29 on Sep 23,2026
+# vsim -lib C:/Workspace/diansai/sim/out/t12_mut_198p6jhw/lib tb_t12s_lookup 
+# Start time: 23:40:45 on Sep 27,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # //  Questa Altera Starter FPGA Edition-64
@@ -43,20 +43,20 @@ T12_MUTANT_COMPILED
 # //
 # Loading sv_std.std
 # Loading work.tb_t12s_lookup(fast)
-#   [err] T12 case=2 tick=68 sent=3 out=2: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=216 sent=26 out=25: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=217 sent=26 out=25: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=381 sent=56 out=55: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=460 sent=63 out=62: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=595 sent=86 out=85: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=706 sent=102 out=101: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=862 sent=132 out=131: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=1018 sent=162 out=161: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=1019 sent=162 out=161: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=1020 sent=162 out=161: output differs from independent key->index scoreboard
-#   [err] T12 case=2 tick=1021 sent=162 out=161: output differs from independent key->index scoreboard
-# T12 LOOKUP FAIL (case=2 errors=3690)
-# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v(341)
-#    Time: 1014840 ns  Iteration: 1  Instance: /tb_t12s_lookup/core
-# End time: 22:17:31 on Sep 23,2026, Elapsed time: 0:00:02
+#   [err] T12 case=2 tick=74 sent=3 out=2: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=75 sent=3 out=2: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=334 sent=26 out=25: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=638 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=639 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=640 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=641 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=642 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=643 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=644 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=645 sent=56 out=55: output differs from independent key->index scoreboard
+#   [err] T12 case=2 tick=646 sent=56 out=55: output differs from independent key->index scoreboard
+# T12 LOOKUP FAIL (case=2 errors=5461)
+# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v(352)
+#    Time: 1877232 ns  Iteration: 1  Instance: /tb_t12s_lookup/core
+# End time: 23:40:48 on Sep 27,2026, Elapsed time: 0:00:03
 # Errors: 0, Warnings: 0

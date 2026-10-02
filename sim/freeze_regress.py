@@ -46,6 +46,7 @@ def freeze(csv_path, out_path):
         "README.md", "AFDX端系统_总体设计书.md", "sim/tests.manifest", "sim/run_regress.ps1",
         "sim/freeze_regress.py",
         "sim/compile.tcl", "sim/run_one.tcl",
+        "sim/regress_verdict.ps1", "sim/test_regress_verdict.ps1",
         "sim/test_t09_mutants.py", "sim/test_t12_mutants.py",
         "sim/test_t12_top_mutants.py", "sim/test_t08c_mutants.py", "tools_lint.ps1",
         "sim/test_t08e_mutants.py", "sim/test_t10_mutants.py", "sim/test_t11_mutants.py",

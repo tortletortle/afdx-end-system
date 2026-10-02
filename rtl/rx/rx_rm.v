@@ -4,7 +4,8 @@
 //   lookup 入口已串行化成一条流，因此 §7.11 的 2 深 A/B 等待队列在本实现里
 //   由 lookup 前的两个 rx_pmem_queue 承担：B 副本进入判决时一定已看到 A 副本
 //   写回的 last_sn/last_ts（同 VL 逐项读—判—写回，不存在"同拍都 forward"）。
-// 判决（每 VL 一个 33 bit 表项 {seen, last_ts[23:0], last_sn[7:0]}，附录 C RM_ST）:
+// 判决（每 VL 一个表项，低 33 bit {seen, last_ts[23:0], last_sn[7:0]} 同附录 C RM_ST，
+//   高 8 bit 为迟到副本历史窗，见下）:
 //   active = CTL.RM_EN && w0.rm_en && w0.net_mode==2'b11
 //   !active                                  -> forward，不读写表项
 //   seen && sn==last_sn && |ts-last_ts|<=Skew -> drop_dup（表项不变）
@@ -18,6 +19,18 @@
 //   RAM 字由 init_sweep T_RM 清零、forward 时置 1。4096×33 bit 需 9 个 4K×4
 //   块（原 32 bit 为 8 个）；本实现串行化后不需要 §7.11 的 4096 bit pending
 //   位图寄存器，净省 4096 FF。
+// 迟到副本历史窗（核查 20260928 / 设计优化 OPT-RM，参照 RFC 4303 §3.4.3 反重放
+//   滑动窗口 L137）: 原表项只记最后一个已转发 SN，另一网落后 ≥1 帧时其旧 SN
+//   副本（sn != last_sn）会被再次转发 —— 多帧迟到副本漏删。现表项扩为 41 bit
+//   {hist[7:0], seen, last_ts, last_sn}，hist[k-1]=1 表示 last_sn 之前第 k 个 SN
+//   （SN 环 1..255，0 为复位 SN 不入环）已转发:
+//     落后 d(1..8) 且 hist[d-1]=1 且 |ts-last_ts|<=Skew -> drop_dup（表项不变）
+//     落后 d(1..8) 且未转发过（领先网丢了该帧）      -> forward，只补记 hist 位
+//     落后 d(1..8) 且已转发但超出 Skew               -> forward + skew 事件
+//     领先 f(1..127)                                  -> forward，hist 左移 f 位并记入原 last
+//     其它（落后 >8、SN 0、未 seen、同 SN 超窗）      -> forward，hist 清零（旧语义）
+//   Skew 比较用最新帧 last_ts（旧副本原始 ts ≤ last_ts，判据偏保守，只会多删
+//   "SkewMax 内的旧副本"）。低 33 bit 布局不变。4096×41 bit 需 11 个 4K×4 块。
 // 存储纪律: 与 rx_ic 相同，init/debug/commit 三个写源复用同一物理写口并共用
 //   读写地址，保证 eLinx 推断单块 BRAM。
 // 时钟/复位: clk / rst_sync（§4.2）；out_vld 保持到 out_ready（无隐式丢弃）。
@@ -53,10 +66,12 @@ module rx_rm #(
 );
   localparam [1:0] ST_IDLE=2'd0, ST_CMP=2'd1, ST_WRITE=2'd2, ST_OUT=2'd3;
 
-  reg [32:0] rm_mem [0:NUM_RX_VL-1];
+  localparam integer HW = 8;       // 迟到副本历史窗深度
+  reg [40:0] rm_mem [0:NUM_RX_VL-1];
   reg [1:0]  state;
   reg [11:0] addr_q;
-  reg [32:0] st_q;
+  reg [40:0] st_q;
+  reg [40:0] wr_ent_q;         // ST_CMP 算好的新表项，ST_WRITE 写回
   reg [23:0] ts_q, skew_q;
   reg [7:0]  sn_q;
   reg        active_q, fwd_q, skew_ev_q;
@@ -70,7 +85,7 @@ module rx_rm #(
                    active_q && fwd_q;
   wire mem_we    = sweep_we || debug_we || commit_we;
   wire [11:0] wr_addr = sweep_we ? init_addr[11:0] : debug_we ? dbg_vl : addr_q;
-  wire [32:0] wr_data = sweep_we ? 33'd0 : debug_we ? dbg_data : {1'b1, ts_q, sn_q};
+  wire [40:0] wr_data = sweep_we ? 41'd0 : debug_we ? {8'd0, dbg_data} : wr_ent_q;
   wire [11:0] mem_addr = mem_we ? wr_addr : vl_ok ? in_vl : 12'd0;
   always @(posedge clk) begin
     if (mem_we) rm_mem[mem_addr] <= wr_data;
@@ -86,13 +101,26 @@ module rx_rm #(
   wire seen_q  = st_q[32];
   wire same_sn = (sn_q == st_q[7:0]);
   wire in_win  = (dts_ab <= skew_q);
+  // SN 环距离（1..255，SN 0 不入环）: f = 从 last_sn 前进到 sn 的步数 0..254
+  wire [7:0] hist_q  = st_q[40:33];
+  wire [7:0] last_sn = st_q[7:0];
+  wire       sn_nz   = (sn_q != 8'd0) && (last_sn != 8'd0);
+  wire [7:0] f_raw   = sn_q - last_sn;
+  wire [7:0] f       = (sn_q < last_sn) ? (f_raw - 8'd1) : f_raw;
+  wire [7:0] d_back  = 8'd255 - f;                          // 落后步数（f>=128 时有效）
+  wire       ahead   = sn_nz && (f != 8'd0) && (f < 8'd128);
+  wire       behind  = sn_nz && (f >= 8'd128) && (d_back <= HW);
+  wire [7:0] d_bit   = behind ? (8'd1 << (d_back - 8'd1)) : 8'd0;
+  wire       hist_hit = behind && ((hist_q & d_bit) != 8'd0);
+  wire       late_dup = active_q && seen_q && hist_hit && in_win;
+  wire [15:0] hist_sh = {7'd0, hist_q, 1'b1} << (f - 8'd1);  // 原 last 落到 bit f-1
 
   always @(posedge clk) begin
     if (rst_sync) begin
       state <= ST_IDLE; out_vld <= 1'b0; out_fwd <= 1'b0; out_skew <= 1'b0;
       out_desc <= {DW{1'b0}}; out_vl <= 12'd0; addr_q <= 12'd0; ts_q <= 24'd0;
       skew_q <= 24'd0; sn_q <= 8'd0; active_q <= 1'b0;
-      fwd_q <= 1'b0; skew_ev_q <= 1'b0;
+      fwd_q <= 1'b0; skew_ev_q <= 1'b0; wr_ent_q <= 41'd0;
     end else if (init_we) begin
       state <= ST_IDLE; out_vld <= 1'b0;
     end else begin
@@ -107,8 +135,11 @@ module rx_rm #(
           state    <= ST_CMP;
         end
         ST_CMP: begin
-          fwd_q     <= !(active_q && seen_q && same_sn && in_win);
-          skew_ev_q <= active_q && seen_q && same_sn && !in_win;
+          fwd_q     <= !(active_q && seen_q && same_sn && in_win) && !late_dup;
+          skew_ev_q <= active_q && seen_q && (same_sn || hist_hit) && !in_win;
+          // forward 必写回（commit_we = active && fwd）；drop 不写
+          if (seen_q && behind) wr_ent_q <= {hist_q | d_bit, st_q[32:0]};   // 旧 SN：只补记
+          else wr_ent_q <= {(seen_q && ahead) ? hist_sh[7:0] : 8'd0, 1'b1, ts_q, sn_q};
           state     <= ST_WRITE;
         end
         ST_WRITE: begin              // commit_we 在本拍写回

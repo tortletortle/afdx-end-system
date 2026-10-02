@@ -200,6 +200,18 @@ Lint 'tb_t16_tftp_rtc' ($tbbase + @('--top-module','tb_t16_tftp_rtc') +
   $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
   'rtl/top/AFDX_top.v','sim/tb/tb_t16_tftp_rtc.v'))
 
+# test-set completion 20260928: worst-case latency, RTC drift, 615A unload
+Lint 'tb_t13w_worst' ($tbbase + @('--top-module','tb_t13w_worst') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t13w_worst.v'))
+Lint 'tb_t13wg_worst' ($tbbase + @('--top-module','tb_t13wg_worst') +
+  $common + $txmods + $rxmods + @('rtl/top/init_sweep.v',
+  'rtl/top/AFDX_top.v','sim/tb/tb_t13w_worst.v'))
+Lint 'tb_t16a_rtc_drift' ($tbbase + @('--top-module','tb_t16a_rtc_drift') + @(
+  'rtl/mgmt/rtc_sync.v','sim/tb/tb_t16a_rtc_drift.v'))
+Lint 'tb_t16u_tftp_unload' ($tbbase + @('--top-module','tb_t16u_tftp_unload') + @(
+  'rtl/mgmt/a615a_tftp.v','sim/tb/tb_t16u_tftp_unload.v'))
+
 Remove-Item $gatefile -Force -ErrorAction SilentlyContinue
 if ($script:fail -ne 0) { Write-Output "LINT GATE: FAIL"; exit 1 }
 Write-Output "LINT GATE: PASS (all gates 0 %Error)"

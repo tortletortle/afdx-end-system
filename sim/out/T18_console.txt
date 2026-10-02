@@ -5,10 +5,10 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t18_random_stress 
-# Start time: 15:23:13 on Sep 27,2026
+# Start time: 23:38:52 on Sep 27,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
-# ** Warning: ../rtl/top/AFDX_top.v(1291): (vopt-2241) Connection width does not match width of port 'host_addr'. The port definition is at: ../rtl/mgmt/a615a_tftp.v(51).
+# ** Warning: ../rtl/top/AFDX_top.v(1332): (vopt-2241) Connection width does not match width of port 'host_addr'. The port definition is at: ../rtl/mgmt/a615a_tftp.v(51).
 # ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
 # //  Questa Altera Starter FPGA Edition-64
 # //  Version 2025.3 win64 Sep 15 2025
@@ -26,10 +26,10 @@ Reading pref.tcl
 # //
 # Loading sv_std.std
 # Loading work.tb_t18_random_stress(fast)
-#   [T18 PAIR] mode=0 TX=158/158 lengths=94,64 MAC_good_delta=2,2 MAC_drop_delta=0,0 reasons=00,00 parser_stall=755 delivered=0 free=fe00
-#   [T18 INFO] seed=51c0ffee first=388ebd6a min=17 max=1471 stalled=97 spaced=100 pair_len=47,17 pair_tx_overlap=1 pair_rx_stall=756
-# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=102 pair_inflight=2 seed=51c0ffee min=17 max=1471 stalls=97 spaced=100 tx_overlap=1 rx_stall=756)
+#   [T18 PAIR] mode=0 TX=158/158 lengths=94,64 MAC_good_delta=2,2 MAC_drop_delta=0,0 reasons=00,00 parser_stall=752 delivered=0 free=fe00
+#   [T18 INFO] seed=51c0ffee first=388ebd6a min=17 max=1471 stalled=97 spaced=100 pair_len=47,17 pair_tx_overlap=1 pair_rx_stall=753
+# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=102 pair_inflight=2 seed=51c0ffee min=17 max=1471 stalls=97 spaced=100 tx_overlap=1 rx_stall=753)
 # ** Note: $finish    : tb/tb_t18_random_stress.v(502)
-#    Time: 15428128 ns  Iteration: 0  Instance: /tb_t18_random_stress/core
-# End time: 15:23:59 on Sep 27,2026, Elapsed time: 0:00:46
+#    Time: 15431272 ns  Iteration: 0  Instance: /tb_t18_random_stress/core
+# End time: 23:39:30 on Sep 27,2026, Elapsed time: 0:00:38
 # Errors: 0, Warnings: 1

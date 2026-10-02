@@ -13,6 +13,18 @@ import os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
+# 校验器会打印 §8.2 里的真实数学符号（如 U+2212 MINUS SIGN）。中文 Windows 的 stdout
+# 默认 GBK，编码这些符号时抛 UnicodeEncodeError，使本该全绿的门禁以 exit 1 收场——
+# 评委照 README 复现时会误判成「文档不一致」。对本进程与全部子进程统一强制 UTF-8，
+# 解码端兜底，使门禁结论不受控制台代码页影响。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # 旧版 Python 或已被替换的流
+        pass
+
+_CHILD_ENV = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+
 # 平铺命名（tools_*.py / doc_regs.yaml）是通过文件隧道同步过来的备份布局，
 # 里面的脚本按 tools/ + doc/ 目录找文件与文档，直接跑会 SKIP 全部步骤、给出假绿假红。
 if os.path.basename(HERE) != "tools" and os.path.exists(os.path.join(HERE, "tools_run_all.py")):
@@ -38,7 +50,8 @@ def main():
         p = os.path.join(HERE, script)
         if not os.path.exists(p):
             print("SKIP  %-18s 缺 %s" % (name, script)); bad.append(name + "(缺文件)"); continue
-        r = subprocess.run([sys.executable, p], cwd=ROOT, capture_output=True, text=True)
+        r = subprocess.run([sys.executable, p], cwd=ROOT, capture_output=True,
+                           text=True, encoding="utf-8", errors="replace", env=_CHILD_ENV)
         tail = [l for l in (r.stdout or "").splitlines() if l.strip()]
         err = [l for l in (r.stderr or "").splitlines() if l.strip()]
         last = (tail[-1] if tail else (err[-1] if err else "(无输出)")).strip()
@@ -56,7 +69,7 @@ def main():
             print("FAIL selfcheck_claims 缺自查脚本")
             bad.append("selfcheck_claims(缺文件)")
         else:
-            r = subprocess.run([sys.executable, script], cwd=ROOT)
+            r = subprocess.run([sys.executable, script], cwd=ROOT, env=_CHILD_ENV)
             if r.returncode:
                 print("FAIL selfcheck_claims 口径/数字自查未通过")
                 bad.append("selfcheck_claims")

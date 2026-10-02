@@ -24,8 +24,8 @@ VSIM_CANDIDATES = (
 )
 MUTATIONS = (
     ("wrong_hash_multiplier",
-     "x = x * (table_id ? 16'h45D9 : 16'h9E37);",
-     "x = x * (table_id ? 16'h45D9 : 16'h9E35);"),
+     "product0_q <= mixed0 * 16'h9E37;",
+     "product0_q <= mixed0 * 16'h9E35;"),
     ("missing_table1_way0",
      "wire m10 = valid_match(q10,vlid_q);",
      "wire m10 = 1'b0;"),

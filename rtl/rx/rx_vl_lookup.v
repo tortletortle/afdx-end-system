@@ -4,6 +4,9 @@
 // transaction is only accepted while idle and INIT_DONE.  A failed offline
 // build must NOT be loaded or used to open RX; the enclosing top owns that gate.
 // No runtime probe/eviction: parallel synchronous bucket reads, four compares.
+// Continue12: capture -> hash add -> hash multiply -> RAM read -> compare.
+// First output handshake is five clock edges after input acceptance (no stall).
+// Descriptor and seeds are captured together; live input never drives RAM lookup.
 `timescale 1 ns / 1 ps
 module rx_vl_lookup #(
   parameter integer DW = 163,     // RX 描述符位宽（v0.5.16 顶层用 174）
@@ -36,9 +39,12 @@ module rx_vl_lookup #(
 );
   localparam integer BITS = $clog2(HASH_BUCKETS);
   localparam integer WORDS = 4*HASH_BUCKETS;
-  localparam [1:0] IDLE=2'd0, COMPARE=2'd1, OUTPUT=2'd2;
-  reg [1:0] state;
+  localparam [2:0] IDLE=3'd0, HASH_ADD=3'd1, HASH_MUL=3'd2,
+                   RAM_READ=3'd3, COMPARE=3'd4, OUTPUT=3'd5;
+  reg [2:0] state;
   reg [15:0] vlid_q;
+  reg [15:0] seed0_q, seed1_q;
+  reg [15:0] sum0_q, sum1_q, product0_q, product1_q;
 
   // Each way has one muxed write port (sweep OR frontdoor) and one shared
   // synchronous read address (lookup OR config read OR write). Avoid an array
@@ -54,20 +60,14 @@ module rx_vl_lookup #(
   // Keep the Python hash in sw/golden/hash_seed.py bit-identical. Addition
   // before 16-bit wrap/multiply/xorshift changes WHICH keys collide when seed
   // changes; XORing a final bucket number would only relabel buckets.
-  function [10:0] mix_bucket;
-    input [15:0] vlid, seed;
-    input table_id;
-    reg [15:0] x;
-    begin
-      x = vlid + seed + (table_id ? 16'h1F5B : 16'h9E37);
-      x = x ^ (x >> 7);
-      x = x * (table_id ? 16'h45D9 : 16'h9E37);
-      x = x ^ (x >> 9);
-      mix_bucket = x & (HASH_BUCKETS - 1);
-    end
-  endfunction
-  wire [BITS-1:0] h0 = mix_bucket(in_desc[123:108],seed0,1'b0);
-  wire [BITS-1:0] h1 = mix_bucket(in_desc[123:108],seed1,1'b1);
+  // Each intermediate is explicitly 16 bits, preserving modulo-65536
+  // addition/multiplication from the independent Python golden model.
+  wire [15:0] mixed0 = sum0_q ^ (sum0_q >> 7);
+  wire [15:0] mixed1 = sum1_q ^ (sum1_q >> 7);
+  wire [15:0] hash0 = product0_q ^ (product0_q >> 9);
+  wire [15:0] hash1 = product1_q ^ (product1_q >> 9);
+  wire [BITS-1:0] h0 = hash0[BITS-1:0];
+  wire [BITS-1:0] h1 = hash1[BITS-1:0];
 
   wire cfg_ok_addr = (cfg_addr < WORDS);
   wire sweep = !rst_sync && init_we && (init_addr < WORDS);
@@ -141,6 +141,9 @@ module rx_vl_lookup #(
       out_vl <= 12'd0;
       out_desc <= {DW{1'b0}};
       vlid_q <= 16'd0;
+      seed0_q <= 16'd0; seed1_q <= 16'd0;
+      sum0_q <= 16'd0; sum1_q <= 16'd0;
+      product0_q <= 16'd0; product1_q <= 16'd0;
       cfg_rvalid <= 1'b0;
       cfg_sel_q <= 2'd0;
     end else begin
@@ -149,7 +152,22 @@ module rx_vl_lookup #(
       case (state)
         IDLE: if (in_vld && in_ready) begin
           vlid_q <= in_desc[123:108];
+          seed0_q <= seed0; seed1_q <= seed1;
           out_desc <= in_desc;
+          state <= HASH_ADD;
+        end
+        HASH_ADD: begin
+          sum0_q <= vlid_q + seed0_q + 16'h9E37;
+          sum1_q <= vlid_q + seed1_q + 16'h1F5B;
+          state <= HASH_MUL;
+        end
+        HASH_MUL: begin
+          product0_q <= mixed0 * 16'h9E37;
+          product1_q <= mixed1 * 16'h45D9;
+          state <= RAM_READ;
+        end
+        RAM_READ: begin
+          // q00/q01/q10/q11 capture the registered product's buckets here.
           state <= COMPARE;
         end
         COMPARE: begin

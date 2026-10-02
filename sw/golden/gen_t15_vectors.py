@@ -133,6 +133,27 @@ cases = [
     (24, 1, snmp(NEXT, 0x00000082, [vb(1, 5, inst=5)]),              14, 0),
     (25, 1, snmp(SET,  0x00000083, [vb(1, 5, inst=5, val=tlv(0x02, ber_int(0x123456)))]), 15, 0),
     (26, 1, snmp(GET,  0x00000084, [vb(1, 9, inst=5)]),              16, 0),
+    # ---- 核查 20260928 A01 顶层路径（上线 SN 接 B 段的 0..11 → 12, 13）----
+    # 27: 原子性——VB1 可写 ctl:=0x5678，VB2 只读 uptime → readOnly(4)/idx 2，一个都不写
+    (27, 1, snmp(SET,  0x00000085, [vb(1, 11, val=tlv(0x02, ber_int(0x5678))),
+                                    vb(1, 2,  val=tlv(0x02, ber_int(5)))]),  12, 0),
+    # 28: 两 VarBind 成功——BAG[5]:=0x000321 与 ctl:=0x0567 都须落到顶层
+    (28, 1, snmp(SET,  0x00000086, [vb(1, 5, inst=5, val=tlv(0x02, ber_int(0x000321))),
+                                    vb(1, 11, val=tlv(0x02, ber_int(0x0567)))]), 13, 0),
+    # 29: BAG 侧原子性——VB1 BAG[5]:=0x000777，VB2 不存在的 leaf 99 → noSuchName(2)/idx 2，BAG 保持 0x000321
+    (29, 1, snmp(SET,  0x00000087, [vb(1, 5, inst=5, val=tlv(0x02, ber_int(0x000777))),
+                                    vb(1, 99, val=tlv(0x02, ber_int(1)))]),     14, 0),
+    # 30..32: A02 顶层忙时——响应未取走时连发三个 GET：30 待取、31 暂存、32 整包拒绝并计数
+    (30, 1, snmp(GET,  0x00000088, [vb(1, 11)]),                     15, 0),
+    (31, 1, snmp(GET,  0x00000089, [vb(1, 11)]),                     16, 0),
+    (32, 1, snmp(GET,  0x0000008A, [vb(1, 11)]),                     17, 0),
+    # ---- step3 20260928：顶层卸载（T16 C8b），TFTP 上线 SN 接 9 → 10..12 ----
+    # 33: RRQ "UPLOAD" → DATA(1) = D1（512 B，经 11 位 0xAC1A/0xAC27 读 516 B）
+    (33, 0, tftp_rq(1, b"UPLOAD"),                 10, CRC_ALL),
+    # 34: ACK(1)（补零到 8 B）→ DATA(2) = D2（8 B，末块）
+    (34, 0, bytes([0, 4, 0, 1]) + b"\x00" * 4,     11, 0),
+    # 35: ACK(2) → 卸载会话结束，不再有响应
+    (35, 0, bytes([0, 4, 0, 2]) + b"\x00" * 4,     12, 0),
 ]
 
 def main():

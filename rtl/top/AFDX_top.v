@@ -37,7 +37,7 @@ module AFDX_top #(
   parameter integer SNMP_SAP_PORT = 6,
   parameter integer TFTP_SAP_PORT = 7,
   parameter integer RTC_US_PER_SEC = 1000000,
-  parameter integer RTC_SYNC_TO_US = 4000,
+  parameter integer RTC_SYNC_TO_US = 2500000,   // 核查 20260928：仅 PPS 对时须 > RTC_US_PER_SEC（原 4000 每秒误判失步）
   parameter integer TFTP_TIMEOUT_US = 5000
 ) (
   // ---- 模板 8 端口（§5.2: 保留原样，方向与位宽不动）----
@@ -112,6 +112,14 @@ module AFDX_top #(
   wire cfg_over = (cfg_sum_r > Q20_LIMIT);
   wire cfg_missing = (cfg_missing_cnt != 8'd0);
   reg [31:0] port_cfg_mem [0:4*NUM_PORTS-1];
+  // continue11 时序：影子寄存器，写条件/优先级与 tx_cfg_mem / port_cfg_mem 完全一致，
+  // 取代原先对 FF 大表的宽组合读（POST-FIT-FINDINGS 根因 B：1024:1 / 640:1 读 mux）。
+  //   tx_w0_en[vl]     = tx_cfg_mem[vl*5][31]
+  //   port_w0_sh[p]    = {port_cfg_mem[p*4][31], [18], [17:16]}
+  //   port_w3_dep[p]   = port_cfg_mem[p*4+3][3:0]
+  reg [NUM_TX_VL-1:0] tx_w0_en;
+  reg [3:0]           port_w0_sh  [0:NUM_PORTS-1];
+  reg [3:0]           port_w3_dep [0:NUM_PORTS-1];
   reg [31:0] vl_stat_mem  [0:NUM_TX_VL-1];
   reg [31:0] vl_tx_frame_cnt [0:NUM_TX_VL-1];
   reg [31:0] vl_rx_accept_cnt[0:NUM_TX_VL-1];
@@ -197,6 +205,8 @@ module AFDX_top #(
   wire        snmp_resp_vld;
   wire [7:0]  snmp_resp_byte;
   wire        snmp_ctl_we;
+  wire        snmp_set_active, snmp_set_ack, snmp_bag_commit;
+  wire        host_snmp_wait;
   wire [15:0] snmp_ctl_wdata;
   wire [7:0]  snmp_mib_group, snmp_mib_leaf, snmp_mib_index;
   wire [31:0] snmp_vl_data;
@@ -214,7 +224,7 @@ module AFDX_top #(
   reg         load_rd_d;
   wire [31:0] stats_jit_max, stats_drop_total;
   reg  [15:0] snmp_ctl_shadow;
-  reg  [7:0]  mgmt_bidx;
+  reg  [10:0] mgmt_bidx;          // step3：11 位，覆盖 516 B 的 TFTP DATA 响应（原 8 位只到 255）
   reg  [31:0] uptime_cs;
   reg  [13:0] cs_div;
   reg host_pmem_pending;
@@ -223,7 +233,7 @@ module AFDX_top #(
   wire host_pmem_req, rx_pmem_busy, host_commit_now, host_commit_pending;
   // 无竞争时单拍流水不变。若运行期 RX 抢占单写口，锁住 1 笔主机
   // PMEM 请求直到实际落 RAM 再 ACK；争用时主机须保持至 ACK，不流水投递。
-  wire hs = host_cs & ~rst_sync & ~host_pmem_pending;
+  wire hs = host_cs & ~rst_sync & ~host_pmem_pending & ~host_snmp_wait;
   wire we = hs & host_we;
   always @(posedge clk) begin
     if (rst_sync) begin
@@ -290,7 +300,8 @@ module AFDX_top #(
   wire msg_rd_hit  = (host_addr >= 16'h8380 && host_addr <= 16'h847F);
   wire msg_cnt_hit = (host_addr >= 16'h8480 && host_addr <= 16'h857F);
   wire [7:0]  hop_port = host_addr[7:0] - 8'h80;
-  wire [31:0] hop_w0 = port_cfg_mem[{hop_port,2'b00}];
+  wire [3:0]  hop_sh = port_w0_sh[hop_port];
+  wire [31:0] hop_w0 = {hop_sh[3], 12'd0, hop_sh[2], hop_sh[1:0], 16'd0};  // 仅 [31]/[18]/[17:16] 有消费者
   wire hop_is_rx = hop_w0[31] && hop_w0[18];
   assign hop_desc_rd = hs && !host_we && desc_hit && hop_is_rx && init_done;
   wire msg_rd_ok = msg_rd_hit && init_done && hop_is_rx;
@@ -323,7 +334,7 @@ module AFDX_top #(
   wire [9:0] port_idx = host_addr - 16'h7D80;
   assign desc_idx = host_addr - 16'h8180;
   wire [9:0] vs_idx   = host_addr - 16'hA810;
-  wire tx_cfg_valid = tx_cfg_mem[(tx_idx / 10'd5) * 10'd5][31];
+  wire tx_cfg_valid = tx_w0_en[tx_idx / 10'd5];
   wire snmp_vl_valid = (snmp_mib_index < NUM_TX_VL);
   wire [9:0] snmp_vl_base = {2'd0,snmp_mib_index} * 10'd5;
   assign snmp_vl_bag_allowed = snmp_vl_valid && (snmp_mib_leaf == 8'd5);
@@ -382,7 +393,11 @@ module AFDX_top #(
   // 读未启用项（w0.valid=0）返回零，语义同原 rx_cfg_valid。
   assign rxc_host_rdata = !rxq_host_w0[31] ? 32'd0 :
                           (rxc_sel_d ? rxq_host_w1 : rxq_host_w0);
-  wire port_cfg_valid = port_cfg_mem[(port_idx / 10'd4) * 10'd4][31];
+  wire port_cfg_valid = port_w0_sh[port_idx[9:2]][3];
+  // A validated SNMP SET owns TX configuration until all writes acknowledge.
+  // Unrelated host reads/operations remain available; held writes ACK once only.
+  assign host_snmp_wait = snmp_set_active && host_we &&
+                          (tx_hit || share_hit || (reg_page && reg_align && off == 8'h08));
   assign cfg_write = we & init_done & ctl_r[13] & !(|ctl_r[1:0]);
   wire share_wr = cfg_write && share_hit && share_format_ok;
   always @(posedge clk) begin
@@ -418,11 +433,11 @@ module AFDX_top #(
   wire [6:0] budget_vl = tx_idx / 10'd5;
   wire [9:0] budget_base = {3'd0,budget_vl} * 10'd5;
   wire budget_w0_write = cfg_write && tx_hit && ((tx_idx % 10'd5) == 10'd0);
-  wire budget_old_en = tx_cfg_mem[budget_base][31];
+  wire budget_old_en = tx_w0_en[budget_vl];
   wire budget_new_en = host_wdata[31];
   wire budget_share_ok = cfg_share_loaded[budget_vl] &&
                          (cfg_share_mem[budget_vl] != 21'd0);
-  wire share_old_en = tx_cfg_mem[share_tx_base][31];
+  wire share_old_en = tx_w0_en[share_idx];
   wire share_old_missing = share_old_en &&
                            (!cfg_share_loaded[share_idx] || cfg_share_mem[share_idx] == 21'd0);
   wire share_new_missing = share_old_en && (host_wdata[20:0] == 21'd0);
@@ -459,12 +474,42 @@ module AFDX_top #(
   end
 
   // 扫描优先于配置期前门写；无同步复位整片 BRAM 的写法。
+  // continue11：SNMP 改 BAG 写口打一拍，地址 vl*5+1 预先算好，切断
+  // vl_bag_index → 乘加 → 译码 → 上万 FF 使能 的组合链。SNMP 为慢路径，无线速要求。
+  reg        snmp_bag_we_q;
+  reg [9:0]  snmp_bag_addr_q;
+  reg [23:0] snmp_bag_wdata_q;
+  reg [6:0]  snmp_bag_vl_q;
+  always @(posedge clk) begin
+    if (rst_sync) begin
+      snmp_bag_we_q <= 1'b0; snmp_bag_addr_q <= 10'd0;
+      snmp_bag_wdata_q <= 24'd0; snmp_bag_vl_q <= 7'd0;
+    end else begin
+      if (snmp_bag_commit) snmp_bag_we_q <= 1'b0;
+      if (snmp_vl_bag_we && (snmp_vl_bag_index < NUM_TX_VL)) begin
+        snmp_bag_we_q <= 1'b1;
+        snmp_bag_vl_q <= snmp_vl_bag_index[6:0];
+        snmp_bag_addr_q <= ({2'd0,snmp_vl_bag_index} * 10'd5) + 10'd1;
+        snmp_bag_wdata_q <= snmp_vl_bag_wdata[23:0];
+      end
+    end
+  end
+  // 影子寄存器写口：与下方 tx_cfg_mem / port_cfg_mem 写口同条件、同优先级。
+  always @(posedge clk) begin
+    if (init_we && init_target == 3'd4) tx_w0_en[init_addr] <= 1'b0;
+    else if (cfg_write && tx_hit && ((tx_idx % 10'd5) == 10'd0)) tx_w0_en[tx_idx / 10'd5] <= host_wdata[31];
+    if (init_we && init_target == 3'd5) port_w0_sh[init_addr] <= 4'd0;
+    else if (cfg_write && port_hit && port_idx[1:0] == 2'd0)
+      port_w0_sh[port_idx[9:2]] <= {host_wdata[31], host_wdata[18], host_wdata[17:16]};
+    if (!(init_we && init_target == 3'd5) && cfg_write && port_hit && port_idx[1:0] == 2'd3)
+      port_w3_dep[port_idx[9:2]] <= host_wdata[3:0];
+  end
   always @(posedge clk) begin
     // RX_VL_CFG 写口已移入 u_rxcfg_w0a/w0b/w1（见上文），扫描优先级不变。
     if (init_we && init_target == 3'd4) tx_cfg_mem[init_addr * 13'd5] <= 32'd0;
     else if (cfg_write && tx_hit) tx_cfg_mem[tx_idx] <= host_wdata;
-    else if (snmp_vl_bag_we && (snmp_vl_bag_index < NUM_TX_VL))
-      tx_cfg_mem[({2'd0,snmp_vl_bag_index} * 10'd5) + 10'd1][31:8] <= snmp_vl_bag_wdata[23:0];
+    else if (snmp_bag_commit)
+      tx_cfg_mem[snmp_bag_addr_q][31:8] <= snmp_bag_wdata_q;
     if (init_we && init_target == 3'd5) port_cfg_mem[init_addr * 13'd4] <= 32'd0;
     else if (cfg_write && port_hit) port_cfg_mem[port_idx] <= host_wdata;
     if (init_we && init_target == 3'd7) begin
@@ -615,7 +660,7 @@ module AFDX_top #(
            6'h17: rdata_r <= snmp_cnt_tx;
            6'h18: rdata_r <= snmp_cnt_drop;
            6'h19: rdata_r <= mgmt_pay_cnt;
-           6'h1A: rdata_r <= {24'd0, mgmt_bidx};
+           6'h1A: rdata_r <= {21'd0, mgmt_bidx};
            6'h1B: rdata_r <= {24'd0, snmp_resp_byte};
            6'h1C: rdata_r <= {31'd0, snmp_resp_vld};
            6'h1D: rdata_r <= {16'd0, sap_out_dport};
@@ -684,8 +729,9 @@ module AFDX_top #(
   wire [12:0] pb_sch_len;
   wire [15:0] pb_ovr_cnt, pb_qovf_cnt, pb_exh_cnt;
   wire [7:0] msg_port = host_addr - 16'h8280;
-  wire [31:0] msg_port_w0 = port_cfg_mem[{msg_port,2'b00}];
-  wire [31:0] msg_port_w3 = port_cfg_mem[{msg_port,2'b00}+10'd3];
+  wire [3:0]  msg_port_sh = port_w0_sh[msg_port];
+  wire [31:0] msg_port_w0 = {msg_port_sh[3], 12'd0, msg_port_sh[2], msg_port_sh[1:0], 16'd0};
+  wire [31:0] msg_port_w3 = {28'd0, port_w3_dep[msg_port]};
   wire msg_len_ok = (host_wdata[15:0] >= 16'd8) && (host_wdata[15:0] <= 16'd1471);
   assign msg_valid = msg_wr_hit && init_done && !ctl_r[13] &&
                    msg_port_w0[31] && !msg_port_w0[18] &&
@@ -1066,17 +1112,34 @@ module AFDX_top #(
     if (rst_sync) active_net_mode <= 2'b01;
     else if (sch_start_vld) active_net_mode <= DUAL_NET_EN ? cfg_w0_q[1:0] : 2'b01;
   end
-  wire [6:0] cfg_sch_vl = tx_idx / 10'd5;
-  wire [9:0] cfg_sch_base = {3'd0,cfg_sch_vl} * 10'd5;
-  wire cfg_sch_we = budget_w0_write;
+  // continue11：调度器配置写打一拍（VL 号、基址、valid 先寄存），读 w1/w4 的地址
+  // 来自寄存器而非 host_addr 减法/除 5/乘 5。寄存拍内 tx_cfg_mem 的新写要到下一沿
+  // 才生效，故读到的 w1/w4 与原先 w0 写拍读到的值相同（配置期，调度器未使能）。
+  reg [6:0] cfg_sch_vl;
+  reg [9:0] cfg_sch_base;
+  reg       cfg_sch_we, cfg_sch_valid;
+  always @(posedge clk) begin
+    if (rst_sync) cfg_sch_we <= 1'b0;
+    else          cfg_sch_we <= budget_w0_write;
+    cfg_sch_vl    <= tx_idx / 10'd5;
+    cfg_sch_base  <= {3'd0, budget_vl} * 10'd5;
+    cfg_sch_valid <= host_wdata[31];
+  end
+  // Commit to the table AND scheduler on the same accepted edge. Previously
+  // only tx_cfg_mem changed and the scheduler kept its old BAG indefinitely.
+  assign snmp_bag_commit = snmp_bag_we_q && init_done && !rst_sync &&
+                           !cfg_sch_we && !(cfg_write && tx_hit);
+  assign snmp_set_ack = snmp_ctl_we || snmp_bag_commit;
   wire [NUM_PORTS-1:0] sched_ready = sch_enable ? pb_req : {NUM_PORTS{1'b0}};
   assign sch_enable = init_done && ctl_r[0] && !ctl_r[13];
   wire fb_done, fb_len_err;
   wire rm_frame_start;
-  tx_vl_scheduler #(.NUM_TX_VL(NUM_TX_VL), .NUM_PORTS(NUM_PORTS)) u_sched (
-    .clk(clk), .rst_sync(rst_sync), .enable(sch_enable), .tb_us(rtc64[23:0]),
-    .cfg_we(cfg_sch_we), .cfg_vl(cfg_sch_vl), .cfg_valid(host_wdata[31]),
-    .cfg_bag_us(tx_cfg_mem[cfg_sch_base+10'd1][31:8]),
+  tx_vl_scheduler #(.NUM_TX_VL(NUM_TX_VL), .NUM_PORTS(NUM_PORTS), .BAG_UPDATE_EN(1)) u_sched (
+    .clk(clk), .rst_sync(rst_sync), .enable(sch_enable && !snmp_set_active && !snmp_bag_we_q), .tb_us(rtc64[23:0]),
+    .cfg_we(cfg_sch_we || snmp_bag_commit),
+    .cfg_vl(snmp_bag_commit ? snmp_bag_vl_q : cfg_sch_vl), .cfg_valid(cfg_sch_valid),
+    .cfg_bag_only(snmp_bag_commit),
+    .cfg_bag_us(snmp_bag_commit ? snmp_bag_wdata_q : tx_cfg_mem[cfg_sch_base+10'd1][31:8]),
     .cfg_port(tx_cfg_mem[cfg_sch_base+10'd4][23:16]),
     .port_ready(sched_ready),
     .sch_take(sch_take), .sch_port(sch_port), .sch_ack(pb_sch_ack),
@@ -1229,14 +1292,14 @@ module AFDX_top #(
 
   always @(posedge clk) begin
     if (rst_sync) begin
-      load_rd_d <= 1'b0; mgmt_bidx <= 8'd0;
+      load_rd_d <= 1'b0; mgmt_bidx <= 11'd0;
       cs_div <= 14'd0; uptime_cs <= 32'd0;
       snmp_ctl_shadow <= CTL_RST[15:0];
     end else begin
       load_rd_d <= load_rd;
-      if (we && (host_addr == 16'hAC1A)) mgmt_bidx <= host_wdata[7:0];
+      if (we && (host_addr == 16'hAC1A)) mgmt_bidx <= host_wdata[10:0];
       else if (hs && !host_we && ((host_addr == 16'hAC1B) || (host_addr == 16'hAC27)))
-        mgmt_bidx <= mgmt_bidx + 8'd1;
+        mgmt_bidx <= mgmt_bidx + 11'd1;
       if (tick_us) begin
         if (cs_div >= 14'd9999) begin cs_div <= 14'd0; uptime_cs <= uptime_cs + 32'd1; end
         else cs_div <= cs_div + 14'd1;
@@ -1249,7 +1312,7 @@ module AFDX_top #(
     wire [3:0] s_err, s_idx, s_vb;
     wire [7:0] s_pdu;
     wire [15:0] s_peer;
-    snmp_lite #(.NUM_TX_VL(NUM_TX_VL), .NUM_RX_VL(NUM_RX_VL), .MAX_VB(8)) u_snmp (
+    snmp_lite #(.NUM_TX_VL(NUM_TX_VL), .NUM_RX_VL(NUM_RX_VL), .MAX_VB(8), .SET_ACK_EN(1)) u_snmp (
       .clk(clk), .rst_sync(rst_sync), .en(ctl_r[8]),
       .in_vld(sap_out_vld && sap_to_snmp), .in_sop(sap_out_sop),
       .in_eop(sap_out_eop), .in_data(sap_out_data), .in_sport(sap_out_sport),
@@ -1263,8 +1326,9 @@ module AFDX_top #(
       .vl_bag_we(snmp_vl_bag_we), .vl_bag_index(snmp_vl_bag_index),
       .vl_bag_wdata(snmp_vl_bag_wdata), .mib_group(snmp_mib_group),
       .mib_leaf(snmp_mib_leaf), .mib_index(snmp_mib_index),
+      .set_ack(snmp_set_ack), .set_active(snmp_set_active),
       .resp_vld(snmp_resp_vld), .resp_len(snmp_resp_len),
-      .resp_ack(snmp_resp_ack), .resp_rd_addr({3'd0, mgmt_bidx}),
+      .resp_ack(snmp_resp_ack), .resp_rd_addr(mgmt_bidx),
       .resp_byte(snmp_resp_byte),
       .rx_pdu_cnt(snmp_cnt_rx), .resp_cnt(snmp_cnt_tx), .drop_pdu_cnt(snmp_cnt_drop),
       .last_err(s_err), .last_idx(s_idx), .last_pdu(s_pdu),
@@ -1272,6 +1336,7 @@ module AFDX_top #(
     // [19:12]=PDU 类型 [11:8]=VarBind 数 [7:4]=error-index [3:0]=error-status
     assign snmp_st_w = {12'd0, s_pdu, s_vb, s_idx, s_err};
   end else begin : g_nosnmp
+    assign snmp_set_active = 1'b0;
     assign snmp_resp_vld = 1'b0; assign snmp_resp_len = 11'd0;
     assign snmp_resp_byte = 8'd0; assign snmp_st_w = 32'd0;
     assign snmp_cnt_rx = 32'd0; assign snmp_cnt_tx = 32'd0; assign snmp_cnt_drop = 32'd0;
@@ -1294,7 +1359,7 @@ module AFDX_top #(
       .in_eop(sap_out_eop), .in_data(sap_out_data), .in_sport(sap_out_sport),
       .in_ready(),
       .resp_vld(tftp_resp_vld), .resp_len(tftp_resp_len),
-      .resp_ack(tftp_resp_ack), .resp_rd_addr({3'd0, mgmt_bidx}),
+      .resp_ack(tftp_resp_ack), .resp_rd_addr(mgmt_bidx),
       .resp_byte(tftp_resp_byte),
       .host_rd(load_rd), .host_addr(host_addr - 16'hCC20),
       .host_rdata(tftp_load_rdata),

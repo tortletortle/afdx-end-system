@@ -102,3 +102,26 @@
 5. 重新建立顶层综合 active revision、资源报告、CDC/复位检查和 125 MHz STA。
 6. 固化 manifest、工具版本、源码/向量/日志哈希和清洁环境复跑包。
 7. 管理面若不纳入本阶段，明确写成项目限定子集和 OPEN_SPEC_GAP，不用 T23 冒充 T14–T16。
+
+## 7. 2026-09-28 设计优化待办（OPT-1~12，状态：PROPOSED，未实施）
+
+> 依据：[第三轮文献补充与设计优化建议](AFDX端系统_第三轮文献补充与设计优化建议_20260928.md)。下表只登记问题和方案，**不改变 §3/§4 的现有状态**；任一项实施后须全量 56 项回归＋同器件 post-fit STA，才能改为 IMPLEMENTED。
+>
+> **与同日文档的分工**：A01–A05（SNMP 事务/请求覆盖/时序、T13、判决门）已由 [文献依据与修复建议](AFDX_文献依据与修复建议_20260928.md)、[三篇文献正文复核与修复映射](AFDX_三篇文献正文复核与修复映射_20260928.md) 及 [文献落地验证清单 CSV](AFDX_文献落地验证清单_20260928.csv) 细化到用例级；OPT-2~5 **以该 CSV 为验收用例来源**，此处只登记对应关系，不另立判据。OPT-1、OPT-6~10 为本轮新增、上述文档未覆盖的项。
+
+| 编号 | 优先级 | 问题（证据） | 方案 | 文献 | 状态 |
+|---|---|---|---|---|---|
+| OPT-1 | P1 | RM 只记 last_sn，迟到副本会重复交付（`rx_rm.v:110`；`tb_t10_top_rm.v:282-285` 自认 limitation）→ REQ-REL-02／D12 缺口 | RM_ST 33→41 bit，加 8 bit 已交付位图；超出窗口由策略位决定；配置检查 `SkewMax < 127·BAG` | L105/L107/L137 | PROPOSED |
+| OPT-2 | P1 | SNMP SET 非原子（A01，`snmp_lite.v:532-537`） | P_RESOLVE2 只校验和暂存；新增 P_COMMIT，仅在 err_st==0 时统一写入 | L116；CSV `SET_ATOMIC_1/N`、`SET_PRECHECK` | PROPOSED |
+| OPT-3 | P1 | 请求覆盖（A02，`snmp_lite.v:367-375`） | `!have_pkt` 门控＋`snmp_busy_drop` 计数 | L116；CSV `REQ_BURST/REQ_CONTEXT/QUEUE_BOUNDARY/RESET_RECOVERY` | PROPOSED |
+| OPT-4 | P1 | 回归假绿（A04）、T13 无断言（A03） | 每个 TB 输出唯一 VERDICT 行，runner 严格判定；T13 加时延阈值；为 OPT-1~3 各配 1 个变异体 | L117/L001；CSV `VERDICT_GATE`、`LATENCY_GATE` | PROPOSED |
+| OPT-5 | P2 | WNS −1.735 ns，最差路径 `oid_len→vl_stat_mem`（A05） | OID 逐字节增量求 pfx_ok 和 g/l/i；walk() 单独占一拍 | L115；CSV `GETNEXT_PIPE`、`POSTFIT_CHECK` | PROPOSED |
+| OPT-6 | P2 | 0924 文档写 D10“调度器内置 26 μs×i 偏置”，RTL 无此逻辑（`tx_vl_scheduler.v:18`），实际为主机错相提交（T05b `:162`） | A：定义为主机契约并修正 0924 文档（推荐）；B：phase_lock 硬件相位栅格 | L099–L101/L135 | PROPOSED |
+| OPT-7 | P2 | 设计书 §8 写“任一池可借公共池”，TX 未实现（`tx_port_buf.v:19`）；RX 借用无上限 | 文档对齐为“仅 RX 借用”；RX 加 `borrow_cap`；日后 TX 借用采用 DT 阈值 | L121/L122 | PROPOSED |
+| OPT-8 | P3 | RTC 仅 P 环（`rtc_sync.v:79`），频偏 f ppm 时稳态误差约 f·2^log2_avg μs；设计书 F5“分数微调”未兑现 | PI 伺服＋分数累加器；SYNC_LOSS 时 holdover | L133/L134 | PROPOSED |
+| OPT-9 | P3 | `pps_in` 未做 CDC 签核（`rtc_sync.v:15`） | SDC／同步器识别＋MTBF 计算＋最小脉宽约束 | L132 | PROPOSED |
+| OPT-10 | P3 | 覆盖率 67.82%，无形式证据 | SymbiYosys 有界证明：块池守恒、RM 不重复、IC 拒绝不写 RM | L136 | PROPOSED |
+| OPT-11 | — | 调度器顺序扫描 1.02 μs／轮 | 不实施；VL ≥ 1024 时改时间轮 | L135 | DEFERRED |
+| OPT-12 | — | 配置 FF 阵列 | 待 post-fit 资源报告确认是瓶颈后，再做 BRAM 化 | L125–L127 | DEFERRED |
+
+**文档与代码不一致（待收口）**：D10 描述（0924 两份文档）；公共池借用（设计书 §8 第 490/972 行）；F5 分数微调（设计书 §2.1）；RM 迟到副本（§7.11／REQ-REL-02）。

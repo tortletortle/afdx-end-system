@@ -29,6 +29,7 @@ module tb_t08b_core #(parameter IF_MODE=0);
   reg [31:0] vec[0:1144];
   integer err=0,good_a=0,good_b=0, bad=0, host_stall=0, cycles=0;
   integer i,k,bbase,readback,waitc;
+  integer drain_cycles=0;
   reg [31:0] actual;
   reg [7:0] expected,obtained;
   reg [162:0] snap_a,snap_b;
@@ -150,9 +151,18 @@ module tb_t08b_core #(parameter IF_MODE=0);
       pair_frame(37,79,1);
       conflicted_host_write();
     join
-    repeat(12) @(negedge clk);
+    // Continue12: both inputs serialize through a five-edge lookup instead
+    // of the former two-edge lookup. Wait for *both exact FLT rejects* and
+    // full block return, bounded to 24 cycles (192 ns at 125 MHz). Keeping a
+    // fixed 12-cycle sleep sampled the second block while still owned by RX.
+    // A leak, lost descriptor, duplicate reject or stalled pipeline still fails.
+    while ((good_a!=1 || good_b!=1 || dut.flt_unconf_cnt!==32'd2 ||
+            dut.rx_free_map!==16'hFFC0) && drain_cycles<24) begin
+      @(negedge clk);drain_cycles=drain_cycles+1;
+    end
     if(good_a!=1 || good_b!=1 || bad!=0 || host_stall!=1 ||
-       pmem_word(0)!==32'hDEAD_BEEF || dut.rx_free_map!==16'hFFC0) begin
+       pmem_word(0)!==32'hDEAD_BEEF || dut.rx_free_map!==16'hFFC0 ||
+       dut.flt_unconf_cnt!==32'd2) begin
       $display("  [err] good A/B=%0d/%0d bad=%0d hoststall=%0d hostword=%h free=%h",
          good_a,good_b,bad,host_stall,pmem_word(0),dut.rx_free_map);err=err+1;
     end
@@ -186,7 +196,7 @@ module tb_t08b_core #(parameter IF_MODE=0);
     host_write(16'h0008,32'h2000); // RX 停止，配置期读 PMEM
     host_read(16'h8800,actual);
     if(actual!==32'hDEAD_BEEF) begin $display("  [err] host write readback=%h",actual);err=err+1;end
-    if(err==0) $display("T08b RX-TOP-INGRESS PASS (IF_MODE=%0d, dual net, BE, ACK priority, bad FCS)",IF_MODE);
+    if(err==0) $display("T08b RX-TOP-INGRESS PASS (IF_MODE=%0d, dual net, BE, ACK priority, bad FCS, drain=%0d/24 cycles, unconf=%0d)",IF_MODE,drain_cycles,dut.flt_unconf_cnt);
     else $display("T08b RX-TOP-INGRESS FAIL: %0d errors (IF_MODE=%0d)",err,IF_MODE);
     $finish;
   end

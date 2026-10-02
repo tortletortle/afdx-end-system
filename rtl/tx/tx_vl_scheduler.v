@@ -18,6 +18,11 @@
 //   * 配置: cfg_we 写 {valid, bag_us, port}，写入时 next_tx <= tb_us（立即到期）；
 //     valid=0 写入即停用。复位只清 valid/inflight 位图（阵列内容无需清零）。
 //     cfg_we 与 frame_start 同拍时 cfg 优先（CFG_MODE=1 期间不应有帧在途）。
+//   * BAG-only updates (BAG_UPDATE_EN=1) preserve valid/port and rebase the
+//     next deadline to commit_time + new_BAG + 1 us. Top suppresses new grants
+//     while SET owns configuration; already-granted
+//     frames finish normally. A later frame_start re-bases from the actual start
+//     using the new BAG, so link-down cannot hold the SET indefinitely.
 //   * 单构建器: 以 builder busy 为唯一互斥条件（发送侧 FIFO 由 mac_tx_if 背压）。
 // 时钟/复位: clk(125 MHz) / rst_sync；握手 vld/pulse（§10）
 // 资源: 1 个 24 bit 减法器 + 比较器 + 128×56 bit 阵列 ≈ 0.2K LUT（原并行方案 2.2K LUT + 6.1K FF）
@@ -25,7 +30,8 @@
 `timescale 1 ns / 1 ps
 module tx_vl_scheduler #(
   parameter integer NUM_TX_VL = 128,
-  parameter integer NUM_PORTS = 256
+  parameter integer NUM_PORTS = 256,
+  parameter integer BAG_UPDATE_EN = 0
 ) (
   input  wire                  clk,
   input  wire                  rst_sync,
@@ -37,6 +43,8 @@ module tx_vl_scheduler #(
   input  wire                  cfg_valid,
   input  wire [23:0]           cfg_bag_us,
   input  wire [7:0]            cfg_port,       // port_base（P0: 1 端口/VL）
+  // Optional BAG-only commit. Top pauses new grants while SET is active.
+  input  wire                  cfg_bag_only,
   // ---- 端口就绪位图（tx_port_buf.sch_req）----
   input  wire [NUM_PORTS-1:0]  port_ready,
   // ---- 取消息（tx_port_buf）----
@@ -114,6 +122,7 @@ module tx_vl_scheduler #(
   wire      pop = ifq_nonempty & (frame_start | builder_len_err);
   wire [6:0] pop_vl = ifq[ifq_rd];
   wire      go_wr = (st == ST_GO);
+  wire      bag_only = (BAG_UPDATE_EN != 0) && cfg_bag_only;
   integer q;
   always @(posedge clk) begin
     if (rst_sync) begin
@@ -128,9 +137,9 @@ module tx_vl_scheduler #(
   // ---------------- 阵列写口（cfg 优先于 frame_start）----------------
   always @(posedge clk) begin
     if (cfg_we) begin
-      next_tx[cfg_vl]  <= tb_us;
+      next_tx[cfg_vl]  <= bag_only ? tb_us + cfg_bag_us + 24'd1 : tb_us;
       bag_arr[cfg_vl]  <= cfg_bag_us;
-      port_arr[cfg_vl] <= cfg_port;
+      if (!bag_only) port_arr[cfg_vl] <= cfg_port;
     end else if (pop) begin
       next_tx[pop_vl]  <= tb_us + bag_arr[pop_vl] + 24'd1;
     end
@@ -139,7 +148,7 @@ module tx_vl_scheduler #(
     if (rst_sync) begin
       valid_map <= {NUM_TX_VL{1'b0}}; inflight <= {NUM_TX_VL{1'b0}};
     end else begin
-      if (cfg_we) valid_map[cfg_vl] <= cfg_valid;
+      if (cfg_we && !bag_only) valid_map[cfg_vl] <= cfg_valid;
       if (go_wr)  inflight[go_vl]   <= 1'b1;
       if (pop)    inflight[pop_vl]  <= 1'b0;
     end

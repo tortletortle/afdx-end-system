@@ -1,5 +1,7 @@
 # eLinx 3.0.7 拆解报告（2026-09-21，本机实测）
 
+> **2026-10-01 资料位置提示：**下文列出的 `_elinx_probe*.txt`、`_elinx_strings_hits.txt`、`_elinx_tcl_cmds.txt`、`_ug102*.txt` 原件均已保持原字节归档至 `archive/20261001_root_capture/probe_outputs/`。原路径与 SHA-256 对照见 `out/arena-debug/folder_cleanup_20261001/MANIFEST.json`；正文为历史调查时点记录。
+
 对象：`C:\Program Files (x86)\eHiWay\eLinx3.0`（亿海微 eLinx Design Suite，Version 3.0.7 Build 1/22/2025，2.4 GB / 31 793 文件）。
 方法：目录/配置/注册表扫描 + PE 字符串扫描 + **实际运行**各后端 exe 的 `-help`/`--version`/Tcl 枚举脚本（均在 %TEMP% 下、超时即杀，没有启动 GUI、没有动任何工程）+ 用本机 PyMuPDF 抽取官方手册 UG102（298 页）文本对照。
 原始证据：`_elinx_probe4.txt`（探测输出）、`_elinx_strings_hits.txt`（字符串命中）、`_elinx_tcl_cmds.txt`（4 个后端的全部 Tcl 命令）、`_ug102_toc.txt` / `_ug102_text.txt`（手册目录与全文）。

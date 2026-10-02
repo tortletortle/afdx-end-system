@@ -205,10 +205,10 @@ module tb_t16_tftp_rtc #(parameter integer IF_MODE = 0);
   // Lmax 必须覆盖最大管理帧（生成器报告 124 B），T23 的 79 只够 64 B 帧。
   localparam [31:0] W0_VL  = 32'hF500_0000 | (P_SAP<<12) | 32'd700;   // 最大管理帧 563 B（512 B TFTP 满块）
   reg [31:0] vec [0:2047];
-  integer cbase [0:31];
-  integer clen  [0:31];
-  integer cplen [0:31];
-  integer caux  [0:31];
+  integer cbase [0:63];
+  integer clen  [0:63];
+  integer cplen [0:63];
+  integer caux  [0:63];
   integer ncase, vi2, cid, i, k, b, waitc;
   reg [31:0] d, e;
   reg [7:0]  bb;
@@ -456,6 +456,44 @@ module tb_t16_tftp_rtc #(parameter integer IF_MODE = 0);
     // C8 非法操作码 → ERROR(4)
     drive_case(9);
     host_read(16'hAC20, d); if (d[15:0] !== 16'd4) bad("C8 expected ERROR(4)");
+    host_write(16'hAC28, 32'd1);
+    // C8b step3（20260928）顶层卸载：RRQ "UPLOAD" → DATA(1) 512 B + DATA(2) 8 B，
+    // 经 0xAC1A/0xAC27 自增字节口整包读出（516 B > 255，证明 mgmt_bidx 已为 11 位），
+    // ACK(2) 后会话结束；加载区镜像 / CRC 不受卸载影响。
+    drive_case(33);
+    host_read(16'hAC26, d);
+    if (d[11] !== 1'b1 || d[10:0] !== 11'd516) badv("C8b RRQ UPLOAD must queue a 516 B DATA(1)", {21'd0, d[10:0]}, 32'd516);
+    host_write(16'hAC1A, 32'd0);
+    k = 0;
+    for (i = 0; i < 516; i = i + 1) begin
+      host_read(16'hAC27, d);
+      e = (i == 1) ? 32'h03 : (i == 3) ? 32'h01 : (i < 4) ? 32'h00 : (((i - 4) * 7 + 8'h21) & 8'hFF);
+      if (d[7:0] !== e[7:0]) k = k + 1;
+    end
+    if (k != 0) badv("C8b DATA(1) bytes differ from the loaded image D1", k, 32'd0);
+    host_read(16'hAC1A, d);
+    if (d !== 32'd516) badv("C8b mgmt_bidx must auto-increment past 255 (11-bit)", d, 32'd516);
+    host_write(16'hAC28, 32'd1);
+    drive_case(34);
+    host_read(16'hAC26, d);
+    if (d[11] !== 1'b1 || d[10:0] !== 11'd12) badv("C8b ACK(1) must queue DATA(2) of 8 B", {21'd0, d[10:0]}, 32'd12);
+    host_write(16'hAC1A, 32'd0);
+    k = 0;
+    for (i = 0; i < 12; i = i + 1) begin
+      host_read(16'hAC27, d);
+      e = (i == 1) ? 32'h03 : (i == 3) ? 32'h02 : (i < 4) ? 32'h00 : ((((i - 4) + 32) * 7 + 8'h21) & 8'hFF);
+      if (d[7:0] !== e[7:0]) k = k + 1;
+    end
+    if (k != 0) badv("C8b DATA(2) bytes differ from the loaded image D2", k, 32'd0);
+    host_write(16'hAC28, 32'd1);
+    drive_case(35);
+    host_read(16'hAC26, d);
+    if (d[11] !== 1'b0) bad("C8b ACK(2) must close the unload session (no response)");
+    host_read(16'hAC20, d);
+    if (d[27] !== 1'b0) bad("C8b read session still open after the final ACK");
+    if (d[31] !== 1'b1) bad("C8b unload must not clear loaded_ok");
+    host_read(16'hAC22, d);
+    if (d !== caux[33][31:0]) badv("C8b unload altered the image CRC", d, caux[33][31:0]);
     // C9 顶层 RTC：pps_out 真实产生、pps_in 真实纠偏、观测窗可读
     host_read(16'hAC34, d);
     if (d < 32'd1) badv("C9 top-level PPS output never fired", d, 32'd1);
@@ -483,7 +521,7 @@ module tb_t16_tftp_rtc #(parameter integer IF_MODE = 0);
     if (d !== e) bad("C10 SAP accept/return counters diverged");
 
     if (errors == 0)
-      $display("T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: %0d on-wire SAP frames, load area verified, pps fired)", 8);
+      $display("T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: %0d on-wire SAP frames, load area verified, unload RRQ UPLOAD 516+12 B via 11-bit byte port, pps fired)", 11);
     else
       $display("T16 TFTP/RTC FAIL (errors=%0d)", errors);
     $finish;

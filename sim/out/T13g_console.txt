@@ -5,10 +5,10 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t13g_latency 
-# Start time: 15:23:09 on Sep 27,2026
+# Start time: 23:38:49 on Sep 27,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
-# ** Warning: ../rtl/top/AFDX_top.v(1291): (vopt-2241) Connection width does not match width of port 'host_addr'. The port definition is at: ../rtl/mgmt/a615a_tftp.v(51).
+# ** Warning: ../rtl/top/AFDX_top.v(1332): (vopt-2241) Connection width does not match width of port 'host_addr'. The port definition is at: ../rtl/mgmt/a615a_tftp.v(51).
 # ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
 # //  Questa Altera Starter FPGA Edition-64
 # //  Version 2025.3 win64 Sep 15 2025
@@ -26,11 +26,11 @@ Reading pref.tcl
 # //
 # Loading sv_std.std
 # Loading work.tb_t13g_latency(fast)
-#   [T13 CASE 1] Plen=17B (Frame=64B): TX_pipe=2.528us, Wire=0.504us, RX_pipe=0.656us, HW_E2E=3.184us, Total=3.688us
-#   [T13 CASE 2] Plen=256B (Frame=303B): TX_pipe=1.904us, Wire=2.416us, RX_pipe=2.568us, HW_E2E=4.472us, Total=6.888us
-#   [T13 CASE 3] Plen=1471B (Frame=1518B): TX_pipe=4.840us, Wire=12.136us, RX_pipe=12.288us, HW_E2E=17.128us, Total=29.264us
+#   [T13 CASE 1] Plen=17B (Frame=64B): TX_pipe=2.528us, Wire=0.504us, RX_pipe=0.680us, HW_E2E=3.208us, Total=3.712us
+#   [T13 CASE 2] Plen=256B (Frame=303B): TX_pipe=1.880us, Wire=2.416us, RX_pipe=2.592us, HW_E2E=4.472us, Total=6.888us
+#   [T13 CASE 3] Plen=1471B (Frame=1518B): TX_pipe=4.816us, Wire=12.136us, RX_pipe=12.312us, HW_E2E=17.128us, Total=29.264us
 # T13 END-TO-END LATENCY PASS (IF_MODE=1 cases=3)
 # ** Note: $finish    : tb/tb_t13_latency.v(354)
-#    Time: 259248 ns  Iteration: 0  Instance: /tb_t13g_latency/core
-# End time: 15:23:11 on Sep 27,2026, Elapsed time: 0:00:02
+#    Time: 259272 ns  Iteration: 0  Instance: /tb_t13g_latency/core
+# End time: 23:38:51 on Sep 27,2026, Elapsed time: 0:00:02
 # Errors: 0, Warnings: 1

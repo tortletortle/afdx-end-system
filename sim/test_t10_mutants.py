@@ -30,8 +30,15 @@ VSIM_CANDIDATES = (
 # A compile failure or timeout is not a detected functional fault.
 MUTATIONS = (
     (RM, "dup_never_dropped",
-     "fwd_q     <= !(active_q && seen_q && same_sn && in_win);",
+     "fwd_q     <= !(active_q && seen_q && same_sn && in_win) && !late_dup;",
      "fwd_q     <= 1'b1;"),
+    # audit 20260928 late-copy history window
+    (RM, "late_dup_ignored",
+     "fwd_q     <= !(active_q && seen_q && same_sn && in_win) && !late_dup;",
+     "fwd_q     <= !(active_q && seen_q && same_sn && in_win);"),
+    (RM, "history_shift_off_by_one",
+     "wire [15:0] hist_sh = {7'd0, hist_q, 1'b1} << (f - 8'd1);",
+     "wire [15:0] hist_sh = {7'd0, hist_q, 1'b1} << f;"),
     (RM, "one_sided_skew_window",
      "wire [23:0] dts_ab = dts[23] ? (~dts + 24'd1) : dts;",
      "wire [23:0] dts_ab = dts;"),

@@ -1,11 +1,13 @@
 T10 isolated RTL faults: compile, then FAIL (a pass is MISSED)
-original rtl/top/AFDX_top.v SHA-256: 87BF747E5801BE9B7ACCD3EAAA4D481BAECD080E76B67C8315E1529DE1F0E421
-original rtl/rx/rx_rm.v SHA-256: 81F671C98326FF60732A3C585DFEBEF17E3574551F93DF61A960C7A58595D08F
+original rtl/top/AFDX_top.v SHA-256: EB2DB90263EB35B59E1F6456970B1186092AB932F17881CC65445C2873C0FED4
+original rtl/rx/rx_rm.v SHA-256: 05296E35737C81B71241B1C2CB57A6F02F0112C9E4070AD4D203EAF056843339
 dup_never_dropped DETECTED (compiled=True, TB_FAIL=True, rc=0)
+late_dup_ignored DETECTED (compiled=True, TB_FAIL=True, rc=0)
+history_shift_off_by_one DETECTED (compiled=True, TB_FAIL=True, rc=0)
 one_sided_skew_window DETECTED (compiled=True, TB_FAIL=True, rc=0)
 seen_bit_ignored DETECTED (compiled=True, TB_FAIL=True, rc=0)
 dup_rewrites_state DETECTED (compiled=True, TB_FAIL=True, rc=0)
 rm_glb_en_ignored DETECTED (compiled=True, TB_FAIL=True, rc=0)
 ic_bypass_skips_rm DETECTED (compiled=True, TB_FAIL=True, rc=0)
 rm_drop_missing_from_total DETECTED (compiled=True, TB_FAIL=True, rc=0)
-T10 MUTATION SUMMARY: 7/7 detected
+T10 MUTATION SUMMARY: 9/9 detected

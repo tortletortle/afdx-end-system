@@ -15,6 +15,11 @@
 //     {seen,last_ts,last_sn} checked; block conservation after every frame; one
 //     block release per cycle on the shared free port;
 //   * DROP_CNT_K rm (0x4C), DROP_CNT total, reset clears RAM/seen/counters.
+//   * audit 20260928 late-copy fix (8-deep SN history, RFC 4303-style window):
+//     multi-frame late copies (lagging net 1..3 frames behind), interleaved
+//     lead, and a late copy of an already-forwarded SN beyond SkewMax
+//     (forward + skew).  The TB model walks the SN ring (1..255) step by step
+//     instead of re-using the RTL modular arithmetic; RAM hist bits checked.
 // v0.5.16: forwarded frames continue to parse; no RX port is configured here,
 // so each is dropped as port-unconfigured and its block recycled.  This is NOT a full T08/T22.
 `timescale 1 ns / 1 ps
@@ -48,6 +53,7 @@ module tb_t10_core #(parameter integer IF_MODE=0);
   // independent reference RM model (VL index 0x100 only)
   reg m_seen; reg [7:0] m_sn; reg [23:0] m_ts;
   reg m_act, m_fwd, m_skw; reg [23:0] m_d, m_win;
+  reg [7:0] m_bm, m_nbm, m_t, m_in; reg m_same, m_hit; integer m_back, m_fwdk, m_k;
   // IC PSN per net, tracked by the TB plan to know the next legal SN
   integer fwd_of_sn [0:255];
 
@@ -73,12 +79,39 @@ module tb_t10_core #(parameter integer IF_MODE=0);
       m_win = 24'd4 << w0[27:24];
       m_d = dut.rm_out_desc[147:124] - m_ts;
       if(m_d[23]) m_d = -m_d;
-      m_fwd = !(m_act && m_seen && dut.rm_out_desc[107:100]==m_sn && m_d<=m_win);
-      m_skw = m_act && m_seen && dut.rm_out_desc[107:100]==m_sn && m_d>m_win;
+      m_in = dut.rm_out_desc[107:100];
+      // ring walk: m_back = k if m_in is k steps BEFORE m_sn (k<=8),
+      //            m_fwdk = k if m_in is k steps AFTER m_sn (k<=127); SN 0 off-ring
+      m_back = 0; m_fwdk = 0;
+      if(m_seen && m_in!=0 && m_sn!=0 && m_in!=m_sn) begin
+        m_t = m_sn;
+        for(m_k=1;m_k<=8;m_k=m_k+1) begin
+          m_t = (m_t==8'd1) ? 8'd255 : m_t-8'd1;
+          if(m_t==m_in && m_back==0) m_back = m_k;
+        end
+        m_t = m_sn;
+        for(m_k=1;m_k<=127;m_k=m_k+1) begin
+          m_t = (m_t==8'd255) ? 8'd1 : m_t+8'd1;
+          if(m_t==m_in && m_fwdk==0) m_fwdk = m_k;
+        end
+      end
+      m_same = m_seen && (m_in==m_sn);
+      m_hit  = (m_back!=0) && m_bm[m_back-1];
+      m_fwd = !(m_act && (m_same || m_hit) && m_d<=m_win);
+      m_skw = m_act && (m_same || m_hit) && m_d>m_win;
       if(dut.rm_out_fwd!==m_fwd) bad("RM verdict differs from TB reference model");
       if(dut.rm_out_skew!==m_skw) bad("RM skew event differs from TB model");
       if(m_act && m_fwd) begin
-        m_seen=1; m_sn=dut.rm_out_desc[107:100]; m_ts=dut.rm_out_desc[147:124];
+        if(m_back!=0) m_bm[m_back-1] = 1'b1;          // older SN: mark only
+        else begin
+          m_nbm = 8'd0;
+          if(m_fwdk!=0)
+            for(m_k=1;m_k<=8;m_k=m_k+1)
+              if(m_k==m_fwdk) m_nbm[m_k-1] = 1'b1;
+              else if(m_k>m_fwdk) m_nbm[m_k-1] = m_bm[m_k-m_fwdk-1];
+          m_bm = m_nbm;
+          m_seen=1; m_sn=m_in; m_ts=dut.rm_out_desc[147:124];
+        end
       end
       if(dut.rm_out_fwd) begin
         rm_fwd=rm_fwd+1;
@@ -184,8 +217,9 @@ module tb_t10_core #(parameter integer IF_MODE=0);
   task check_ram;
     begin
       if(dut.u_rxrm.rm_mem[12'h100][32]!==m_seen) bad("RM seen bit differs from model");
-      if(m_seen && dut.u_rxrm.rm_mem[12'h100]!=={1'b1,m_ts,m_sn})
+      if(m_seen && dut.u_rxrm.rm_mem[12'h100][32:0]!=={1'b1,m_ts,m_sn})
         bad("RM RAM {last_ts,last_sn} differs from model");
+      if(dut.u_rxrm.rm_mem[12'h100][40:33]!==m_bm) bad("RM RAM late-copy history differs from model");
     end
   endtask
   // A/B copies of one SN; a_first selects which net is delayed by `dly`.
@@ -236,7 +270,7 @@ module tb_t10_core #(parameter integer IF_MODE=0);
       if(dut.u_rxrm.rm_mem[12'h100]!==33'd0 || dut.u_rxrm.rm_mem[4095]!==33'd0 ||
          dut.u_rxrm.rm_mem[0]!==33'd0)
         bad("init sweep did not clear RM RAM / seen");
-      m_seen=0; m_sn=0; m_ts=0;
+      m_seen=0; m_sn=0; m_ts=0; m_bm=0;
       cfg_mode_on;
       host_write(16'h0078,32'h172D);
       host_write(16'h007C,32'hAB61);
@@ -279,10 +313,10 @@ module tb_t10_core #(parameter integer IF_MODE=0);
     single(0,8'd26,0);                        // A 23 -> 26: IC reject
     if(ic_rej!==1) bad("pollution probe was not IC-rejected");
     single(1,8'd26,1);                        // must forward (not a dup of A)
-    // A catches up 24/25/26.  RM keeps only the LAST forwarded SN (7.11), so
-    // a late copy older than last_sn, or arriving after that, is forwarded
-    // again; the model predicts the same (documented limitation).
-    single(0,8'd24,1); single(0,8'd25,1); single(0,8'd26,1);
+    // A catches up 24/25/26 (2/1/0 frames behind B's last_sn=26, inside
+    // SkewMax 128 us).  Before the audit fix RM kept only last_sn and forwarded
+    // the late 24/25 again; the 8-deep history now drops all three.
+    single(0,8'd24,0); single(0,8'd25,0); single(0,8'd26,0);
     // ---- 5. CTL.RM_EN=0 and VL rm_en=0: both copies forward, RAM frozen ----
     run_normglb;
     pair(8'd27,2,1,2,0);
@@ -310,7 +344,7 @@ module tb_t10_core #(parameter integer IF_MODE=0);
     end
     // ---- 7. exactly-once delivery per SN and counters ----
     for(i=0;i<41;i=i+1) begin
-      k=(i==22||i==24||i==25||i==26||i==27||i==28)?2:1;
+      k=(i==22||i==27||i==28)?2:1;
       if(fwd_of_sn[i]!==k) bad("SN delivered wrong number of times");
     end
     host_read(16'h004C,rd); if(rd!==rm_dup) bad("DROP_CNT_K rm mismatch");
@@ -319,6 +353,25 @@ module tb_t10_core #(parameter integer IF_MODE=0);
     host_read(16'h0101,pd); if(pd!==dut.rm_fwd_cnt) bad("port drops != RM forwards (no port configured)");
     host_read(16'h001C,rd); if(rd!==rm_dup+ic_rej+pd) bad("DROP_CNT total != IC+RM+port drops");
     if(dut.rm_fwd_cnt!==rm_fwd || dut.rm_skew_cnt!==rm_skew) bad("RM internal counters wrong");
+    // ---- 7b. multi-frame late copies / interleaved lead (history window) ----
+    write_vlcfg(W0_RM | (32'd6<<24)); run_rm;                 // SkewMax 256 us
+    single(1,8'd41,1); single(1,8'd42,1); single(1,8'd43,1);  // B leads by 3
+    single(0,8'd41,0); single(0,8'd42,0); single(0,8'd43,0);  // A 2/1/0 behind
+    single(0,8'd44,1); single(0,8'd45,1); single(1,8'd44,0);  // A leads, B late
+    single(0,8'd46,1); single(1,8'd45,0); single(1,8'd46,0);
+    single(1,8'd47,1); single(0,8'd47,0);
+    // already-forwarded SN arriving beyond SkewMax: forward + skew event
+    s0=rm_skew;
+    single(1,8'd48,1); single(1,8'd49,1);
+    repeat(40000) @(negedge clk);                             // 320 us > 256 us
+    single(0,8'd48,1); single(0,8'd49,1);
+    if(rm_skew-s0!==2) bad("late copy beyond SkewMax did not raise 2 skew events");
+    for(i=41;i<50;i=i+1) begin
+      k=(i>=48)?2:1;
+      if(fwd_of_sn[i]!==k) bad("7b: SN delivered wrong number of times");
+    end
+    host_read(16'h004C,rd); if(rd!==rm_dup) bad("7b: DROP_CNT_K rm mismatch");
+    if(dut.rm_fwd_cnt!==rm_fwd || dut.rm_skew_cnt!==rm_skew) bad("7b: RM internal counters wrong");
     // ---- 8. reset clears RM RAM, seen bitmap and counters ----
     @(negedge clk);reset=1;repeat(6) @(negedge clk);reset=0;
     boot;
@@ -327,7 +380,7 @@ module tb_t10_core #(parameter integer IF_MODE=0);
     write_vlcfg(W0_RM | (32'd15<<24)); run_rm;
     pair(8'd1,0,1,1,1);                       // fresh state after reset
     if(errors==0)
-      $display("T10 TOP RM PASS (IF_MODE=%0d rm=%0d fwd=%0d dup=%0d skew=%0d pairs=%0d ic_rej=%0d bypass=%0d first0/window/disable/pollution/reset ok)",
+      $display("T10 TOP RM PASS (IF_MODE=%0d rm=%0d fwd=%0d dup=%0d skew=%0d pairs=%0d ic_rej=%0d bypass=%0d first0/window/disable/pollution/late-copy-history/reset ok)",
         IF_MODE,rm_seen,rm_fwd,rm_dup,rm_skew,pairs,ic_rej,from_bypass);
     else $display("T10 TOP RM FAIL (IF_MODE=%0d errors=%0d)",IF_MODE,errors);
     $finish;

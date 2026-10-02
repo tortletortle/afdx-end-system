@@ -1,0 +1,792 @@
+项目相对路径,格式,字节数,分类,本轮阅读范围,正文标题,章节提示（自动提取）,整理备注
+.bak_20260921/AFDX端系统_总体设计书.md,.md,120354,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 总体设计书,1 引言；1.1 目的；1.2 范围；1.3 术语,
+.bak_20260921/AFDX端系统_总体设计书_v052_20260922.md,.md,123261,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 总体设计书,1 引言；1.1 目的；1.2 范围；1.3 术语,
+.bak_20260921/README_tools.md,.md,5754,历史备份/候选快照,已读取文本；不是逐条技术验收,工具包说明,与文档的对应关系；还没验证的东西（重要）；落地方式（Bridge 的 apply_patch 不能建目录，所以这次是平铺到工作区根）,
+.zcode/plans/plan-sess_01de7350-f0c6-48ec-bba6-d054c2df2834.md,.md,5188,工具过程记录,已读取文本；不是逐条技术验收,目标,推荐落地方式；1. 新建 `doc/AFDX项目应用追踪.md`；2. 更新 `doc/AFDX文献工程映射.md`；3. 更新 `doc/AFDX文献研究整理.md`,
+.zcode/plans/plan-sess_4ca86613-de3a-486d-974f-a13a69f3486d.md,.md,3993,工具过程记录,已读取文本；不是逐条技术验收,,,
+AFDX_补充文献/ARINC664P7_spec.pdf,.pdf,1838153,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+AFDX_补充文献/L141_Adnan_ExactWCD_AFDX_thesis.pdf,.pdf,12538,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,异常小文件；既有文献目录记载下载受阻，不按有效全文计
+AFDX_补充文献/L147_PipelineKVS_FPGA_Micromachines2025.pdf,.pdf,408,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,异常小文件；既有文献目录记载下载受阻，不按有效全文计
+AFDX_补充文献/L150_Intel_AN903_TimingClosure_Pro.pdf,.pdf,421,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,异常小文件；既有文献目录记载下载受阻，不按有效全文计
+AFDX_补充文献/L152_Quartus_Standard_DesignOptimization_ug-qps-05.pdf,.pdf,3597994,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+AFDX_补充文献/L153_FAA_TC-14-41_AdvancedVerification.pdf,.pdf,958329,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+AFDX端系统_总体设计书.md,.md,195040,规格/架构/设计方案,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 总体设计书,1 引言；1.1 目的；1.2 范围；1.3 术语,
+FPGA创新大赛问题汇总 (1).xlsx,.xlsx,10889,赛题/答疑原始材料,仅登记；原表未解析，参考已读问答转录,,,
+README.md,.md,9412,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证,从这里开始；当前阶段（2026-09-27）；最新续作（Continue12）；综合与时序：已有 post-fit 结果，125 MHz 尚未收敛,
+README_tools.md,.md,14641,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,工具包说明,布局与前提；先跑这个；脚本一览；与文档的对应关系,
+_conv_report.txt,.txt,15055,历史探针/提取文本,仅清单登记；正文未复核,,,
+_elinx_probe.txt,.txt,40652,历史探针/提取文本,仅清单登记；正文未复核,,,
+_elinx_probe3.txt,.txt,39496,历史探针/提取文本,仅清单登记；正文未复核,,,
+_elinx_probe4.txt,.txt,44661,历史探针/提取文本,仅清单登记；正文未复核,,,
+_elinx_strings_hits.txt,.txt,74345,历史探针/提取文本,仅清单登记；正文未复核,,,
+_elinx_tcl_cmds.txt,.txt,11921,历史探针/提取文本,仅清单登记；正文未复核,,,
+_guide_text.txt,.txt,12220,历史探针/提取文本,仅清单登记；正文未复核,,,
+_ug102_text.txt,.txt,233718,历史探针/提取文本,仅清单登记；正文未复核,,,
+_ug102_toc.txt,.txt,5277,历史探针/提取文本,仅清单登记；正文未复核,,,
+_xapp1130_text.txt,.txt,64134,历史探针/提取文本,仅清单登记；正文未复核,,,
+afdx_architecture.html,.html,16219,展示或网页资料,仅清单登记；正文未复核,,,
+afdx_cn.pdf,.pdf,3038307,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+afdx_design.html,.html,14347,展示或网页资料,仅清单登记；正文未复核,,,
+afdx_full_process.html,.html,22577,展示或网页资料,仅清单登记；正文未复核,,,
+b.html,.html,98696,展示或网页资料,仅清单登记；正文未复核,,,
+core.html,.html,5586,展示或网页资料,仅清单登记；正文未复核,,,
+dl_asi.pdf,.pdf,255864,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+dl_ktu.pdf,.pdf,662503,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+dl_unican.pdf,.pdf,775097,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+doc/AFDX_AI修复压力测试与验收任务书_v1.md,.md,34038,审计/风险/验收方案,已读取文本；不是逐条技术验收,AFDX 端系统：AI 修复压力测试与验收任务书,0. 如何使用；0.1 项目背景；0.2 四种问题标签；1. 编制时的参考事实：只供定位，不替代 R0,
+doc/AFDX_三篇文献正文复核与修复映射_20260928.md,.md,17191,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 三篇文献正文复核与修复映射,1. 结论；2. 文件、去重与阅读范围；3. L044：请求不能被当作“最新采样值”覆盖；3.1 原文确认了什么,
+doc/AFDX_文献依据与修复建议_20260928.md,.md,16320,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX：文献依据与修复建议,1. 直接结论；2. 项目已有资料：哪些真正相关；3. SET 部分写入：规范已直接给出处理原则；3.1 已核实的规范,
+doc/AFDX_文献落地验证清单_20260928.csv,.csv,4424,文献研究/需求追踪,仅清单登记；正文未复核,,,
+doc/AFDX_项目全景展示.html,.html,681274,展示或网页资料,仅清单登记；正文未复核,,,
+doc/AFDX文献主题矩阵.md,.md,16876,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 文献主题矩阵,1. 主题共识、差异与工程影响；2. 主题覆盖度（当前目录）；3. 本批新增可复核主题；4. 第二轮主题补充（2026-09-25）,
+doc/AFDX文献工程映射.md,.md,6941,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 文献工程映射,1. 使用方式；2. 来源到工程问题映射；3. 按项目阶段查文献；3.1 编码阶段,
+doc/AFDX文献目录.md,.md,36216,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 文献目录,1. 证据等级与状态；2. 域 A：协议基线、帧格式与 AFDX 总览（REQ-FRAME / 宏架构）；3. 域 B：TX 调度、BAG、帧构造与端系统收发（REQ-TX-*）；4. 域 C：RX、IC、RM、SkewMax 与双网冗余（REQ-RX-*/REQ-REL-*）,
+doc/AFDX文献研究整理.md,.md,22890,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 文献研究整理,1. 本轮扩展范围；2. 新增主题结论；2.1 共享内存与交换结构；2.2 时间窗、轮询和时延上界,
+doc/AFDX文献补充_第四轮_20260928.md,.md,11021,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 文献补充（第四轮，2026-09-28）：L138–L157,1. 本地新登记；2. 域 A/B/C：AFDX 时延、调度与冗余（L139–L144）；3. 域 D/G：RX 查表流水与 FPGA 哈希表（L145–L149）；4. 域 G：Quartus / Stratix 时序收敛手册（L150–L152）,
+doc/AFDX端系统_全景分析与技术备忘_20260924.md,.md,18647,规格/架构/设计方案,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 工程全景、技术剖析与交接备忘,1. 工程一句话现状与全局定位；2. 系统分层架构与数据通路解构；2.1 整体架构拓扑；2.2 发送端（TX）关键设计与时序流水,
+doc/AFDX端系统_后级链路设计与关键算法落地方案_20260924.md,.md,13449,规格/架构/设计方案,已读取文本；不是逐条技术验收,AFDX 端系统 —— RX 后级链路实现与关键算法落地方案,一、 RX 后级链路技术现状与断点定位；1. 现状回顾；二、 模块 1：`rx_ic.v` 顶层接入与 PSN 存储合并方案；1. 顶层存储去重,
+doc/AFDX端系统_基于文献研究的系统架构与数据流优化设计.md,.md,18524,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 端系统 —— 基于学术文献研究的系统架构与数据流优化设计,"一、 架构优化动因与文献理论映射；二、 优化后的系统整体拓扑与数据流图；三、 四大关键架构优化技术详析；1. 决策 D10：正交错相周期整形架构（Orthogonal Phase-Staggering, OPS）",
+doc/AFDX端系统_存储子系统文献补充_20260928.md,.md,14896,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 端系统：存储子系统文献补充,0. 为什么要补存储；1. 项目存储结构要点（摘自设计书 §7.13、§7.19、§8.5–8.7、§9）；2. 建议新增文献；2.1 共享缓冲的分池与借用策略（D2、§8.6 三池借用）,
+doc/AFDX端系统_学术文献调研与前沿工程对比_20260924.md,.md,18691,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 端系统 —— 学术文献深度调研与前沿工程方案对比,"一、 综述：AFDX 端系统学术研究脉络与技术挑战；二、 六大核心主题文献深度研读与工程映射；主题 1：国际工业标准与权威参考架构；1.1 ARINC Specification 664, Part 7 (2005/2009)",
+doc/AFDX端系统_架构优化审计报告与编码执行基准_20260924.md,.md,12477,规格/架构/设计方案,已读取文本；不是逐条技术验收,AFDX 端系统 —— 架构优化审计报告与编码执行基准,1. 角色分工与协作界面约定；2. 架构优化技术审查结论（前序审查摘要）；3. 编码智能体执行规范：RTL 修改详细基准；3.1 改造项 1：`rtl/tx/tx_vl_scheduler.v` 正交错相机制,
+doc/AFDX端系统_架构梳理与文献加强_20260928.md,.md,22913,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 端系统：架构梳理与文献加强报告,1. 系统架构梳理；1.1 一句话概括；1.2 关键设计决策（节选自设计书 §3.5 和追踪表 §4）；1.3 当前状态（依据 09-27 续作进度和 09-28 全面核查）,
+doc/AFDX端系统_测试仿真报告.md,.md,13554,测试报告,已读取文本；不是逐条技术验收,AFDX 端系统 — 测试（仿真）报告,0. 当前版结论；1. 技术指标达成表；2. T13 时延；2.1 100 Mbps 档（IF_MODE=0，评分口径）,
+doc/AFDX端系统_测试仿真报告_历史基线.md,.md,26391,测试报告,已读取文本；不是逐条技术验收,AFDX 端系统 — 测试仿真报告历史基线,1. 结论；本报告不宣称的事（证据边界）；2. 验证方法；2.1 三层证据结构,
+doc/AFDX端系统_第三轮文献补充与设计优化建议_20260928.md,.md,21810,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 端系统 — 第三轮文献补充与设计优化建议,0. 结论先行（一页版）；1. 本轮新增文献（L132–L137）；2. P1：正确性；OPT-1 RM 迟到副本重复交付 → SN 滑动接收窗口,
+doc/AFDX项目应用追踪.md,.md,13506,文献研究/需求追踪,已读取文本；不是逐条技术验收,AFDX 项目应用追踪,1. 赛方边界与项目子集；2. 状态枚举；3. 需求追踪主表；4. 架构决策状态,
+doc/ARINC664P7_条款摘录_20260928.md,.md,7846,文献研究/需求追踪,已读取文本；不是逐条技术验收,ARINC 664 P7 规范条款摘录与工程对照（2026-09-28）,1. 关闭既有冲突；C-001 IC 丢帧后 PSN 是否推进 → **可关闭（支持现实现）**；C-002 RM skew / timeout / 同拍仲裁 → **部分关闭**；2. 其他可直接替换二手依据的条款,
+doc/README.md,.md,13145,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,文档索引与维护约定,1. 推荐阅读顺序；2. 文档地图；现行入口与规格；决策与工作记录（保留时间上下文）,
+doc/后续计划.md,.md,27573,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,后续计划增量 — MISSION-CONTINUE2（2026-09-25）,已关闭；P0 —— 时序收敛（当前唯一的整机级硬阻塞）；P1 —— 管理面 `OPEN_SPEC_GAP`；P2 —— 覆盖率深化,正文存在混合乱码；保留原件，恢复需核对备份
+doc/当前进度_20260923.md,.md,32131,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,当前进度增量 — MISSION-CONTINUE2（2026-09-25）,AFDX ç«¯ç³»ç»ï¼å½åè¿åº¦ä¸å©ä½å·¥ä½；ä¸å¥è¯ç»è®º；æ¬è½®å®é；è¿å·®ä»ä¹ï¼æä¾èµé¡ºåº,正文存在混合乱码；保留原件，恢复需核对备份
+doc/时序违例族分析_20260928.md,.md,5808,审计/风险/验收方案,已读取文本；不是逐条技术验收,时序违例族分析（Continue12 post-fit，2026-09-28）,0. 完整性自证；1. 总体分布；2. 违例族排行；3. 三条主线,
+doc/检查记录_20260923.md,.md,5520,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,2026-09-23 文档整理与基线复核记录,1. 交付范围与并发保护；2. 本轮实际检查的时间顺序；2.1 严格文档门；2.2 lint：先失败，重新读取并发修复后通过,
+doc/组委会答疑_全量_20260928.md,.md,9760,赛题/答疑原始材料,已读取文本；不是逐条技术验收,组委会答疑全量汇总（截至 2026-09-28）,1. 选题一：仿真与评测方式（**最关键**）；对本项目的影响（需要决策）；2. 选题一：接口与 MAC；对本项目的影响,
+doc/续作进度_20260927.md,.md,7462,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,续作进度与交接 — Continue12,本轮最终功能结果（23:40 完成）；1. 接手基线；2. 本轮实际代码变更；3. 已取得的本轮证据,
+doc/项目全面核查_20260928.md,.md,29555,审计/风险/验收方案,已读取文本；不是逐条技术验收,AFDX 项目全面核查报告,1. 结论先行；本轮改动边界；2. 核查范围与实测结果；3. 问题清单与优先级,
+doc/项目状态核查_20260924.md,.md,7373,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,AFDX 端系统：项目状态核查（2026-09-24）,1. 结论；2. 模块实现情况（按 RTL 实际内容）；3. 本次现场核查结果；4. 设计书测试矩阵 T00–T22 对照,
+doc/项目现状.md,.md,10669,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,项目现状与验证边界,1. 当前结论；2. 验证证据分层；3. 实现与测试对应表；4. 当前需要优先处理的问题,
+doc_AFDX设计书_优化增量_r1.md,.md,37435,规格/架构/设计方案,已读取文本；不是逐条技术验收,AFDX 端系统总体设计书 —— 优化增量 r1,0 结论速览；1 协议合规（P0 为主）；O-01 Lmax 口径与线上开销（P0）；O-02 SN 的位置与长度字段（P0，需核对）,
+doc_eLinx3.0_拆解报告.md,.md,18358,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,eLinx 3.0.7 拆解报告（2026-09-21，本机实测）,0. 一句话结论；1. 身份与血统；2. 目录地图；3. RTL → 位流：每一步到底调了什么,
+doc_eLinx3.0与AI驱动方案.md,.md,12120,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,eLinx 3.0 应用构成与 AI 驱动路径（研究记录）,1 它不是一个 GUI 程序，是「Qt 前端 + 一组控制台后端 + Tcl 内核」；2 它的 Tcl 命令集长什么样；3 三条可行的驱动路径，按可靠性排序；4 顺带挖到的、对本选题有用的材料,
+doc_第0周踩坑记录.md,.md,11146,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,第 0 周踩坑记录（2026-09-21，Questasim 安装 + T01 首跑）,一、环境事实（实测，勿再猜）；二、工具链坑；三、RTL / 仿真坑（均为已修真 bug）；四、已验证的可用命令,
+doc_第0周问题清单.md,.md,6727,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,第 0 周问题清单（发赛方 QQ 群）,内部待办（不发群，随清单跟踪）；六、首批发出后新增（09-21 下午）；赛方常见问题（FAQ）已确认项（09-22 收到，用户转发）,
+doc_第1周工作记录.md,.md,38109,阶段状态/历史工作记录,已读取文本；不是逐条技术验收,第 1 周工作记录（2026-09-22，提前开工日）,一、完成清单；二、O-20 第 3 条决策记录（评审口径）；三、新增/修改文件清单；四、下一步（第 1 周剩余 → 第 2 周提前量）,
+doc_组委会问答.md,.md,3752,赛题/答疑原始材料,已读取文本；不是逐条技术验收,组委会《问题汇总》逐条摘录（原文，未改写）,与选题一有关的结论（本文档的取舍）,
+eco.html,.html,214154,展示或网页资料,仅清单登记；正文未复核,,,
+elinx/README.txt,.txt,3077,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,elinx/ — eLinx 3.0.7 工作目录,空壳综合（第 1 周出口条件后半，已通过 2026-09-21）；BRAM 推断冒烟（O-20 第 3 条，2026-09-22 已定论：可行）；RX IC 的 PSN RAM 冒烟（2026-09-23，独立单元）；已有认识（详见 doc_eLinx3.0_拆解报告.md）,
+elinx/ip/README.txt,.txt,56,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,,,
+elinx/prj/quartus/db/AFDX_top.lpc.html,.html,8756,展示或网页资料,仅清单登记；正文未复核,,,
+elinx/prj/quartus/incremental_db/README,无扩展名,653,入口/工具链/辅助说明,仅清单登记；正文未复核,,,
+elinx/sdc/README.txt,.txt,90,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,,,
+evo.pdf,.pdf,1114095,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+omnet_readme,无扩展名,252,入口/工具链/辅助说明,仅清单登记；正文未复核,,,
+opal.html,.html,181106,展示或网页资料,仅清单登记；正文未复核,,,
+out/arena-debug/CONTINUE11_CHANGES.md,.md,2246,验证与运行证据,已读取文本；不是逐条技术验收,Continue11 — tx_port_buf 冒险修复 + 顶层配置表读路径快改,1. rtl/tx/tx_port_buf.v（Continue9 R/X/W 版本）功能修复；2. rtl/top/AFDX_top.v 读路径快改（POST-FIT-FINDINGS 根因 B 的低风险部分）；3. 验证；4. 过程记录,
+out/arena-debug/CONTINUE6_COMMANDS.md,.md,583,验证与运行证据,已读取文本；不是逐条技术验收,Commands and execution record,,
+out/arena-debug/CONTINUE6_REPORT.md,.md,2432,验证与运行证据,已读取文本；不是逐条技术验收,Continue6 — execution report,Goal and inherited reference；Results；Execution blocker；Change / rollback decision,
+out/arena-debug/CONTINUE6_SHA256SUMS.txt,.txt,541,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/CONTINUE6_raw_host_preflight_failure.txt,.txt,353,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/DIANSAI-REPORT.md,.md,31825,验证与运行证据,已读取文本；不是逐条技术验收,DIANSAI 修复与复验报告（2026-09-25）,MISSION-CONTINUE2 — 2026-09-25 最新收口结论（优先于本文件下方所有历史快照）；0. 本轮开始时的真实状态（必须先承认）；1. 本轮结果总表；2. 综合为什么能通过（根因与修复，不是碰运气）,
+out/arena-debug/MISSION-CONTINUE.md,.md,2612,验证与运行证据,已读取文本；不是逐条技术验收,Arena 持续收口任务 — diansai（顶层综合、STA、覆盖率与管理面）,现状；本轮只做未完成项，严禁重复造报告；A. 顶层综合；B. STA,
+out/arena-debug/MISSION-CONTINUE2.md,.md,2702,验证与运行证据,已读取文本；不是逐条技术验收,Arena 最终推进任务 — diansai 直到可交付收口,已知状态；目标 1：顶层综合（最高优先）；目标 2：STA；目标 3：覆盖率与管理范围,
+out/arena-debug/MISSION-CONTINUE3.md,.md,866,验证与运行证据,已读取文本；不是逐条技术验收,Continue3 任务,,
+out/arena-debug/MISSION-CONTINUE4-FINALIZE.md,.md,1399,验证与运行证据,已读取文本；不是逐条技术验收,Continue4-finalize —— 收尾打包（不新增功能）,目标；纪律,
+out/arena-debug/MISSION-CONTINUE4.md,.md,2488,验证与运行证据,已读取文本；不是逐条技术验收,Continue4 —— 管理面 T14–T16 关闭 + P0 时序优化尝试,目标 A（主）：关闭 P1 管理面 `OPEN_SPEC_GAP`（T14/T15/T16）；目标 B（次）：P0 时序关键路径结构优化一次尝试；纪律（所有轮次强制）,
+out/arena-debug/MISSION-CONTINUE5-FINALIZE.md,.md,1423,验证与运行证据,已读取文本；不是逐条技术验收,Continue5-finalize —— 接手收尾（不重做已完成 coverage）,现状（已核实，勿重做）；本轮目标（接续上一轮的 todo）；纪律,
+out/arena-debug/MISSION-CONTINUE5.md,.md,2296,验证与运行证据,已读取文本；不是逐条技术验收,Continue5 —— 覆盖率深化 + 管理面边界补强（阶段 1）,目标 A（主）：覆盖率深化（P2）；目标 B（次）：管理面边界补强（按 continue4 §4 登记的最小项）；纪律（强制）,
+out/arena-debug/MISSION-CONTINUE6.md,.md,2343,验证与运行证据,已读取文本；不是逐条技术验收,Continue6 —— P0 时序收敛（结构优化）,背景（已核实的时序瓶颈，来自 continue4/5 的 StAA 报告）；本轮要求；产出；纪律（强制）,
+out/arena-debug/MISSION-CONTINUE7-FINALIZE.md,.md,1917,验证与运行证据,已读取文本；不是逐条技术验收,Continue7-finalize —— 修复 QSF 器件族并完成 STA 验收,现状（已核实）；本轮目标（不要重跑已完成的 56 项回归）；纪律（强制）,
+out/arena-debug/MISSION-CONTINUE7.md,.md,1886,验证与运行证据,已读取文本；不是逐条技术验收,Continue7 —— P0 时序批量优化（加速模式）,加速方式（区别于 continue6）；约束（每条必须）；产出；纪律（强制）,
+out/arena-debug/MISSION-CONTINUE8.md,.md,4794,验证与运行证据,已读取文本；不是逐条技术验收,Continue8 —— 基于文献与 STA 证据的架构重新设计（设计阶段，不先改 RTL）,当前事实基线（必须以文件/日志复核，不得凭记忆）；文献与设计文档必须纳入；重新设计任务；方案 A：保持单时钟/单拍接口，做局部流水化,
+out/arena-debug/MISSION-FINALIZE.md,.md,3337,验证与运行证据,已读取文本；不是逐条技术验收,Arena 收口任务 — 把 diansai 剩余交付真正完成,总目标；优先级 A：必须继续推进；优先级 B：必须收口协议/测试缺口；强约束,
+out/arena-debug/MISSION-FIX.md,.md,3937,验证与运行证据,已读取文本；不是逐条技术验收,Arena 修复任务 — diansai（按 REVIEW-REPORT 修问题）,背景；修复要求（按优先级，能做几个做几个，宁缺毋滥）；强约束；交付,
+out/arena-debug/MISSION-REVIEW.md,.md,3484,验证与运行证据,已读取文本；不是逐条技术验收,Arena 独立复检任务 — diansai（AFDX 端系统 / FPGA 大赛）,背景；复检步骤；交付；约束,
+out/arena-debug/MISSION-diansai.md,.md,3083,验证与运行证据,已读取文本；不是逐条技术验收,Arena 推进任务 — diansai（AFDX 端系统 / FPGA 大赛）· 第二轮：把剩余项做完,现状（上一轮已登记）；本轮目标：把剩余项按优先级做完（每项都要有 Questa 仿真证据 + 文档登记）；强约束（可回滚 & 不破坏既有证据）；交付物（写入本机工作区）,
+out/arena-debug/REVIEW-REPORT.md,.md,19309,验证与运行证据,已读取文本；不是逐条技术验收,REVIEW-REPORT.md — diansai 独立复检报告,0. 复检方法与环境；1. 确认属实；A1. 文档门 5/5 PASS —— 属实；A2. LINT 门 ALL gates 0 %Error —— 属实,
+out/arena-debug/_hashes_tmp.txt,.txt,376,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/audit_20260928/README.md,.md,2224,验证与运行证据,已读取文本；不是逐条技术验收,AFDX 核查证据包 · 2026-09-28,内容与边界；复核与重跑；原项目修改范围,
+out/arena-debug/backup/20260924_233351/README_tools.md.bak,.bak,14229,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue2_20250925/DIANSAI-REPORT.md,.md,23071,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue2_20250925/doc/后续计划.md,.md,26127,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue2_20250925/doc/当前进度_20260923.md,.md,30361,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue2_20250925/out/arena-debug/DIANSAI-REPORT.md,.md,23071,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue2_20250925/后续计划.md,.md,26127,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue2_20250925/当前进度_20260923.md,.md,30361,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/audit_before_escape_fix/spec_excerpts.txt,.txt,9698,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX文献主题矩阵.md,.md,8534,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX文献工程映射.md,.md,8186,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX文献目录.md,.md,17272,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX文献研究整理.md,.md,18909,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX端系统_全景分析与技术备忘_20260924.md,.md,18349,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX端系统_后级链路设计与关键算法落地方案_20260924.md,.md,13449,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX端系统_基于文献研究的系统架构与数据流优化设计.md,.md,17416,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX端系统_学术文献调研与前沿工程对比_20260924.md,.md,18393,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/AFDX端系统_架构优化审计报告与编码执行基准_20260924.md,.md,11748,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/README.md,.md,12500,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/后续计划.md,.md,24412,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/当前进度_20260923.md,.md,29141,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/检查记录_20260923.md,.md,5520,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/项目状态核查_20260924.md,.md,6815,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/doc/项目现状.md,.md,10111,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/elinx/sdc/README.txt,.txt,90,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/DIANSAI-REPORT.md,.md,19459,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/coverage/README.md,.md,2140,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/coverage/T18g_dut_summary.txt,.txt,96,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/coverage/T23_dut_summary.txt,.txt,96,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/coverage/merged_detail.txt,.txt,61630,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/coverage/merged_summary.txt,.txt,426,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/sta/README.md,.md,1714,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/README.md,.md,2053,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/bram_after_tx_rm_rc.txt,.txt,29,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/bram_pre_opt_rc.txt,.txt,13,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/collect_after_tx_rm_rc.txt,.txt,13,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/collect_by_module_rc.txt,.txt,13,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/collect_top_rc.txt,.txt,13,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/help_rc.txt,.txt,3,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/inventory_rc.txt,.txt,13,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/map_tx_rm_rc.txt,.txt,13,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/top_after_tx_rm_rc.txt,.txt,28,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/synth/top_repro_rc.txt,.txt,28,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/out/arena-debug/finalize/tests/README.md,.md,2679,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/bfm/README.txt,.txt,133,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/chk/README.txt,.txt,113,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08c_mutants_report.txt,.txt,431,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08cmut_acks_before_write_port_available.txt,.txt,5360,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08cmut_pending_write_addr_not_latched.txt,.txt,5360,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08cmut_pending_write_data_not_latched.txt,.txt,5360,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08e_mutants_report.txt,.txt,635,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08emut_ic_drop_missing_from_total.txt,.txt,4111,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08emut_ic_en_ignored.txt,.txt,4261,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08emut_lost_one_rejected.txt,.txt,4888,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08emut_net_b_aliases_net_a_psn.txt,.txt,4892,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08emut_reject_writes_psn.txt,.txt,4866,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08f_console_agent_20260924.txt,.txt,1509,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T08fg_console_agent_20260924.txt,.txt,1512,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T09_mutants_report.txt,.txt,378,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T09mut_commit_only_rejects.txt,.txt,3303,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T09mut_missing_b_bank.txt,.txt,3370,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T09mut_no_lost_one.txt,.txt,3400,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10_mutants_report.txt,.txt,764,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_dup_never_dropped.txt,.txt,4927,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_dup_rewrites_state.txt,.txt,4169,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_ic_bypass_skips_rm.txt,.txt,4816,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_one_sided_skew_window.txt,.txt,4349,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_rm_drop_missing_from_total.txt,.txt,4031,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_rm_glb_en_ignored.txt,.txt,4287,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T10mut_seen_bit_ignored.txt,.txt,4271,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11_console_sap_compat_agent_20260924.txt,.txt,1481,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11_mutants_report.txt,.txt,1325,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11g_console_sap_compat_agent_20260924.txt,.txt,1484,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11i_mutants_report.txt,.txt,920,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_int_bit0_never_set.txt,.txt,4334,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_int_bit1_bit2_swapped.txt,.txt,4313,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_int_crc_bit_net_a_only.txt,.txt,4172,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_int_enable_not_masked.txt,.txt,4054,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_int_w1c_wins_over_event.txt,.txt,4067,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_irq_ignores_int_enable.txt,.txt,4045,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_irq_ignores_sw_bit.txt,.txt,4053,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_queue_overflow_no_event.txt,.txt,4100,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11imut_sample_event_sticky.txt,.txt,5595,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_desc_read_returns_post_clear.txt,.txt,4711,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_direction_check_missing.txt,.txt,4617,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_dport_check_missing.txt,.txt,4688,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_fresh_not_read_cleared.txt,.txt,4283,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_init_sweep_keeps_count.txt,.txt,4469,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_msg_rd_accepts_non_rx_port.txt,.txt,4042,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_older_pin_leaked.txt,.txt,5345,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_plen_from_frame_len.txt,.txt,4665,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_port_drop_missing_from_total.txt,.txt,4043,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_queue_depth_ignored.txt,.txt,5254,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_queue_pop_keeps_head.txt,.txt,5409,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_runtime_rx_pmem_read_missing.txt,.txt,5634,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T11mut_seen_overwrite_not_pinned.txt,.txt,4453,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12_mutants_report.txt,.txt,457,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12_top_mutants_report.txt,.txt,546,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12mut_drops_output_on_backpressure.txt,.txt,3392,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12mut_missing_config_way11.txt,.txt,3630,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12mut_missing_table1_way0.txt,.txt,3660,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12mut_wrong_hash_multiplier.txt,.txt,3605,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12topmut_commit_without_entry.txt,.txt,4380,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12topmut_host_hash_base_minus_two.txt,.txt,4362,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12topmut_host_hash_readback_disabled.txt,.txt,4853,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12topmut_rx_gate_bypass.txt,.txt,4521,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T12topmut_seed_rewrite_keeps_commit.txt,.txt,4280,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T17_console_agent_20260924.txt,.txt,1518,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T17g_console_agent_20260924.txt,.txt,1520,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T21_console_20260924.txt,.txt,1490,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T21_console_agent_20260924.txt,.txt,1490,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T21g_console_20260924.txt,.txt,1493,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T21g_console_agent_20260924.txt,.txt,1493,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22_mutants_report.txt,.txt,1139,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22mut_dup_blocks_never_released.txt,.txt,4573,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22mut_lookup_hit_never_asserted.txt,.txt,6141,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22mut_plen_from_frame_length.txt,.txt,4160,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22mut_psn_not_written_back.txt,.txt,6141,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22mut_rx_payload_word_shifted.txt,.txt,6294,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T22mut_tx_fcs_not_appended.txt,.txt,6060,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T23_console_agent_20260924.txt,.txt,1431,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/T23g_console_agent_20260924.txt,.txt,1434,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/compile_full_44_agent_20260924.txt,.txt,5705,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/compile_t08f_agent_20260924.txt,.txt,1959,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/compile_t11_sap_compat_agent_20260924.txt,.txt,1979,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/compile_t17_agent_20260924.txt,.txt,1958,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/compile_t21_agent_20260924.txt,.txt,1928,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/compile_t23_agent_20260924.txt,.txt,1978,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/lint_t21_20260924.txt,.txt,948912,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/continue_20250925/session_20260925_0432/sim/out/regress_run.txt,.txt,1821,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/doc_align_20260927/README.md,.md,8677,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/doc_align_20260927/后续计划.md,.md,27015,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/doc_align_20260927/当前进度_20260923.md,.md,31573,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/doc_align_20260927/项目状态核查_20260924.md,.md,6815,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/doc_align_20260927/项目现状.md,.md,10111,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/finalize_20250925/README.md,.md,6867,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/finalize_20250925/SHA256SUMS.txt,.txt,2087,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/finalize_20250925/doc/后续计划.md,.md,22314,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/finalize_20250925/doc/当前进度_20260923.md,.md,25923,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/finalize_20250925/out/arena-debug/DIANSAI-REPORT.md,.md,12976,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/finalize_20250925/out/arena-debug/DIANSAI-REPORT_after_initial_finalize.md,.md,19495,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/fix_20260925/B1/progress_before_B1.md,.md,24766,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/fix_20260925/B3/当前进度_20260923.md,.md,24437,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/fix_20260925/B8_B11/DIANSAI-REPORT_before.md,.md,24203,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/fix_20260925/B8_B11/DIANSAI-REPORT_pre_final_tweak.md,.md,13014,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/fix_20260925/B8_B11/progress_before_docs.md,.md,25248,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/pre_edit_20260924/SHA256SUMS.txt,.txt,984,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/pre_edit_20260924/doc/后续计划.md,.md,9434,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/pre_edit_20260924/doc/当前进度_20260923.md,.md,10538,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/pre_final_docs_edit_20260924/doc/后续计划.md,.md,9968,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/pre_final_docs_edit_20260924/doc/当前进度_20260923.md,.md,11348,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/backup/pre_final_report_replace_20260924/DIANSAI-REPORT.md,.md,7352,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/checks/B9_table.md,.md,1017,验证与运行证据,已读取文本；不是逐条技术验收,,,
+out/arena-debug/continue/session_20260925_0432/COVERAGE.md,.md,2252,验证与运行证据,已读取文本；不是逐条技术验收,全 manifest 代码覆盖率（2026-09-25）,工具原始统计,
+out/arena-debug/continue/session_20260925_0432/MANAGEMENT-SCOPE.md,.md,1540,验证与运行证据,已读取文本；不是逐条技术验收,管理面核查与正式验收边界（2026-09-25）,,
+out/arena-debug/continue/session_20260925_0432/OPERATIONS.md,.md,2072,验证与运行证据,已读取文本；不是逐条技术验收,执行与备份说明,,
+out/arena-debug/continue/session_20260925_0432/SHA256SUMS.txt,.txt,33542,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/SYNTH-STA.md,.md,3910,验证与运行证据,已读取文本；不是逐条技术验收,顶层综合与 STA 续作证据（2026-09-25）,结论；瓶颈与最小修复边界；STA,
+out/arena-debug/continue/session_20260925_0432/continue_patch_build_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/continue_patch_build_v2_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/coverage/merged_summary.txt,.txt,427,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/coverage_full50_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/coverage_merge_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/coverage_report_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/current_top_repro_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/final_docgate_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/final_full50_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/final_lint_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/old_top_repro_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/post_docs_docgate_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/rx_cfg_isolate_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/spec_excerpts.txt,.txt,9698,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/sta_probe_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/top_bram_attempt_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/top_fast_probe_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/top_module_isolate_rc.txt,.txt,10,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/tx_rm_current_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue/session_20260925_0432/tx_rm_old_rc.txt,.txt,1,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue10/POST-FIT-FINDINGS.md,.md,5972,验证与运行证据,已读取文本；不是逐条技术验收,Continue10 — 首份 post-fit 时序结果与真实关键路径分布,"1. 结果摘要；2. 失败端点按模块分布（前 20,000 条 pairs，slack < 0；`post_fit_failing_by_module.txt`）；3. 五类路径的形态（各取 Path #1）；4. 结论：只有两个根因",
+out/arena-debug/continue10/SHA256SUMS.txt,.txt,1410,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue10/SNMP-FIX-P1-P2.md,.md,4175,验证与运行证据,已读取文本；不是逐条技术验收,Continue10 — 根因 A（snmp_lite）两步修复记录,P1：msg_len 长度计算流水化（已完整闭环）；P2：OID 解析结果寄存（RTL 已改，全量验证被许可冲突打断）；并发冲突说明；待办,
+out/arena-debug/continue10/TIMING-FINDING.md,.md,5090,验证与运行证据,已读取文本；不是逐条技术验收,时序分析：post-map Fmax 45.84 MHz 是工具假象，不是设计缺陷,1. 结论；2. 证据：关键路径逐跳分解；为什么判定 5.000 ns 是占位值；3. 关键路径的真实形态,
+out/arena-debug/continue10/p1-snmp/sta/post_fit_summary.txt,.txt,137,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue10/parts.txt,.txt,1942,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue10/parts_clean.txt,.txt,4256,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue10/sta/post_fit_failing_by_module.txt,.txt,1011,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue10/sta/post_fit_summary.txt,.txt,135,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/documents/AFDX端系统_总体设计书.md,.md,184076,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 总体设计书,1 引言；1.1 目的；1.2 范围；1.3 术语,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/README.md,.md,9127,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证,从这里开始；当前阶段（2026-09-27）；最新续作（Continue12）；综合与时序：已有 post-fit 结果，125 MHz 尚未收敛,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/README_tools.md,.md,14641,历史备份/候选快照,已读取文本；不是逐条技术验收,工具包说明,布局与前提；先跑这个；脚本一览；与文档的对应关系,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX文献主题矩阵.md,.md,10306,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 文献主题矩阵,1. 主题共识、差异与工程影响；2. 主题覆盖度（当前目录）；3. 本批新增可复核主题；4. 第二轮主题补充（2026-09-25）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX文献工程映射.md,.md,3639,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 文献工程映射,1. 使用方式；2. 来源到工程问题映射；3. 按项目阶段查文献；3.1 编码阶段,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX文献目录.md,.md,21319,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 文献目录,1. 证据等级与状态；2. 域 A：协议基线、帧格式与 AFDX 总览（REQ-FRAME / 宏架构）；3. 域 B：TX 调度、BAG、帧构造与端系统收发（REQ-TX-*）；4. 域 C：RX、IC、RM、SkewMax 与双网冗余（REQ-RX-*/REQ-REL-*）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX文献研究整理.md,.md,22890,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 文献研究整理,1. 本轮扩展范围；2. 新增主题结论；2.1 共享内存与交换结构；2.2 时间窗、轮询和时延上界,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX端系统_全景分析与技术备忘_20260924.md,.md,18647,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 工程全景、技术剖析与交接备忘,1. 工程一句话现状与全局定位；2. 系统分层架构与数据通路解构；2.1 整体架构拓扑；2.2 发送端（TX）关键设计与时序流水,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX端系统_后级链路设计与关键算法落地方案_20260924.md,.md,13449,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统 —— RX 后级链路实现与关键算法落地方案,一、 RX 后级链路技术现状与断点定位；1. 现状回顾；二、 模块 1：`rx_ic.v` 顶层接入与 PSN 存储合并方案；1. 顶层存储去重,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX端系统_基于文献研究的系统架构与数据流优化设计.md,.md,17714,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统 —— 基于学术文献研究的系统架构与数据流优化设计,"一、 架构优化动因与文献理论映射；二、 优化后的系统整体拓扑与数据流图；三、 四大关键架构优化技术详析；1. 决策 D10：正交错相周期整形架构（Orthogonal Phase-Staggering, OPS）",冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX端系统_学术文献调研与前沿工程对比_20260924.md,.md,18691,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX端系统_架构优化审计报告与编码执行基准_20260924.md,.md,11748,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX端系统_测试仿真报告.md,.md,28401,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/AFDX项目应用追踪.md,.md,9822,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/README.md,.md,12296,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/后续计划.md,.md,27573,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/当前进度_20260923.md,.md,32131,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/检查记录_20260923.md,.md,5520,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/续作进度_20260927.md,.md,7307,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/项目状态核查_20260924.md,.md,7373,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc/项目现状.md,.md,10669,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_AFDX设计书_优化增量_r1.md,.md,37435,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统总体设计书 —— 优化增量 r1,0 结论速览；1 协议合规（P0 为主）；O-01 Lmax 口径与线上开销（P0）；O-02 SN 的位置与长度字段（P0，需核对）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_eLinx3.0_拆解报告.md,.md,18358,历史备份/候选快照,已读取文本；不是逐条技术验收,eLinx 3.0.7 拆解报告（2026-09-21，本机实测）,0. 一句话结论；1. 身份与血统；2. 目录地图；3. RTL → 位流：每一步到底调了什么,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_eLinx3.0与AI驱动方案.md,.md,12120,历史备份/候选快照,已读取文本；不是逐条技术验收,eLinx 3.0 应用构成与 AI 驱动路径（研究记录）,1 它不是一个 GUI 程序，是「Qt 前端 + 一组控制台后端 + Tcl 内核」；2 它的 Tcl 命令集长什么样；3 三条可行的驱动路径，按可靠性排序；4 顺带挖到的、对本选题有用的材料,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_第0周踩坑记录.md,.md,11146,历史备份/候选快照,已读取文本；不是逐条技术验收,第 0 周踩坑记录（2026-09-21，Questasim 安装 + T01 首跑）,一、环境事实（实测，勿再猜）；二、工具链坑；三、RTL / 仿真坑（均为已修真 bug）；四、已验证的可用命令,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_第0周问题清单.md,.md,6727,历史备份/候选快照,已读取文本；不是逐条技术验收,第 0 周问题清单（发赛方 QQ 群）,内部待办（不发群，随清单跟踪）；六、首批发出后新增（09-21 下午）；赛方常见问题（FAQ）已确认项（09-22 收到，用户转发）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_第1周工作记录.md,.md,38109,历史备份/候选快照,已读取文本；不是逐条技术验收,第 1 周工作记录（2026-09-22，提前开工日）,一、完成清单；二、O-20 第 3 条决策记录（评审口径）；三、新增/修改文件清单；四、下一步（第 1 周剩余 → 第 2 周提前量）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/documents/doc_组委会问答.md,.md,3207,历史备份/候选快照,已读取文本；不是逐条技术验收,组委会《问题汇总》逐条摘录（原文，未改写）,与选题一有关的结论（本文档的取舍）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue12/sta/post_fit_summary.txt,.txt,136,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/tests/T12mut_drops_output_on_backpressure.txt,.txt,3394,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/tests/T12mut_missing_config_way11.txt,.txt,3648,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/tests/T12mut_missing_table1_way0.txt,.txt,3641,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/tests/T12mut_wrong_hash_multiplier.txt,.txt,3608,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/timing_project/db/AFDX_top.lpc.html,.html,8756,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue12/timing_project/incremental_db/README,无扩展名,653,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue13/baseline_git_status.txt,.txt,4654,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue13/before/AFDX端系统_总体设计书.md,.md,186824,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 总体设计书,1 引言；1.1 目的；1.2 范围；1.3 术语,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/README.md,.md,9412,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证,从这里开始；当前阶段（2026-09-27）；最新续作（Continue12）；综合与时序：已有 post-fit 结果，125 MHz 尚未收敛,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/README_tools.md,.md,14641,历史备份/候选快照,已读取文本；不是逐条技术验收,工具包说明,布局与前提；先跑这个；脚本一览；与文档的对应关系,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX_三篇文献正文复核与修复映射_20260928.md,.md,17191,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX_文献依据与修复建议_20260928.md,.md,16320,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX文献主题矩阵.md,.md,10306,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX文献工程映射.md,.md,3639,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX文献目录.md,.md,28986,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX文献研究整理.md,.md,22890,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_全景分析与技术备忘_20260924.md,.md,18647,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_后级链路设计与关键算法落地方案_20260924.md,.md,13449,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_基于文献研究的系统架构与数据流优化设计.md,.md,18524,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_存储子系统文献补充_20260928.md,.md,14896,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_学术文献调研与前沿工程对比_20260924.md,.md,18691,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_架构优化审计报告与编码执行基准_20260924.md,.md,12477,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_架构梳理与文献加强_20260928.md,.md,22913,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_测试仿真报告.md,.md,13554,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_测试仿真报告_历史基线.md,.md,26391,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX端系统_第三轮文献补充与设计优化建议_20260928.md,.md,21810,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/AFDX项目应用追踪.md,.md,13506,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/README.md,.md,13145,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/后续计划.md,.md,27573,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/当前进度_20260923.md,.md,32131,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/检查记录_20260923.md,.md,5520,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/续作进度_20260927.md,.md,7462,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/项目全面核查_20260928.md,.md,24019,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/项目状态核查_20260924.md,.md,7373,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc/项目现状.md,.md,10669,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_AFDX设计书_优化增量_r1.md,.md,37435,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统总体设计书 —— 优化增量 r1,0 结论速览；1 协议合规（P0 为主）；O-01 Lmax 口径与线上开销（P0）；O-02 SN 的位置与长度字段（P0，需核对）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_eLinx3.0_拆解报告.md,.md,18358,历史备份/候选快照,已读取文本；不是逐条技术验收,eLinx 3.0.7 拆解报告（2026-09-21，本机实测）,0. 一句话结论；1. 身份与血统；2. 目录地图；3. RTL → 位流：每一步到底调了什么,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_eLinx3.0与AI驱动方案.md,.md,12120,历史备份/候选快照,已读取文本；不是逐条技术验收,eLinx 3.0 应用构成与 AI 驱动路径（研究记录）,1 它不是一个 GUI 程序，是「Qt 前端 + 一组控制台后端 + Tcl 内核」；2 它的 Tcl 命令集长什么样；3 三条可行的驱动路径，按可靠性排序；4 顺带挖到的、对本选题有用的材料,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_第0周踩坑记录.md,.md,11146,历史备份/候选快照,已读取文本；不是逐条技术验收,第 0 周踩坑记录（2026-09-21，Questasim 安装 + T01 首跑）,一、环境事实（实测，勿再猜）；二、工具链坑；三、RTL / 仿真坑（均为已修真 bug）；四、已验证的可用命令,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_第0周问题清单.md,.md,6727,历史备份/候选快照,已读取文本；不是逐条技术验收,第 0 周问题清单（发赛方 QQ 群）,内部待办（不发群，随清单跟踪）；六、首批发出后新增（09-21 下午）；赛方常见问题（FAQ）已确认项（09-22 收到，用户转发）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_第1周工作记录.md,.md,38109,历史备份/候选快照,已读取文本；不是逐条技术验收,第 1 周工作记录（2026-09-22，提前开工日）,一、完成清单；二、O-20 第 3 条决策记录（评审口径）；三、新增/修改文件清单；四、下一步（第 1 周剩余 → 第 2 周提前量）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/doc_组委会问答.md,.md,3207,历史备份/候选快照,已读取文本；不是逐条技术验收,组委会《问题汇总》逐条摘录（原文，未改写）,与选题一有关的结论（本文档的取舍）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/elinx/sdc/README.txt,.txt,90,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/sim/bfm/README.txt,.txt,133,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/before/sw/golden/README.txt,.txt,190,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/AFDX端系统_总体设计书.md,.md,186824,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证 —— 总体设计书,1 引言；1.1 目的；1.2 范围；1.3 术语,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/README.md,.md,9412,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统设计与仿真验证,从这里开始；当前阶段（2026-09-27）；最新续作（Continue12）；综合与时序：已有 post-fit 结果，125 MHz 尚未收敛,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/README_tools.md,.md,14641,历史备份/候选快照,已读取文本；不是逐条技术验收,工具包说明,布局与前提；先跑这个；脚本一览；与文档的对应关系,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX_三篇文献正文复核与修复映射_20260928.md,.md,17191,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX_文献依据与修复建议_20260928.md,.md,16320,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX文献主题矩阵.md,.md,10306,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX文献工程映射.md,.md,3639,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX文献目录.md,.md,28986,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX文献研究整理.md,.md,22890,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_全景分析与技术备忘_20260924.md,.md,18647,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_后级链路设计与关键算法落地方案_20260924.md,.md,13449,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_基于文献研究的系统架构与数据流优化设计.md,.md,18524,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_存储子系统文献补充_20260928.md,.md,14896,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_学术文献调研与前沿工程对比_20260924.md,.md,18691,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_架构优化审计报告与编码执行基准_20260924.md,.md,12477,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_架构梳理与文献加强_20260928.md,.md,22913,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_测试仿真报告.md,.md,13554,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_测试仿真报告_历史基线.md,.md,26391,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX端系统_第三轮文献补充与设计优化建议_20260928.md,.md,21810,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/AFDX项目应用追踪.md,.md,13506,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/README.md,.md,13145,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/后续计划.md,.md,27573,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/当前进度_20260923.md,.md,32131,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/检查记录_20260923.md,.md,5520,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/续作进度_20260927.md,.md,7462,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/项目全面核查_20260928.md,.md,24019,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/项目状态核查_20260924.md,.md,7373,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc/项目现状.md,.md,10669,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_AFDX设计书_优化增量_r1.md,.md,37435,历史备份/候选快照,已读取文本；不是逐条技术验收,AFDX 端系统总体设计书 —— 优化增量 r1,0 结论速览；1 协议合规（P0 为主）；O-01 Lmax 口径与线上开销（P0）；O-02 SN 的位置与长度字段（P0，需核对）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_eLinx3.0_拆解报告.md,.md,18358,历史备份/候选快照,已读取文本；不是逐条技术验收,eLinx 3.0.7 拆解报告（2026-09-21，本机实测）,0. 一句话结论；1. 身份与血统；2. 目录地图；3. RTL → 位流：每一步到底调了什么,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_eLinx3.0与AI驱动方案.md,.md,12120,历史备份/候选快照,已读取文本；不是逐条技术验收,eLinx 3.0 应用构成与 AI 驱动路径（研究记录）,1 它不是一个 GUI 程序，是「Qt 前端 + 一组控制台后端 + Tcl 内核」；2 它的 Tcl 命令集长什么样；3 三条可行的驱动路径，按可靠性排序；4 顺带挖到的、对本选题有用的材料,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_第0周踩坑记录.md,.md,11146,历史备份/候选快照,已读取文本；不是逐条技术验收,第 0 周踩坑记录（2026-09-21，Questasim 安装 + T01 首跑）,一、环境事实（实测，勿再猜）；二、工具链坑；三、RTL / 仿真坑（均为已修真 bug）；四、已验证的可用命令,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_第0周问题清单.md,.md,6727,历史备份/候选快照,已读取文本；不是逐条技术验收,第 0 周问题清单（发赛方 QQ 群）,内部待办（不发群，随清单跟踪）；六、首批发出后新增（09-21 下午）；赛方常见问题（FAQ）已确认项（09-22 收到，用户转发）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_第1周工作记录.md,.md,38109,历史备份/候选快照,已读取文本；不是逐条技术验收,第 1 周工作记录（2026-09-22，提前开工日）,一、完成清单；二、O-20 第 3 条决策记录（评审口径）；三、新增/修改文件清单；四、下一步（第 1 周剩余 → 第 2 周提前量）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/doc_组委会问答.md,.md,3207,历史备份/候选快照,已读取文本；不是逐条技术验收,组委会《问题汇总》逐条摘录（原文，未改写）,与选题一有关的结论（本文档的取舍）,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/elinx/sdc/README.txt,.txt,90,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/sim/bfm/README.txt,.txt,133,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue13/candidate/sw/golden/README.txt,.txt,190,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue2/COMMANDS.md,.md,11386,验证与运行证据,已读取文本；不是逐条技术验收,continue2 — 完整命令清单、退出码与耗时,0. 总表；1. 备份（改动前，强制）；2. RTL 修复；3. 定向回归（先于全量，快速证伪）,
+out/arena-debug/continue2/COVERAGE.md,.md,2215,验证与运行证据,已读取文本；不是逐条技术验收,覆盖率 —— continue2（2026-09-25）：在**改造后**的 RTL 上重新生成,1. 为什么必须重跑（而不是引用旧数字）；2. 本轮结果（全部 rc=0）；3. 边界（必须随数字一起引用）,
+out/arena-debug/continue2/MANAGEMENT-SCOPE.md,.md,2940,验证与运行证据,已读取文本；不是逐条技术验收,管理面范围裁定 —— continue2（2026-09-25）,1. 客观现状（本轮实测，非转述）；2. 与设计书的关系；3. 裁定：`OPEN_SPEC_GAP`（不是 DONE，也不是 OUT_OF_SCOPE）；4. 为什么本轮没有实现它们（诚实说明，不是借口）,
+out/arena-debug/continue2/SHA256SUMS.txt,.txt,27815,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/STA.md,.md,5909,验证与运行证据,已读取文本；不是逐条技术验收,STA —— continue2（2026-09-25）：从 BLOCKED 变成有实测数据，且**明确不收敛**,1. 前置条件如何被解除；2. Analysis & Synthesis（quartus_map）；3. 一次必须记录的事故：约束文件缺失 → 默认 1 ns 时钟 → 数字全错；4. TimeQuest 实测结果（post-map，8.000 ns 约束真实生效）,
+out/arena-debug/continue2/SYNTH.md,.md,4348,验证与运行证据,已读取文本；不是逐条技术验收,顶层 eLinx 综合 —— continue2（2026-09-25）从 BLOCKED 到 rc=0,1. 结论；2. 根因（二分定位，可复现）；3. 已采用的修复（功能等价，未削功能/未缩地址/未屏蔽错误）；4. 存储是否真的进了 BRAM,
+out/arena-debug/continue2/coverage/merged_summary.txt,.txt,1348,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/coverage/run_full_cov_rc.txt,.txt,42,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/coverage/vcover_rc.txt,.txt,50,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/gates/docgate2_rc.txt,.txt,15,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/gates/gates_rc.txt,.txt,76,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/sim/fix1_targeted_rc.txt,.txt,40,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/sim/full50_after_fix_rc.txt,.txt,42,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/sta/family_list.txt,.txt,46,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/sta/part_list.txt,.txt,4293,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/sta/sta_rerun_rc.txt,.txt,112,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/bisect_rxvl256_rc.txt,.txt,58,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/iso_bram_sdp_pmem_fix_rc.txt,.txt,104,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/iso_bram_sdp_pmem_rc.txt,.txt,105,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/iso_rx_port_buf_rc.txt,.txt,103,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/iso_top_only_rc.txt,.txt,126,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/iso_top_ports16_rc.txt,.txt,138,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/iso_top_rxvl64_rc.txt,.txt,105,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/probe_writers_rc.txt,.txt,227,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/top_after_rxcfg_bram_rc.txt,.txt,270,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue2/synth/top_bram_rc.txt,.txt,270,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue3/COMMANDS.md,.md,8900,验证与运行证据,已读取文本；不是逐条技术验收,Continue3 - command record (2026-09-25),Preparation (actually executed)；Tool stages (from `COMMANDS.jsonl`)；lint_top；lint_reset,
+out/arena-debug/continue3/REPORT.md,.md,7699,验证与运行证据,已读取文本；不是逐条技术验收,Continue3：8 ns post-map STA 证据守卫与复位优化的负结果,1. 范围与选择依据；2. 最终保留的改动及验证；3. 被否决的复位复制实验（**非最终源码**）；4. 边界、证据与操作记录,
+out/arena-debug/continue3/SHA256SUMS.txt,.txt,11223,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue3/SOURCE_SHA256.txt,.txt,2100,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue3/STATUS.md,.md,829,验证与运行证据,已读取文本；不是逐条技术验收,Continue3 状态（2026-09-25）,,
+out/arena-debug/continue3/sources.txt,.txt,516,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue4/COMMANDS.md,.md,7981,验证与运行证据,已读取文本；不是逐条技术验收,continue4 —— 命令记录（2026-09-26）,"0. 连接与勘察；1. 备份（改源码前，纪律要求）；7 个待改文件 → out/arena-debug/continue4/backup/{rtl,sim}/，逐个打印 SHA256；sim/out/* 181 个文件 → backup/sim_out_before/",
+out/arena-debug/continue4/FINALIZE-REPORT.md,.md,5415,验证与运行证据,已读取文本；不是逐条技术验收,Continue4 FINALIZE 报告,证据清单；真实 STA 数字；修复的问题及边界；交付物与复核方法,
+out/arena-debug/continue4/REPORT.md,.md,25502,验证与运行证据,已读取文本；不是逐条技术验收,continue4 报告 —— P1 管理面 OPEN_SPEC_GAP 关闭（T14/T15/T16）,0. 一句话结论；1. 做了什么（对照 MANAGEMENT-SCOPE.md §5 的最小可验收定义）；1.1 新增/改造的 RTL；1.2 地址映射（本轮新增，已实现并被 TB 覆盖）,
+out/arena-debug/continue4/SHA256SUMS.txt,.txt,56868,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue4/backup/sim_out_before/T08c_mutants_report.txt,.txt,431,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08cmut_acks_before_write_port_available.txt,.txt,5360,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08cmut_pending_write_addr_not_latched.txt,.txt,5360,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08cmut_pending_write_data_not_latched.txt,.txt,5360,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08e_mutants_report.txt,.txt,635,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08emut_ic_drop_missing_from_total.txt,.txt,4111,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08emut_ic_en_ignored.txt,.txt,4261,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08emut_lost_one_rejected.txt,.txt,4888,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08emut_net_b_aliases_net_a_psn.txt,.txt,4892,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08emut_reject_writes_psn.txt,.txt,4866,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08f_console_agent_20260924.txt,.txt,1509,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T08fg_console_agent_20260924.txt,.txt,1512,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T09_mutants_report.txt,.txt,378,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T09mut_commit_only_rejects.txt,.txt,3303,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T09mut_missing_b_bank.txt,.txt,3370,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T09mut_no_lost_one.txt,.txt,3400,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10_mutants_report.txt,.txt,764,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_dup_never_dropped.txt,.txt,4927,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_dup_rewrites_state.txt,.txt,4169,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_ic_bypass_skips_rm.txt,.txt,4816,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_one_sided_skew_window.txt,.txt,4349,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_rm_drop_missing_from_total.txt,.txt,4031,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_rm_glb_en_ignored.txt,.txt,4287,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T10mut_seen_bit_ignored.txt,.txt,4271,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11_console_sap_compat_agent_20260924.txt,.txt,1481,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11_mutants_report.txt,.txt,1325,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11g_console_sap_compat_agent_20260924.txt,.txt,1484,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11i_mutants_report.txt,.txt,920,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_int_bit0_never_set.txt,.txt,4334,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_int_bit1_bit2_swapped.txt,.txt,4313,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_int_crc_bit_net_a_only.txt,.txt,4172,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_int_enable_not_masked.txt,.txt,4054,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_int_w1c_wins_over_event.txt,.txt,4067,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_irq_ignores_int_enable.txt,.txt,4045,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_irq_ignores_sw_bit.txt,.txt,4053,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_queue_overflow_no_event.txt,.txt,4100,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11imut_sample_event_sticky.txt,.txt,5595,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_desc_read_returns_post_clear.txt,.txt,4711,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_direction_check_missing.txt,.txt,4617,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_dport_check_missing.txt,.txt,4688,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_fresh_not_read_cleared.txt,.txt,4283,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_init_sweep_keeps_count.txt,.txt,4469,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_msg_rd_accepts_non_rx_port.txt,.txt,4042,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_older_pin_leaked.txt,.txt,5345,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_plen_from_frame_len.txt,.txt,4665,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_port_drop_missing_from_total.txt,.txt,4043,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_queue_depth_ignored.txt,.txt,5254,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_queue_pop_keeps_head.txt,.txt,5409,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_runtime_rx_pmem_read_missing.txt,.txt,5634,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T11mut_seen_overwrite_not_pinned.txt,.txt,4453,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12_mutants_report.txt,.txt,457,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12_top_mutants_report.txt,.txt,546,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12mut_drops_output_on_backpressure.txt,.txt,3392,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12mut_missing_config_way11.txt,.txt,3630,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12mut_missing_table1_way0.txt,.txt,3660,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12mut_wrong_hash_multiplier.txt,.txt,3605,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12topmut_commit_without_entry.txt,.txt,4380,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12topmut_host_hash_base_minus_two.txt,.txt,4362,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12topmut_host_hash_readback_disabled.txt,.txt,4853,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12topmut_rx_gate_bypass.txt,.txt,4521,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T12topmut_seed_rewrite_keeps_commit.txt,.txt,4280,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T17_console_agent_20260924.txt,.txt,1518,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T17g_console_agent_20260924.txt,.txt,1520,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T21_console_20260924.txt,.txt,1490,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T21_console_agent_20260924.txt,.txt,1490,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T21g_console_20260924.txt,.txt,1493,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T21g_console_agent_20260924.txt,.txt,1493,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22_mutants_report.txt,.txt,1139,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22mut_dup_blocks_never_released.txt,.txt,4573,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22mut_lookup_hit_never_asserted.txt,.txt,6141,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22mut_plen_from_frame_length.txt,.txt,4160,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22mut_psn_not_written_back.txt,.txt,6141,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22mut_rx_payload_word_shifted.txt,.txt,6294,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T22mut_tx_fcs_not_appended.txt,.txt,6060,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T23_console_agent_20260924.txt,.txt,1431,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/T23g_console_agent_20260924.txt,.txt,1434,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/compile_full_44_agent_20260924.txt,.txt,5705,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/compile_t08f_agent_20260924.txt,.txt,1959,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/compile_t11_sap_compat_agent_20260924.txt,.txt,1979,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/compile_t17_agent_20260924.txt,.txt,1958,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/compile_t21_agent_20260924.txt,.txt,1928,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/compile_t23_agent_20260924.txt,.txt,1978,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/lint_t21_20260924.txt,.txt,948912,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/backup/sim_out_before/regress_run.txt,.txt,1821,历史备份/候选快照,仅清单登记；正文未复核,,,冻结/备份/候选副本，不参与现行状态合并
+out/arena-debug/continue4/project/db/AFDX_top.lpc.html,.html,8756,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue4/project/incremental_db/README,无扩展名,653,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue4/syn/console.txt,.txt,845,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue4/syncheck/console.txt,.txt,226,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue5/COMMANDS.md,.md,1824,验证与运行证据,已读取文本；不是逐条技术验收,Continue5 执行命令清单与重现指南,1. 变体与回归用例重现；定向运行管理面及 GMII 变体用例 (6 项)；全量 56 项回归验证 (56 项)；2. 覆盖率采集与解析 (基于已完成的 53 项基线),
+out/arena-debug/continue5/COVERAGE.md,.md,8296,验证与运行证据,已读取文本；不是逐条技术验收,覆盖率报告 —— continue5（2026-09-26）：全 53 项回归基线 UCDB 深度解析,1. 概述与口径说明；强制口径区分（严禁混淆）；2. 覆盖率核心指标汇总；3. Top-15 未覆盖 RTL 模块分析（按未命中总数降序）,
+out/arena-debug/continue5/REPORT.md,.md,8942,验证与运行证据,已读取文本；不是逐条技术验收,continue5-finalize 报告 —— GMII 变体补强、覆盖率深度报告与全量 56 项回归验收,0. 一句话结论；1. 目标 1：GMII 变体补强（T14g / T15g / T16g）；2. 目标 2：覆盖率深度分析与口径核实；2.1 覆盖率核心数据对照,
+out/arena-debug/continue5/SHA256SUMS.txt,.txt,13851,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue5/raw/vcover_details_completed53.txt,.txt,22056774,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue5/raw/vcover_report_all.txt,.txt,427,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue5/raw/vcover_summary_b_completed53.txt,.txt,347,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue5/raw/vcover_summary_s_completed53.txt,.txt,347,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue6/COMMANDS.md,.md,826,验证与运行证据,已读取文本；不是逐条技术验收,Commands executed,,
+out/arena-debug/continue6/REPORT.md,.md,3399,验证与运行证据,已读取文本；不是逐条技术验收,Continue6 — P0 post-map 时序收敛报告,结论；基线与步骤对照；改动说明；最终最差路径与下一步,
+out/arena-debug/continue6/SHA256SUMS.txt,.txt,3371,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue7/COMMANDS.md,.md,1485,验证与运行证据,已读取文本；不是逐条技术验收,Commands executed,Verify production QSF assignments；Retry performed after correcting/reusing production QSF；Primary post-map STA and 8 ns guard；TNS and unconstrained-path summary,
+out/arena-debug/continue7/REPORT.md,.md,3040,验证与运行证据,已读取文本；不是逐条技术验收,Continue7-finalize — QSF 修复与 post-map STA 验收,结论；执行结果；回滚核验；约束与诚实边界,
+out/arena-debug/continue7/SHA256SUMS.txt,.txt,2155,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue8/BASELINE.md,.md,4456,验证与运行证据,已读取文本；不是逐条技术验收,Continue8 — 架构重设计基线与证据边界,1. 已复核的事实基线；2. 问题的精确表述；3. 不能越过的边界；4. Continue8 的成功判据,
+out/arena-debug/continue8/DECISION-LOG.md,.md,3493,验证与运行证据,已读取文本；不是逐条技术验收,Continue8 — 设计决策日志,负收益回滚规则,
+out/arena-debug/continue8/IMPLEMENTATION-PLAN.md,.md,6293,验证与运行证据,已读取文本；不是逐条技术验收,Continue8 — 分阶段实施、验证与回滚计划,0. 工作纪律；1. 阶段表；2. 每个 RTL 步骤的执行顺序；3. 验证矩阵,
+out/arena-debug/continue8/LITERATURE-TRACE.md,.md,4086,验证与运行证据,已读取文本；不是逐条技术验收,Continue8 — 文献到设计与验证的可追溯映射,使用规则；既有工程决策的保持条件；可审计的论断边界,
+out/arena-debug/continue8/REDESIGN-ARCHITECTURE.md,.md,11951,验证与运行证据,已读取文本；不是逐条技术验收,Continue8 — TX/RX 端口状态重设计方案,1. 结论先行；目标数据流；2. 现有接口语义，必须冻结；3. 三种可实施方案,
+out/arena-debug/continue8/SHA256SUMS.txt,.txt,426,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/continue9/BASELINE.txt,.txt,266,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/failed-runs/T17_console_pre_fix_20260924.txt,.txt,1536,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/failed-runs/T17g_console_pre_fix_20260924.txt,.txt,1538,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/failed-runs/T23_console_pre_fix_20260924.txt,.txt,1451,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/failed-runs/T23g_console_pre_fix_20260924.txt,.txt,1454,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/failed-runs/compile_console_pre_fix_20260924.txt,.txt,1978,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/CONTINUE-20260925-SHA256SUMS.txt,.txt,33542,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/CONTINUE-20260925.md,.md,1475,验证与运行证据,已读取文本；不是逐条技术验收,MISSION-CONTINUE 交付入口（2026-09-25）,,
+out/arena-debug/finalize/coverage/README.md,.md,2140,验证与运行证据,已读取文本；不是逐条技术验收,"Questa code coverage: four directed cases, not the full manifest",,
+out/arena-debug/finalize/coverage/T18g_dut_summary.txt,.txt,96,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/coverage/T23_dut_summary.txt,.txt,96,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/coverage/merged_detail.txt,.txt,61630,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/coverage/merged_summary.txt,.txt,426,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/sta/README.md,.md,3507,验证与运行证据,已读取文本；不是逐条技术验收,STA: SUPERSEDED — this round's real TimeQuest run replaces the BLOCKED verdict,"Historical record (state before 2026-09-25, kept for audit)；STA prerequisite and negative probe: BLOCKED_NO_PROJECT_OR_NETLIST",
+out/arena-debug/finalize/synth/README.md,.md,2053,验证与运行证据,已读取文本；不是逐条技术验收,Top-level eLinx synthesis: BLOCKED (real failing attempts retained),,
+out/arena-debug/finalize/synth/bram_after_tx_rm_rc.txt,.txt,29,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/bram_pre_opt_rc.txt,.txt,13,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/collect_after_tx_rm_rc.txt,.txt,13,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/collect_by_module_rc.txt,.txt,13,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/collect_top_rc.txt,.txt,13,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/help_rc.txt,.txt,3,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/inventory_rc.txt,.txt,13,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/map_tx_rm_rc.txt,.txt,13,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/top_after_tx_rm_rc.txt,.txt,28,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/synth/top_repro_rc.txt,.txt,28,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/finalize/tests/README.md,.md,2679,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/_a615.txt,.txt,16247,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/lint_newtb_status.txt,.txt,199,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/lint_step3_status.txt,.txt,228,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/lint_t13w_status.txt,.txt,102,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/step2_status.txt,.txt,480,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/step2b_status.txt,.txt,929,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/step2c_status.txt,.txt,1192,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/step3_status.txt,.txt,959,验证与运行证据,已读取文本；不是逐条技术验收,,,
+out/arena-debug/fix_20260928/t13w_rerun_status.txt,.txt,787,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/fix_20260928/tests_batch_status.txt,.txt,819,验证与运行证据,仅清单登记；正文未复核,,,
+out/arena-debug/full38_attempt_excerpt_20260924.txt,.txt,770,验证与运行证据,仅清单登记；正文未复核,,,
+out/lint_c11.txt,.txt,1315226,验证与运行证据,仅清单登记；正文未复核,,,
+out/lit_delete.txt,.txt,2172,验证与运行证据,仅清单登记；正文未复核,,,
+out/lit_hashes.txt,.txt,12591,验证与运行证据,仅清单登记；正文未复核,,,
+out/lit_unrelated.txt,.txt,436,验证与运行证据,仅清单登记；正文未复核,,,
+out/regress_c11_subset.txt,.txt,5444,验证与运行证据,仅清单登记；正文未复核,,,
+project_status.html,.html,14407,展示或网页资料,仅清单登记；正文未复核,,,
+sim/bfm/README.txt,.txt,133,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,,,
+sim/chk/README.txt,.txt,113,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,,,
+sim/out/T08c_mutants_report.txt,.txt,431,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08cmut_acks_before_write_port_available.txt,.txt,5360,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08cmut_pending_write_addr_not_latched.txt,.txt,5360,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08cmut_pending_write_data_not_latched.txt,.txt,5360,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08e_mutants_report.txt,.txt,635,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08emut_ic_drop_missing_from_total.txt,.txt,4111,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08emut_ic_en_ignored.txt,.txt,4261,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08emut_lost_one_rejected.txt,.txt,4888,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08emut_net_b_aliases_net_a_psn.txt,.txt,4892,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08emut_reject_writes_psn.txt,.txt,4866,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08f_console_agent_20260924.txt,.txt,1509,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T08fg_console_agent_20260924.txt,.txt,1512,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T09_mutants_report.txt,.txt,378,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T09mut_commit_only_rejects.txt,.txt,3303,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T09mut_missing_b_bank.txt,.txt,3370,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T09mut_no_lost_one.txt,.txt,3400,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10_mutants_report.txt,.txt,898,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_dup_never_dropped.txt,.txt,5792,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_dup_rewrites_state.txt,.txt,5895,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_history_shift_off_by_one.txt,.txt,5895,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_ic_bypass_skips_rm.txt,.txt,5723,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_late_dup_ignored.txt,.txt,5799,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_one_sided_skew_window.txt,.txt,5865,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_rm_drop_missing_from_total.txt,.txt,4883,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_rm_glb_en_ignored.txt,.txt,5752,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T10mut_seen_bit_ignored.txt,.txt,5106,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11_console_sap_compat_agent_20260924.txt,.txt,1481,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11_mutants_report.txt,.txt,1325,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11g_console_sap_compat_agent_20260924.txt,.txt,1484,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11i_mutants_report.txt,.txt,920,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_int_bit0_never_set.txt,.txt,4334,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_int_bit1_bit2_swapped.txt,.txt,4313,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_int_crc_bit_net_a_only.txt,.txt,4172,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_int_enable_not_masked.txt,.txt,4054,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_int_w1c_wins_over_event.txt,.txt,4067,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_irq_ignores_int_enable.txt,.txt,4045,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_irq_ignores_sw_bit.txt,.txt,4053,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_queue_overflow_no_event.txt,.txt,4100,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11imut_sample_event_sticky.txt,.txt,5595,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_desc_read_returns_post_clear.txt,.txt,4711,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_direction_check_missing.txt,.txt,4617,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_dport_check_missing.txt,.txt,4688,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_fresh_not_read_cleared.txt,.txt,4283,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_init_sweep_keeps_count.txt,.txt,4469,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_msg_rd_accepts_non_rx_port.txt,.txt,4042,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_older_pin_leaked.txt,.txt,5345,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_plen_from_frame_len.txt,.txt,4665,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_port_drop_missing_from_total.txt,.txt,4043,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_queue_depth_ignored.txt,.txt,5254,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_queue_pop_keeps_head.txt,.txt,5409,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_runtime_rx_pmem_read_missing.txt,.txt,5634,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T11mut_seen_overwrite_not_pinned.txt,.txt,4453,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12_mutants_report.txt,.txt,457,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12_top_mutants_report.txt,.txt,546,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12mut_drops_output_on_backpressure.txt,.txt,3394,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12mut_missing_config_way11.txt,.txt,3648,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12mut_missing_table1_way0.txt,.txt,3641,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12mut_wrong_hash_multiplier.txt,.txt,3608,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12topmut_commit_without_entry.txt,.txt,4380,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12topmut_host_hash_base_minus_two.txt,.txt,4362,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12topmut_host_hash_readback_disabled.txt,.txt,4853,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12topmut_rx_gate_bypass.txt,.txt,4521,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T12topmut_seed_rewrite_keeps_commit.txt,.txt,4280,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T17_console_agent_20260924.txt,.txt,1518,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T17g_console_agent_20260924.txt,.txt,1520,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T21_console_20260924.txt,.txt,1490,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T21_console_agent_20260924.txt,.txt,1490,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T21g_console_20260924.txt,.txt,1493,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T21g_console_agent_20260924.txt,.txt,1493,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22_mutants_report.txt,.txt,1139,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22mut_dup_blocks_never_released.txt,.txt,4573,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22mut_lookup_hit_never_asserted.txt,.txt,6141,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22mut_plen_from_frame_length.txt,.txt,4160,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22mut_psn_not_written_back.txt,.txt,6141,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22mut_rx_payload_word_shifted.txt,.txt,6294,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T22mut_tx_fcs_not_appended.txt,.txt,6060,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T23_console_agent_20260924.txt,.txt,1431,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/T23g_console_agent_20260924.txt,.txt,1434,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/compile_full_44_agent_20260924.txt,.txt,5705,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/compile_t08f_agent_20260924.txt,.txt,1959,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/compile_t11_sap_compat_agent_20260924.txt,.txt,1979,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/compile_t17_agent_20260924.txt,.txt,1958,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/compile_t21_agent_20260924.txt,.txt,1928,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/compile_t23_agent_20260924.txt,.txt,1978,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/lint_t21_20260924.txt,.txt,948912,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/neg2_t13w_queue/regress.csv,.csv,249,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/neg2_t13w_total/regress.csv,.csv,249,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/neg_t13w_queue/regress.csv,.csv,227,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/neg_t13w_total/regress.csv,.csv,227,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/neg_t16a_1us/regress.csv,.csv,185,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress.csv,.csv,9918,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full10_first_fail_20260923.csv,.csv,1352,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_10_20260923.csv,.csv,1408,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_14_20260923.csv,.csv,1974,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_16_20260923.csv,.csv,2424,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_20260923.csv,.csv,1006,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_20_20260923.csv,.csv,3356,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_22_20260923.csv,.csv,3735,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_24_20260923.csv,.csv,4106,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_26_20260923.csv,.csv,4371,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_28_20260924.csv,.csv,4740,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_30_20260924.csv,.csv,5075,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_32_20260924.csv,.csv,5416,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_36_20260924.csv,.csv,6011,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_44_agent_20260924.csv,.csv,7362,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_full_9_20260923.csv,.csv,1273,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_run.txt,.txt,1821,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_subset_20260923.csv,.csv,298,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_t08f_agent_20260924.csv,.csv,418,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_t11_sap_compat_agent_20260924.csv,.csv,386,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_t17_agent_20260924.csv,.csv,434,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_t21_2_20260924.csv,.csv,406,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_t21_agent_20260924.csv,.csv,408,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_t23_agent_20260924.csv,.csv,294,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/regress_tail_15_20260924.csv,.csv,2870,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step1_full56/done.txt,.txt,14,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step1_full56/regress.csv,.csv,10062,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step1_t13/neg_rxpipe/regress.csv,.csv,160,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step1_t13/neg_total/regress.csv,.csv,160,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step1_t13/neg_txpipe/regress.csv,.csv,160,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step1_t13/regress.csv,.csv,383,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step2_full58/regress.csv,.csv,10514,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step2b_a01_fixed/regress.csv,.csv,1377,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step2b_a01_prefix/regress.csv,.csv,147,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step2c_a01_fixed/regress.csv,.csv,1367,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step2c_a01_prefix/regress.csv,.csv,144,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/step3_full62/regress.csv,.csv,11700,验证与运行证据,已读取文本；不是逐条技术验收,,,
+sim/out/step3_target/regress.csv,.csv,905,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/t13w_rerun/regress.csv,.csv,582,验证与运行证据,仅清单登记；正文未复核,,,
+sim/out/tests_full62/regress.csv,.csv,11305,验证与运行证据,已读取文本；不是逐条技术验收,,,
+sim/out/tests_new/regress.csv,.csv,741,验证与运行证据,仅清单登记；正文未复核,,,
+sim/vec/t05c_cfg_shares.csv,.csv,2095,入口/工具链/辅助说明,仅清单登记；正文未复核,,,
+sw/golden/README.txt,.txt,190,入口/工具链/辅助说明,已读取文本；不是逐条技术验收,,,
+sync_status.txt,.txt,1432,历史探针/提取文本,仅清单登记；正文未复核,,,
+upenn.pdf,.pdf,528164,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+xapp1130 (1).pdf,.pdf,1323013,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+全国大学生嵌入式芯片与系统设计竞赛'2026FPGA赛道选题指南-中科亿海微 (1).pdf,.pdf,433787,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX交换机内嵌ES的设计与验证_张明.pdf,.pdf,2168644,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX交换机及交换芯片中关键模块的设计-王鹏.pdf,.pdf,3361661,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX交换机的硬件设计与应用研究-陈杰群.pdf,.pdf,19024232,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX交换芯片调度设计与系统测试-柴明.pdf,.pdf,5534456,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX在航空通信系统中的应用_校莉.pdf,.pdf,329484,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX总线传输特性测试要求标准指标体系的确定_朱晓飞.pdf,.pdf,959578,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX构架及协议分析-钟杰何民王怀胜郑力.pdf,.pdf,1068537,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX构架及协议分析_钟杰.pdf,.pdf,1068543,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX核心交换技术的研究与实现_王绮卉.pdf,.pdf,9338941,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX端系统中冗余管理的研究和实现_李大鹏.pdf,.pdf,669633,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX端系统协议栈虚拟链路层分析及仿真研究-许燕婷.pdf,.pdf,2676083,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX端系统设计-王伟鹏张延园姚进华.pdf,.pdf,555904,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX端系统通信端口的设计与实现-武华马捷中翟正军.pdf,.pdf,305782,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX端系统通信端口的设计与实现_武华.pdf,.pdf,306844,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络中SkewMax的研究_李哲.pdf,.pdf,848178,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络交换机芯片的设计与验证_张占锋.pdf,.pdf,3087201,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络交换机验证测试平台的设计与实现-王世奎李雯王建宇.pdf,.pdf,336978,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络传输特性测试技术研究_施太平.pdf,.pdf,3815265,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络关键技术研究-姜丽云.pdf,.pdf,2945470,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络冗余管理技术分析_徐进.pdf,.pdf,393748,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络应用关键技术分析与研究_赵永库.pdf,.pdf,768597,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/AFDX网络端系统的设计-罗帅.pdf,.pdf,9065523,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/ARINC664终端测试系统软件的设计与开发_王传霸.pdf,.pdf,22186842,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/README.md,.md,8082,文献原件/文献库说明,已读取文本；不是逐条技术验收,本地文献库（`文献/`）索引,1. 2026-09-28 清理记录；受影响的目录条目；2. 分域清单（文件 → L 编号）；域 A 协议基线与 AFDX 总览,
+文献/SNMP协议在AFDX网络中的应用_张晓明 (1).pdf,.pdf,1507526,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/SNMP协议在AFDX网络中的应用_张晓明.pdf,.pdf,1507511,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/_无关/5G移动边缘计算下的任务卸载方法研究_陈爽.pdf,.pdf,7322261,已隔离的低相关资料,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/_无关/双模Jaynes-Cummings模型中原子偶极压缩与双模光场压缩间的关联_郭红.pdf,.pdf,169028,已隔离的低相关资料,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/_无关/含非线性修正项的双光子Jaynes-Cummings模型中光子反聚束效应的研究_田永红.pdf,.pdf,229939,已隔离的低相关资料,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/_无关/商业计划书（姓名+学号+专业）+-+副本1790076461.pdf,.pdf,75141,已隔离的低相关资料,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/_无关/无线传感器网络低耗自组方法研究_张重庆.pdf,.pdf,6236486,已隔离的低相关资料,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/_无关/群签名安全性分析与改进研究_李新社.pdf,.pdf,1727095,已隔离的低相关资料,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/xapp1130 (1).pdf,.pdf,1323013,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/一种AFDX网络端系统确定性仿真方法_于峰.pdf,.pdf,491211,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/一种机载AFDX网络管理系统的研究与实现_逯计划.pdf,.pdf,299879,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/一种航电系统AFDX网络管理技术的研究与实现_王纯委 (1).pdf,.pdf,1718295,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/一种航电系统AFDX网络管理技术的研究与实现_王纯委.pdf,.pdf,1794357,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/全国大学生嵌入式芯片与系统设计竞赛'2026FPGA赛道选题指南-中科亿海微 (1).pdf,.pdf,433787,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/分布式综合航电任务调度系统的分析与优化方法研究-韩朴杰.pdf,.pdf,6989491,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于AFDX协议的端系统配置模块研究_刘天宇.pdf,.pdf,3178254,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于AFDX总线的总线融合技术研究_王慧慧.pdf,.pdf,1484846,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于AFDX的航空电子通信网络的设计_叶佳字.pdf,.pdf,1068215,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于AFDX端系统的网络层验证研究-宋汐瑾苏稳吕岩松张赫白楠.pdf,.pdf,2100385,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于AFDX网络的网络管理与数据加载协议研究及应用_黄玉港.pdf,.pdf,9229519,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA+MAC+PHY的千兆以太网数传系统设计_侯义合.pdf,.pdf,326740,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA多接口的千兆以太网IP核设计_李岚.pdf,.pdf,2318726,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的AFDX端系统协议芯片的设计与实现_张志.pdf,.pdf,634149,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的AFDX端系统设计_罗西.pdf,.pdf,6028198,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的ARINC664_AFDX端系统设计_王伟鹏.pdf,.pdf,555907,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的千兆以太网CMOS图像数据传输系统设计_俞鹏炜.pdf,.pdf,2469466,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的千兆以太网控制器的设计与实现_巩峰.pdf,.pdf,6164610,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的千兆以太网相机的传输系统研究_沈淦松.pdf,.pdf,2569237,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的百兆以太网RGMII接口设计_石华.pdf,.pdf,648797,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于FPGA的高速实时以太网数据传输模块的设计与实现-唐君妍.pdf,.pdf,5150887,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/基于协议符合性的AFDX端系统自动化测试软件设计-黎万山.pdf,.pdf,2397676,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/大型客机航电系统综合集成关键技术综述_周贵荣.pdf,.pdf,3290645,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/航空全双工交换以太网冗余管理机制研究_陈昕.pdf,.pdf,283019,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/航空全双工以太网交换机若干关键技术研究与实现-王斌文.pdf,.pdf,3380482,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/芯片测试平台中的FPGA时序分析及芯片接口测试方法研究_鲍瑞.pdf,.pdf,4995791,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+文献/飞机航空电子系统总线技术与调度策略研究-徐媛媛.pdf,.pdf,5583145,文献原件/文献库说明,仅登记路径/大小；本轮未解析 PDF 正文,,,
+问题汇总_01.csv,.csv,1518,赛题/答疑原始材料,仅清单登记；正文未复核,,,

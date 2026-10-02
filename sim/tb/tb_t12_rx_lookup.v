@@ -86,8 +86,10 @@ module tb_t12_core #(
       if(out_vld) begin
         if(!pending) bad("duplicate or unsolicited output");
         else begin
-          if(!already_out && cycle_count-take_cycle!=2)
-            bad("lookup did not produce result after fixed two clock edges");
+          // Capture/add/multiply/RAM/compare: exact registered contract,
+          // not a relaxed timeout. Output is sampled on the fifth edge.
+          if(!already_out && cycle_count-take_cycle!=5)
+            bad("lookup did not produce result after fixed five clock edges");
           already_out=1;
           if(out_desc!==expect_desc || out_hit!==expect_hit || out_vl!==expect_idx)
             bad("output differs from independent key->index scoreboard");
@@ -158,7 +160,7 @@ module tb_t12_core #(
       #1;
       if(in_ready!==1'b1) bad("manual probe input not ready");
       @(posedge clk);
-      @(negedge clk);in_vld=0;
+      @(negedge clk);in_vld=0;in_desc=~sample;
       count=0;
       while(out_vld!==1'b1 && count<6) begin @(negedge clk);count=count+1;end
       if(out_vld!==1'b1 || out_desc!==sample ||
@@ -301,17 +303,26 @@ module tb_t12_core #(
     if(seen_count!=N || way_covered!==4'b1111)
       bad("coverage did not reach every index and all four RAM ways");
 
-    // Reset *in COMPARE*, with an outstanding synchronous RAM read, must
-    // cancel the transaction and mask READY even while INIT_DONE is still 1.
-    @(negedge clk);in_vld=1;in_desc=163'h12AA34BC;out_ready=0;
-    #1;if(in_ready!==1'b1) bad("reset-inflight setup was not accepted");
-    @(posedge clk);
-    @(negedge clk);in_vld=0;rst_sync=1;
-    #1;if(in_ready!==1'b0) bad("READY high during reset");
-    @(posedge clk);
-    @(negedge clk);rst_sync=0;rx_enable=0;cfg_mode=0;init_done=0;
-    if(out_vld!==1'b0 || out_hit!==1'b0 || out_vl!==12'd0 || out_desc!==163'd0)
-      bad("reset did not flush pending descriptor/result");
+    // Reset each in-flight stage (including stalled OUTPUT). No descriptor
+    // may reappear after reset; INIT_DONE deliberately remains asserted.
+    for(j=0;j<5;j=j+1) begin
+      @(negedge clk);in_vld=1;in_desc=163'h12AA34BC;out_ready=0;
+      #1;if(in_ready!==1'b1) bad("reset-inflight setup was not accepted");
+      @(posedge clk);
+      @(negedge clk);in_vld=0;
+      repeat(j) @(negedge clk);
+      rst_sync=1;
+      #1;if(in_ready!==1'b0) bad("READY high during reset");
+      @(posedge clk);
+      @(negedge clk);rst_sync=0;
+      if(out_vld!==1'b0 || out_hit!==1'b0 || out_vl!==12'd0 || out_desc!==163'd0)
+        bad("reset did not flush pending descriptor/result");
+      repeat(6) begin
+        @(negedge clk);
+        if(out_vld!==1'b0) bad("stale result reappeared after pipeline reset");
+      end
+    end
+    rx_enable=0;cfg_mode=0;init_done=0;
     sweep_all; // re-use the physical BRAM, not a new phantom cleared copy
     rx_enable=1;
     manual_lookup(image[good_slot][27:12],1'b0,12'd0);

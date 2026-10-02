@@ -2,10 +2,10 @@ Reading pref.tcl
 
 # 2025.3
 
-# source {C:/Workspace/diansai/sim/out/t12_mut_ukebjxn2/run.tcl}
+# source {C:/Workspace/diansai/sim/out/t12_mut_a71pygb_/run.tcl}
 # Questa Altera Starter FPGA Edition-64 vlog 2025.3 Compiler 2025.09 Sep 15 2025
-# Start time: 22:17:36 on Sep 23,2026
-# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t12_mut_ukebjxn2/lib C:/Workspace/diansai/sim/out/t12_mut_ukebjxn2/rx_vl_lookup.v C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v 
+# Start time: 23:40:54 on Sep 27,2026
+# vlog -sv "+notimingcheck" -work C:/Workspace/diansai/sim/out/t12_mut_a71pygb_/lib C:/Workspace/diansai/sim/out/t12_mut_a71pygb_/rx_vl_lookup.v C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v 
 # ** Note: (vlog-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # -- Compiling module rx_vl_lookup
 # -- Compiling module tb_t12_core
@@ -19,12 +19,12 @@ Reading pref.tcl
 # 	tb_t12r_lookup
 # 	tb_t12s_lookup
 # 	tb_t12h_lookup
-# End time: 22:17:36 on Sep 23,2026, Elapsed time: 0:00:00
+# End time: 23:40:54 on Sep 27,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 T12_MUTANT_COMPILED
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
-# vsim -lib C:/Workspace/diansai/sim/out/t12_mut_ukebjxn2/lib tb_t12s_lookup 
-# Start time: 22:17:36 on Sep 23,2026
+# vsim -lib C:/Workspace/diansai/sim/out/t12_mut_a71pygb_/lib tb_t12s_lookup 
+# Start time: 23:40:54 on Sep 27,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # //  Questa Altera Starter FPGA Edition-64
@@ -43,20 +43,20 @@ T12_MUTANT_COMPILED
 # //
 # Loading sv_std.std
 # Loading work.tb_t12s_lookup(fast)
-#   [err] T12 case=2 tick=4 sent=1 out=0: output changed while consumer stalled
-#   [err] T12 case=2 tick=4 sent=1 out=0: input overwrote unconsumed lookup
-#   [err] T12 case=2 tick=7 sent=2 out=0: output changed while consumer stalled
-#   [err] T12 case=2 tick=7 sent=2 out=0: input overwrote unconsumed lookup
-#   [err] T12 case=2 tick=10 sent=3 out=0: output changed while consumer stalled
-#   [err] T12 case=2 tick=10 sent=3 out=0: input overwrote unconsumed lookup
-#   [err] T12 case=2 tick=13 sent=4 out=0: output changed while consumer stalled
-#   [err] T12 case=2 tick=13 sent=4 out=0: input overwrote unconsumed lookup
-#   [err] T12 case=2 tick=16 sent=5 out=0: output changed while consumer stalled
-#   [err] T12 case=2 tick=16 sent=5 out=0: input overwrote unconsumed lookup
-#   [err] T12 case=2 tick=19 sent=6 out=0: output changed while consumer stalled
-#   [err] T12 case=2 tick=19 sent=6 out=0: input overwrote unconsumed lookup
-# T12 LOOKUP FAIL (case=2 errors=24295)
-# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v(341)
-#    Time: 3284408 ns  Iteration: 1  Instance: /tb_t12s_lookup/core
-# End time: 22:17:40 on Sep 23,2026, Elapsed time: 0:00:04
+#   [err] T12 case=2 tick=7 sent=1 out=0: output changed while consumer stalled
+#   [err] T12 case=2 tick=7 sent=1 out=0: input overwrote unconsumed lookup
+#   [err] T12 case=2 tick=13 sent=2 out=0: output changed while consumer stalled
+#   [err] T12 case=2 tick=13 sent=2 out=0: input overwrote unconsumed lookup
+#   [err] T12 case=2 tick=19 sent=3 out=0: output changed while consumer stalled
+#   [err] T12 case=2 tick=19 sent=3 out=0: input overwrote unconsumed lookup
+#   [err] T12 case=2 tick=25 sent=4 out=0: output changed while consumer stalled
+#   [err] T12 case=2 tick=25 sent=4 out=0: input overwrote unconsumed lookup
+#   [err] T12 case=2 tick=31 sent=5 out=0: output changed while consumer stalled
+#   [err] T12 case=2 tick=31 sent=5 out=0: input overwrote unconsumed lookup
+#   [err] T12 case=2 tick=37 sent=6 out=0: output changed while consumer stalled
+#   [err] T12 case=2 tick=37 sent=6 out=0: input overwrote unconsumed lookup
+# T12 LOOKUP FAIL (case=2 errors=24268)
+# ** Note: $finish    : C:/Workspace/diansai/sim/tb/tb_t12_rx_lookup.v(352)
+#    Time: 3284920 ns  Iteration: 1  Instance: /tb_t12s_lookup/core
+# End time: 23:40:57 on Sep 27,2026, Elapsed time: 0:00:03
 # Errors: 0, Warnings: 0

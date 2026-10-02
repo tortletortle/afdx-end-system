@@ -491,7 +491,7 @@ module tx_port_buf #(
   always @(posedge clk) begin
     if (rst_sync) begin
       r_vld <= 1'b0; r_is_commit <= 1'b0; r_no_open <= 1'b0;
-      r_port <= 8'd0; r_desc <= {D_W{1'b0}}; r_qst <= 8'd0;
+      r_port <= 8'd0;
       r_len <= 13'd0; r_type <= 2'd0; r_depth <= 4'd1; r_blk <= 4'd0; r_age <= 8'd0;
       tk_pend <= 1'b0; tk_pend_port <= 8'd0; pending <= 1'b0;
     end else begin
@@ -499,8 +499,6 @@ module tx_port_buf #(
       r_is_commit <= ev_commit;
       r_no_open   <= ev_commit & ~open_vld;
       r_port      <= ev_port;
-      r_desc      <= desc[ev_port];
-      r_qst       <= qst[ev_port];
       r_len       <= len[12:0];
       r_type      <= port_type;
       r_depth     <= (port_depth == 4'd0) ? 4'd1 : port_depth;
@@ -531,6 +529,18 @@ module tx_port_buf #(
   reg            w_len_we;
   reg [3:0]      w_len_addr;
   reg [12:0]     w_len_val;
+  // Distance-2 hazard fix: W commits to desc/qst on the same edge that the
+  // next R captures, so R must forward from the registered W intent.
+  // (Placed after the w_* declarations: Questa rejects use-before-declare.)
+  wire r_fwd = w_vld & w_we & (w_port == ev_port);
+  always @(posedge clk) begin
+    if (rst_sync) begin
+      r_desc <= {D_W{1'b0}}; r_qst <= 8'd0;
+    end else begin
+      r_desc <= r_fwd ? w_desc : desc[ev_port];
+      r_qst  <= r_fwd ? w_qst  : qst[ev_port];
+    end
+  end
 
   // X stage combinational inputs/results. c_* is sampled into W at the clock.
   reg [D_W-1:0] c_src_desc, c_desc;

@@ -2,6 +2,10 @@
 # run_regress.ps1 - regression runner (design doc 12.4, week-1 skeleton)
 # Usage (from sim/):  powershell -ExecutionPolicy Bypass -File .\run_regress.ps1
 #   optional:  -Tests T00,T01   (subset)   -KeepWork  (skip recompile)
+#              -OutDir out/neg_t13  (logs + CSV go there; default out)
+#              -PlusArgs '+T13_TOTAL_MAX_US=5'  (passed to every vsim)
+# Verdict: strict, see regress_verdict.ps1 (audit 20260928 A04) - one
+# verdict line per test, no FAIL/Error text, clean simulator summary.
 # Reads tests.manifest, compiles once, runs each TB in its own vsim
 # session (600 s cap per test), writes out/regress.csv and per-test logs
 # out/<id>_console.txt. Exit 0 only if every test PASSes.
@@ -18,6 +22,8 @@ param(
   [switch]$Acc          # pass -voptargs=+acc so $dumpvars VCDs have
                         # content (week-0 pitfall #11); costs sim time
   ,[switch]$Coverage    # compile +cover=sb and save one UCDB per test
+  ,[string]$OutDir = 'out'   # per-run output dir (relative to sim/)
+  ,[string]$PlusArgs = ''    # e.g. '+T13_TOTAL_MAX_US=5' for negative runs
 )
 $ErrorActionPreference = 'Stop'
 
@@ -47,7 +53,11 @@ foreach ($pn in @('vsim','vish','vlm','vlog','vcom','vopt')) {
 
 $sim = $PSScriptRoot
 Set-Location $sim
-if (-not (Test-Path out)) { New-Item -ItemType Directory -Path out | Out-Null }
+. (Join-Path $sim 'regress_verdict.ps1')
+$OutDir = $OutDir.TrimEnd('/', '\')
+if ($OutDir -eq '' -or $OutDir -match '[\s"&|<>]') { Write-Output "ERROR: bad -OutDir '$OutDir'"; exit 1 }
+if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir -Force | Out-Null }
+if ($PlusArgs -ne '') { $env:VSIM_PLUSARGS = $PlusArgs } else { Remove-Item Env:VSIM_PLUSARGS -ErrorAction SilentlyContinue }
 $coverageRoot = Join-Path (Split-Path -Parent $sim) 'out/arena-debug/continue5/ucdb'
 if ($Coverage) {
   New-Item -ItemType Directory -Force -Path $coverageRoot | Out-Null
@@ -66,11 +76,15 @@ foreach ($line in (Get-Content (Join-Path $sim 'tests.manifest') -Encoding UTF8)
   $cfg = if ($p.Count -gt 2) { $p[2] } else { 'default' }
   $manifest += [pscustomobject]@{ Id = $p[0]; Tb = $p[1]; Cfg = $cfg }
 }
+$dupIds = @($manifest | Group-Object Id | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
+if ($dupIds.Count -gt 0) { Write-Output ("ERROR: duplicate test id(s) in manifest: " + ($dupIds -join ',')); exit 1 }
 # powershell -File passes "-Tests T00,T01" as one string (not a string[]).
 # Accept both that documented spelling and -Command's array spelling.
 if ($Tests.Count -gt 0) {
   $selected = @($Tests | ForEach-Object { $_ -split ',' } |
                 ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+  $unknown = @($selected | Where-Object { @($manifest.Id) -notcontains $_ })
+  if ($unknown.Count -gt 0) { Write-Output ("ERROR: unknown test id(s): " + ($unknown -join ',')); exit 1 }
   $manifest = @($manifest | Where-Object { $selected -contains $_.Id })
 }
 if ($manifest.Count -eq 0) { Write-Output "ERROR: no tests selected"; exit 1 }
@@ -167,6 +181,7 @@ if (-not $KeepWork) {
                'tb_t08fg_full_scoreboard' = 'tb_t08f_full_scoreboard';
                'tb_t05bg_jitter' = 'tb_t05b_jitter';
                'tb_t13g_latency' = 'tb_t13_latency';
+               'tb_t13wg_worst' = 'tb_t13w_worst';
                'tb_t18g_random_stress' = 'tb_t18_random_stress';
                'tb_t23g_sap_min' = 'tb_t23_sap_min';
                'tb_t10g_top_rm' = 'tb_t10_top_rm';
@@ -184,6 +199,7 @@ if (-not $KeepWork) {
                'tb_t12fg_top_lookup' = 'tb_t12f_top_lookup';
                'tb_t14_stats_regs_gmii' = 'tb_t14_stats_regs';
                'tb_t15_snmp_gmii' = 'tb_t15_snmp';
+               'tb_t15cg_snmp_bag' = 'tb_t15c_snmp_bag';
                'tb_t16_tftp_rtc_gmii' = 'tb_t16_tftp_rtc' }
   $tbs = @(); foreach ($m in $manifest) {
     $f = if ($tbfile.ContainsKey($m.Tb)) { $tbfile[$m.Tb] } else { $m.Tb }
@@ -191,21 +207,22 @@ if (-not $KeepWork) {
   }
   $env:VLOG_SRC = (($rtl + ($tbs | Select-Object -Unique)) -join ' ')
   $sw = [Diagnostics.Stopwatch]::StartNew()
-  $rc = Run-Vsim 'source compile.tcl' 'out/compile_console.txt' 300
+  $compileLog = $OutDir + '/compile_console.txt'
+  $rc = Run-Vsim 'source compile.tcl' $compileLog 300
   Write-Output ("COMPILE rc=" + $rc + " wall_s=" + [math]::Round($sw.Elapsed.TotalSeconds,1))
   if ($rc -ne 0) {
     Write-Output "ERROR: compile session failed; log follows:"
-    Get-Content out/compile_console.txt -Encoding UTF8 | Write-Output
+    Get-Content $compileLog -Encoding UTF8 | Write-Output
     exit 1
   }
   # vlog prints "Errors: N, Warnings: M" - parse it (tcl exit code alone
   # does not catch vlog errors when Questa still exits 0)
-  $errLine = (Select-String -Path out/compile_console.txt -Pattern 'Errors:\s*(\d+)') |
+  $errLine = (Select-String -Path $compileLog -Pattern 'Errors:\s*(\d+)') |
              Select-Object -Last 1
   $nErr = if ($errLine) { [int]$errLine.Matches[0].Groups[1].Value } else { 99 }
   if ($nErr -ne 0) {
     Write-Output ("ERROR: vlog reported " + $nErr + " error(s); log follows:")
-    Get-Content out/compile_console.txt -Encoding UTF8 | Write-Output
+    Get-Content $compileLog -Encoding UTF8 | Write-Output
     exit 1
   }
   Write-Output "COMPILE OK (0 errors)"
@@ -218,7 +235,7 @@ $npass = 0
 $idx = 0
 foreach ($m in $manifest) {
   $idx++
-  $log = 'out/' + $m.Id + '_console.txt'
+  $log = $OutDir + '/' + $m.Id + '_console.txt'
   $env:TEST_TB = $m.Tb
   if ($Coverage) {
     $env:UCDB_OUT = Join-Path $coverageRoot ($m.Id + '.ucdb')
@@ -229,28 +246,23 @@ foreach ($m in $manifest) {
   $sw = [Diagnostics.Stopwatch]::StartNew()
   $rc = Run-Vsim 'source run_one.tcl' $log 600
   $wall = [math]::Round($sw.Elapsed.TotalSeconds,1)
-  $verdict = ''
-  if (Test-Path $log) {
-    foreach ($l in (Get-Content $log -Encoding UTF8)) {
-      if ("$l" -match '(PASS|FAIL)') { $verdict = "$l".Trim() }
-    }
-  }
-  $result = 'FAIL'
-  if ($rc -eq 0 -and $verdict -match 'PASS' -and $verdict -notmatch 'FAIL') {
-    $result = 'PASS'; $npass++
-  } elseif ($rc -eq -1) {
-    $verdict = 'TIMEOUT(600s)'
-  } elseif ($verdict -eq '') {
-    $verdict = ('no verdict line, vsim rc=' + $rc)
-  }
+  # strict verdict (A04): see regress_verdict.ps1
+  $lines = @()
+  if (Test-Path $log) { $lines = @(Get-Content $log -Encoding UTF8) }
+  $vd = Get-TestVerdict -Id $m.Id -Lines ([string[]]$lines) -Rc $rc
+  $result = $vd.Result
+  if ($result -eq 'PASS') { $npass++; $verdict = $vd.Verdict }
+  elseif ($vd.Verdict -ne '') { $verdict = $vd.Reason + ' | ' + $vd.Verdict }
+  else { $verdict = $vd.Reason }
   $summary = $verdict -replace ',', ';'
   $rows.Add(($m.Id + ',' + $m.Cfg + ',' + $m.Tb + ',' + $result + ',na,' + $wall + ',' + $summary))
   Write-Output ("[" + $idx + "/" + $manifest.Count + "] " + $m.Id + " " + $m.Tb + " -> " + $result + " (" + $wall + " s) " + $verdict)
 }
 
-[IO.File]::WriteAllLines((Join-Path $sim 'out/regress.csv'), $rows)
+$csvPath = Join-Path (Join-Path $sim $OutDir) 'regress.csv'
+[IO.File]::WriteAllLines($csvPath, $rows)
 Write-Output ("REGRESS SUMMARY: " + $npass + "/" + $manifest.Count + " pass, wall_s=" + [math]::Round($t0.Elapsed.TotalSeconds,1))
-Write-Output "CSV: out/regress.csv"
+Write-Output ("CSV: " + $OutDir + "/regress.csv")
 $rows | Write-Output
 if ($npass -ne $manifest.Count) { exit 1 }
 exit 0

@@ -1,10 +1,12 @@
 # AFDX 文献目录
 
-更新：2026-09-26
+更新：2026-09-28（新增 §12：L096–L137；新增 §13：本地库清理与 L138–L157）
 
 > 文献登记的单一来源。当前实现状态、需求状态和下一步以 [AFDX项目应用追踪](AFDX项目应用追踪.md) 为准；主题比较见 [AFDX文献主题矩阵](AFDX文献主题矩阵.md)；来源到工程问题映射见 [AFDX文献工程映射](AFDX文献工程映射.md)。
 >
 > 本文按**项目用途域**组织，不再按下载批次堆叠。每条保留稳定 ID、证据等级、主题标签和支持的 `REQ-*` 域。
+>
+> **⚠️ 文献保留纪律（2026-09-28 确立）**：`文献/` 与 `AFDX_补充文献/` 下的全部文件**一律保留，不再做任何清理或删除**。这批文献是后续撰写**设计文档与答辩材料**的引用来源，需要随时回查原文页码与条款。9 月 28 日那轮去重（DELETED=31 / MOVED=6）**是一次性动作，已结束**；此后只允许新增与登记，不允许再删。无关文献也只移入 `out/lit_unrelated/` 存档，不物理删除。
 
 ## 1. 证据等级与状态
 
@@ -177,7 +179,7 @@
 
 ## 10. 统计
 
-- 独立登记条目：L001–L095。
+- 独立登记条目：L001–L137（L096–L137 为 2026-09-28 在线检索补充，见 §12）。
 - 明确重复/同源，不重复计证：L086=L080，L095=L085，L054→L040，L055→L039，L060=L024，L025 等 CAJ+PDF 同题名。
 - **可形成正文结论的 A/B 级资料**：分布于域 A–G，约 40+。
 - **D 级题名线索**：域 H 中以 `D` 标注的 CAJ 条目；正文未取得前不支撑设计决策。
@@ -192,3 +194,106 @@ sha256sum /c/Users/tortl/Downloads/*.caj
 ```
 
 PDF 型 CAJ 可用 PyMuPDF/`pdftotext` 提取；`AFDX_补充文献/` 下已下载的英文/规范参考亦可用同一方式复查。CAJ 正文解析状态以文件头和专用阅读器结果为准，不能仅凭扩展名判断。
+
+## 12. 2026-09-28 补充登记（L096–L137，在线检索，无本地全文）
+
+> 来源：三份 2026-09-28 报告 ——[架构梳理与文献加强](AFDX端系统_架构梳理与文献加强_20260928.md)（L096–L120）、[存储子系统文献补充](AFDX端系统_存储子系统文献补充_20260928.md)（L121–L131）、[第三轮文献补充与设计优化建议](AFDX端系统_第三轮文献补充与设计优化建议_20260928.md)（L132–L137）。
+> 均为在线检索登记（DOI／出版信息已核对），**未下载到 `AFDX_补充文献/`**。证据等级按本文 §1 口径：只看到摘要／二手信息的记为 C，读过标准原文的记为 A／B。每条的使用边界见对应报告。
+
+| ID | 题名/作者 | 出处 / DOI | 证据 | 用途（域 / 支撑项） |
+|---|---|---|---|---|
+| L096 | Methods for bounding end-to-end delays on an AFDX network / Charara 等 | ECRTS 2006；10.1109/ECRTS.2006.15 | C | 网络级时延上界方法（背景，不替代 ES 内时延） |
+| L097 | Optimized trajectory approach for AFDX worst-case delay / Bauer 等 | IEEE TII 6(4):521–533, 2010；10.1109/TII.2010.2055877 | C | 轨迹法最坏时延 |
+| L098 | Probabilistic analysis of end-to-end delays on AFDX / Scharbarg 等 | IEEE TII 5(1):38–49, 2009；10.1109/TII.2009.2016085 | C | T13 报告 P99 的方法依据 |
+| L099 | Integrating offsets in worst-case analysis / Li, Scharbarg, Fraboul | ETFA 2010 | C | **D10 错相的直接依据** |
+| L100 | Existing offset assignments are near optimal / Li 等 | ACM SIGBED Rev. 8(4):49–54, 2011；10.1145/2095256.2095263 | C | D10 偏移分配启发式 |
+| L101 | Integrating end-system frame scheduling / Boyer 等 | ERTS 2014；hal-02272276 | C | 发送端调度纳入时延分析 |
+| L102 | Using network calculus to optimize AFDX / Francés 等 | ERTS 2006；hal-02270458 | C | TX 优先级讨论 |
+| L103 | Network Calculus / Le Boudec, Thiran | Springer LNCS 2050, 2001；10.1007/3-540-45318-0 | B | 到达曲线/服务曲线定义 |
+| L104 | Optimal design of virtual links in AFDX / Al Sheikh 等 | Real-Time Syst. 49(3):308–336, 2013；10.1007/s11241-012-9171-z | C | `bag_budget.py`、T05c 配置判决 |
+| L105 | Formal specification and analysis of AFDX RM algorithms / Täubrich, von Hanxleden | SAFECOMP 2007, LNCS 4680:436–450；10.1007/978-3-540-75101-4_42 | C | RM 算法取舍（D12、OPT-1） |
+| L106 | Formal modeling of AFDX frame management / Anand 等 | ISORC 2006:393–399 | C | network babbling、RM 形式化 |
+| L107 | Reliability enhancement of RM in AFDX / Meng Li 等 | IEEE TII 13(5):2118–2129, 2017；10.1109/TII.2017.2732345 | C | RM 失效与 A/B 抖动、SN 窗口（OPT-1） |
+| L108 | Determinism enhancement via frame insertion and sub-VL aggregation / Meng Li 等 | IEEE TII 10(3):1684–1695, 2014 | C | Sub-VL（P2） |
+| L109 | Cuckoo hashing / Pagh, Rodler | J. Algorithms 51(2):122–144, 2004；10.1016/j.jalgor.2003.12.002 | C | `rx_vl_lookup` 基础（每桶 1 项） |
+| L110 | Tightly packed constant size bins / Dietzfelbinger, Weidling | TCS 380(1–2):47–68, 2007 | C | 多 way 桶负载率（ℓ=2 时写 0.829–0.981 区间，不写单值） |
+| L111 | Cuckoo hashing with a stash / Kirsch 等 | SIAM J. Comput. 39(4):1543–1561；10.1137/080728743 | C | 小 stash 降低摆放失败 |
+| L112 | Fast lookup for dynamic packet filtering in FPGA / Kekely 等 | DDECS 2014:219–222；10.1109/DDECS.2014.6868793 | C | FPGA 布谷鸟实现（方法借鉴） |
+| L113 | FPGA-based cuckoo hashing for NIDS / Tran, Kittitornkun | APNOMS 2007, LNCS 4773:334–343 | C | 同上 |
+| L114 | Parallel CRC realization / Campobello 等 | IEEE TC 52(10):1312–1319, 2003；10.1109/TC.2003.1234528 | C | §8.1 CRC32 按字节展开 |
+| L115 | Retiming synchronous circuitry / Leiserson, Saxe | Algorithmica 6:5–35, 1991；10.1007/BF01759032 | C | A05／OPT-5 时序切分 |
+| L116 | RFC 3416 SNMPv2 PDU §4.2.5 | IETF 标准原文（已 grep 核对） | A | A01／OPT-2 SET 原子性 |
+| L117 | Mutation testing survey / Jia, Harman | IEEE TSE 37(5):649–678, 2011；10.1109/TSE.2010.62 | C | 变异体方法论（A03/A04/OPT-4） |
+| L118 | Functional Verification Coverage Measurement / Piziali | Springer 2004；10.1007/b117979 | C | 功能覆盖 covergroup |
+| L119 | AFDX software network stack — lessons learned / Khazali 等 | DASC 2009 | C | D5 软硬划分 |
+| L120 | NC timing analysis of AFDX with SP and TSN/BLS / Finzi 等 | SIES 2018；10.1109/SIES.2018.8442080 | C | 演进背景 |
+| L121 | Dynamic queue length thresholds for shared-memory switches / Choudhury, Hahne | IEEE/ACM ToN 6(2):130–140, 1998；10.1109/90.664262 | C | 公共池 DT 配额（OPT-7） |
+| L122 | Tighter buffer dimensioning in AFDX / Benammar 等 | ACM SIGBED Rev. 13(4):37–42, 2016；10.1145/3015037.3015043 | C | RX 块池容量上界 |
+| L123 | FPGA-based queue management system / Nikologiannis 等 | Microproc. Microsyst. 28(5–6):223–236, 2004；10.1016/j.micpro.2004.03.014 | C | 链表空闲块管理 |
+| L124 | Designing packet buffers for router linecards / Iyer 等 | IEEE/ACM ToN 16(3):705–717, 2008；10.1109/TNET.2008.923720 | C | 包缓冲下界（背景） |
+| L125 | Efficient multi-ported memories for FPGAs (LVT) / LaForest, Steffan | FPGA 2010:41–50；10.1145/1723112.1723122 | C | PMEM 1W2R、配置表 BRAM 化 |
+| L126 | Multi-ported memories via XOR / LaForest 等 | FPGA 2012；10.1145/2145694.2145730 | C | 同上 |
+| L127 | Composing multi-ported memories on FPGAs / LaForest 等 | ACM TRETS 7(3):16, 2014；10.1145/2629629 | C | 同上 |
+| L128 | Packet transactions / Sivaraman 等 | SIGCOMM 2016:15–28；10.1145/2934872.2934900 | C | 读—判—写原子状态更新（RM/IC） |
+| L129 | AFDX 网络关键协议分析与研究 / 田泽，姜丽云，陈伟 等 | 电子技术应用 2016, 42(4):7–10,14 | B | 采样/队列端口语义（与 L045 同团队） |
+| L130 | 基于自研 AFDX 端系统芯片的模块设计与实现 / 夏大鹏 等 | 电子技术应用 2016, 42(4):15–17；10.16157/j.issn.0258-7998.2016.04.004 | B | 128 TX / 4096 RX VL 同规模国产芯片对照 |
+| L131 | SEU recovery mechanism for SRAM-based FPGAs / Legat 等 | IEEE TNS 59(5):2562–2571, 2012 | C | ECC／scrubbing（扩展项，非交付要求） |
+| L132 | Metastability and Synchronizers: A Tutorial / Ginosar | IEEE D&T 28(5):23–35, 2011；10.1109/MDT.2011.113 | C | `pps_in` CDC／MTBF（OPT-9） |
+| L133 | RFC 5905 NTPv4，附录 A.5.5.6 clock discipline / Mills 等 | IETF 标准，2010 | B | RTC 相位＋频率环、step 阈值（OPT-8） |
+| L134 | IEEE 1588 PI 时钟伺服（例：Fuzzy-PI Clock Servo with Window Filter，2024，PMC11014061） | 开放获取 | C | OPT-8 旁证（偏移＋频率补偿），不引用其精度数字 |
+| L135 | Hashed and hierarchical timing wheels / Varghese, Lauck | IEEE/ACM ToN 5(6):824–834, 1997；10.1109/90.650142 | C | 调度器扩容路径（OPT-11，现阶段不实施） |
+| L136 | Formal Verification: An Essential Toolkit for Modern VLSI Design / Seligman 等 | Morgan Kaufmann 2015（第 2 版 2023）；10.1016/C2013-0-18672-2 | C | 小模块 FPV（OPT-10） |
+| L137 | RFC 4303 ESP，§3.4.3 抗重放滑动窗口 / Kent | IETF 标准，2005 | B | RM 的“最高 SN＋位图”判重结构（OPT-1） |
+
+补充统计：L096–L137 共 42 条，其中 A 1 条（L116），B 5 条（L103、L129、L130、L133、L137），其余 36 条为 C。**C 级条目只用来说明“方法出处／问题定位”，不作为指标数字的来源。**
+
+## 13. 2026-09-28 本地库清理与第四轮补充（L138–L157）
+
+> 详情见 [第四轮文献补充](AFDX文献补充_第四轮_20260928.md) 与 [本地文献库索引](../文献/README.md)。
+
+### 13.1 本地 `文献/` 目录清理
+
+- 按逐文件 SHA-256 去重：**90 → 53 个文件**，删除 31 份字节完全相同的副本（清单 `out/lit_delete.txt`，哈希表 `out/lit_hashes.txt`）。**未删除任何唯一内容。**
+- 6 份与 AFDX 无关的材料移入 `文献/_无关/`（未删除，不登记、不计入统计）。
+- **L086** 对应的 `AFDX网络中SkewMax的研究_李哲 (1).pdf` 是 L080 的同哈希副本，文件已删除；L086 原本就登记为“不新增证据”，正文结论不变，仍由 L080 支撑。
+- 保留文件名优先采用本目录已引用的写法；L033/L042、L039/L055、L040/L054 等同源条目的首选文件名未变。
+- 待办：域 E 的 `SNMP…_张晓明 (1).pdf`、`…王纯委 (1).pdf` 及 `AFDX端系统通信端口的设计与实现_武华.pdf` 与本目录首选件**字节不同**，均予保留，待比对版本后再合并登记。
+
+### 13.2 新增登记
+
+| ID | 题名/作者 | 出处 / 本地文件 | 证据 | 用途 |
+|---|---|---|---|---|
+| L138 | 基于 AFDX 的航空电子通信网络的设计 / 叶佳字 | `文献/基于AFDX的航空电子通信网络的设计_叶佳字.pdf` | D | 域 A 背景，正文待解析 |
+| L139 | Computation of tight bounds for the worst-case end-to-end delay on AFDX | J. Syst. Archit. 2024 | C | 网络级时延界最新进展（背景） |
+| L140 | WCD analysis for an AFDX evolution network（μAFDX） | IEEE 2021 | C | 演进背景 |
+| L141 | Exact worst-case communication delay analysis of AFDX / Adnan | 博士论文 hal `tel-04312707` | C | ES 端 offset 调度纳入精确分析，**D10 的独立佐证** |
+| L142 | Optimal VL paths via modified ant colony optimization | Expert Syst. Appl. 2023 | C | VL 路由规划，本项目不实施 |
+| L143 | Modeling of Data Link Redundancy and Network Failure Recovery in AFDX | 2024-12，**出处待核实** | C | 仅线索，核实前不得引用 |
+| L144 | Method of data integrity control in an AFDX network | 专利 US 7,817,565 B2 | C | `rx_ic` 语义的工业侧旁证 |
+| L145 | A Hash Table for Line-Rate Data Processing / István 等 | ACM TRETS 8(2):13, 2015；10.1145/2629582 | C | 查表时延与报文时间预算匹配（RX 查表流水） |
+| L146 | FASTHash: FPGA-Based High Throughput Parallel Hash Table | ISC HPC 2020 | C | 片上多 way 哈希表流水深度与时序取舍 |
+| L147 | High-Throughput and Memory-Efficient Pipeline KVS on FPGA | Micromachines 16(12):1398, 2025；10.3390/mi16121398 | C | **配置表 BRAM 化 + 读延迟适配最贴题依据** |
+| L148 | TcbTree: FPGA 可更新包分类（TSS + 集中哈希表） | 会议论文 | C | 集中式表的资源组织 |
+| L149 | Fast and scalable packet classification using perfect hash functions | FPGA 2009:229–236 | C | 完美哈希备选方案，现阶段不实施 |
+| L150 | AN 903: Accelerating Timing Closure（Quartus Prime **Pro**） | Intel 应用笔记 | C | 高扇出与寄存器复制 assignment |
+| L151 | Register Duplication for Timing Closure | Intel FPGA Wiki | C | `maxfan`／`dont_merge`／手工复制的收益对比 |
+| L152 | Quartus Prime **Standard** Edition UG: Design Optimization（ug-qps-05，UG-20177，Quartus 18.1） | **本地全文** `AFDX_补充文献/L152_Quartus_Standard_DesignOptimization_ug-qps-05.pdf`（**167 页，2026-09-28 下载归档**） | **B** | **与本项目工具链直接对应**：§6.1 物理综合（6.1.3 Perform Register Retiming / 6.1.4 Preventing Register Movement）、§6.2 网表优化、关键路径与 slack 分析、非全局高扇出报告。**125 MHz 未收敛（WNS −5.037 ns）攻关的首选手册。** 按 §1「方法参考」归 B，不作指标来源 |
+| L153 | Advanced Verification Methods for Safety-Critical Airborne Electronic Hardware / Butka（Embry-Riddle） | FAA **DOT/FAA/TC-14/41**，2015-01 Final Report；**本地全文** `AFDX_补充文献/L153_FAA_TC-14-41_AdvancedVerification.pdf`（**70 页，2026-09-28 下载归档**，SHA-256 前 16 位 `e48f411b37c6b8ab`） | **B** | 官方报告，**三类覆盖率（code / assertion / functional）并用**，按 DAL A/B/C 给覆盖率目标；明确形式方法应与仿真并行、断言本身也要形式验证。支撑本项目覆盖率章节的**表述口径**。⚠️ **本项目非 DO-254 项目，引用其口径不得声称任何 DAL 等级。** 按 §1「方法参考」归 B |
+| L154 | Coverage-Driven Verification Methodology | Doulos Easier UVM | C | 功能覆盖 vs 代码覆盖的流程口径 |
+| L155 | ARINC 664 Part 7: End System Design & Parameters | Logic Fruit 博客 | C | 二手综述，冲突时以 L001 为准 |
+| L156 | iW-ARINC-664/AFDX FPGA IP Core | iWave 产品资料 | C | 商用 IP 规模对照（8 VL），与 L130 并用 |
+| L157 | AFDX Data Bus / Yanik | MGEO TR-05-0001 | C | VLID/端口教学综述，不作合规证据 |
+| **L158** | **ARINC SPECIFICATION 664 PART 7（AFDX 规范原文，2005 初版，145 页）** | `AFDX_补充文献/ARINC664P7_spec.pdf` | **A** | **规范原文，本目录最高等级证据**。§3.2.6.1 SN、§3.2.6.2.1 IC 窗口与 PSN、§3.2.6.2.2 RM/SkewMax/First-Win、§3.2.4.3 抖动双式与 500 μs、§3.2.2 BAG=2^k、§3.3.1.1 采样/队列端口语义。摘录与工程对照见 [ARINC664P7 条款摘录](ARINC664P7_条款摘录_20260928.md)。**注意为 2005 初版，现行 664P7-1(2009) 未持有，引用须标版本** |
+
+补充统计：L138 为本地新登记（D）；L139–L157 中 **L152、L153 已于 2026-09-28 下载全文并归档，升级为 B**，其余 17 条仍为 C——
+均为联网检索、**未下载全文**，只用于说明方法出处与问题定位，**不作为任何指标数字的来源**。
+
+**下载受阻记录（2026-09-28，勿重复尝试同一入口）**：
+
+| ID | 入口 | 结果 |
+|---|---|---|
+| L141 Adnan 博士论文 | `theses.hal.science/tel-04312707v1/file/adnan.pdf` | HAL 的 **Anubis 机器人挑战**页（返回 12 KB HTML）；OATAO 镜像 `oatao.univ-toulouse.fr` TLS 握手失败 |
+| L147 Micromachines 2025 | `mdpi.com/2072-666X/16/12/1398/pdf` | **Cloudflare 拦截**（返回 410 B HTML） |
+| L150 Intel AN 903 | `intel.com/programmable/technical-pdfs/683664.pdf` | 重定向页（421 B）；`manuals.plus` 镜像返回 HTML |
+
+以上三条**需人工用浏览器下载**后放入 `AFDX_补充文献/` 并回本表升级。L150 与 L152 内容高度重叠且 L150 是 **Pro** 版（语法与本项目 Standard 工具链不通用），**优先级最低**。

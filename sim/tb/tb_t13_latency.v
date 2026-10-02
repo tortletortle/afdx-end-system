@@ -1,4 +1,20 @@
 `timescale 1ns/1ps
+// ---------------------------------------------------------------------
+// T13 end-to-end latency (host MSG_WR -> TX MAC -> TB loopback -> RX MAC
+// -> port buffer delivery).  Audit 20260928 A03: the per-case limits used
+// to be passed but never compared.  Now every case is ASSERTED against:
+//   TOTAL   (MSG_WR -> RX port delivery, incl. 2x wire + TB turnaround)
+//           <= T13_TOTAL_MAX_US   (default 1000 us: competition guide
+//              "end-to-end latency < 1-2 ms", strict end taken)
+//   TX_PIPE (MSG_WR -> first TX byte)          <= T13_TX_PIPE_MAX_US
+//   RX_PIPE (last RX byte in -> port delivery) <= T13_RX_PIPE_MAX_US
+//           (default 150 us each: ARINC 664 P7 ES technological latency
+//              as restated by XAPP1130, doc L001)
+// Limits can be tightened by plusargs for the negative run, e.g.
+//   run_regress.ps1 -Tests T13 -KeepWork -OutDir out/neg_t13
+//                   -PlusArgs '+T13_TOTAL_MAX_US=5'   -> must FAIL
+// One machine-readable "T13METRIC ..." line per case feeds the report.
+// ---------------------------------------------------------------------
 
 module tb_t13_core #(parameter integer IF_MODE = 0);
 
@@ -61,6 +77,17 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
   reg [31:0] err_count = 0;
   reg [31:0] test_count = 0;
 
+  // ---- latency limits (see header); plusargs override for negative runs
+  integer total_max_us   = 1000;
+  integer tx_pipe_max_us = 150;
+  integer rx_pipe_max_us = 150;
+  reg [63:0] worst_total_ns = 0;
+  initial begin
+    if ($value$plusargs("T13_TOTAL_MAX_US=%d", total_max_us)) ;
+    if ($value$plusargs("T13_TX_PIPE_MAX_US=%d", tx_pipe_max_us)) ;
+    if ($value$plusargs("T13_RX_PIPE_MAX_US=%d", rx_pipe_max_us)) ;
+  end
+
   task bad;
     input [255:0] msg;
     begin
@@ -121,6 +148,7 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
   end
 
   reg [63:0] t_commit, t_tx_first, t_tx_last, t_port_ready;
+  reg [63:0] t_rxa_first, t_rxa_last, t_rxb_first, t_rxb_last;
   reg tx_active;
 
   always @(posedge clk) if (!reset) begin
@@ -148,6 +176,8 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
       repeat (2) @(negedge clk);
       for (b = 0; b < nrx_a; b = b + 1) begin
         @(negedge clk); rx_ready = 1; rx_valid = 1; rx_data = rxbuf_a[b];
+        if (b == 0) t_rxa_first = current_cycle;
+        t_rxa_last = current_cycle;
         if (IF_MODE == 0) begin @(negedge clk); rx_valid = 0; repeat (8) @(negedge clk); end
       end
       @(negedge clk); rx_ready = 0; rx_valid = 0;
@@ -161,6 +191,8 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
       repeat (8) @(negedge clk);
       for (b = 0; b < nrx_b; b = b + 1) begin
         @(negedge clk); rx_ready_b = 1; rx_valid_b = 1; rx_data_b = rxbuf_b[b];
+        if (b == 0) t_rxb_first = current_cycle;
+        t_rxb_last = current_cycle;
         if (IF_MODE == 0) begin @(negedge clk); rx_valid_b = 0; repeat (8) @(negedge clk); end
       end
       @(negedge clk); rx_ready_b = 0; rx_valid_b = 0;
@@ -172,13 +204,13 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
     input [31:0] test_id;
     input [10:0] plen;
     input [31:0] expected_wire_bytes;
-    input [31:0] expected_max_total_ns;
-    
+
     integer i, k, waitc, blk, prev_deliv;
     reg [31:0] rd, w;
     reg [15:0] word_addr;
     reg [7:0]  actual_byte, exp_byte;
-    real tx_pipe_us, wire_us, rx_pipe_us, hw_e2e_us, total_us;
+    reg [63:0] rx_first, rx_last;
+    reg [63:0] tx_pipe_ns, tx_wire_ns, tb_gap_ns, rx_wire_ns, rx_pipe_ns, total_ns, es_ns;
     begin
       test_count = test_count + 1;
       prev_deliv = deliveries;
@@ -208,6 +240,7 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
       t_commit = 0;
       t_tx_first = 0;
       t_tx_last = 0;
+      t_rxa_first = 0; t_rxa_last = 0; t_rxb_first = 0; t_rxb_last = 0;
 
       // 2. Commit message via MSG_WR
       @(negedge clk);
@@ -269,15 +302,36 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
       // Free RX block
       host_write(16'h8380 + P_RX, 32'd0);
 
-      // Latency computations (clk = 125MHz -> 8ns per cycle)
-      tx_pipe_us = (t_tx_first > t_commit) ? (t_tx_first - t_commit) * 8.0 / 1000.0 : 0.0;
-      wire_us    = (t_tx_last > t_tx_first) ? (t_tx_last - t_tx_first) * 8.0 / 1000.0 : 0.0;
-      rx_pipe_us = (t_port_ready > t_tx_last) ? (t_port_ready - t_tx_last) * 8.0 / 1000.0 : 0.0;
-      hw_e2e_us  = tx_pipe_us + rx_pipe_us;
-      total_us   = (t_port_ready > t_commit) ? (t_port_ready - t_commit) * 8.0 / 1000.0 : 0.0;
+      // Latency decomposition (clk = 125 MHz -> 8 ns per cycle).
+      // The copy that finishes first (net A, replayed first) is the one RM
+      // forwards, so RX_PIPE is measured from the earliest RX completion.
+      rx_first = (t_rxb_first != 0 && t_rxb_first < t_rxa_first) ? t_rxb_first : t_rxa_first;
+      rx_last  = (t_rxb_last  != 0 && t_rxb_last  < t_rxa_last ) ? t_rxb_last  : t_rxa_last;
+      if (!(t_commit < t_tx_first && t_tx_first <= t_tx_last && t_tx_last < rx_first &&
+            rx_first <= rx_last && rx_last < t_port_ready)) begin
+        bad("latency timestamps out of order");
+        tx_pipe_ns = 0; tx_wire_ns = 0; tb_gap_ns = 0; rx_wire_ns = 0; rx_pipe_ns = 0;
+        total_ns = 0; es_ns = 0;
+      end else begin
+        tx_pipe_ns = (t_tx_first - t_commit) * 8;
+        tx_wire_ns = (t_tx_last - t_tx_first + 1) * 8;
+        tb_gap_ns  = (rx_first - t_tx_last) * 8;       // TB turnaround, not DUT
+        rx_wire_ns = (rx_last - rx_first + 1) * 8;
+        rx_pipe_ns = (t_port_ready - rx_last) * 8;
+        total_ns   = (t_port_ready - t_commit) * 8;
+        es_ns      = total_ns - tb_gap_ns;             // DUT-only share
+        if (total_ns > worst_total_ns) worst_total_ns = total_ns;
+        if (total_ns   > total_max_us   * 64'd1000) bad("TOTAL latency over limit");
+        if (tx_pipe_ns > tx_pipe_max_us * 64'd1000) bad("TX_PIPE latency over limit");
+        if (rx_pipe_ns > rx_pipe_max_us * 64'd1000) bad("RX_PIPE latency over limit");
+      end
 
-      $display("  [T13 CASE %0d] Plen=%0dB (Frame=%0dB): TX_pipe=%0.3fus, Wire=%0.3fus, RX_pipe=%0.3fus, HW_E2E=%0.3fus, Total=%0.3fus",
-               test_id, plen, expected_wire_bytes, tx_pipe_us, wire_us, rx_pipe_us, hw_e2e_us, total_us);
+      $display("  [T13 CASE %0d] Plen=%0dB (Frame=%0dB): TX_pipe=%0dns TX_wire=%0dns TB_gap=%0dns RX_wire=%0dns RX_pipe=%0dns ES(excl TB)=%0dns Total=%0dns (limits total/tx/rx=%0d/%0d/%0dus)",
+               test_id, plen, expected_wire_bytes, tx_pipe_ns, tx_wire_ns, tb_gap_ns, rx_wire_ns,
+               rx_pipe_ns, es_ns, total_ns, total_max_us, tx_pipe_max_us, rx_pipe_max_us);
+      $display("T13METRIC if_mode=%0d case=%0d plen=%0d frame=%0d tx_pipe_ns=%0d tx_wire_ns=%0d tb_gap_ns=%0d rx_wire_ns=%0d rx_pipe_ns=%0d es_ns=%0d total_ns=%0d total_max_us=%0d tx_pipe_max_us=%0d rx_pipe_max_us=%0d",
+               IF_MODE, test_id, plen, expected_wire_bytes, tx_pipe_ns, tx_wire_ns, tb_gap_ns,
+               rx_wire_ns, rx_pipe_ns, es_ns, total_ns, total_max_us, tx_pipe_max_us, rx_pipe_max_us);
     end
   endtask
 
@@ -337,17 +391,18 @@ module tb_t13_core #(parameter integer IF_MODE = 0);
     #1000;
 
     // Case 1: Minimum AFDX payload (Plen = 17 bytes, Frame = 64 bytes)
-    measure_frame_case(1, 17, 64, 10000);
+    measure_frame_case(1, 17, 64);
 
     // Case 2: Typical medium payload (Plen = 256 bytes, Frame = 303 bytes)
-    measure_frame_case(2, 256, 303, 50000);
+    measure_frame_case(2, 256, 303);
 
     // Case 3: Maximum Ethernet MTU payload (Plen = 1471 bytes, Frame = 1518 bytes)
-    measure_frame_case(3, 1471, 1518, 200000);
+    measure_frame_case(3, 1471, 1518);
 
     #1000;
     if (err_count == 0) begin
-      $display("T13 END-TO-END LATENCY PASS (IF_MODE=%0d cases=%0d)", IF_MODE, test_count);
+      $display("T13 END-TO-END LATENCY PASS (IF_MODE=%0d cases=%0d asserted total<=%0dus tx_pipe<=%0dus rx_pipe<=%0dus worst_total=%0dns)",
+               IF_MODE, test_count, total_max_us, tx_pipe_max_us, rx_pipe_max_us, worst_total_ns);
     end else begin
       $display("T13 LATENCY FAIL (IF_MODE=%0d errors=%0d)", IF_MODE, err_count);
     end

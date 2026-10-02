@@ -5,7 +5,7 @@ Reading pref.tcl
 # source run_one.tcl
 # ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # vsim tb_t09s_rx_ic 
-# Start time: 15:21:37 on Sep 27,2026
+# Start time: 23:36:49 on Sep 27,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
 # //  Questa Altera Starter FPGA Edition-64
@@ -27,5 +27,5 @@ Reading pref.tcl
 # T09 RX-IC PASS (N=16, 6009 descriptors incl 5632 Python golden; accept=1756 reject=4253; strict/first-any/reset/loss/wrap/banks/backpressure)
 # ** Note: $finish    : tb/tb_t09_rx_ic.v(232)
 #    Time: 335312 ns  Iteration: 1  Instance: /tb_t09s_rx_ic/core
-# End time: 15:21:39 on Sep 27,2026, Elapsed time: 0:00:02
+# End time: 23:36:51 on Sep 27,2026, Elapsed time: 0:00:02
 # Errors: 0, Warnings: 0

@@ -1,0 +1,104 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Reference review and proposed design, not an RTL change or a new simulation/timing run.",
+  "project_documents_read": [
+    {
+      "path": "doc/AFDX文献工程映射.md",
+      "lines": 62,
+      "version": "sha256:464c6834f19e29ed641c9b03dd5dbd634eac87815315e02e23dcdff655e58db6"
+    },
+    {
+      "path": "doc/AFDX文献主题矩阵.md",
+      "lines": 105,
+      "version": "sha256:f8aea19de2af31ac3058f4227f3060b2928b78d5054f99c08273669aba60bb9c"
+    },
+    {
+      "path": "doc/AFDX文献目录.md",
+      "lines": 194,
+      "version": "sha256:477e298c1e12a8b6cc3c80cbc1aec381d759ebc8a7159f733b3fa35bacce3b7b"
+    },
+    {
+      "path": "doc/AFDX文献研究整理.md",
+      "lines": 385,
+      "version": "sha256:c04c573dd0976dce674404288aca3f5ceab364b6518b39172eef3a723346c1a4"
+    },
+    {
+      "path": "out/arena-debug/continue8/LITERATURE-TRACE.md",
+      "lines": 36,
+      "version": "sha256:315332ff5671bce0c7edbb4f5f279580b42aa8e0b1ddb0035691d83f1082b567"
+    },
+    {
+      "path": "doc/AFDX端系统_后级链路设计与关键算法落地方案_20260924.md",
+      "lines": 343,
+      "version": "sha256:83b83bc6dba0aa95b355421f0d59dba8a0662a9ae23f6393937b9cdc7ca23c9d"
+    },
+    {
+      "path": "_xapp1130_text.txt",
+      "lines": 1753,
+      "version": "sha256:af9981d9434ed2c1b9113a84cfffbca6fd88999bb86358b679a3a3ef3315dd43"
+    }
+  ],
+  "additional_project_reads": [
+    {
+      "path": "AFDX端系统_总体设计书.md",
+      "lines": "815-865",
+      "version": "sha256:3e73ae82f4d4329a98d09c47c346555888c7a026db83b80a08f8f650bea14ac5"
+    },
+    {
+      "path": "rtl/mgmt/snmp_lite.v",
+      "lines": [
+        "95-105",
+        "260-334",
+        "513-565"
+      ],
+      "version": "sha256:684f45052471fb435fe39e53c6cdfc061c08e5524088dea2296a9fbdec29a4dd"
+    }
+  ],
+  "public_originals": [
+    {
+      "file": "RFC1157.txt",
+      "url": "https://www.rfc-editor.org/rfc/rfc1157.txt",
+      "bytes": 72876,
+      "sha256": "2a4c8547229ec9cb2806c56edb90cbaffb5128b95f4f35a440876927b56caca7"
+    },
+    {
+      "file": "RFC3416.txt",
+      "url": "https://www.rfc-editor.org/rfc/rfc3416.txt",
+      "bytes": 70043,
+      "sha256": "e310ccf5a9cbbcb6c47d2fc0b50316889588d85447c7be0d40ddf74be70c8ac8"
+    },
+    {
+      "file": "ARM_IHI0051A.pdf",
+      "url": "https://documentation-service.arm.com/static/60d5e2510320e92fa40b4788",
+      "bytes": 450103,
+      "sha256": "5eab83e14d3006997372f88370309a3d5cf70b1583c63476e436f2c09b787c82"
+    },
+    {
+      "file": "QII51007_2014.pdf",
+      "url": "https://people.ece.cornell.edu/land/courses/ece5760/DE1_SOC/HDL_style_qts_qii51007.pdf",
+      "bytes": 576235,
+      "sha256": "4bb3caba196db79b96e1df1e5738dd82b24ae683753e2f1d9f3de5e60303c25a"
+    }
+  ],
+  "reviewed_sections": {
+    "RFC1157.txt": "4.1.5, printed pages 25-26",
+    "RFC3416.txt": "4.2.2, 4.2.5 (printed pages 19-22), Section 3 error-status enumeration",
+    "ARM_IHI0051A.pdf": "2.2.1 Handshake process, printed page 2-3 / PDF page 19",
+    "QII51007_2014.pdf": "Use Synchronous Memory Blocks and Check Read-During-Write Behavior, printed/PDF pages 12-10, 12-12 to 12-13 / PDF 10,12,13"
+  },
+  "paper_body_not_reviewed_this_turn": [
+    "L046",
+    "L074",
+    "L044",
+    "L047",
+    "L071",
+    "L089"
+  ],
+  "body_location_note": "The project research document registers the Chinese papers in Downloads. They were not found in the current workspace search, and this review did not read outside the workspace.",
+  "priority_user_supplied_bodies": [
+    "L074",
+    "L044",
+    "L071"
+  ],
+  "implementation_status": "All RTL remedies in the memo are proposals, not implemented or benchmarked."
+}

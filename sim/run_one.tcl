@@ -19,6 +19,10 @@ if {[info exists env(VSIM_ACC)] && $env(VSIM_ACC) == "1"} {
 if {[info exists env(UCDB_OUT)]} {
   lappend vsim_args -coverage
 }
+# optional plusargs for negative/limit runs (run_regress.ps1 -PlusArgs)
+if {[info exists env(VSIM_PLUSARGS)] && $env(VSIM_PLUSARGS) ne ""} {
+  foreach pa [split $env(VSIM_PLUSARGS)] { if {$pa ne ""} { lappend vsim_args $pa } }
+}
 if {[catch {vsim {*}$vsim_args $env(TEST_TB)} msg]} {
   puts "VSIM-ERROR: $msg"
   quit -f -code 1
