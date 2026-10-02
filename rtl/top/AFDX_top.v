@@ -736,12 +736,133 @@ module AFDX_top #(
   assign msg_valid = msg_wr_hit && init_done && !ctl_r[13] &&
                    msg_port_w0[31] && !msg_port_w0[18] &&
                    (msg_port_w0[17:16] != 2'd2) && msg_len_ok;
+  // ==========================================================================
+  // 管理面 TX 上线（设计书 §7.1.1，v0.5.20 补充；本轮实现）
+  //
+  // 把 snmp_lite / a615a_tftp 产生的响应字节流搬进 PMEM 开放块，随后拉一次
+  // SAP 端口的 msg_commit；之后完全复用 tx_port_buf 的描述符分配、tx_frame_builder
+  // 的封装与 tx_vl_scheduler 的 BAG 调度——管理面不另设队列、不新增 TX 通路。
+  //
+  // 字节序：PMEM 内大端（字节 4i+0 在 [31:24]），与 §7.1 块内布局一致。
+  // 写口优先级：RX 双网 > 主机 > 管理面（最低），管理面绝不抢占数据面。
+  // resp_byte 是组合读 rsp[resp_rd_addr]，故取字节期间由本 FSM 驱动 rd_addr；
+  // resp_ack 只在整帧取完后给一次，避免引擎提前清 resp_vld。
+  //
+  // 前置条件：主机须已把某个 TX VL 的 cfg_port 配成该 SAP 端口号
+  // （SNMP_SAP_PORT / TFTP_SAP_PORT），否则调度器不会选中该 VL——这与主机
+  // 自己用 MSG_WR 发流的配置要求一致，不新增配置项。
+  // ==========================================================================
+  localparam [1:0] MT_IDLE = 2'd0, MT_BYTE = 2'd1, MT_COMMIT = 2'd2;
+  reg  [1:0]  mt_state;
+  reg  [7:0]  mt_sel_port;    // 本帧提交的 SAP 端口号
+  reg  [10:0] mt_len;         // 本帧响应字节数（锁存自 resp_len）
+  reg  [10:0] mt_byte_idx;    // 已取字节数
+  reg  [31:0] mt_word;        // 正在拼装的字（大端）
+  reg  [1:0]  mt_be_cnt;      // 已装入当前字的字节数 0..3
+  reg  [3:0]  mt_blk;         // 本帧锁定的开放块（防止中途换块）
+  reg         mt_fin;         // 取字节完成，等一次写回
+
+  wire        mt_pick_tftp  = tftp_resp_vld && (TFTP_EN != 0);
+  wire        mt_pick_snmp  = snmp_resp_vld && (SNMP_EN != 0) && !mt_pick_tftp;
+  wire        mt_pick_vld   = mt_pick_tftp || mt_pick_snmp;
+  wire [10:0] mt_pick_len   = mt_pick_tftp ? tftp_resp_len : snmp_resp_len;
+  wire [7:0]  mt_pick_byte  = mt_pick_tftp ? tftp_resp_byte : snmp_resp_byte;
+  // 长度合法性复用主机路径同款判据（§7.1 msg_len_ok），并要求开放块可用
+  wire        mt_len_ok     = (mt_pick_len >= 11'd8) && (mt_pick_len <= 11'd1471);
+  // MGMT_TX_EN（CTL[9]，复位默认 0）：管理面响应自动上线的总开关。
+  // CTL_WMASK 的 bit12 与 bit5/6 为写无效保留位，不可用于主机配置；bit9 可写
+  // 且 CTL_RST(0x51C) 中为 0，故取 bit9 作该开关，不与既有位冲突。
+  // 关闭时行为与本节实现前完全一致——响应只留在观测窗由主机按 mgmt_bidx 读走，
+  // T15/T16 等既有用例依赖该路径。开启后由本 FSM 接管字节流并提交上线。
+  // 两条路径互斥：开关为 0 时 FSM 全程停在 MT_IDLE，resp_rd_addr 归主机。
+  wire        mt_tx_en      = ctl_r[9];
+  wire        mt_can_start  = mt_tx_en && mt_pick_vld && pb_wr_valid && mt_len_ok && init_done;
+
+  // 取字节期间接管 resp_rd_addr；空闲时交还主机观测窗
+  wire [10:0] mgmt_bidx_mux = (mt_state == MT_BYTE) ? mt_byte_idx : mgmt_bidx;
+
+  // PMEM 写请求：块基址 0x8800 + blk*0x200，字内大端
+  wire [12:0] mt_wr_addr    = {mt_blk, 9'd0} + {4'd0, mt_byte_idx[10:2]};
+  wire [31:0] mt_wr_data    = mt_word;
+  wire [3:0]  mt_wr_be      = (mt_be_cnt == 2'd0) ? 4'b0001 :
+                             (mt_be_cnt == 2'd1) ? 4'b0011 :
+                             (mt_be_cnt == 2'd2) ? 4'b0111 : 4'b1111;
+  // 只在「满字或末字节」写一次；末字节不足 4 字时按实际字节数给 byte-enable
+  wire        mt_word_full  = (mt_be_cnt == 2'd3);
+  wire        mt_last_byte  = (mt_byte_idx + 11'd1 >= mt_len);
+  wire        mt_wr_go      = (mt_state == MT_BYTE) && init_done &&
+                              (mt_word_full || mt_last_byte);
+  // 管理面 commit 脉冲与端口/长度
+  wire        mgmt_commit   = (mt_state == MT_COMMIT);
+  wire [7:0]  mt_port_eff   = mt_sel_port;
+  wire [15:0] mt_len_eff    = mt_len[15:0];
+  wire        mgmt_port_pend= mgmt_commit;
+
+  always @(posedge clk) begin
+    if (rst_sync) begin
+      mt_state    <= MT_IDLE;
+      mt_sel_port <= 8'd0;
+      mt_len      <= 11'd0;
+      mt_byte_idx <= 11'd0;
+      mt_word     <= 32'd0;
+      mt_be_cnt   <= 2'd0;
+      mt_blk      <= 4'd0;
+      mt_fin      <= 1'b0;
+    end else begin
+      case (mt_state)
+        MT_IDLE: begin
+          if (mt_can_start) begin
+            mt_sel_port <= mt_pick_tftp ? TFTP_SAP_PORT[7:0] : SNMP_SAP_PORT[7:0];
+            mt_len      <= mt_pick_len;
+            mt_byte_idx <= 11'd0;
+            mt_word     <= 32'd0;
+            mt_be_cnt   <= 2'd0;
+            mt_blk      <= pb_wr_blk;
+            mt_state    <= MT_BYTE;
+          end
+        end
+        MT_BYTE: begin
+          if (mt_wr_go) begin
+            // 本拍完成一个字（或末字）的写入，推进字节下标
+            mt_byte_idx <= mt_byte_idx + 11'd1;
+            mt_word     <= 32'd0;
+            mt_be_cnt   <= 2'd0;
+            if (mt_last_byte) begin
+              mt_fin   <= 1'b1;
+              mt_state <= MT_COMMIT;
+            end
+          end else if (mt_pick_vld) begin
+            // 大端拼装：新字节进最高未用位
+            mt_word   <= {mt_word[23:0], mt_pick_byte};
+            mt_be_cnt <= mt_be_cnt + 2'd1;
+          end
+        end
+        MT_COMMIT: begin
+          // 引擎确认一次（resp_vld 清零），随后回 IDLE 等待下一帧
+          mt_fin   <= 1'b0;
+          mt_state <= MT_IDLE;
+        end
+        default: mt_state <= MT_IDLE;
+      endcase
+    end
+  end
+
+  // 引擎 ack：管理面路径下由本 FSM 在 MT_COMMIT 给一次；主机观测窗路径维持原样。
+  // snmp/tftp 的 resp_ack 原本由 host_addr 译码产生，这里做或以支持两条消费路径。
+  wire mgmt_ack_snmp = (mt_state == MT_COMMIT) && (mt_sel_port == SNMP_SAP_PORT[7:0]);
+  wire mgmt_ack_tftp = (mt_state == MT_COMMIT) && (mt_sel_port == TFTP_SAP_PORT[7:0]);
+
   wire msg_commit = we && msg_valid;
   wire fb_free;
   wire [3:0] fb_free_blk;
+  // msg_commit：主机路径（msg_commit）与管理面路径（mgmt_commit）二选一进入
+  // tx_port_buf。两者共用同一描述符/块分配，故不会互相覆盖开放块。
+  wire pb_commit_any = msg_commit || mgmt_commit;
+  wire [7:0] pb_port_eff = mgmt_commit ? mt_port_eff : msg_port;
+  wire [15:0] pb_len_eff  = mgmt_commit ? mt_len_eff : host_wdata[15:0];
   tx_port_buf #(.NUM_PORTS(NUM_PORTS), .TX_BLK_LO(0), .TX_BLK_N(6)) u_txbuf (
     .clk(clk), .rst_sync(rst_sync), .tb_us(rtc64[7:0]),
-    .msg_commit(msg_commit), .port_id(msg_port), .len(host_wdata[15:0]),
+    .msg_commit(pb_commit_any), .port_id(pb_port_eff), .len(pb_len_eff),
     .port_type(msg_port_w0[17:16]), .port_depth(msg_port_w3[3:0]), .commit_rej(pb_rej),
     .wr_blk(pb_wr_blk), .wr_blk_vld(pb_wr_valid),
     .desc_rd_addr(desc_idx), .desc_rd_data(pb_desc_rd_data),
@@ -794,11 +915,15 @@ module AFDX_top #(
     end
   end
   wire [12:0] pmem_wr_addr = q_pop_a ? q_addr_a : q_pop_b ? q_addr_b :
-                              host_commit_pending ? host_pmem_pending_addr : host_pmem_addr;
+                              host_commit_pending ? host_pmem_pending_addr :
+                              (host_commit_now ? host_pmem_addr : mt_wr_addr);
   wire [31:0] pmem_wr_data = q_pop_a ? q_data_a : q_pop_b ? q_data_b :
-                              host_commit_pending ? host_pmem_pending_data : host_wdata;
-  wire [3:0] pmem_wr_be = q_pop_a ? q_be_a : q_pop_b ? q_be_b : 4'hF;
-  wire pmem_wr_en = q_pop_a || q_pop_b || host_commit_pending || host_commit_now;
+                              host_commit_pending ? host_pmem_pending_data :
+                              (host_commit_now ? host_wdata : mt_wr_data);
+  wire [3:0] pmem_wr_be = q_pop_a ? q_be_a : q_pop_b ? q_be_b :
+                         host_commit_pending ? 4'hF :
+                         (host_commit_now ? 4'hF : mt_wr_be);
+  wire pmem_wr_en = q_pop_a || q_pop_b || host_commit_pending || host_commit_now || mt_wr_go;
   wire fb_rd_en_b;
   wire [12:0] fb_rd_addr_a, fb_rd_addr_b;
   wire [31:0] pmem_data_b;
@@ -1328,7 +1453,7 @@ module AFDX_top #(
       .mib_leaf(snmp_mib_leaf), .mib_index(snmp_mib_index),
       .set_ack(snmp_set_ack), .set_active(snmp_set_active),
       .resp_vld(snmp_resp_vld), .resp_len(snmp_resp_len),
-      .resp_ack(snmp_resp_ack), .resp_rd_addr(mgmt_bidx),
+      .resp_ack(snmp_resp_ack | mgmt_ack_snmp), .resp_rd_addr(mgmt_bidx_mux),
       .resp_byte(snmp_resp_byte),
       .rx_pdu_cnt(snmp_cnt_rx), .resp_cnt(snmp_cnt_tx), .drop_pdu_cnt(snmp_cnt_drop),
       .last_err(s_err), .last_idx(s_idx), .last_pdu(s_pdu),
@@ -1359,7 +1484,7 @@ module AFDX_top #(
       .in_eop(sap_out_eop), .in_data(sap_out_data), .in_sport(sap_out_sport),
       .in_ready(),
       .resp_vld(tftp_resp_vld), .resp_len(tftp_resp_len),
-      .resp_ack(tftp_resp_ack), .resp_rd_addr(mgmt_bidx),
+      .resp_ack(tftp_resp_ack | mgmt_ack_tftp), .resp_rd_addr(mgmt_bidx_mux),
       .resp_byte(tftp_resp_byte),
       .host_rd(load_rd), .host_addr(host_addr - 16'hCC20),
       .host_rdata(tftp_load_rdata),
@@ -1400,9 +1525,5 @@ module AFDX_top #(
     assign rtc_st_w = 32'd0; assign rtc_err_w = 32'd0; assign rtc_jump_w = 32'd0;
     assign rtc_step_w = 32'd0; assign rtc_pps_w = 32'd0; assign rtc_phase_w = 32'd0;
   end endgenerate
-
-  // TODO: RX 后级与管理面仍是桩；T22 全流程需补哈希映像校验/接收回环。
-  // Q20 前门判决属于 T05c 单项，不替代 T05b 的满载抖动取证。
-/* verilator lint_on UNUSED */
 
 endmodule

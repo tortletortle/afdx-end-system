@@ -1,0 +1,36 @@
+Reading pref.tcl
+
+# 2025.3
+
+# source run_one.tcl
+# ** Note: (vsim-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# vsim tb_t16a_rtc_drift 
+# Start time: 17:42:10 on Oct 02,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-220) 'C:/altera_pro/26.1.1/questa_fse/win64/../modelsim.ini' is used as the ini file.
+# //  Questa Altera Starter FPGA Edition-64
+# //  Version 2025.3 win64 Sep 15 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_t16a_rtc_drift(fast)
+# FLL_METRIC case=A drift_ppm_eq=0/0 steady_pps_max_abs_err_us=0 old_P_only_max_err_us=0 jumps=1 steps=19 locked=1 tests=72
+# FLL_METRIC case=B drift_ppm_eq=20/20 steady_pps_max_abs_err_us=0 old_P_only_max_err_us=80 jumps=1 steps=19 locked=1 tests=145
+# FLL_METRIC case=C drift_ppm_eq=-20/-20 steady_pps_max_abs_err_us=0 old_P_only_max_err_us=77 jumps=1 steps=19 locked=1 tests=218
+# FLL_METRIC case=D drift_ppm_eq=50/50 steady_pps_max_abs_err_us=0 old_P_only_max_err_us=115 jumps=1 steps=19 locked=1 tests=291
+# FLL_METRIC case=E drift_ppm_eq=0/1 steady_pps_max_abs_err_us=1 old_P_only_max_err_us=4 jumps=1 steps=19 locked=1 tests=364
+# T16a FLL STRICT PASS (PPS <=1us and three within-second samples <=1us; P-only negative control; 364 checks)
+# ** Note: $finish    : tb/tb_t16a_rtc_drift.v(99)
+#    Time: 77208752 ns  Iteration: 1  Instance: /tb_t16a_rtc_drift
+# End time: 17:43:47 on Oct 02,2026, Elapsed time: 0:01:37
+# Errors: 0, Warnings: 0
