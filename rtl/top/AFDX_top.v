@@ -860,10 +860,20 @@ module AFDX_top #(
   wire pb_commit_any = msg_commit || mgmt_commit;
   wire [7:0] pb_port_eff = mgmt_commit ? mt_port_eff : msg_port;
   wire [15:0] pb_len_eff  = mgmt_commit ? mt_len_eff : host_wdata[15:0];
+  // §7.1 规定管理面提交为 SAP 端口（type=2）：主机路径的 msg_port_w0/w3 来自主机
+  // MSG_WR 的译码（msg_port 由 host_addr-0x8280 得到），对 mgmt 提交无意义且
+  // 此时是未初始化值——若沿用，r_depth 变成 X 会污染 desc/qst（描述符 len 读出 X、
+  // qfull 判定失效），调度器随后拿到 blk=0/len=X 的坏描述符并永久卡住 inflight。
+  // 故管理面提交按其真实 SAP 端口号取深度：SNMP_SAP_PORT / TFTP_SAP_PORT。
+  wire [1:0] pb_type_eff  = mgmt_commit ? 2'd2 : msg_port_w0[17:16];
+  wire [3:0] pb_depth_eff = mgmt_commit
+      ? ((mt_sel_port == TFTP_SAP_PORT[7:0]) ? port_w3_dep[TFTP_SAP_PORT[7:0]]
+                                              : port_w3_dep[SNMP_SAP_PORT[7:0]])
+      : msg_port_w3[3:0];
   tx_port_buf #(.NUM_PORTS(NUM_PORTS), .TX_BLK_LO(0), .TX_BLK_N(6)) u_txbuf (
     .clk(clk), .rst_sync(rst_sync), .tb_us(rtc64[7:0]),
     .msg_commit(pb_commit_any), .port_id(pb_port_eff), .len(pb_len_eff),
-    .port_type(msg_port_w0[17:16]), .port_depth(msg_port_w3[3:0]), .commit_rej(pb_rej),
+    .port_type(pb_type_eff), .port_depth(pb_depth_eff), .commit_rej(pb_rej),
     .wr_blk(pb_wr_blk), .wr_blk_vld(pb_wr_valid),
     .desc_rd_addr(desc_idx), .desc_rd_data(pb_desc_rd_data),
     .sch_req(pb_req), .buf_full(pb_full),
