@@ -1,8 +1,20 @@
 # elinx/ — eLinx 3.0.7 工作目录
 
-## 2026-09-29 当前合并版完整顶层综合（优先看这里）
+## 2026-10-03 评阅包默认综合（优先看这里）
 
-早期 `prj/AFDX_top_synth_bram.ys` 的 RTL 列表**缺少现有三个管理模块**（`snmp_lite` / `a615a_tftp` / `rtc_sync`）；不得拿其旧 `hierarchy -top` 结果证明当前顶层已综合。新隔离运行从当前版 QSF 对应的 **28 个**冻结 RTL 重新生成 `hierarchy -check -top AFDX_top` 的 eLinx 脚本，在本机获得 **rc=0、197.33 s、零 `ERROR` 行、成功标志**。证据：`../out/arena-debug/elinx_current_20260929/` 里的 `SOURCE_BINDING.json`、`AFDX_top_current.ys`、`synth.log`、`AFDX_top_current_netlist.elinx.rpt`、`synth_status.json`；58,076,177 B 网表 SHA-256 `926eb1af6e2ab92e618b2d9bf293afd592adfc3015945abfe17021f3562448a3`。该输出仍是含 `altsyncram` 的综合网表，不是 post-fit／门级带 SDF 仿真或资源签核。
+默认脚本 `prj/AFDX_top_synth.ys`：现行工作区 RTL（含 SNMP/TFTP/RTC）+ `memory_bram`/`techmap` 后再 `memory_map`。  
+本机 2026-10-03 重跑 **rc=0**，`Yosys execute success`，顶层 `stat` **517 × altsyncram**。日志：`prj/AFDX_top_synth.log`。  
+展平失败原件：`prj/AFDX_top_synth.memory_map_fail.log`（`ERROR: invalid vector<T> subscript`），不当 PASS。  
+本脚本不导出大网表。综合后整帧仍开放。
+
+```bat
+"C:\Program Files (x86)\eHiWay\eLinx3.0\bin\shell\bin\eLinx_synthesis.exe" ^
+  -s elinx/prj/AFDX_top_synth.ys -l elinx/prj/AFDX_top_synth.log
+```
+
+## 2026-09-29 隔离顶层综合（不在本评阅包）
+
+早期 `prj/AFDX_top_synth_bram.ys` 的 RTL 列表**缺少现有三个管理模块**（`snmp_lite` / `a615a_tftp` / `rtc_sync`）；不得拿其旧 `hierarchy -top` 结果证明当前顶层已综合。新隔离运行从当时 QSF 对应的 **28 个**冻结 RTL 重新生成脚本，在本机获得 **rc=0、197.33 s**。证据在 `../out/arena-debug/elinx_current_20260929/`（评阅 ZIP 不含该目录）。该输出仍不是 post-fit／门级带 SDF。
 
 在**相同本机环境及未变更的 RTL**复跑，请到项目根目录的 PowerShell 建立全新同级证据目录（不要覆盖既有结果；运行前不要有别的 eLinx 综合进程）：
 

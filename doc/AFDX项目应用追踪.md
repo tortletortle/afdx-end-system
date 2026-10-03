@@ -42,7 +42,7 @@
 | REQ-REL-01 | IC 维护每 VL/每网 PSN，拒绝错误序列 | L001/L007/L008/L077 | `rx_ic.v` | T08e/T08eg、T09/T09p | TOP_LEVEL_VERIFIED | 顶层全错误组合仍需 scoreboard | 补 IC/RM 联合断言 |
 | REQ-REL-02 | RM A/B 去重、SkewMax、首个有效副本交付 | L077/L078/L079/L080；RM 形式化资料 | `rx_rm.v` | T10/T10g、T22 | TOP_LEVEL_VERIFIED | 多帧迟到副本、两网交替领先、network babbling 仍需专门验证 | 明确历史窗口/迟到策略 |
 | REQ-RX-04 | 解析后进入采样/队列端口并主机读回 | L007/L044/L049 | `rx_ip_udp_parse.v`、`rx_port_buf.v` | T11/T11g、T21、T22 | TOP_LEVEL_VERIFIED | 完整 T08 逐帧 scoreboard 尚未完成 | 统一端口/块所有权检查 |
-| REQ-HOST-01 | RX/主机 PMEM 争用、延迟 ACK、复位取消 | 设计书；L009/L044 | `AFDX_top.v`、`host_if.v` | T08c/T08cg、T17/T17g | TOP_LEVEL_VERIFIED | 持续满载等待上界和混合读写仍需扩大 | 长时主机/RX 交错测试 |
+| REQ-HOST-01 | RX/主机 PMEM 争用、延迟 ACK、复位取消 | 设计书；L009/L044 | `AFDX_top.v`（译码在顶层；`host_if.v` 空壳未例化） | T08c/T08cg、T17/T17g | TOP_LEVEL_VERIFIED | `host_if.v` 不是已划分落地模块 | 长时主机/RX 交错测试；独立 `host_if` 仍开放 |
 | REQ-HOST-02 | 块池耗尽不写空块，释放后恢复 | L010/L016；项目决策 | `rx_block_pool.v`、`rx_pmem_queue.v` | T21/T21g、T22 | TOP_LEVEL_VERIFIED | 长时多端口所有权仍需验证 | 做全链路 block conservation |
 | REQ-MGMT-01 | SAP descriptor handoff 和管理块归还 | 设计书；L044/L074 | `mgmt_sap_rx.v`、`AFDX_top.v` | T23/T23g | TOP_LEVEL_VERIFIED | 不等于 SNMP/615A/RTC 完整实现 | 固化 SAP 子集说明 |
 | REQ-MGMT-02 | SNMP 项目子集（至少状态读取/错误处理边界） | 赛方；RFC1157/RFC3416；L046/L074 | `snmp_lite.v` | T14（当前不作为完成证据） | OPEN_SPEC_GAP | BER、GET/SET/Trap、MIB 范围未冻结 | 决定子集并写测试 |

@@ -96,12 +96,12 @@ if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -
     exit 1
   }
 }
-if (@($manifest | Where-Object { $_.Id -like 'T15*' -or $_.Id -like 'T16*' }).Count -gt 0) {
-  # continue4: T15/T16 use their own SAP golden frames carrying real SNMP BER
-  # PDUs and ARINC-615A TFTP packets (same afdx_model + zlib wire-order FCS).
+if (@($manifest | Where-Object { $_.Id -like 'T15*' -or $_.Id -like 'T16*' -or $_.Id -like 'T24*' -or $_.Id -like 'T25*' }).Count -gt 0) {
+  # continue4: T15/T16/T24/T25 use SAP golden frames (SNMP BER + TFTP) with
+  # afdx_model + zlib wire-order FCS.
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t15_vectors.py')
   if ($LASTEXITCODE -ne 0) {
-    Write-Output "ERROR: T15/T16 management golden vector generation failed"
+    Write-Output "ERROR: T15/T16/T24/T25 management golden vector generation failed"
     exit 1
   }
 }

@@ -67,3 +67,7 @@ T15b tb_t15b_snmp_bounds snmp-ber-bounds
 T15c tb_t15c_snmp_bag snmp-bag-commit
 T15cg tb_t15cg_snmp_bag snmp-bag-commit-gmii
 T16b tb_t16b_fll_disturb rtc-drift-550-recovery
+T24 tb_t24_mgmt_tx mgmt-tx-onwire
+T24g tb_t24g_mgmt_tx mgmt-tx-onwire-gmii
+T25 tb_t25_mgmt_tftp_tx mgmt-tftp-tx-onwire
+T25g tb_t25g_mgmt_tftp_tx mgmt-tftp-tx-onwire-gmii

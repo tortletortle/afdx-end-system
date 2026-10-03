@@ -69,11 +69,25 @@ elinx/prj/quartus/*.smsg
 **/output_files/
 
 # ==== 2026-10-02 整理：隔离巨型诊断产物 ====
-# out/ 实测约 18.4 GB（单 postsyn_quartus_eda 的 .vo 网表即约 11.6 GB），内含中断/
+# 根 out/ 实测约 19.8 GB（单 postsyn_quartus_eda 的 .vo 网表即约 11.6 GB），内含中断/
 # 失败/被替代的诊断原件。赛题评阅只看主体程序、仿真环境与设计文档，这些不属于评阅
 # 范围，也无法进版本库，故整目录排除。需要长期保存的结论写进 doc/ 状态页并记录原
 # 路径，不要把原件提交进来。
-out/
+#
+# 必须写 "/out/" 而不是 "out/"：gitignore 中不带前导斜杠的模式匹配任意层级，
+# 原来的 "out/" 把 sim/out/ 也一并排除了，静默吃掉本文件开头声明要保留的
+# regress.csv 与 console 日志——sim/out/full/ 那轮 70 个证据文件因此 0 入库，
+# 造成台账 N2「声称按 commit 可复现」对最新一轮不成立。下面显式放行。
+/out/
+
+# 仿真证据按上方声明保留：回归 CSV、每用例 console 日志、证据 JSON。
+# 波形仍由 *.vcd / sim/out/*.vcd 排除。
+!sim/out/
+!sim/out/**/*_console.txt
+!sim/out/**/regress.csv
+!sim/out/**/test_evidence_*.json
+!sim/out/**/input_sha256*.csv
+!sim/out/**/status.json
 
 # eLinx 工程数据库与报告（elinx/ 实测约 497 MB，可由 .ys / quartus_map 重新生成）
 elinx/prj/quartus/db/

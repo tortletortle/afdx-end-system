@@ -5,5 +5,6 @@
 # measured board budget. Do not enable made-up IO delays for a PASS verdict.
 create_clock -name clk -period 8.000 [get_ports clk]
 set_clock_uncertainty 0.45 [get_clocks clk]
-set_clock_transition 0.30 [get_clocks clk]
+# set_clock_transition is Synopsys DC; eLinx GUI constraint parser rejects it
+# (invalid command name "set_clock_transition"). Quartus .sdc already omits it.
 set_false_path -from [get_ports pps_in]

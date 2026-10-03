@@ -1,11 +1,9 @@
 // =====================================================================
-// AFDX_top.v —— AFDX 端系统顶层（第 2 周初始化/主机总线接线中）
+// AFDX_top.v —— AFDX 端系统顶层
 // 设计书: §5.1（顶层端口总表）/ §4.2（复位）/ §4.3（参数表）/
 //         §7.14 + 附录 A（寄存器页，doc/regs.yaml 为单一来源）/ §7.18（时基）
-// 状态: 初始化扫描/前门/TX 闭环；RX 双入口/PMEM -> lookup -> FLT -> IC -> RM
-//       已接线（v0.5.14：rx_ic 独占 PSN RAM；v0.5.15：rx_rm 独占 RM_ST RAM）。
-//       RM forward 帧因解析/端口未实现仍只计数并回收块；后级 RX/管理面及完整
-//       T05/T22 指标仍未验收。
+// 状态: 主机译码在本文件（host_if.v 空壳未例化）。TX/RX/IC/RM/管理面已接线。
+//       RTL 回归见 evidence/rtl_regress_70（70/70）。综合后整帧未验收。
 // 命名/握手: §10（信号小写下划线、参数大写下划线、vld/rdy 或 pulse）
 // =====================================================================
 `timescale 1 ns / 1 ps
@@ -204,6 +202,7 @@ module AFDX_top #(
   wire [10:0] snmp_resp_len;
   wire        snmp_resp_vld;
   wire [7:0]  snmp_resp_byte;
+  wire [15:0] snmp_peer_port;   // §7.1.1/§7.16：最近合法请求的源端口，响应反转用
   wire        snmp_ctl_we;
   wire        snmp_set_active, snmp_set_ack, snmp_bag_commit;
   wire        host_snmp_wait;
@@ -214,6 +213,7 @@ module AFDX_top #(
   wire [7:0]  snmp_vl_bag_index;
   wire [31:0] snmp_vl_bag_wdata;
   wire [31:0] tftp_st_w, tftp_bytes, tftp_crc, tftp_pkt, tftp_de, tftp_tr, tftp_fnh;
+  wire [15:0] tftp_peer_tid;    // §7.1.1/§7.17：会话 TID，响应反转目的端口
   wire [10:0] tftp_resp_len;
   wire        tftp_resp_vld;
   wire [7:0]  tftp_resp_byte;
@@ -755,7 +755,8 @@ module AFDX_top #(
   localparam [1:0] MT_IDLE = 2'd0, MT_BYTE = 2'd1, MT_COMMIT = 2'd2;
   reg  [1:0]  mt_state;
   reg  [7:0]  mt_sel_port;    // 本帧提交的 SAP 端口号
-  reg  [10:0] mt_len;         // 本帧响应字节数（锁存自 resp_len）
+  reg  [10:0] mt_len;         // 本帧上线字节数 = max(resp_len, 8)，含尾部补零
+  reg  [10:0] mt_len_real;    // 引擎 resp_len 原值；mt_byte_idx >= 它时补 0
   reg  [10:0] mt_byte_idx;    // 已取字节数
   reg  [31:0] mt_word;        // 正在拼装的字（大端）
   reg  [1:0]  mt_be_cnt;      // 已装入当前字的字节数 0..3
@@ -767,8 +768,15 @@ module AFDX_top #(
   wire        mt_pick_vld   = mt_pick_tftp || mt_pick_snmp;
   wire [10:0] mt_pick_len   = mt_pick_tftp ? tftp_resp_len : snmp_resp_len;
   wire [7:0]  mt_pick_byte  = mt_pick_tftp ? tftp_resp_byte : snmp_resp_byte;
-  // 长度合法性复用主机路径同款判据（§7.1 msg_len_ok），并要求开放块可用
-  wire        mt_len_ok     = (mt_pick_len >= 11'd8) && (mt_pick_len <= 11'd1471);
+  // 长度合法性：上限与主机路径同款（§7.1 msg_len_ok，1471 B）。下限不能照抄主机
+  // 的 8——RFC 1350 的 ACK(0)/ACK(k) 只有 4 B，按 8 卡死则 615A 响应永远发不出去
+  // （初版即栽在此处，T25/T25g 因此零字节上线）。改为只拒 0 与超长；真实长度另存
+  // mt_len_real 供补零使用。
+  wire        mt_len_ok     = (mt_pick_len >= 11'd1) && (mt_pick_len <= 11'd1471);
+  // tx_frame_builder 的 L_MIN=8 被 T03「L=7 越界拒」锁死，故不放宽 builder，而是在
+  // 管理面尾部补 0 到 8 B（即 a615a_tftp 头部注释所述的顶层补零）。补出的字节只进
+  // UDP 载荷，不改引擎 resp_len，观测窗路径（T16）与引擎单元行为完全不受影响。
+  wire [10:0] mt_len_pad    = (mt_pick_len < 11'd8) ? 11'd8 : mt_pick_len;
   // MGMT_TX_EN（CTL[9]，复位默认 0）：管理面响应自动上线的总开关。
   // CTL_WMASK 的 bit12 与 bit5/6 为写无效保留位，不可用于主机配置；bit9 可写
   // 且 CTL_RST(0x51C) 中为 0，故取 bit9 作该开关，不与既有位冲突。
@@ -778,24 +786,31 @@ module AFDX_top #(
   wire        mt_tx_en      = ctl_r[9];
   wire        mt_can_start  = mt_tx_en && mt_pick_vld && pb_wr_valid && mt_len_ok && init_done;
 
-  // 取字节期间接管 resp_rd_addr；空闲时交还主机观测窗
-  wire [10:0] mgmt_bidx_mux = (mt_state == MT_BYTE) ? mt_byte_idx : mgmt_bidx;
+  // 取字节期间接管 resp_rd_addr；空闲时交还主机观测窗。补零拍不回读引擎（钳在
+  // resp_len 末字节），避免读到 rbuf 里的陈旧数据。
+  wire        mt_byte_real  = (mt_byte_idx < mt_len_real);
+  wire [10:0] mgmt_bidx_mux = (mt_state == MT_BYTE)
+                              ? (mt_byte_real ? mt_byte_idx : mt_len_real)
+                              : mgmt_bidx;
 
-  // PMEM 写请求：块基址 0x8800 + blk*0x200，字内大端
+  // PMEM 写请求：块基址 + 字偏移；大端拼装，满字或末字节时写一拍
+  // mt_byte_idx = 已提交（写入或正写入）的字节数；取字节时用它作 resp 下标。
   wire [12:0] mt_wr_addr    = {mt_blk, 9'd0} + {4'd0, mt_byte_idx[10:2]};
-  wire [31:0] mt_wr_data    = mt_word;
-  wire [3:0]  mt_wr_be      = (mt_be_cnt == 2'd0) ? 4'b0001 :
-                             (mt_be_cnt == 2'd1) ? 4'b0011 :
-                             (mt_be_cnt == 2'd2) ? 4'b0111 : 4'b1111;
-  // 只在「满字或末字节」写一次；末字节不足 4 字时按实际字节数给 byte-enable
-  wire        mt_word_full  = (mt_be_cnt == 2'd3);
-  wire        mt_last_byte  = (mt_byte_idx + 11'd1 >= mt_len);
-  wire        mt_wr_go      = (mt_state == MT_BYTE) && init_done &&
-                              (mt_word_full || mt_last_byte);
+  wire [31:0] mt_word_next  = {mt_word[23:0], mt_byte_real ? mt_pick_byte : 8'h00};
+  wire        mt_will_full  = (mt_be_cnt == 2'd3);                 // 本拍凑满 4 字节
+  wire        mt_will_last  = (mt_byte_idx + 11'd1 >= mt_len);      // 本拍是最后一字节
+  wire        mt_do_pick    = (mt_state == MT_BYTE) && mt_pick_vld && init_done;
+  wire        mt_wr_go      = mt_do_pick && (mt_will_full || mt_will_last);
+  wire [31:0] mt_wr_data    = mt_word_next;
+  // 不满一字的末拍：高位先填，BE 对应已装字节数（含本拍）
+  wire [3:0]  mt_wr_be      = mt_will_full ? 4'b1111 :
+                             (mt_be_cnt == 2'd0) ? 4'b1000 :
+                             (mt_be_cnt == 2'd1) ? 4'b1100 :
+                             (mt_be_cnt == 2'd2) ? 4'b1110 : 4'b1111;
   // 管理面 commit 脉冲与端口/长度
   wire        mgmt_commit   = (mt_state == MT_COMMIT);
   wire [7:0]  mt_port_eff   = mt_sel_port;
-  wire [15:0] mt_len_eff    = mt_len[15:0];
+  wire [15:0] mt_len_eff    = {5'd0, mt_len}; // 不可写 mt_len[15:0]：mt_len 仅 [10:0]，越界位为 X
   wire        mgmt_port_pend= mgmt_commit;
 
   always @(posedge clk) begin
@@ -803,6 +818,7 @@ module AFDX_top #(
       mt_state    <= MT_IDLE;
       mt_sel_port <= 8'd0;
       mt_len      <= 11'd0;
+      mt_len_real <= 11'd0;
       mt_byte_idx <= 11'd0;
       mt_word     <= 32'd0;
       mt_be_cnt   <= 2'd0;
@@ -813,7 +829,8 @@ module AFDX_top #(
         MT_IDLE: begin
           if (mt_can_start) begin
             mt_sel_port <= mt_pick_tftp ? TFTP_SAP_PORT[7:0] : SNMP_SAP_PORT[7:0];
-            mt_len      <= mt_pick_len;
+            mt_len      <= mt_len_pad;
+            mt_len_real <= mt_pick_len;
             mt_byte_idx <= 11'd0;
             mt_word     <= 32'd0;
             mt_be_cnt   <= 2'd0;
@@ -822,19 +839,20 @@ module AFDX_top #(
           end
         end
         MT_BYTE: begin
-          if (mt_wr_go) begin
-            // 本拍完成一个字（或末字）的写入，推进字节下标
+          if (mt_do_pick) begin
+            // 每拍消费 1 个响应字节；满字或末字节时顺带写 PMEM
             mt_byte_idx <= mt_byte_idx + 11'd1;
-            mt_word     <= 32'd0;
-            mt_be_cnt   <= 2'd0;
-            if (mt_last_byte) begin
-              mt_fin   <= 1'b1;
-              mt_state <= MT_COMMIT;
+            if (mt_will_full || mt_will_last) begin
+              mt_word   <= 32'd0;
+              mt_be_cnt <= 2'd0;
+              if (mt_will_last) begin
+                mt_fin   <= 1'b1;
+                mt_state <= MT_COMMIT;
+              end
+            end else begin
+              mt_word   <= mt_word_next;
+              mt_be_cnt <= mt_be_cnt + 2'd1;
             end
-          end else if (mt_pick_vld) begin
-            // 大端拼装：新字节进最高未用位
-            mt_word   <= {mt_word[23:0], mt_pick_byte};
-            mt_be_cnt <= mt_be_cnt + 2'd1;
           end
         end
         MT_COMMIT: begin
@@ -867,8 +885,7 @@ module AFDX_top #(
   // 故管理面提交按其真实 SAP 端口号取深度：SNMP_SAP_PORT / TFTP_SAP_PORT。
   wire [1:0] pb_type_eff  = mgmt_commit ? 2'd2 : msg_port_w0[17:16];
   wire [3:0] pb_depth_eff = mgmt_commit
-      ? ((mt_sel_port == TFTP_SAP_PORT[7:0]) ? port_w3_dep[TFTP_SAP_PORT[7:0]]
-                                              : port_w3_dep[SNMP_SAP_PORT[7:0]])
+      ? ((port_w3_dep[mt_sel_port] == 4'd0) ? 4'd1 : port_w3_dep[mt_sel_port])
       : msg_port_w3[3:0];
   tx_port_buf #(.NUM_PORTS(NUM_PORTS), .TX_BLK_LO(0), .TX_BLK_N(6)) u_txbuf (
     .clk(clk), .rst_sync(rst_sync), .tb_us(rtc64[7:0]),
@@ -1295,6 +1312,17 @@ module AFDX_top #(
     .init_all(1'b0), .ovr_we(1'b0), .ovr_vl(8'd0), .ovr_val(8'd0),
     .sn_pend(), .err());
   // VLID 的 P0 集成映射暂取 0x0100+表序号；任意 VLID 映射/配置脚本留 T12/T22 完整项。
+  // §7.1.1 步 4：SAP 端口上的管理面响应，目的 IP/端口从最近请求反转；
+  // sport 取该 SAP 端口表 w1 的管理 UDP 端口（与入向 DPORT 判决一致）。
+  wire [7:0]  fb_cfg_port   = cfg_w4_q[23:16];
+  wire        fb_is_snmp    = (fb_cfg_port == SNMP_SAP_PORT[7:0]);
+  wire        fb_is_tftp    = (fb_cfg_port == TFTP_SAP_PORT[7:0]);
+  wire        fb_is_mgmt    = fb_is_snmp || fb_is_tftp;
+  wire [15:0] fb_sap_dport  = port_cfg_mem[{fb_cfg_port, 2'b01}][15:0];
+  wire [31:0] fb_dst_ip     = fb_is_mgmt ? sap_out_srcip : cfg_w3_q;
+  wire [15:0] fb_dport      = fb_is_snmp ? snmp_peer_port :
+                              fb_is_tftp ? tftp_peer_tid  : cfg_w2_q[31:16];
+  wire [15:0] fb_sport      = fb_is_mgmt ? fb_sap_dport : cfg_w2_q[15:0];
   tx_frame_builder #(.BYTE_SLOT_CYC(IF_MODE ? 1 : BYTE_SLOT_CYC)) u_builder (
     .clk(clk), .rst_sync(rst_sync),
     .start_vld(sch_start_vld), .start_vl(sch_start_vl),
@@ -1303,8 +1331,8 @@ module AFDX_top #(
     .hdr_vlid(16'h0100+{8'd0,sch_start_vl}),
     .hdr_udi(smac_r[31:16]), .hdr_ifid_a(smac_r[2:0]), .hdr_ifid_b(smac_r[14:12]),
     .hdr_tos({3'd0,cfg_w1_q[4:0]}), .hdr_ttl(8'd255), .hdr_ident(16'd0),
-    .hdr_src_ip(ip_r), .hdr_dst_ip(cfg_w3_q),
-    .hdr_sport(cfg_w2_q[15:0]), .hdr_dport(cfg_w2_q[31:16]),
+    .hdr_src_ip(ip_r), .hdr_dst_ip(fb_dst_ip),
+    .hdr_sport(fb_sport), .hdr_dport(fb_dport),
     .hdr_udp_csum_en(udp_cfg_r[1]),
     .snap_req(snap_req), .snap_vl(snap_vl), .snap(snap), .snap_ack(snap_ack),
     .rd_en_a(fb_rd_en_a), .rd_addr_a(fb_rd_addr_a), .rd_data_a(pmem_data_a),
@@ -1470,6 +1498,7 @@ module AFDX_top #(
       .peer_port(s_peer), .vb_n(s_vb), .state_o());
     // [19:12]=PDU 类型 [11:8]=VarBind 数 [7:4]=error-index [3:0]=error-status
     assign snmp_st_w = {12'd0, s_pdu, s_vb, s_idx, s_err};
+    assign snmp_peer_port = s_peer;
   end else begin : g_nosnmp
     assign snmp_set_active = 1'b0;
     assign snmp_resp_vld = 1'b0; assign snmp_resp_len = 11'd0;
@@ -1480,6 +1509,7 @@ module AFDX_top #(
     assign snmp_vl_bag_wdata = 32'd0; assign snmp_mib_group = 8'd0;
     assign snmp_mib_leaf = 8'd0; assign snmp_mib_index = 8'd0;
     assign stats_snmp_off = 8'd0;
+    assign snmp_peer_port = 16'd0;
   end endgenerate
 
   generate if (TFTP_EN != 0) begin : g_tftp
@@ -1506,12 +1536,14 @@ module AFDX_top #(
     assign tftp_pkt  = t_pkt;
     assign tftp_de   = {t_dup[7:0], t_ecnt[7:0], t_tid};
     assign tftp_tr   = {t_blk, t_to[7:0], t_retry};
+    assign tftp_peer_tid = t_tid;
   end else begin : g_notftp
     assign tftp_resp_vld = 1'b0; assign tftp_resp_len = 11'd0;
     assign tftp_resp_byte = 8'd0; assign tftp_load_rdata = 32'd0;
     assign tftp_st_w = 32'd0; assign tftp_bytes = 32'd0; assign tftp_crc = 32'd0;
     assign tftp_pkt = 32'd0; assign tftp_de = 32'd0; assign tftp_tr = 32'd0;
     assign tftp_fnh = 32'd0;
+    assign tftp_peer_tid = 16'd0;
   end endgenerate
 
   generate if (RTC_EN != 0) begin : g_rtc
