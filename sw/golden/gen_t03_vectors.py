@@ -20,7 +20,7 @@ def words(b, n):
 
 def main():
     random.seed(20260922)
-    cases = [8, 16, 17, 18, 1471, 1470, 9, 100]      # 16/17 是 pad 1 B / 0 B 的边界
+    cases = [1, 4, 7, 8, 16, 17, 18, 1471, 1470, 9, 100]  # 覆盖短 UDP 载荷与填充边界
     cases += [random.randint(8, 1471) for _ in range(8)]
     out = [len(cases)]
     for i, L in enumerate(cases):

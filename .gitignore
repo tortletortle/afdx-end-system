@@ -11,6 +11,10 @@ sim/out/*.vcd
 # Python
 __pycache__/
 *.pyc
+# RTL/sim scratch backups & dbg (repro freeze: never commit these)
+*.bak*
+*.backup_*
+_dbg_*
 # eLinx scratch
 elinx/prj/*.log
 !elinx/prj/bram_sdp_smoke.log

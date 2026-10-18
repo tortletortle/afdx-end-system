@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a review ZIP for 2026-10-03 report. Not a hashed freeze."""
+"""Retired 2026-10-03 review packer. Refuses to overwrite its fixed output."""
 from __future__ import annotations
 
 import hashlib
@@ -48,8 +48,11 @@ def sha256_file(path: Path) -> str:
 
 
 def main():
-    if STAGE.exists():
-        shutil.rmtree(STAGE)
+    if OUT_DIR.exists() or STAGE.exists() or ZIP_PATH.exists():
+        raise SystemExit(
+            f"Refusing to overwrite historical package artifacts under {OUT_DIR}. "
+            "Use a new versioned output path for a new package."
+        )
     STAGE.mkdir(parents=True, exist_ok=True)
 
     copy_tree(ROOT / "rtl", STAGE / "rtl")
@@ -156,8 +159,6 @@ def main():
     }
     (STAGE / "PACKAGE_META.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    if ZIP_PATH.exists():
-        ZIP_PATH.unlink()
     with zipfile.ZipFile(ZIP_PATH, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
         for p in sorted(STAGE.rglob("*"), key=lambda x: x.as_posix().lower()):
             if p.is_file():

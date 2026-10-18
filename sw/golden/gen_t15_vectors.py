@@ -16,7 +16,7 @@ SNMP v1/v2c BER PDU 与 ARINC-615A TFTP 报文。
     帧字   = 大端打包，末字右侧补 0
 """
 import pathlib, sys, zlib
-from afdx_model import build_frame, ones_comp16
+from afdx_model import build_frame, ones_comp16, IFID_A, IFID_B
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "sim" / "vec" / "t15_mgmt.hex"
@@ -34,9 +34,9 @@ def fcs(body):
     assert crc_raw(frame) == 0xDEBB_20E3
     return frame
 
-def frame(payload, sn):
+def frame(payload, sn, src_ip="10.0.0.1", sport=49152):
     body, _ = build_frame(0x0100, 0x1234, 1, 1,
-                          "10.0.0.1", "224.0.0.1", 49152, 5000,
+                          src_ip, "224.0.0.1", sport, 5000,
                           bytes(payload), 1, ident=7, fcs_mode=0, udp_csum_mode=1)
     body = body[:-1] + bytes([sn & 0xFF])
     assert ones_comp16(body[14:34]) == 0
@@ -94,8 +94,12 @@ def tftp_rq(op, name, mode=b"octet"):
 def tftp_data(blk, payload):
     return bytes([0, 3, (blk >> 8) & 0xFF, blk & 0xFF]) + bytes(payload)
 
+def tftp_error(code):
+    return bytes([0, 5, (code >> 8) & 0xFF, code & 0xFF]) + b"TFTP ERR\x00"
+
 D1 = bytes((i * 7 + 0x21) & 0xFF for i in range(512))   # 满块：RFC1350 非末块
 D2 = bytes(((i + 32) * 7 + 0x21) & 0xFF for i in range(8))
+D512_2 = bytes((i * 11 + 0x63) & 0xFF for i in range(512))
 CRC_ALL = zlib.crc32(D1 + D2) & 0xFFFF_FFFF
 CRC_D1  = zlib.crc32(D1) & 0xFFFF_FFFF
 
@@ -110,9 +114,9 @@ cases = [
     (5,  0, tftp_rq(2, b"NOPE"),                   5, 0),          # 文件名不在白名单
     (6,  0, tftp_rq(2, b"UPLOAD", b"netascii"),    6, 0),          # mode 非 octet
     (7,  0, tftp_rq(1, b"STATUS"),                 7, 0),          # RRQ 状态文件
-    # AFDX §6.1 要求 UDP 载荷 >= 8 B，裸 4 B 的 TFTP ACK 不能单独上线，
-    # 这里补零到 8 B；引擎对 ACK/ERROR 只取前 4 B，尾部补零被忽略。
-    (8,  0, bytes([0, 4, 0, 1]) + b"\x00" * 4,      8, 0),          # ACK(1)
+    # RFC 1350 ACK 是 4 B UDP 载荷；Ethernet 最小帧填充由 build_frame
+    # 放在 UDP 数据之后、AFDX SN 之前，不计入 UDP 长度或校验和。
+    (8,  0, bytes([0, 4, 0, 1]),                     8, 0),          # ACK(1)
     (9,  0, bytes([0, 6, 0, 0, 0, 0]) + b"\x00" * 2, 9, 0),         # OACK → 非法操作
     # ---- SNMP（svc=1），SN 从 0 递增 ----
     (10, 1, snmp(GET,  0x11223344, [vb(1, 2)]),                      0, 0),
@@ -150,18 +154,137 @@ cases = [
     # ---- step3 20260928：顶层卸载（T16 C8b），TFTP 上线 SN 接 9 → 10..12 ----
     # 33: RRQ "UPLOAD" → DATA(1) = D1（512 B，经 11 位 0xAC1A/0xAC27 读 516 B）
     (33, 0, tftp_rq(1, b"UPLOAD"),                 10, CRC_ALL),
-    # 34: ACK(1)（补零到 8 B）→ DATA(2) = D2（8 B，末块）
-    (34, 0, bytes([0, 4, 0, 1]) + b"\x00" * 4,     11, 0),
+    # 34: ACK(1)（4 B）→ DATA(2) = D2（8 B，末块）
+    (34, 0, bytes([0, 4, 0, 1]),                    11, 0),
     # 35: ACK(2) → 卸载会话结束，不再有响应
-    (35, 0, bytes([0, 4, 0, 2]) + b"\x00" * 4,     12, 0),
+    (35, 0, bytes([0, 4, 0, 2]),                    12, 0),
+    # ---- 管理 TX 独立整帧 oracle：固定 MIB 标量 GET，避免动态计数值 ----
+    (36, 1, snmp(GET,  0x00001234, [vb(1, 3)]),      1, 0),
+    # ---- 顶层 TFTP 自动发送卸载数据：RX SN 连续，TX DATA SN=4/5 ----
+    (37, 0, tftp_rq(1, b"UPLOAD"),                  3, 0),
+    (38, 0, bytes([0, 4, 0, 1]),                     4, 0),
+    # 39: 第二个 peer 的 WRQ；T25 在 TX 暂停时与 case0 同时排队，验证 peer 元数据隔离。
+    (39, 0, tftp_rq(2, b"UPLOAD"),                  1, 0),
+    # 40: ACK(2) closes the T37 multi-block unload after the final short DATA block.
+    (40, 0, bytes([0, 4, 0, 2]),                     5, 0),
+    # ---- T37/T40 network edge coverage; each stream has its own contiguous AFDX SNs ----
+    (41, 0, tftp_data(1, D1),                         1, 0),  # foreign TID; source IP/port changed below
+    (42, 0, tftp_data(1, D1),                         2, 0),  # original peer recovers
+    (43, 0, tftp_data(1, D1),                         3, 0),  # duplicate DATA must not recommit bytes
+    (44, 0, tftp_data(2, D2),                         4, CRC_ALL),
+    (45, 0, tftp_rq(1, b"UPLOAD"),                    5, 0),
+    (46, 0, bytes([0, 4, 0, 1]),                      6, 0),
+    (47, 0, bytes([0, 4, 0, 2]),                      7, 0),
+    (48, 0, tftp_rq(2, b"UPLOAD"),                    8, 0),
+    (49, 0, tftp_data(1, D1),                         9, CRC_D1),
+    (50, 0, tftp_data(2, b""),                       10, CRC_D1),  # zero-byte terminal block
+    (51, 0, tftp_rq(1, b"UPLOAD"),                   11, 0),  # retry-exhaustion session
+    (52, 0, tftp_data(2, D512_2),                      2, 0),  # T40 small configured load area
+    (53, 0, tftp_data(3, b"\xE7"),                    3, 0),  # exact-capacity + 1 byte
 ]
 
+def write_tftp_tx_expected():
+    """独立生成 T25/T32 的完整应答帧：4B UDP ACK + pad + SN + FCS。"""
+    words = [6]
+    for block, sn in ((0, 1), (1, 2), (2, 3)):
+        payload = bytes([0, 4, (block >> 8) & 0xFF, block & 0xFF])
+        for ifid in (IFID_A, IFID_B):
+            frame_bytes, _ = build_frame(
+                0x0100, 0x172D, ifid, 1 if ifid == IFID_A else 2,
+                "10.0.0.2", "10.0.0.1", 5000, 49152, payload, sn,
+                ident=0, tos=0, ttl=255, fcs_mode=2, udp_csum_mode=1)
+            words.append(len(frame_bytes))
+            words.extend(int.from_bytes(frame_bytes[i:i+4].ljust(4, b"\x00"), "big")
+                         for i in range(0, len(frame_bytes), 4))
+    out = ROOT / "sim" / "vec" / "tftp_tx_expected.hex"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("// generated independent full-frame TFTP TX expectations; count, then len + packed frame\n" +
+                   "".join(f"{word:08x}\n" for word in words), encoding="ascii")
+
+def write_tftp_error_expected():
+    """Independent A/B frame oracle for network TFTP ERROR(5), ERROR(4), and ERROR(3)."""
+    words = [6]
+    cases = ((5, 2, "10.0.0.99", 40000),
+             (4, 16, "10.0.0.1", 49152),
+             (3, 4, "10.0.0.1", 49152))
+    for code, sn, dst_ip, dport in cases:
+        payload = tftp_error(code)
+        for ifid in (IFID_A, IFID_B):
+            frame_bytes, _ = build_frame(
+                0x0100, 0x172D, ifid, 1 if ifid == IFID_A else 2,
+                "10.0.0.2", dst_ip, 5000, dport, payload, sn,
+                ident=0, tos=0, ttl=255, fcs_mode=2, udp_csum_mode=1)
+            words.append(len(frame_bytes))
+            words.extend(int.from_bytes(frame_bytes[i:i+4].ljust(4, b"\x00"), "big")
+                         for i in range(0, len(frame_bytes), 4))
+    out = ROOT / "sim" / "vec" / "tftp_error_expected.hex"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("// generated independent full-frame TFTP ERROR expectations\n" +
+                   "".join(f"{word:08x}\n" for word in words), encoding="ascii")
+
+def write_tftp_unload_expected():
+    """独立生成顶层 RRQ UPLOAD 的 DATA(1)/DATA(2) A/B 完整帧。"""
+    words = [4]
+    for block, payload, sn in ((1, D1, 4), (2, D2, 5)):
+        response = tftp_data(block, payload)
+        for ifid in (IFID_A, IFID_B):
+            frame_bytes, _ = build_frame(
+                0x0100, 0x172D, ifid, 1 if ifid == IFID_A else 2,
+                "10.0.0.2", "10.0.0.1", 5000, 49152, response, sn,
+                ident=0, tos=0, ttl=255, fcs_mode=2, udp_csum_mode=1)
+            words.append(len(frame_bytes))
+            words.extend(int.from_bytes(frame_bytes[i:i+4].ljust(4, b"\x00"), "big")
+                         for i in range(0, len(frame_bytes), 4))
+    out = ROOT / "sim" / "vec" / "tftp_unload_expected.hex"
+    out.write_text("// generated independent full-frame RRQ UPLOAD DATA expectations\n" +
+                   "".join(f"{word:08x}\n" for word in words), encoding="ascii")
+
+def write_tftp_peer_expected():
+    """独立生成两个待发 ACK(0)，其响应分别回到各自的 peer IP/TID。"""
+    payload = bytes([0, 4, 0, 0])
+    words = [4]
+    for dst_ip, dport, sn in (("10.0.0.1", 49152, 1), ("10.0.0.99", 40000, 2)):
+        for ifid in (IFID_A, IFID_B):
+            frame_bytes, _ = build_frame(
+                0x0100, 0x172D, ifid, 1 if ifid == IFID_A else 2,
+                "10.0.0.2", dst_ip, 5000, dport, payload, sn,
+                ident=0, tos=0, ttl=255, fcs_mode=2, udp_csum_mode=1)
+            words.append(len(frame_bytes))
+            words.extend(int.from_bytes(frame_bytes[i:i+4].ljust(4, b"\x00"), "big")
+                         for i in range(0, len(frame_bytes), 4))
+    out = ROOT / "sim" / "vec" / "tftp_peer_expected.hex"
+    out.write_text("// generated independent full-frame peer-isolation ACK expectations\n" +
+                   "".join(f"{word:08x}\n" for word in words), encoding="ascii")
+
+def write_snmp_tx_expected():
+    """固定 GET .1.3 的完整 A/B 帧；默认 NUM_TX_VL=128，独立编码 BER。"""
+    response = snmp(0xA2, 0x00001234,
+                    [vb(1, 3, val=tlv(0x02, ber_int(128)))])
+    words = [2]
+    for ifid in (IFID_A, IFID_B):
+        frame_bytes, _ = build_frame(
+            0x0100, 0x172D, ifid, 1 if ifid == IFID_A else 2,
+            "10.0.0.2", "10.0.0.1", 5000, 49152, response, 1,
+            ident=0, tos=0, ttl=255, fcs_mode=2, udp_csum_mode=1)
+        words.append(len(frame_bytes))
+        words.extend(int.from_bytes(frame_bytes[i:i+4].ljust(4, b"\x00"), "big")
+                     for i in range(0, len(frame_bytes), 4))
+    out = ROOT / "sim" / "vec" / "snmp_tx_expected.hex"
+    out.write_text("// generated independent SNMP GET .1.3 full-frame expectations; count, then len + packed frame\n" +
+                   "".join(f"{word:08x}\n" for word in words), encoding="ascii")
+
 def main():
+    write_tftp_tx_expected()
+    write_tftp_error_expected()
+    write_tftp_unload_expected()
+    write_tftp_peer_expected()
+    write_snmp_tx_expected()
     words = [len(cases)]
     maxb = 0
     for cid, svc, payload, sn, aux in cases:
         assert len(payload) >= 1, "空载荷"
-        data = frame(payload, sn)
+        src_ip, sport = ("10.0.0.99", 40000) if cid in (39, 41) else ("10.0.0.1", 49152)
+        data = frame(payload, sn, src_ip=src_ip, sport=sport)
         maxb = max(maxb, len(data))
         words += [(cid << 24) | (svc << 20) | (5 << 16) | len(data), len(payload), aux]
         words += [int.from_bytes(data[i:i+4].ljust(4, b"\x00"), "big")

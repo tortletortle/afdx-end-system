@@ -1,0 +1,85 @@
+{
+  "cases": [
+    {
+      "case_id": 0,
+      "name": "snmp_set",
+      "phase": 0,
+      "request_bytes": 94,
+      "response_bytes": 94,
+      "record_word": 1
+    },
+    {
+      "case_id": 1,
+      "name": "snmp_get_after_set",
+      "phase": 0,
+      "request_bytes": 92,
+      "response_bytes": 94,
+      "record_word": 76
+    },
+    {
+      "case_id": 2,
+      "name": "snmp_getnext",
+      "phase": 0,
+      "request_bytes": 92,
+      "response_bytes": 94,
+      "record_word": 150
+    },
+    {
+      "case_id": 3,
+      "name": "snmp_wrong_community",
+      "phase": 0,
+      "request_bytes": 92,
+      "response_bytes": 0,
+      "record_word": 224
+    },
+    {
+      "case_id": 4,
+      "name": "tftp_wrq",
+      "phase": 1,
+      "request_bytes": 64,
+      "response_bytes": 64,
+      "record_word": 250
+    },
+    {
+      "case_id": 5,
+      "name": "tftp_data_1",
+      "phase": 1,
+      "request_bytes": 563,
+      "response_bytes": 64,
+      "record_word": 301
+    },
+    {
+      "case_id": 6,
+      "name": "tftp_data_2",
+      "phase": 1,
+      "request_bytes": 64,
+      "response_bytes": 64,
+      "record_word": 477
+    },
+    {
+      "case_id": 7,
+      "name": "tftp_rrq_unload",
+      "phase": 1,
+      "request_bytes": 64,
+      "response_bytes": 563,
+      "record_word": 528
+    },
+    {
+      "case_id": 8,
+      "name": "tftp_ack_1",
+      "phase": 1,
+      "request_bytes": 64,
+      "response_bytes": 64,
+      "record_word": 829
+    },
+    {
+      "case_id": 9,
+      "name": "tftp_ack_final",
+      "phase": 1,
+      "request_bytes": 64,
+      "response_bytes": 0,
+      "record_word": 880
+    }
+  ],
+  "words": 899
+}

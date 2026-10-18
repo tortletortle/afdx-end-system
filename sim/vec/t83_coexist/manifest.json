@@ -1,0 +1,50 @@
+{
+  "cases": [
+    {
+      "case": 0,
+      "kind": "simultaneous_success",
+      "tx_app_bytes": 8192,
+      "rx_app_bytes": 8192,
+      "held_app_bytes": 64,
+      "rx_frames_per_net": 7,
+      "prefix_frames": 6,
+      "recovery_frames": 0,
+      "tx_data_frames_per_net": 6,
+      "management_frames_per_net": 3,
+      "tftp_file_bytes": 520,
+      "tx_app_sha256": "3fb5c952d053925dbc06ce3b52053450734705fb3b8bf24bafb09b366690293d",
+      "rx_app_sha256": "5635c20240c2ad95934628dec8744843669965995100139aa61bdfd542d7f268"
+    },
+    {
+      "case": 1,
+      "kind": "bad_udp_then_recovery",
+      "tx_app_bytes": 8192,
+      "rx_app_bytes": 8192,
+      "held_app_bytes": 64,
+      "rx_frames_per_net": 13,
+      "prefix_frames": 6,
+      "recovery_frames": 6,
+      "tx_data_frames_per_net": 6,
+      "management_frames_per_net": 3,
+      "tftp_file_bytes": 520,
+      "tx_app_sha256": "3130613e6624f7f91739275a4aabf5531840c4fb5f89c0976b4e28ef15244741",
+      "rx_app_sha256": "3150184e4e92bc77c1b0017bc93ad8dab811e04608111c231ed133ae40256bff"
+    },
+    {
+      "case": 2,
+      "kind": "disable_incomplete_then_recovery",
+      "tx_app_bytes": 8192,
+      "rx_app_bytes": 8192,
+      "held_app_bytes": 64,
+      "rx_frames_per_net": 12,
+      "prefix_frames": 5,
+      "recovery_frames": 6,
+      "tx_data_frames_per_net": 6,
+      "management_frames_per_net": 3,
+      "tftp_file_bytes": 520,
+      "tx_app_sha256": "0b6f4be05dcd7c8d3e6ab2e6a49db90cab870c8da69291e2106591f5b0055b11",
+      "rx_app_sha256": "13efb80d76cec2dabf2b6ba6da2ec53547dce543822a464c08407d5708fd23b7"
+    }
+  ],
+  "words": 186398
+}

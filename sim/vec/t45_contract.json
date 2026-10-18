@@ -1,0 +1,71 @@
+{
+  "requests": [
+    {
+      "id": 0,
+      "name": "wrq1",
+      "bytes": 64
+    },
+    {
+      "id": 1,
+      "name": "data1",
+      "bytes": 563
+    },
+    {
+      "id": 2,
+      "name": "data2",
+      "bytes": 563
+    },
+    {
+      "id": 3,
+      "name": "data3",
+      "bytes": 563
+    },
+    {
+      "id": 4,
+      "name": "data4",
+      "bytes": 563
+    },
+    {
+      "id": 5,
+      "name": "data5",
+      "bytes": 563
+    },
+    {
+      "id": 6,
+      "name": "data6_513",
+      "bytes": 564
+    },
+    {
+      "id": 7,
+      "name": "data7_nosess",
+      "bytes": 64
+    },
+    {
+      "id": 8,
+      "name": "ack_malformed",
+      "bytes": 64
+    },
+    {
+      "id": 9,
+      "name": "wrq2",
+      "bytes": 64
+    },
+    {
+      "id": 10,
+      "name": "data2_1",
+      "bytes": 563
+    },
+    {
+      "id": 11,
+      "name": "data2_2",
+      "bytes": 64
+    }
+  ],
+  "nt": 8,
+  "maxs": 28,
+  "words": 17241,
+  "image1_len": 2560,
+  "image1_crc": "b77407dd",
+  "image2_len": 520,
+  "image2_crc": "b2995244"
+}

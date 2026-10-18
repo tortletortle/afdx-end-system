@@ -1,0 +1,1 @@
+`define GMII_VECTOR_WORDS 693

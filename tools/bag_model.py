@@ -64,21 +64,24 @@ def cases(doc=None):
     return out
 
 
-def util(n, frame_bytes, bag_us):
-    return n * frame_bytes * 8 / (bag_us * 1e-6 * LINK_BPS)
+def util(n, frame_bytes, bag_us, link_bps=LINK_BPS):
+    if link_bps <= 0:
+        raise ValueError("link_bps must be positive")
+    return n * frame_bytes * 8 / (bag_us * 1e-6 * link_bps)
 
 
-def metrics(n, frame_bytes, bag_us):
-    u = util(n, frame_bytes, bag_us)
+def metrics(n, frame_bytes, bag_us, link_bps=LINK_BPS):
+    u = util(n, frame_bytes, bag_us, link_bps)
     # 每 VL 的 Q20 份额必须先向上取整，再累加；不能对整个浮点总和四舍五入。
     # Fraction 避免恰好整除时浮点误差把 ceil 错加 1。
-    bits_per_us = int(LINK_BPS / 1e6)
+    bits_per_us = Fraction(str(link_bps)) / 1000000
     per_vl = math.ceil(Fraction(frame_bytes * 8 * Q20, 1) /
                        (Fraction(str(bag_us)) * bits_per_us))
     q20 = n * per_vl
     return {
-        "util": u, "mbps": u * LINK_BPS / 1e6, "q20": q20, "q20_per_vl": per_vl,
-        "t_frame_us": frame_bytes * 8 / LINK_BPS * 1e6,
+        "util": u, "mbps": u * link_bps / 1e6, "q20": q20, "q20_per_vl": per_vl,
+        "link_bps": link_bps,
+        "t_frame_us": frame_bytes * 8 / link_bps * 1e6,
         "fps_total": n / (bag_us * 1e-6),
         # 旧字段名保留兼容：这里按 wire_bytes 算的是等效线上需求，不是 builder 的 RTL 吞吐实测。
         "builder_MBps": n * frame_bytes / (bag_us * 1e-6) / 1e6,

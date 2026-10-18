@@ -12,6 +12,15 @@ if {![info exists env(TEST_TB)]} {
   puts "ERROR: TEST_TB env not set"
   quit -f -code 1
 }
+if {![info exists env(TEST_BIND_TOP)]} {
+  puts "ERROR: TEST_BIND_TOP env not set"
+  quit -f -code 1
+}
+set bind_top $env(TEST_BIND_TOP)
+if {$bind_top ni {"none" "afdx_bind_full" "afdx_bind_rx_ic" "afdx_bind_mac_tx_if"}} {
+  puts "ERROR: invalid TEST_BIND_TOP '$bind_top'"
+  quit -f -code 1
+}
 set vsim_args {}
 if {[info exists env(VSIM_ACC)] && $env(VSIM_ACC) == "1"} {
   lappend vsim_args -voptargs=+acc
@@ -23,7 +32,9 @@ if {[info exists env(UCDB_OUT)]} {
 if {[info exists env(VSIM_PLUSARGS)] && $env(VSIM_PLUSARGS) ne ""} {
   foreach pa [split $env(VSIM_PLUSARGS)] { if {$pa ne ""} { lappend vsim_args $pa } }
 }
-if {[catch {vsim {*}$vsim_args $env(TEST_TB)} msg]} {
+set tops [list $env(TEST_TB)]
+if {$bind_top ne "none"} { lappend tops work.$bind_top }
+if {[catch {vsim {*}$vsim_args {*}$tops} msg]} {
   puts "VSIM-ERROR: $msg"
   quit -f -code 1
 } else {

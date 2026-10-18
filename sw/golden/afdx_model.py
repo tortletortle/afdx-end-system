@@ -77,7 +77,7 @@ def build_frame(vlid, udi, ifid, net_id, src_ip, dst_ip, sport, dport,
     帧布局（§6.1，O-02）：ETH14 IP20 UDP8 | payload L | pad P=max(0,17-L) | SN | FCS
       IP Total Length = 28 + L，UDP Length = 8 + L；pad 与 SN 不计入长度字段、不进 UDP 校验和。"""
     L = len(payload)
-    assert 8 <= L <= 1471, "payload 长度须 8..1471（§6.1）"
+    assert 1 <= L <= 1471, "payload 长度须 1..1471（§6.1；UDP 载荷允许短于以太网填充区）"
     assert 1 <= sn <= 255, "SN 永不使用 0（§6.6）"
     ip_total = IP_HDR + UDP_HDR + L
     udp_len  = UDP_HDR + L
@@ -197,6 +197,14 @@ def main():
     ck(p2["ip_total"] == 36 and p2["udp_len"] == 16, "L=8：Total Length 36 / UDP Length 16（不含 pad/SN）")
     ck(f2[42:50] == b"Q" * 8 and f2[50:59] == b"\x00" * 9 and f2[59] == 1, "L=8：payload → 9 B pad → SN → FCS（XAPP1130 图 3）")
     ck(p2["sn"] == 1 and p2["sn_pos_ok"] and p2["pad_zero"] and p2["udp_csum_ok"], "L=8 解析：SN 位置/零 pad/UDP 校验和")
+    f4, _ = build_frame(1, 0x11, IFID_A, 1, "10.0.0.1", "10.0.0.2",
+                        49152, 49152, b"\x00\x04\x00\x01", 1)
+    p4 = parse_frame(f4)
+    ck(len(f4) == 64 and p4["ip_total"] == 32 and p4["udp_len"] == 12,
+       "L=4：TFTP ACK 保持 4B UDP 载荷，Ethernet 填充后总长 64B")
+    ck(f4[42:46] == b"\x00\x04\x00\x01" and f4[46:59] == b"\x00" * 13 and
+       p4["sn"] == 1 and p4["pad_zero"] and p4["udp_csum_ok"],
+       "L=4：Ethernet 填充位于 UDP 载荷之后、AFDX SN 之前")
     for Lx in (16, 17, 18):
         fx, _ = build_frame(1, 0x11, IFID_A, 1, "10.0.0.1", "10.0.0.2", 49152, 49152, b"R" * Lx, 5)
         ck(len(fx) - 4 == 42 + max(Lx, 17) + 1, "L=%d：帧长(不含 FCS)=%d" % (Lx, len(fx) - 4))

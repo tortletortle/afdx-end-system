@@ -19,18 +19,20 @@ MAX_TX_VL = 128
 MAX_SHARE = (1 << 21) - 1
 
 
-def share_q20(lmax: int, bag_us: int) -> int:
+def share_q20(lmax: int, bag_us: int, link_mbps: int = 100) -> int:
     if not (64 <= lmax <= 1518):
         raise ValueError("Lmax 必须是含 FCS 的以太帧长，64~1518 B")
     if bag_us <= 0:
         raise ValueError("BAG 必须是正整数 μs")
+    if link_mbps not in (100, 1000):
+        raise ValueError("link_mbps 必须为 100（旧字节槽）或 1000（125MHz PHY GMII）")
     # 100 Mbps => 每 μs 100 bit；线上字节数为 (Lmax+20)。逐 VL 向上取整，绝不先合计。
     n = (lmax + OH) * 8 * Q20
-    den = bag_us * 100
+    den = bag_us * link_mbps
     share = (n + den - 1) // den
     if share > MAX_SHARE:
         raise ValueError("单 VL 份额超过 21 bit 前门字段；应在软件侧先拒绝非法 BAG")
-    assert metrics(1, lmax + OH, bag_us)["q20"] == share
+    assert metrics(1, lmax + OH, bag_us, link_bps=link_mbps * 1000000)["q20"] == share
     return share
 
 
@@ -60,6 +62,8 @@ def main() -> int:
     p.add_argument('--start-vl', type=int, default=0, help='first VL index, default 0')
     p.add_argument('--lmax', type=int, default=1518, help='Ethernet frame bytes incl. FCS')
     p.add_argument('--bag-us', type=int, default=8000, help='BAG in integer microseconds')
+    p.add_argument('--link-mbps', type=int, choices=(100, 1000), default=100,
+                   help='physical link capacity used to normalize Q20; IF_MODE=2 at 125MHz uses 1000')
     p.add_argument('--out', type=Path, help='output CSV path, default stdout')
     p.add_argument('--allow-overload', action='store_true', help='negative test only: emit an over-budget CSV')
     p.add_argument('--selftest', action='store_true', help='verify 4 published vectors & bad args')
@@ -71,7 +75,7 @@ def main() -> int:
             args.start_vl + args.n <= MAX_TX_VL):
         p.error("VL 区间必须落在 0..127 内，且 n >= 1")
     try:
-        share = share_q20(args.lmax, args.bag_us)
+        share = share_q20(args.lmax, args.bag_us, args.link_mbps)
     except ValueError as e:
         p.error(str(e))
     total = args.n * share
@@ -87,7 +91,7 @@ def main() -> int:
         writer.writerow(['word_addr', 'vl_index', 'q20_share'])
         for vl in range(args.start_vl, args.start_vl + args.n):
             writer.writerow([f'0x{BASE_ADDR + vl:04X}', vl, share])
-    print(f'CFG_SHARE: n={args.n}, Lmax={args.lmax} B, BAG={args.bag_us} us; '
+    print(f'CFG_SHARE: n={args.n}, Lmax={args.lmax} B, BAG={args.bag_us} us, link={args.link_mbps} Mbps; '
           f'each={share}, CFG_SUM={total}/{Q20}, '
           f'{"LEGAL" if total <= Q20 else "REJECT BAG_OVF"}', file=sys.stderr)
     return 0

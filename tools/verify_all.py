@@ -249,6 +249,50 @@ for w in ("0x6580", "0x6C00", "0xE000", "0x6680", "0x6000", "1.61 Mbit", "1.78 M
 if not F or all(x[0] != "stale" for x in F):
     ok("stale", "正文无旧地址/旧容量字面量")
 
+# 15 回归 manifest 中每个顶层都必须由 runner 编译到对应源文件
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sim_dir = os.path.join(root, "sim")
+manifest_path = os.path.join(sim_dir, "tests.manifest")
+runner_path = os.path.join(sim_dir, "run_regress.ps1")
+if not os.path.isfile(manifest_path) or not os.path.isfile(runner_path):
+    fail("manifest", "缺少 sim/tests.manifest 或 sim/run_regress.ps1")
+else:
+    runner_text = io.open(runner_path, encoding="utf-8", errors="replace").read()
+    alias_block = re.search(r"\$tbfile\s*=\s*@\{(.*?)\}", runner_text, re.S)
+    if not alias_block:
+        fail("manifest", "无法读取 run_regress.ps1 的 TB 文件映射表")
+    else:
+        tbfile_map = dict(re.findall(r"'([^']+)'\s*=\s*'([^']+)'", alias_block.group(1)))
+        manifest_rows = []
+        seen_ids = set()
+        manifest_errors = []
+        for lineno, line in enumerate(io.open(manifest_path, encoding="utf-8", errors="replace"), 1):
+            row = line.strip()
+            if not row or row.startswith("#"):
+                continue
+            cols = row.split()
+            if len(cols) < 2:
+                manifest_errors.append("第 %d 行格式错误" % lineno)
+                continue
+            test_id, top = cols[0], cols[1]
+            if test_id in seen_ids:
+                manifest_errors.append("重复测试 ID %s" % test_id)
+            seen_ids.add(test_id)
+            source = tbfile_map.get(top, top)
+            source_path = os.path.join(sim_dir, "tb", source + ".v")
+            if not os.path.isfile(source_path):
+                manifest_errors.append("%s 找不到源文件 tb/%s.v" % (test_id, source))
+                continue
+            source_text = io.open(source_path, encoding="utf-8", errors="replace").read()
+            modules = set(re.findall(r"\bmodule\s+(?:(?:automatic|static)\s+)?([A-Za-z_]\w*)", source_text))
+            if top not in modules:
+                manifest_errors.append("%s 的顶层 %s 未在 tb/%s.v 声明" % (test_id, top, source))
+            manifest_rows.append(test_id)
+        if manifest_errors:
+            fail("manifest", "; ".join(manifest_errors[:8]))
+        else:
+            ok("manifest", "%d 个 manifest 顶层都映射到现存且含对应 module 的 TB 文件" % len(manifest_rows))
+
 print("\n== 结论 ==")
 if not F:
     print("全部通过，0 处问题"); sys.exit(0)

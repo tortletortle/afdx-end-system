@@ -1,0 +1,1 @@
+`define GMII_MGMT_WORDS 899

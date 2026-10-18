@@ -1,0 +1,767 @@
+{
+  "scope": "Standalone TX fragment builder; not production-top TX8KiB",
+  "messages": 30,
+  "cases": [
+    {
+      "message": 0,
+      "length": 1,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 9,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 1,
+      "length": 1,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 9,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 2,
+      "length": 2,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 10,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 3,
+      "length": 2,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 10,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 4,
+      "length": 8,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 16,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 5,
+      "length": 8,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 16,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 6,
+      "length": 17,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 25,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 7,
+      "length": 17,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 25,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 8,
+      "length": 1471,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1479,
+      "last": true,
+      "body_bytes": 1514,
+      "wire_bytes": 1526
+    },
+    {
+      "message": 9,
+      "length": 1471,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1479,
+      "last": true,
+      "body_bytes": 1514,
+      "wire_bytes": 1526
+    },
+    {
+      "message": 10,
+      "length": 1472,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 10,
+      "length": 1472,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 8,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 11,
+      "length": 1472,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 11,
+      "length": 1472,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 8,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 12,
+      "length": 2007,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 12,
+      "length": 2007,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 543,
+      "last": true,
+      "body_bytes": 578,
+      "wire_bytes": 590
+    },
+    {
+      "message": 13,
+      "length": 2007,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 13,
+      "length": 2007,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 543,
+      "last": true,
+      "body_bytes": 578,
+      "wire_bytes": 590
+    },
+    {
+      "message": 14,
+      "length": 2048,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 14,
+      "length": 2048,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 584,
+      "last": true,
+      "body_bytes": 619,
+      "wire_bytes": 631
+    },
+    {
+      "message": 15,
+      "length": 2048,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 15,
+      "length": 2048,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 584,
+      "last": true,
+      "body_bytes": 619,
+      "wire_bytes": 631
+    },
+    {
+      "message": 16,
+      "length": 2049,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 16,
+      "length": 2049,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 585,
+      "last": true,
+      "body_bytes": 620,
+      "wire_bytes": 632
+    },
+    {
+      "message": 17,
+      "length": 2049,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 17,
+      "length": 2049,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 585,
+      "last": true,
+      "body_bytes": 620,
+      "wire_bytes": 632
+    },
+    {
+      "message": 18,
+      "length": 2943,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 18,
+      "length": 2943,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 1479,
+      "last": true,
+      "body_bytes": 1514,
+      "wire_bytes": 1526
+    },
+    {
+      "message": 19,
+      "length": 2943,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 19,
+      "length": 2943,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 1479,
+      "last": true,
+      "body_bytes": 1514,
+      "wire_bytes": 1526
+    },
+    {
+      "message": 20,
+      "length": 2944,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 20,
+      "length": 2944,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 20,
+      "length": 2944,
+      "checksum": 0,
+      "offset": 2944,
+      "fragment_length": 8,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 21,
+      "length": 2944,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 21,
+      "length": 2944,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 21,
+      "length": 2944,
+      "checksum": 1,
+      "offset": 2944,
+      "fragment_length": 8,
+      "last": true,
+      "body_bytes": 60,
+      "wire_bytes": 72
+    },
+    {
+      "message": 22,
+      "length": 4096,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 22,
+      "length": 4096,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 22,
+      "length": 4096,
+      "checksum": 0,
+      "offset": 2944,
+      "fragment_length": 1160,
+      "last": true,
+      "body_bytes": 1195,
+      "wire_bytes": 1207
+    },
+    {
+      "message": 23,
+      "length": 4096,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 23,
+      "length": 4096,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 23,
+      "length": 4096,
+      "checksum": 1,
+      "offset": 2944,
+      "fragment_length": 1160,
+      "last": true,
+      "body_bytes": 1195,
+      "wire_bytes": 1207
+    },
+    {
+      "message": 24,
+      "length": 6144,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 24,
+      "length": 6144,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 24,
+      "length": 6144,
+      "checksum": 0,
+      "offset": 2944,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 24,
+      "length": 6144,
+      "checksum": 0,
+      "offset": 4416,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 24,
+      "length": 6144,
+      "checksum": 0,
+      "offset": 5888,
+      "fragment_length": 264,
+      "last": true,
+      "body_bytes": 299,
+      "wire_bytes": 311
+    },
+    {
+      "message": 25,
+      "length": 6144,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 25,
+      "length": 6144,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 25,
+      "length": 6144,
+      "checksum": 1,
+      "offset": 2944,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 25,
+      "length": 6144,
+      "checksum": 1,
+      "offset": 4416,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 25,
+      "length": 6144,
+      "checksum": 1,
+      "offset": 5888,
+      "fragment_length": 264,
+      "last": true,
+      "body_bytes": 299,
+      "wire_bytes": 311
+    },
+    {
+      "message": 26,
+      "length": 8191,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 26,
+      "length": 8191,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 26,
+      "length": 8191,
+      "checksum": 0,
+      "offset": 2944,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 26,
+      "length": 8191,
+      "checksum": 0,
+      "offset": 4416,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 26,
+      "length": 8191,
+      "checksum": 0,
+      "offset": 5888,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 26,
+      "length": 8191,
+      "checksum": 0,
+      "offset": 7360,
+      "fragment_length": 839,
+      "last": true,
+      "body_bytes": 874,
+      "wire_bytes": 886
+    },
+    {
+      "message": 27,
+      "length": 8191,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 27,
+      "length": 8191,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 27,
+      "length": 8191,
+      "checksum": 1,
+      "offset": 2944,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 27,
+      "length": 8191,
+      "checksum": 1,
+      "offset": 4416,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 27,
+      "length": 8191,
+      "checksum": 1,
+      "offset": 5888,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 27,
+      "length": 8191,
+      "checksum": 1,
+      "offset": 7360,
+      "fragment_length": 839,
+      "last": true,
+      "body_bytes": 874,
+      "wire_bytes": 886
+    },
+    {
+      "message": 28,
+      "length": 8192,
+      "checksum": 0,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 28,
+      "length": 8192,
+      "checksum": 0,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 28,
+      "length": 8192,
+      "checksum": 0,
+      "offset": 2944,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 28,
+      "length": 8192,
+      "checksum": 0,
+      "offset": 4416,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 28,
+      "length": 8192,
+      "checksum": 0,
+      "offset": 5888,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 28,
+      "length": 8192,
+      "checksum": 0,
+      "offset": 7360,
+      "fragment_length": 840,
+      "last": true,
+      "body_bytes": 875,
+      "wire_bytes": 887
+    },
+    {
+      "message": 29,
+      "length": 8192,
+      "checksum": 1,
+      "offset": 0,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 29,
+      "length": 8192,
+      "checksum": 1,
+      "offset": 1472,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 29,
+      "length": 8192,
+      "checksum": 1,
+      "offset": 2944,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 29,
+      "length": 8192,
+      "checksum": 1,
+      "offset": 4416,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 29,
+      "length": 8192,
+      "checksum": 1,
+      "offset": 5888,
+      "fragment_length": 1472,
+      "last": false,
+      "body_bytes": 1507,
+      "wire_bytes": 1519
+    },
+    {
+      "message": 29,
+      "length": 8192,
+      "checksum": 1,
+      "offset": 7360,
+      "fragment_length": 840,
+      "last": true,
+      "body_bytes": 875,
+      "wire_bytes": 887
+    }
+  ],
+  "case_count": 76
+}

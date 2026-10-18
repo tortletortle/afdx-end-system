@@ -1,0 +1,5 @@
+# profile<TAB>sorted target modules<TAB>binder source (relative to sim/chk/bind_profiles)
+none		-
+full	AFDX_top,mac_tx_if,rx_block_pool,rx_ic,rx_rm	afdx_bind_full.sv
+rx_ic	rx_ic	afdx_bind_rx_ic.sv
+mac_tx_if	mac_tx_if	afdx_bind_mac_tx_if.sv

@@ -1,0 +1,132 @@
+{
+  "case_count": 18,
+  "cases": [
+    {
+      "message": 0,
+      "length": 1471,
+      "checksum": 0,
+      "frames": 1,
+      "readback_bytes": 1471
+    },
+    {
+      "message": 1,
+      "length": 1471,
+      "checksum": 1,
+      "frames": 1,
+      "readback_bytes": 1471
+    },
+    {
+      "message": 2,
+      "length": 1472,
+      "checksum": 0,
+      "frames": 2,
+      "readback_bytes": 1472
+    },
+    {
+      "message": 3,
+      "length": 1472,
+      "checksum": 1,
+      "frames": 2,
+      "readback_bytes": 1472
+    },
+    {
+      "message": 4,
+      "length": 2007,
+      "checksum": 0,
+      "frames": 2,
+      "readback_bytes": 2007
+    },
+    {
+      "message": 5,
+      "length": 2007,
+      "checksum": 1,
+      "frames": 2,
+      "readback_bytes": 2007
+    },
+    {
+      "message": 6,
+      "length": 2048,
+      "checksum": 0,
+      "frames": 2,
+      "readback_bytes": 2048
+    },
+    {
+      "message": 7,
+      "length": 2048,
+      "checksum": 1,
+      "frames": 2,
+      "readback_bytes": 2048
+    },
+    {
+      "message": 8,
+      "length": 2049,
+      "checksum": 0,
+      "frames": 2,
+      "readback_bytes": 2049
+    },
+    {
+      "message": 9,
+      "length": 2049,
+      "checksum": 1,
+      "frames": 2,
+      "readback_bytes": 2049
+    },
+    {
+      "message": 10,
+      "length": 4096,
+      "checksum": 0,
+      "frames": 3,
+      "readback_bytes": 4096
+    },
+    {
+      "message": 11,
+      "length": 4096,
+      "checksum": 1,
+      "frames": 3,
+      "readback_bytes": 4096
+    },
+    {
+      "message": 12,
+      "length": 8191,
+      "checksum": 0,
+      "frames": 6,
+      "readback_bytes": 8191
+    },
+    {
+      "message": 13,
+      "length": 8191,
+      "checksum": 1,
+      "frames": 6,
+      "readback_bytes": 8191
+    },
+    {
+      "message": 14,
+      "length": 8192,
+      "checksum": 0,
+      "frames": 6,
+      "readback_bytes": 8192
+    },
+    {
+      "message": 15,
+      "length": 8192,
+      "checksum": 1,
+      "frames": 6,
+      "readback_bytes": 8192
+    },
+    {
+      "message": 16,
+      "length": 32,
+      "checksum": 0,
+      "frames": 1,
+      "readback_bytes": 32
+    },
+    {
+      "message": 17,
+      "length": 32,
+      "checksum": 1,
+      "frames": 1,
+      "readback_bytes": 32
+    }
+  ],
+  "frames_per_net": 50
+}

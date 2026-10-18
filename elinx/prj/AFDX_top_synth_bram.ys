@@ -11,6 +11,8 @@
 #     out/arena-debug/continue2/synth/run_syn.ps1 \
 #     -Ys elinx/prj/AFDX_top_synth_bram.ys -Name top_bram -TimeoutS 900
 # =====================================================================
+# Source list synchronized from AFDX_top_sources.f on 2026-10-12.
+# Source list synchronized from AFDX_top_sources.f on 2026-10-12.
 read_verilog \
   C:/Workspace/diansai/rtl/common/rst_sync.v \
   C:/Workspace/diansai/rtl/common/timebase.v \
@@ -18,23 +20,49 @@ read_verilog \
   C:/Workspace/diansai/rtl/common/crc32.v \
   C:/Workspace/diansai/rtl/common/bram_sdp.v \
   C:/Workspace/diansai/rtl/top/init_sweep.v \
+  C:/Workspace/diansai/rtl/top/host_if.v \
   C:/Workspace/diansai/rtl/tx/tx_sn_gen.v \
   C:/Workspace/diansai/rtl/tx/tx_port_buf.v \
   C:/Workspace/diansai/rtl/tx/tx_frame_builder.v \
+  C:/Workspace/diansai/rtl/tx/tx_pmem_window_reader.v \
+  C:/Workspace/diansai/rtl/tx/tx_fragment_frame_builder.v \
+  C:/Workspace/diansai/rtl/tx/tx_fragment_launch.v \
+  C:/Workspace/diansai/rtl/tx/tx_message_store.v \
   C:/Workspace/diansai/rtl/tx/tx_vl_scheduler.v \
   C:/Workspace/diansai/rtl/tx/tx_rm.v \
   C:/Workspace/diansai/rtl/tx/tx_pace.v \
   C:/Workspace/diansai/rtl/tx/mac_tx_if.v \
   C:/Workspace/diansai/rtl/rx/mac_rx_if.v \
+  C:/Workspace/diansai/rtl/rx/gmii_rx_strip.v \
   C:/Workspace/diansai/rtl/rx/rx_block_pool.v \
   C:/Workspace/diansai/rtl/rx/rx_pmem_queue.v \
   C:/Workspace/diansai/rtl/rx/rx_ic.v \
   C:/Workspace/diansai/rtl/rx/rx_vl_lookup.v \
   C:/Workspace/diansai/rtl/rx/rx_flt.v \
   C:/Workspace/diansai/rtl/rx/rx_rm.v \
+  C:/Workspace/diansai/rtl/rx/rx_pmem_copy_engine.v \
+  C:/Workspace/diansai/rtl/rx/rx_udp_checksum_engine.v \
+  C:/Workspace/diansai/rtl/rx/rx_reassembly.v \
+  C:/Workspace/diansai/rtl/rx/rx_reassembly_chain.v \
+  C:/Workspace/diansai/rtl/rx/rx_pmem_scatter_copy.v \
+  C:/Workspace/diansai/rtl/rx/rx_chain_metadata.v \
   C:/Workspace/diansai/rtl/rx/rx_ip_udp_parse.v \
   C:/Workspace/diansai/rtl/rx/rx_port_buf.v \
   C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx.v \
+  C:/Workspace/diansai/rtl/mgmt/mgmt_sap_rx_chain.v \
+  C:/Workspace/diansai/rtl/mgmt/snmp_lite.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_tftp.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_init_tx.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_fetch_engine.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_file_rx.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_lur_orchestrator.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_lur_rx.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_tftp_client_1350.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_tftp_dgram_rx.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_tftp_file_rx_adapter.v \
+  C:/Workspace/diansai/rtl/mgmt/a615a_tftp_tx_pack.v \
+  C:/Workspace/diansai/rtl/mgmt/rtc_sync.v \
+  C:/Workspace/diansai/rtl/top/stats_regs.v \
   C:/Workspace/diansai/rtl/top/AFDX_top.v
 hierarchy -top AFDX_top
 proc

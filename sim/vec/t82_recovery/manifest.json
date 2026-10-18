@@ -1,0 +1,58 @@
+{
+  "cases": [
+    {
+      "case": 0,
+      "failed_length": 8192,
+      "failed_offset": 0,
+      "fault": "header_length_zero",
+      "failed_ident": 18,
+      "frames_per_net": 2,
+      "published_application_bytes": 65,
+      "successors": [
+        32,
+        33
+      ]
+    },
+    {
+      "case": 1,
+      "failed_length": 8192,
+      "failed_offset": 1472,
+      "fault": "reader_block_count_zero",
+      "failed_ident": 21,
+      "frames_per_net": 3,
+      "published_application_bytes": 1529,
+      "successors": [
+        32,
+        33
+      ]
+    },
+    {
+      "case": 2,
+      "failed_length": 2048,
+      "failed_offset": 1472,
+      "fault": "reader_block_count_zero",
+      "failed_ident": 24,
+      "frames_per_net": 3,
+      "published_application_bytes": 1529,
+      "successors": [
+        32,
+        33
+      ]
+    },
+    {
+      "case": 3,
+      "failed_length": 32,
+      "failed_offset": 0,
+      "fault": "header_length_zero",
+      "failed_ident": 27,
+      "frames_per_net": 2,
+      "published_application_bytes": 65,
+      "successors": [
+        32,
+        33
+      ]
+    }
+  ],
+  "frames_per_net": 10,
+  "application_bytes": 3188
+}

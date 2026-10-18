@@ -1,0 +1,799 @@
+{
+  "schema": "snmp-wire-case-spec-v1",
+  "semantic_basis": {
+    "mib": "snmp_lite declared subset: unknown OID=noSuchName(2), SET to RO=readOnly(4), bad type/out-of-range=badValue(3); one-based error-index. BAG leaf 5 accepts 1..0x007ffffe; CTL leaf 11 accepts 0..0xffff. GETNEXT orders eight scalars, five 128-instance columns and 48 statistics objects (696 logical entries). These are project-contract expectations, not a claim of complete SNMPv1/v2c conformance.",
+    "initial_configuration": "AFDX_top.v CTL_RST=0x051c; T36 setup does not issue a host or SNMP control write before case 27.",
+    "wire": "T31 top-level peer contract: incoming 10.0.0.1:49152 to ES 10.0.0.2:5000; response reverses that tuple; Ethernet FCS uses reflected CRC-32/IEEE little-endian wire bytes.",
+    "snmp_error_response": "RFC 1157 sections 4.1.2, 4.1.3 and 4.1.5: normal error GetResponse-PDUs preserve request variable bindings (OID, syntax and value). The declared bounded empty-list tooBig response is checked separately; it is not claimed as complete SNMPv1 conformance."
+  },
+  "cases": {
+    "12": {
+      "request": {
+        "request_id": 42405,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "syntax": "INTEGER",
+            "value": 4660
+          }
+        ]
+      },
+      "response": {
+        "request_id": 42405,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 4660
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 4660
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "MIB leaf 11 is RW and SET_ACK_EN top integration commits only after complete validation."
+    },
+    "13": {
+      "request": {
+        "request_id": 42406,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 42406,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 4660
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 4660
+      },
+      "configuration_after": {
+        "ctl": 4660
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "GET leaf 11 reads ctl_val; case 12 is the immediately preceding successful SET."
+    },
+    "14": {
+      "request": {
+        "request_id": 119,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01016300"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 119,
+        "error_status": 2,
+        "error_index": 1,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01016300",
+            "value_tag": 5,
+            "value_hex": ""
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Unknown group-1 leaf 99 resolves to noSuchName(2), index 1 per snmp_lite.v error contract."
+    },
+    "15": {
+      "request": {
+        "request_id": 120,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010c00",
+            "syntax": "INTEGER",
+            "value": 9
+          }
+        ]
+      },
+      "response": {
+        "request_id": 120,
+        "error_status": 4,
+        "error_index": 1,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010c00",
+            "value_tag": 2,
+            "value": 9
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Leaf 12 is the read-only drop counter; SET to RO yields readOnly(4), index 1."
+    },
+    "19": {
+      "request": {
+        "request_id": 124,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "syntax": "OCTET STRING",
+            "value_hex": "7879"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 124,
+        "error_status": 3,
+        "error_index": 1,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 4,
+            "value_hex": "7879"
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "SET leaf 11 accepts INTEGER only; wrong syntax produces badValue(3), index 1."
+    },
+    "25": {
+      "request": {
+        "request_id": 131,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "syntax": "INTEGER",
+            "value": 1193046
+          }
+        ]
+      },
+      "response": {
+        "request_id": 131,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "value_tag": 2,
+            "value": 1193046
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383,
+        "bag5": 801
+      },
+      "configuration_after": {
+        "ctl": 1383,
+        "bag5": 1193046
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Writable values are bounded at 0xffff by snmp_lite.v; case 25's 0x123456 is out of range."
+    },
+    "27": {
+      "request": {
+        "request_id": 133,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "syntax": "INTEGER",
+            "value": 22136
+          },
+          {
+            "oid_hex": "2b06010401a25c01010200",
+            "syntax": "INTEGER",
+            "value": 5
+          }
+        ]
+      },
+      "response": {
+        "request_id": 133,
+        "error_status": 4,
+        "error_index": 2,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 22136
+          },
+          {
+            "oid_hex": "2b06010401a25c01010200",
+            "value_tag": 2,
+            "value": 5
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Existing vector 27 valid ctl prefix then RO uptime; SET contract says readOnly at index 2 and no prefix commit."
+    },
+    "29": {
+      "request": {
+        "request_id": 135,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "syntax": "INTEGER",
+            "value": 1911
+          },
+          {
+            "oid_hex": "2b06010401a25c01016300",
+            "syntax": "INTEGER",
+            "value": 1
+          }
+        ]
+      },
+      "response": {
+        "request_id": 135,
+        "error_status": 2,
+        "error_index": 2,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "value_tag": 2,
+            "value": 1911
+          },
+          {
+            "oid_hex": "2b06010401a25c01016300",
+            "value_tag": 2,
+            "value": 1
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383,
+        "bag5": 801
+      },
+      "configuration_after": {
+        "ctl": 1383,
+        "bag5": 801
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Existing vector 29 has a valid BAG[5] write then unknown leaf; noSuchName at index 2 and no partial commit."
+    },
+    "28": {
+      "request": {
+        "request_id": 134,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "syntax": "INTEGER",
+            "value": 801
+          },
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "syntax": "INTEGER",
+            "value": 1383
+          }
+        ]
+      },
+      "response": {
+        "request_id": 134,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "value_tag": 2,
+            "value": 801
+          },
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 1383
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1308,
+        "bag5": 0
+      },
+      "configuration_after": {
+        "ctl": 1383,
+        "bag5": 801
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Existing vector 28 is a valid two-VarBind SET; host configuration writes set BAG index 5 and ctl after full validation."
+    },
+    "31": {
+      "request": {
+        "request_id": 137,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 137,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 1383
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Read back leaf 11 immediately after valid vector 28 SET."
+    },
+    "30": {
+      "request": {
+        "request_id": 136,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 136,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 1383
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Readback verifies vector 27 did not modify ctl."
+    },
+    "22": {
+      "request": {
+        "request_id": 128,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 128,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "value_tag": 2,
+            "value": 801
+          }
+        ]
+      },
+      "configuration_before": {
+        "bag5": 801
+      },
+      "configuration_after": {
+        "bag5": 801
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Read BAG[5] after failed vector 29 to prove retained 0x321."
+    },
+    "90": {
+      "request": {
+        "request_id": 13968,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "syntax": "INTEGER",
+            "value": 8738
+          }
+        ]
+      },
+      "response": {
+        "request_id": 13968,
+        "error_status": null,
+        "error_index": null,
+        "varbinds": []
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "drop",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "BER declares a larger SET payload than received; snmp_lite.v documents malformed BER as silent drop. Drop delta, no TX, unchanged control, and subsequent valid requests are observed."
+    },
+    "11": {
+      "request": {
+        "request_id": 85,
+        "pdu": "GETNEXT",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010d00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 85,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01020000",
+            "value_tag": 65
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 4660
+      },
+      "configuration_after": {
+        "ctl": 4660
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "GETNEXT after the final group-1 scalar walks across the subtree boundary to statistics object group 2 leaf 0; value is live counter and is not frozen."
+    },
+    "21": {
+      "request": {
+        "request_id": 126,
+        "pdu": "GETNEXT",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01022f00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 126,
+        "error_status": 2,
+        "error_index": 1,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01022f00",
+            "value_tag": 5,
+            "value_hex": ""
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 4660
+      },
+      "configuration_after": {
+        "ctl": 4660
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "GETNEXT after last supported statistics leaf has no successor; the implementation returns noSuchName for the sole VarBind."
+    },
+    "18": {
+      "request": {
+        "request_id": 123,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010100"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 123,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010100",
+            "value_tag": 4,
+            "value_hex": "414644582d455320654c696e78207631"
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 4660
+      },
+      "configuration_after": {
+        "ctl": 4660
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "GET first group-1 scalar description per snmp_lite MIB contract."
+    },
+    "54": {
+      "request": {
+        "request_id": 13969,
+        "pdu": "SET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "syntax": "INTEGER",
+            "value": 16777216
+          }
+        ]
+      },
+      "response": {
+        "request_id": 13969,
+        "error_status": 3,
+        "error_index": 1,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "value_tag": 2,
+            "value": 16777216
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383,
+        "bag5": 1193046
+      },
+      "configuration_after": {
+        "ctl": 1383,
+        "bag5": 1193046
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "BAG leaf 5 permits 1..0x007ffffe us. The requested 0x01000000 is outside that range, so badValue(3), index 1 and zero configuration writes are required. This case is an over-limit sample; exact limit checks remain in the unit boundary suite."
+    },
+    "55": {
+      "request": {
+        "request_id": 13970,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 13970,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010505",
+            "value_tag": 2,
+            "value": 1193046
+          }
+        ]
+      },
+      "configuration_before": {
+        "bag5": 1193046
+      },
+      "configuration_after": {
+        "bag5": 1193046
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Read back BAG[5] following rejected over-limit SET to prove no configuration change."
+    },
+    "56": {
+      "request": {
+        "request_id": 13971,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01022f00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 13971,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01022f00",
+            "value_tag": 65
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 4660
+      },
+      "configuration_after": {
+        "ctl": 4660
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "GET the final supported statistics object group 2 leaf 47 instance 0; MIB declares it Counter32, while its live counter value is not fixed."
+    },
+    "57": {
+      "request": {
+        "request_id": 13972,
+        "pdu": "GET",
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00"
+          }
+        ]
+      },
+      "response": {
+        "request_id": 13972,
+        "error_status": 0,
+        "error_index": 0,
+        "varbinds": [
+          {
+            "oid_hex": "2b06010401a25c01010b00",
+            "value_tag": 2,
+            "value": 1383
+          }
+        ]
+      },
+      "configuration_before": {
+        "ctl": 1383
+      },
+      "configuration_after": {
+        "ctl": 1383
+      },
+      "outcome": "response",
+      "peer": {
+        "src_ip": "10.0.0.2",
+        "src_port": 5000,
+        "dst_ip": "10.0.0.1",
+        "dst_port": 49152
+      },
+      "basis": "Public network GET immediately after malformed SET case 90 and before recovery SET case 12 proves that malformed BER did not modify CTL."
+    }
+  }
+}

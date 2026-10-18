@@ -1,0 +1,26 @@
+{
+  "schema": "phy-gmii-v1",
+  "word_count": 693,
+  "cases": [
+    {
+      "payload_bytes": 1,
+      "mac_frame_bytes": 64,
+      "record_word": 1
+    },
+    {
+      "payload_bytes": 32,
+      "mac_frame_bytes": 79,
+      "record_word": 19
+    },
+    {
+      "payload_bytes": 1024,
+      "mac_frame_bytes": 1071,
+      "record_word": 41
+    },
+    {
+      "payload_bytes": 1471,
+      "mac_frame_bytes": 1518,
+      "record_word": 311
+    }
+  ]
+}
