@@ -4,7 +4,9 @@
 // Stimulus: SNMPv1 PDUs built byte-by-byte by the tasks below (BER short
 // and 0x81 long form), independent of the DUT encoder.  Bytes are pushed
 // one per clock WITHOUT waiting for in_ready, exactly like the top level
-// where mgmt_sap_rx has no out_ready.
+// byte stream (the top-level SAP hold handshake added in P02 is verified
+// separately by T44/T45; this module-level robustness suite drives snmp_lite
+// directly and checks its own contract).
 //
 // C1  serial control: two GETs, clean responses, drop counter 0
 // C2  pending-slot burst: resp 17 held unacked, 18 queued, 19 arrives with
@@ -17,6 +19,11 @@
 // C5  SET {ctl:=0x1234, bogus leaf}    -> noSuchName(2) idx 2, ZERO writes
 // C6  SET {bag[3]:=0x000321, ctl:=0x0567} -> ok, exactly 2 writes, in order
 // C7  SET with 9 VarBinds (> MAX_VB=8) -> tooBig(1), ZERO writes
+// C8  256-byte SET with a 208-byte wrong-type value -> badValue, exact echo
+// C9  GETNEXT with terminal second VarBind -> echo both original bindings
+// C10 GET with an 8-byte unknown OID -> preserve original OID length/bytes
+// C11 version policy (P04): version=1/2 GETs are dropped silently and counted;
+//     a following v1 GET recovers normally
 // Verdict line: "T15u SNMP ROBUST PASS (...)" / "T15u SNMP ROBUST FAIL (...)"
 // =====================================================================
 `timescale 1ns/1ps
@@ -41,6 +48,7 @@ module tb_t15u_snmp_robust;
     .jit_max_us(32'd0), .buf_util(32'd0), .stats_off(soff),
     .stats_data(32'd0), .vl_data(32'd0), .vl_bag_allowed(1'b1),
     .ctl_we(ctlwe), .ctl_wdata(ctlwd),
+    .set_ack(1'b0), .set_active(),
     .vl_bag_we(bagwe), .vl_bag_index(bagidx), .vl_bag_wdata(bagwd),
     .mib_group(), .mib_leaf(), .mib_index(),
     .resp_vld(rvld), .resp_len(rlen), .resp_ack(ack), .resp_rd_addr(raddr), .resp_byte(rbyte),
@@ -88,10 +96,22 @@ module tb_t15u_snmp_robust;
       put_v(8'h02); put_v(8'h03); put_v(v[23:16]); put_v(v[15:8]); put_v(v[7:0]);
     end
   endtask
+  task vb_blob; input [7:0] g, l, i; input integer n;
+    integer j;
+    begin
+      put_v(8'h30); put_v(8'h81); put_v(16+n); put_oid(g, l, i);
+      put_v(8'h04); put_v(8'h81); put_v(n);
+      for (j = 0; j < n; j = j + 1) put_v((j * 37 + 11) & 255);
+    end
+  endtask
   task put_p; input [7:0] b; begin pkt[pn] = b; pn = pn + 1; end endtask
   task put_len; input integer L; begin if (L < 128) put_p(L); else begin put_p(8'h81); put_p(L); end end endtask
   function integer lensz; input integer L; begin lensz = (L < 128) ? 1 : 2; end endfunction
   task build; input [7:0] pdu; input [7:0] rid;
+    begin build_v(pdu, rid, 8'h00); end
+  endtask
+  // P04: version field is parameterised so the accepted-range policy is testable.
+  task build_v; input [7:0] pdu; input [7:0] rid; input [7:0] ver;
     integer vbl_tl, pdu_cl, pdu_tl, msg_cl, k;
     begin
       vbl_tl = 1 + lensz(vn) + vn;
@@ -100,7 +120,7 @@ module tb_t15u_snmp_robust;
       msg_cl = 3 + 8 + pdu_tl;
       pn = 0;
       put_p(8'h30); put_len(msg_cl);
-      put_p(8'h02); put_p(8'h01); put_p(8'h00);
+      put_p(8'h02); put_p(8'h01); put_p(ver);
       put_p(8'h04); put_p(8'h06);
       put_p("p"); put_p("u"); put_p("b"); put_p("l"); put_p("i"); put_p("c");
       put_p(pdu); put_len(pdu_cl);
@@ -123,7 +143,7 @@ module tb_t15u_snmp_robust;
 
   // ---------------- response side ----------------
   reg [7:0] rsp [0:255];
-  integer r_id, r_err, r_idx, r_val, r_comm_ok;
+  integer r_id, r_err, r_idx, r_val, r_comm_ok, r_vbl_pos, r_vbl_len;
   task wait_resp; input integer maxc; output integer seen;
     integer t; begin t = 0; while (rvld !== 1'b1 && t < maxc) begin @(negedge clk); t = t + 1; end seen = (rvld === 1'b1); end
   endtask
@@ -133,7 +153,9 @@ module tb_t15u_snmp_robust;
   task decode;
     integer j, p, L, n;
     begin
-      for (j = 0; j < rlen && j < 256; j = j + 1) begin @(negedge clk); raddr = j; #1; rsp[j] = rbyte; end
+      for (j = 0; j < rlen && j < 256; j = j + 1) begin
+        raddr = j; @(negedge clk); #1; rsp[j] = rbyte;
+      end
       p = 1; rd_len(p, L);                      // SEQUENCE
       p = p + 3;                                // version
       r_comm_ok = (rsp[p] == 8'h04 && rsp[p+1] == 8'h06 && rsp[p+2] == "p" && rsp[p+3] == "u" &&
@@ -147,6 +169,7 @@ module tb_t15u_snmp_robust;
       r_err = rsp[p+2]; p = p + 3;
       r_idx = rsp[p+2]; p = p + 3;
       p = p + 1; rd_len(p, L);                  // VarBindList
+      r_vbl_pos = p; r_vbl_len = L;
       r_val = -1;
       if (L > 0) begin
         p = p + 1; rd_len(p, L);                // VarBind
@@ -154,6 +177,15 @@ module tb_t15u_snmp_robust;
         p = p + 1; rd_len(p, L); r_val = 0;
         for (j = 0; j < L; j = j + 1) r_val = (r_val << 8) | rsp[p+j];
       end
+    end
+  endtask
+  task chk_echo;
+    integer j;
+    begin
+      chk(r_vbl_len == vn, "error echo: original list length");
+      chk(rlen == r_vbl_pos + vn, "error echo: complete response length");
+      for (j = 0; j < vn; j = j + 1)
+        chk(rsp[r_vbl_pos+j] === vbl[j], "error echo: original VarBind bytes");
     end
   endtask
   task ackr; begin @(negedge clk); ack = 1; @(negedge clk); ack = 0; @(negedge clk); end endtask
@@ -205,13 +237,13 @@ module tb_t15u_snmp_robust;
     // ---------- C4 ----------
     reset_unit;
     vb_begin; vb_int(8'd1, 8'd11, 8'd0, 32'h1234); vb_int(8'd1, 8'd2, 8'd0, 32'd5); build(8'ha3, 8'd49);
-    send; expect_resp(49, 4, 2, "C4 readOnly err/idx"); ackr;
+    send; expect_resp(49, 4, 2, "C4 readOnly err/idx"); chk_echo; ackr;
     chk(nwr == 0 && ctl == 16'h051c, "C4 rejected SET wrote nothing");
 
     // ---------- C5 ----------
     reset_unit;
     vb_begin; vb_int(8'd1, 8'd11, 8'd0, 32'h1234); vb_int(8'd1, 8'd99, 8'd0, 32'd5); build(8'ha3, 8'd50);
-    send; expect_resp(50, 2, 2, "C5 noSuchName err/idx"); ackr;
+    send; expect_resp(50, 2, 2, "C5 noSuchName err/idx"); chk_echo; ackr;
     chk(nwr == 0 && ctl == 16'h051c, "C5 rejected SET wrote nothing");
 
     // ---------- C6 ----------
@@ -226,11 +258,47 @@ module tb_t15u_snmp_robust;
     // ---------- C7 ----------
     reset_unit;
     vb_begin; for (k = 0; k < 9; k = k + 1) vb_int(8'd1, 8'd11, 8'd0, 32'h1000 + k); build(8'ha3, 8'd52);
-    send; expect_resp(52, 1, 0, "C7 tooBig err"); ackr;
+    send; expect_resp(52, 1, 0, "C7 tooBig err");
+    chk(r_vbl_len == 0, "C7 bounded tooBig list is empty"); ackr;
     chk(nwr == 0 && ctl == 16'h051c, "C7 tooBig SET wrote nothing");
 
+    // ---------- C8: long BER lengths and the final request-buffer byte ----------
+    reset_unit;
+    vb_begin; vb_blob(8'd1, 8'd11, 8'd0, 208); build(8'ha3, 8'd53);
+    chk(pn == 256, "C8 exact request capacity");
+    send; expect_resp(53, 3, 1, "C8 wrong-type long value"); chk_echo;
+    chk(rlen == 256, "C8 exact response capacity"); ackr;
+    chk(nwr == 0 && ctl == 16'h051c && drop_count == 0, "C8 no write/drop/wrap");
+    get1(8'd54); send; expect_resp(54, 0, 0, "C8 recovery GET"); ackr;
+
+    // ---------- C9: a failed walk must not return the earlier successor ----------
+    reset_unit;
+    vb_begin; vb_null(8'd1, 8'd3, 8'd0); vb_null(8'd2, 8'd47, 8'd0); build(8'ha1, 8'd55);
+    send; expect_resp(55, 2, 2, "C9 terminal second GETNEXT"); chk_echo; ackr;
+    chk(nwr == 0 && drop_count == 0, "C9 no write/drop");
+
+    // ---------- C10: no synthetic 11-byte OID on an unknown short object ----------
+    reset_unit;
+    vb_begin; put_v(8'h30); put_v(8'h0c); put_v(8'h06); put_v(8'h08);
+    put_v(8'h2b); put_v(8'h06); put_v(8'h01); put_v(8'h04);
+    put_v(8'h01); put_v(8'ha2); put_v(8'h5c); put_v(8'h01);
+    put_v(8'h05); put_v(8'h00); build(8'ha0, 8'd56);
+    send; expect_resp(56, 2, 1, "C10 short unknown OID"); chk_echo; ackr;
+    chk(nwr == 0 && drop_count == 0, "C10 no write/drop");
+
+    // ---------- C11: version policy — only SNMPv1(0) is accepted (P04) ----------
+    reset_unit;
+    vb_begin; vb_null(8'd1, 8'd3, 8'd0); build_v(8'ha0, 8'd57, 8'd1);
+    send; wait_resp(3000, seen); chk(!seen, "C11 v2c(1) GET must be dropped silently");
+    chk(drop_count == 1 && tx_count == 0, "C11 version=1 drop counted exactly once");
+    vb_begin; vb_null(8'd1, 8'd3, 8'd0); build_v(8'ha0, 8'd58, 8'd2);
+    send; wait_resp(3000, seen); chk(!seen, "C11 unknown version(2) GET must be dropped");
+    chk(drop_count == 2, "C11 version=2 drop counted exactly once");
+    get1(8'd59); send; expect_resp(59, 0, 0, "C11 v1 GET recovery after drops"); ackr;
+    chk(tx_count == 1, "C11 recovery response exactly once");
+
     if (errors == 0)
-      $display("T15u SNMP ROBUST PASS (7 cases, %0d checks: pending-slot reject+count, parse-time arrival reject, atomic SET readOnly/noSuchName/tooBig, ordered 2-VarBind commit)", checks);
+      $display("T15u SNMP ROBUST PASS (11 cases, %0d checks: pending-slot reject+count, parse-time arrival reject, atomic SET, bounded tooBig, exact error VarBind echo through byte 255, terminal GETNEXT, short unknown OID, v1-only version policy)", checks);
     else
       $display("T15u SNMP ROBUST FAIL (errors=%0d of %0d checks)", errors, checks);
     $finish;

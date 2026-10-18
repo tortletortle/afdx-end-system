@@ -43,7 +43,7 @@ module tb_t04_core #(
   wire [12:0]  rd_addr_a, rd_addr_b;
   wire [31:0]  rd_data_a, rd_data_b;
   bram_sdp #(.W(32), .D(8192)) u_pmem (
-    .clk(clk), .wr_en(m_we), .wr_addr(m_waddr), .wr_data(m_wdata),
+    .clk(clk), .wr_en(m_we), .wr_addr(m_waddr), .wr_data(m_wdata), .wr_be(4'hf),
     .rd_en_a(rd_en_a), .rd_addr_a(rd_addr_a), .rd_data_a(rd_data_a),
     .rd_en_b(rd_en_b), .rd_addr_b(rd_addr_b), .rd_data_b(rd_data_b));
 
@@ -89,7 +89,7 @@ module tb_t04_core #(
     .snap_req(snap_req), .snap_vl(snap_vl), .snap(snap), .snap_ack(snap_ack),
     // SN 提交点 = builder.done（末字节已入 mac_tx_if FIFO，帧级原子、不会再丢，§5.3 规则 5）；
     // 不用线上 frame_done：FIFO 在途可达多帧，而 tx_sn_gen 只有单 pend 槽（§7.4 已知限制）
-    .commit(b_done), .commit_vl(b_cur_vl),
+    .cancel(1'b0), .commit(b_done), .commit_vl(b_cur_vl),
     .init_all(1'b0), .ovr_we(1'b0), .ovr_vl(8'd0), .ovr_val(8'd0),
     .sn_pend(sn_pend), .err(sn_err));
 
@@ -105,6 +105,7 @@ module tb_t04_core #(
   tx_vl_scheduler #(.NUM_TX_VL(128), .NUM_PORTS(256)) u_sch (
     .clk(clk), .rst_sync(reset), .enable(1'b1), .tb_us(tb_us),
     .cfg_we(cfg_we), .cfg_vl(cfg_vl), .cfg_valid(cfg_valid), .cfg_bag_us(cfg_bag), .cfg_port(cfg_port),
+    .cfg_bag_only(1'b0), .start_cfg_rd(), .frame_permit(),
     .port_ready(p_req),
     .sch_take(sch_take), .sch_port(sch_port), .sch_ack(sch_ack), .sch_blk(sch_blk), .sch_len(sch_len),
     .start_vld(start_vld), .start_vl(start_vl), .start_blk(start_blk), .start_len(start_len),
@@ -154,11 +155,11 @@ module tb_t04_core #(
   wire [15:0] ur_a, ur_b;
   mac_tx_if #(.IF_MODE(IF_MODE), .FCS_MODE(2), .IFG_BYTES(IFG_BYTES), .FIFO_D(64), .START_THRESH(48)) u_mac_a (
     .clk(clk), .rst_sync(reset), .in_vld(a_vld), .in_byte(a_byte), .in_sof(a_sof), .in_eof(a_eof), .in_rdy(a_rdy),
-    .pace_en(pace_en), .tx_data(txa_data), .tx_valid(txa_valid), .tx_ready(txa_ready), .link_rdy(1'b1),
+    .pace_en(pace_en), .start_permit(1'b1), .tx_data(txa_data), .tx_valid(txa_valid), .tx_ready(txa_ready), .link_rdy(1'b1),
     .frame_start(a_start), .frame_done(a_done), .busy(a_busy), .underrun_cnt(ur_a));
   mac_tx_if #(.IF_MODE(IF_MODE), .FCS_MODE(2), .IFG_BYTES(IFG_BYTES), .FIFO_D(64), .START_THRESH(48)) u_mac_b (
     .clk(clk), .rst_sync(reset), .in_vld(bb_vld), .in_byte(bb_byte), .in_sof(bb_sof), .in_eof(bb_eof), .in_rdy(bb_rdy),
-    .pace_en(pace_en), .tx_data(txb_data), .tx_valid(txb_valid), .tx_ready(txb_ready), .link_rdy(1'b1),
+    .pace_en(pace_en), .start_permit(1'b1), .tx_data(txb_data), .tx_valid(txb_valid), .tx_ready(txb_ready), .link_rdy(1'b1),
     .frame_start(b_start), .frame_done(b_done_m), .busy(b_busy_m), .underrun_cnt(ur_b));
 
   // =====================================================================

@@ -1,7 +1,7 @@
 // =====================================================================
 // tb_t03_frame_builder.v —— T03 帧构建器对黄金模型逐字节比对（§7.3/§6）
 // 向量: sim/vec/t03_frames.hex（sw/golden/gen_t03_vectors.py 生成，勿手改）
-//   16 帧: L=8/17/18/19（填充边界）、1471/1470（上界）、9/100 + 8 个随机；
+//   19 帧: L=1/4/7/8（短载荷及填充边界）、16/17/18、1471/1470、9/100 + 8 个随机；
 //   第 4 帧 UDP 校验和关闭（csum_en=0 → 字段 0）。
 // DUT 环境: bram_sdp(32×8192) 当 PMEM（1W2R：A 口 pass1、B 口 pass2），
 //   tx_sn_gen 真实例化（SN 由 host_override 预置为向量值），
@@ -21,7 +21,7 @@ module tb_t03_frame_builder;
   integer i, k, f, mode;
 
   // ---- 向量存储 ----
-  localparam integer VEC_WORDS = 1 + 16 * (6 + 368 + 380);
+  localparam integer VEC_WORDS = 1 + 24 * (6 + 368 + 380);
   reg [31:0] vec [0:VEC_WORDS-1];
   integer nframes;
 
@@ -33,7 +33,7 @@ module tb_t03_frame_builder;
   wire [12:0]  rd_addr_a, rd_addr_b;
   wire [31:0]  rd_data_a, rd_data_b;
   bram_sdp #(.W(32), .D(8192)) u_pmem (
-    .clk(clk), .wr_en(m_we), .wr_addr(m_waddr), .wr_data(m_wdata),
+    .clk(clk), .wr_en(m_we), .wr_addr(m_waddr), .wr_data(m_wdata), .wr_be(4'hf),
     .rd_en_a(rd_en_a), .rd_addr_a(rd_addr_a), .rd_data_a(rd_data_a),
     .rd_en_b(rd_en_b), .rd_addr_b(rd_addr_b), .rd_data_b(rd_data_b));
 
@@ -49,7 +49,7 @@ module tb_t03_frame_builder;
   tx_sn_gen #(.NUM_TX_VL(128)) u_sn (
     .clk(clk), .rst_sync(reset),
     .snap_req(snap_req), .snap_vl(snap_vl), .snap(snap), .snap_ack(snap_ack),
-    .commit(sn_commit), .commit_vl(sn_commit_vl),
+    .cancel(1'b0), .commit(sn_commit), .commit_vl(sn_commit_vl),
     .init_all(1'b0), .ovr_we(sn_ovr_we), .ovr_vl(sn_ovr_vl), .ovr_val(sn_ovr_val),
     .sn_pend(sn_pend), .err(sn_err));
 
@@ -120,6 +120,8 @@ module tb_t03_frame_builder;
   reg len_err_seen = 0;
   always @(posedge clk) if (len_err) len_err_seen <= 1'b1;
   integer sn_err_cnt = 0;
+  integer n_len8, n_len17, n_len18, n_len19, n_len1470, n_len1471;
+  integer n_sn1, n_sn2, n_sn254, n_sn255;
   always @(posedge clk) if (sn_err) sn_err_cnt = sn_err_cnt + 1;
 
   // 期望帧读取
@@ -134,6 +136,18 @@ module tb_t03_frame_builder;
       mode = md;
       base = 1 + fi * (6 + 368 + 380);
       L = vec[base+5][31:19]; sn = vec[base+5][18:11]; csum_en = vec[base+5][10];
+      if (md == 0) begin
+        if (L == 8) n_len8 = n_len8 + 1;
+        if (L == 17) n_len17 = n_len17 + 1;
+        if (L == 18) n_len18 = n_len18 + 1;
+        if (L == 19) n_len19 = n_len19 + 1;
+        if (L == 1470) n_len1470 = n_len1470 + 1;
+        if (L == 1471) n_len1471 = n_len1471 + 1;
+        if (sn == 1) n_sn1 = n_sn1 + 1;
+        if (sn == 2) n_sn2 = n_sn2 + 1;
+        if (sn == 254) n_sn254 = n_sn254 + 1;
+        if (sn == 255) n_sn255 = n_sn255 + 1;
+      end
       flen = (43 + L < 60) ? 60 : 43 + L;
       fblk = fi % 6;
       // 装载 PMEM 块 (fi % 6)
@@ -190,6 +204,8 @@ module tb_t03_frame_builder;
 
   initial begin
     cyc = 0; sum_first = 0; sum_done = 0; min_first = 1 << 30; max_first = 0; mode = 0;
+    n_len8 = 0; n_len17 = 0; n_len18 = 0; n_len19 = 0; n_len1470 = 0; n_len1471 = 0;
+    n_sn1 = 0; n_sn2 = 0; n_sn254 = 0; n_sn255 = 0;
     $readmemh("vec/t03_frames.hex", vec);
     nframes = vec[0];
     $display("== T03: %0d golden frames", nframes);
@@ -222,14 +238,28 @@ module tb_t03_frame_builder;
     @(negedge clk); start_vld <= 1'b0;
     @(negedge clk);
     if (!len_err_seen || busy) begin $display("  [err] L=1472 not rejected"); err = err + 1; end
-    @(negedge clk); start_vld <= 1'b1; start_len <= 13'd7;
+    @(negedge clk); start_vld <= 1'b1; start_len <= 13'd0;
     @(negedge clk); start_vld <= 1'b0;
+    // len_err is a one-cycle pulse raised on the edge that samples start_vld;
+    // sample at this following negedge instead of waiting past the next posedge.
+    if (busy || !len_err) begin $display("  [err] L=0 not rejected"); err = err + 1; end
     @(negedge clk);
-    if (busy) begin $display("  [err] L=7 not rejected"); err = err + 1; end
     if (sn_err_cnt != 0) begin $display("  [err] tx_sn_gen err pulses = %0d", sn_err_cnt); err = err + 1; end
 
+    begin : dump_len
+      integer fd;
+      fd = $fopen("out/metrics/cover_len.csv", "w");
+      if (fd != 0) begin
+        $fdisplay(fd, "len8,len17,len18,len19,len1470,len1471,sn1,sn2,sn254,sn255");
+        $fdisplay(fd, "%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d",
+                  n_len8, n_len17, n_len18, n_len19, n_len1470, n_len1471,
+                  n_sn1, n_sn2, n_sn254, n_sn255);
+        $fclose(fd);
+      end
+    end
+
     if (err == 0)
-      $display("T03 BUILDER PASS (%0d golden frames x 3 rdy modes, L=8..1471, pad/SN/csum/B-net, stall=0 at line rate)", nframes);
+      $display("T03 BUILDER PASS (%0d golden frames x 3 rdy modes, L=1..1471, pad/SN/csum/B-net, stall=0 at line rate)", nframes);
     else
       $display("T03 BUILDER FAIL: %0d errors", err);
     $finish;

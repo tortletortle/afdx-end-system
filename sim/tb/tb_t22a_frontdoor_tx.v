@@ -12,6 +12,7 @@ module tb_t22a_frontdoor_tx;
   wire [7:0] tx_data, tx_data_b;
   wire tx_valid, tx_valid_b, tx_ready, tx_ready_b;
   AFDX_top #(.IF_MODE(0), .FCS_MODE(2)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset),
     .tx_data(tx_data), .rx_data(8'd0), .tx_valid(tx_valid), .rx_valid(1'b0),
     .tx_ready(tx_ready), .rx_ready(1'b1),
@@ -174,6 +175,19 @@ module tb_t22a_frontdoor_tx;
     end
     if (errors == 0) $display("T22a FRONTDOOR-TX PASS (init + table/PMEM frontdoor + A/B FCS/SN/payload)");
     else             $display("T22a FRONTDOOR-TX FAIL: %0d errors",errors);
+    begin : dump_hex
+      integer fa, fb, k;
+      fa = $fopen("out/t22a_tx_a.hex", "w");
+      fb = $fopen("out/t22a_tx_b.hex", "w");
+      if (fa && fb && na==79 && nb==79) begin
+        for (k=0; k<79; k=k+1) $fwrite(fa, "%02x", bytes_a[k]);
+        for (k=0; k<79; k=k+1) $fwrite(fb, "%02x", bytes_b[k]);
+        $fwrite(fa, "\n"); $fwrite(fb, "\n");
+        $display("  dumped out/t22a_tx_a.hex / t22a_tx_b.hex for second oracle");
+      end
+      if (fa) $fclose(fa);
+      if (fb) $fclose(fb);
+    end
     $finish;
   end
   initial begin

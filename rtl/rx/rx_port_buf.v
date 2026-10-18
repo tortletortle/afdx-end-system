@@ -5,7 +5,8 @@
 // 主机协议（v0.5.16 定案，设计书 §7.13 实现状态 / §7.14）:
 //   1) 读 PORT_DESC[p]（0x8180+p，端口表 w0[18]=1 的 RX 端口）:
 //      [31] valid  [30] fresh  [29] ovf  [28] pin  [27:24] cnt
-//      [23:20] blk  [19:11] 0  [10:0] 载荷字节数 L
+//      [23:20] blk  [19:11] 0  [10:0] 载荷字节数 L (legacy)
+//      CHAIN_ENABLE: [19:17] chain_count, [16:14] 0, [13:0] full application length
 //      读即清 fresh 与 ovf，并把当前头消息标为"主机已看见"（seen）。
 //   2) 读载荷：PMEM 字地址 0x8800 + blk*0x200 + (42+i)/4，大端字节序
 //      （字节 42+i 在 [31-8*((42+i)%4) -: 8]）；运行期允许读 RX 块。
@@ -19,14 +20,15 @@
 // 队列端口: 深度 = 端口表 w3[3:0]（0 按 1），满则丢新帧（q_ovf+1、ovf=1、计入
 //   丢弃合计），对端不可见（§7.13）。队列用块链 nxt[blk]（同 tx_port_buf）。
 // 事件串行: 每拍至多一个事件；主机操作优先，解析结果顺延（in_ready=0）。
-//   每个事件至多释放 2 块（free0/free1，接 rx_block_pool 的两个 pb 释放口）。
+//   每个事件至多释放 2 个消息 head（free0/free1）；链模式由外部侧表展开整链。
 // 端口状态为寄存器阵列，由 init_sweep T_RXDESC（target 6）逐项清零；块元数据
 //   （len/nxt）只在块被链入时读，不需初始化。
 // 时钟/复位: clk / rst_sync（§4.2）。
 // =====================================================================
 `timescale 1 ns / 1 ps
 module rx_port_buf #(
-  parameter integer NUM_PORTS = 256
+  parameter integer NUM_PORTS = 256,
+  parameter integer CHAIN_ENABLE = 0
 ) (
   input  wire        clk,
   input  wire        rst_sync,
@@ -61,7 +63,10 @@ module rx_port_buf #(
   output reg  [31:0] deliver_cnt,
   output reg  [31:0] port_drop_cnt,
   output reg  [31:0] ovr_cnt,
-  output reg  [31:0] qovf_cnt
+  output reg  [31:0] qovf_cnt,
+  // Optional chain sideband; appended to keep legacy port order.
+  input  wire [13:0] in_app_len,
+  input  wire [2:0]  in_block_count
 );
   reg [3:0]  p_cnt   [0:NUM_PORTS-1];
   reg [3:0]  p_head  [0:NUM_PORTS-1];
@@ -71,8 +76,11 @@ module rx_port_buf #(
   reg        p_ovf   [0:NUM_PORTS-1];
   reg        p_seen  [0:NUM_PORTS-1];
   reg        p_pin   [0:NUM_PORTS-1];
-  reg [10:0] b_len   [0:15];
-  reg [3:0]  b_nxt   [0:15];
+  reg [13:0] b_len   [0:15];
+  reg [2:0]  b_count [0:15];
+  reg [3:0]  b_nxt   [0:15]; // Message FIFO links, never payload chain links.
+  wire [13:0] store_len;
+  wire [2:0]  store_count;
 
   wire hop_any = hop_desc_rd || hop_msg_rd;
   assign in_ready = !rst_sync && !init_we && !hop_any;
@@ -81,9 +89,23 @@ module rx_port_buf #(
   // host view
   wire [3:0] h_cnt  = p_cnt[hop_port];
   wire [3:0] h_head = p_head[hop_port];
-  assign desc_word = {(h_cnt != 4'd0), p_fresh[hop_port], p_ovf[hop_port],
-                      p_pin[hop_port], h_cnt, h_head, 9'd0,
-                      (h_cnt != 4'd0) ? b_len[h_head] : 11'd0};
+  generate
+    if (CHAIN_ENABLE != 0) begin : g_chain_desc
+      assign store_len = in_app_len;
+      assign store_count = in_block_count;
+      assign desc_word = {(h_cnt != 4'd0), p_fresh[hop_port], p_ovf[hop_port],
+                          p_pin[hop_port], h_cnt, h_head,
+                          (h_cnt != 4'd0) ? b_count[h_head] : 3'd0, 3'd0,
+                          (h_cnt != 4'd0) ? b_len[h_head] : 14'd0};
+    end else begin : g_legacy_desc
+      // Optional chain inputs may be left unconnected in default mode.
+      assign store_len = {3'd0, in_plen};
+      assign store_count = 3'd1;
+      assign desc_word = {(h_cnt != 4'd0), p_fresh[hop_port], p_ovf[hop_port],
+                          p_pin[hop_port], h_cnt, h_head, 9'd0,
+                          (h_cnt != 4'd0) ? b_len[h_head][10:0] : 11'd0};
+    end
+  endgenerate
   assign cnt_word = h_cnt;
 
   // frame event view
@@ -131,7 +153,8 @@ module rx_port_buf #(
         free0 <= 1'b1; free0_id <= in_blk; ev_drop <= 1'b1;
         port_drop_cnt <= port_drop_cnt + 32'd1;
       end else if (in_type == 2'd0) begin
-        b_len[in_blk] <= in_plen;
+        b_len[in_blk] <= store_len;
+        b_count[in_blk] <= store_count;
         deliver_cnt <= deliver_cnt + 32'd1;
         ev_sample <= 1'b1;
         if (e_cnt != 4'd0) begin
@@ -151,7 +174,8 @@ module rx_port_buf #(
         qovf_cnt <= qovf_cnt + 32'd1; ev_ovf <= 1'b1;
         p_ovf[in_port] <= 1'b1;
       end else begin
-        b_len[in_blk] <= in_plen;
+        b_len[in_blk] <= store_len;
+        b_count[in_blk] <= store_count;
         deliver_cnt <= deliver_cnt + 32'd1;
         ev_queue <= 1'b1;
         if (e_cnt == 4'd0) begin

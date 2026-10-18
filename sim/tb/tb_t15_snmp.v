@@ -27,7 +27,9 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
   endtask
 
   // ---------------- 金标帧 ----------------
-  reg [31:0] vec [0:2047];
+  // All 54 current golden cases occupy 2101 words. Keep the complete vector,
+  // including cases beyond this TB's selected requests, without truncation.
+  reg [31:0] vec [0:2100];
   integer cbase [0:63];
   integer clen  [0:63];
   integer cplen [0:63];
@@ -239,7 +241,12 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
       if (s_rvld !== 1'b1) begin bad("unit: no response produced"); rlen = 0; end
       else begin
         rlen = s_rlen;
-        for (i = 0; i < rlen; i = i + 1) begin s_raddr = i[10:0]; #1; rb[i] = s_rbyte; end
+        for (i = 0; i < rlen; i = i + 1) begin
+          s_raddr = i[10:0];
+          @(negedge clk);
+          #1;
+          rb[i] = s_rbyte;
+        end
         decode;
         @(negedge clk); s_rack = 1; @(negedge clk); s_rack = 0;
       end
@@ -256,6 +263,7 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
   wire [31:0] host_rdata;
   wire host_ack;
   AFDX_top #(.IF_MODE(IF_MODE), .FCS_MODE(2), .SNMP_SAP_PORT(5), .TFTP_SAP_PORT(9)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset), .tx_data(), .tx_valid(), .tx_ready(),
     .rx_data(rx_data), .rx_valid(rx_valid), .rx_ready(rx_ready),
     .tx_data_b(), .tx_valid_b(), .tx_ready_b(),
@@ -282,9 +290,8 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
   localparam [31:0] W0_VL  = 32'hF500_0000 | (P_SAP<<12) | 32'd700;
   reg [31:0] d, e;
   integer acc0;
-  task drive_case; input integer c;
+  task drive_case_raw; input integer c;
     begin
-      acc0 = dut.mgmt_accept_cnt;
       for (b = 0; b < clen[c]; b = b + 1) begin
         @(negedge clk); rx_ready=1; rx_valid=1; rx_data=fbyte(c,b);
         if (IF_MODE == 0) begin
@@ -292,6 +299,12 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
         end
       end
       @(negedge clk); rx_ready=0; rx_valid=0;
+    end
+  endtask
+  task drive_case; input integer c;
+    begin
+      acc0 = dut.mgmt_accept_cnt;
+      drive_case_raw(c);
       waitc = 0;
       while (dut.mgmt_accept_cnt <= acc0 && waitc < 20000) begin
         @(negedge clk); waitc = waitc + 1;
@@ -519,8 +532,8 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
     drive_case(28); t_grab;
     if (r_err !== 0 || r_nvb !== 2) bad("B9 two-VarBind SET must succeed");
     if (dut.snmp_ctl_shadow !== 16'h0567) badv("B9 ctl not committed", {16'd0,dut.snmp_ctl_shadow}, 32'h0567);
-    if (dut.tx_cfg_mem[26][31:8] !== 24'h000321) badv("B9 BAG[5] not committed to tx_cfg_mem",
-                                                       {8'd0,dut.tx_cfg_mem[26][31:8]}, 32'h000321);
+    if (dut.u_txcfg_h1.mem[5][31:8] !== 24'h000321) badv("B9 BAG[5] not committed to tx w1 BRAM",
+                                                       {8'd0,dut.u_txcfg_h1.mem[5][31:8]}, 32'h000321);
     if (dut.rx_free_map !== 16'hFFC0) bad("B9 SAP blocks not returned to RX pool");
     host_read(16'hAC16, d);
     if (d !== 32'd14) badv("B9 on-wire rx_pdu_cnt", d, 32'd14);
@@ -529,34 +542,40 @@ module tb_t15_snmp #(parameter integer IF_MODE = 0);
     // B9b BAG 侧原子性：失败 SET 不得写 tx_cfg_mem
     drive_case(29); t_grab;
     if (r_err !== 2 || r_idx !== 2) badv("B9b SET with unknown leaf must return noSuchName(2) idx 2", r_err*16+r_idx, 32'h22);
-    if (dut.tx_cfg_mem[26][31:8] !== 24'h000321) badv("B9b rejected SET partially wrote BAG[5]",
-                                                       {8'd0,dut.tx_cfg_mem[26][31:8]}, 32'h000321);
-    // B10 核查 A02 顶层忙时：响应未取走时连发三个 GET（30 待取、31 暂存、32 整包拒绝并计数）
+    if (dut.u_txcfg_h1.mem[5][31:8] !== 24'h000321) badv("B9b rejected SET partially wrote BAG[5]",
+                                                       {8'd0,dut.u_txcfg_h1.mem[5][31:8]}, 32'h000321);
+    // B10：响应未取走时，第二条 SAP 请求必须停在解析器出口；不能重复
+    // 送入 mgmt_sap_rx。ACK 第一条后，挂起请求按序处理并只产生一份响应。
     host_read(16'hAC18, e);
-    drive_case(30); drive_case(31); drive_case(32);
-    host_read(16'hAC18, d);
-    if (d !== (e + 32'd1)) badv("B10 busy SAP frame not rejected+counted exactly once", d, e+32'd1);
+    drive_case(30);
+    acc0 = dut.mgmt_accept_cnt;
+    drive_case_raw(31);
+    repeat (400) @(negedge clk);
+    if (dut.mgmt_accept_cnt !== acc0) bad("B10 held request was accepted before prior response ACK");
+    if (dut.snmp_cnt_drop !== e) bad("B10 backpressured request was counted as a drop");
     t_grab;
     if (r_rid !== 32'h88 || r_err !== 0 || vbv[0] !== 32'h0567) badv("B10 first response must be id 0x88 ctl=0x0567", r_rid, 32'h88);
-    // 暂存的 31 在 ACK 后才开始解析/组包：轮询响应就绪，不假定固定延迟
+    // 31 在 ACK 后才开始解析/组包：轮询响应就绪，不假定固定延迟。
     d = 0; waitc = 0;
     while (d[0] !== 1'b1 && waitc < 400) begin
       repeat (50) @(negedge clk); host_read(16'hAC1C, d); waitc = waitc + 1;
     end
     t_grab;
     if (r_rid !== 32'h89 || r_err !== 0) badv("B10 held request must be answered next with id 0x89", r_rid, 32'h89);
-    // 被拒的 32 不得在稍后冒出应答
+    // 同一挂起描述符不能重复处理；释放后不应再冒出额外响应。
     repeat (4000) @(negedge clk);
     host_read(16'hAC1C, d);
-    if (d[0] !== 1'b0) bad("B10 rejected request must not produce a response");
+    if (d[0] !== 1'b0) bad("B10 held request produced a duplicate response");
     if (dut.rx_free_map !== 16'hFFC0) bad("B10 SAP blocks not returned to RX pool");
+    host_read(16'hAC18, d);
+    if (d !== e) badv("B10 backpressured request changed drop count", d, e);
     host_read(16'hAC16, d);
     if (d !== 32'd17) badv("B10 on-wire rx_pdu_cnt", d, 32'd17);
     host_read(16'hAC17, d);
     if (d !== 32'd16) badv("B10 on-wire resp_cnt", d, 32'd16);
 
     if (errors == 0)
-      $display("T15 SNMP PASS (unit: 12 real BER PDUs, GET/GETNEXT/SET, STATS_BLOCK, noSuchName/readOnly/badValue/community-drop, OCTET STRING, multi-varbind; top: 18 on-wire SAP frames, 16 answered, 1 community drop, 1 busy reject counted; atomic CTL/BAG SET + ordered commit)");
+      $display("T15 SNMP PASS (unit: real BER PDUs, GET/GETNEXT/SET, STATS_BLOCK, error responses and community drop; top: SAP request backpressure/ordered release, atomic CTL/BAG SET + ordered commit)");
     else
       $display("T15 SNMP FAIL (errors=%0d)", errors);
     $finish;

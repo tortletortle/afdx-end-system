@@ -10,7 +10,8 @@ module tb_t05c_cfg_budget;
   reg [31:0] wdata=0;
   wire [31:0] rdata;
   wire ack;
-  AFDX_top dut (
+  AFDX_top #(.IF_MODE(0)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset),
     .tx_data(), .rx_data(8'd0), .tx_valid(), .rx_valid(1'b0),
     .tx_ready(), .rx_ready(1'b1),

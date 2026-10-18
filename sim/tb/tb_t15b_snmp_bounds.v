@@ -136,7 +136,9 @@ module tb_t15b_snmp_bounds;
   task decode;
     integer j, p, L, n;
     begin
-      for (j = 0; j < rlen && j < 256; j = j + 1) begin @(negedge clk); raddr = j; #1; rsp[j] = rbyte; end
+      for (j = 0; j < rlen && j < 256; j = j + 1) begin
+        raddr = j; @(negedge clk); #1; rsp[j] = rbyte;
+      end
       p = 1; rd_len(p, L);                      // SEQUENCE
       p = p + 3;                                // version
       r_comm_ok = (rsp[p] == 8'h04 && rsp[p+1] == 8'h06 && rsp[p+2] == "p" && rsp[p+3] == "u" &&

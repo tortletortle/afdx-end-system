@@ -402,7 +402,7 @@ module tx_port_buf #(
   output wire [3:0]            wr_blk,
   output wire                  wr_blk_vld,
   input  wire [7:0]            desc_rd_addr,
-  output reg  [31:0]           desc_rd_data,
+  output wire [31:0]           desc_rd_data,
   output wire [NUM_PORTS-1:0]  sch_req,
   output wire [NUM_PORTS-1:0]  buf_full,
   input  wire                  sch_take,
@@ -419,6 +419,12 @@ module tx_port_buf #(
   output reg                   pending
 );
   localparam integer D_W      = 28;
+  // Match the RAM address width; retain the previously implicit truncation
+  // of eight-bit public port IDs in scaled configurations.
+  localparam integer PORT_AW = (NUM_PORTS<=2)?1:(NUM_PORTS<=4)?2:
+                               (NUM_PORTS<=8)?3:(NUM_PORTS<=16)?4:
+                               (NUM_PORTS<=32)?5:(NUM_PORTS<=64)?6:
+                               (NUM_PORTS<=128)?7:8;
   localparam integer B_VALID  = 27;
   localparam integer B_QFULL  = 26;
   localparam integer B_FRESH  = 25;
@@ -430,9 +436,7 @@ module tx_port_buf #(
   localparam [D_W-1:0] M_QFULL = (28'h1 << B_QFULL);
   localparam [D_W-1:0] M_FRESH = (28'h1 << B_FRESH);
 
-  // 状态存储。内容不复位；可见性由 valid_map 控制。
-  reg [D_W-1:0] desc [0:NUM_PORTS-1];
-  reg [7:0]     qst  [0:NUM_PORTS-1];
+  // desc/qst：事件口 / 主机口各一份 BRAM（见 w_* 之后例化）。
   reg [12:0]    len_tab [0:15];
   reg [3:0]     next_tab [0:15];
   reg [NUM_PORTS-1:0] valid_map, qfull_map, smp_map;
@@ -479,11 +483,13 @@ module tx_port_buf #(
   wire ev_vld = ev_commit | ev_take;
   wire [7:0] ev_port = ev_commit ? port_id : take_port;
 
-  // R stage: 原始事件和旧状态快照。
+  // R stage: 原始事件快照。
+  // 2026-10-07 时序刀：原 RD_NEG 半周期路径（negedge rd_data → posedge w_desc，
+  // relationship 4 ns）Slow85C WNS=-0.290。改为同相读：本拍上升沿用 ev_port
+  // 作 BRAM 地址并锁存 R 字段，同拍后 dq_q 已更新，X 组合有整周期到下一拍 W。
+  // 延迟语义不变（事件沿 → 下一沿进 W）；同口 W→R 仍走 r_fwd 转发。
   reg            r_vld, r_is_commit, r_no_open;
   reg [7:0]      r_port;
-  reg [D_W-1:0]  r_desc;
-  reg [7:0]      r_qst;
   reg [12:0]     r_len;
   reg [1:0]      r_type;
   reg [3:0]      r_depth, r_blk;
@@ -529,18 +535,35 @@ module tx_port_buf #(
   reg            w_len_we;
   reg [3:0]      w_len_addr;
   reg [12:0]     w_len_val;
-  // Distance-2 hazard fix: W commits to desc/qst on the same edge that the
-  // next R captures, so R must forward from the registered W intent.
-  // (Placed after the w_* declarations: Questa rejects use-before-declare.)
+  // Distance-2 hazard: W 与下一拍 R 同沿提交，R 必须从已寄存的 W intent 转发。
+  // （放在 w_* 声明之后，避免 Questa use-before-declare。）
   wire r_fwd = w_vld & w_we & (w_port == ev_port);
+  reg            r_fwd_r;
+  reg [D_W-1:0]  r_wdesc_r;
+  reg [7:0]      r_wqst_r;
+  // desc+qst 拼宽字进 BRAM；同相读，地址用当拍事件口（与 R 锁存同源）。
+  localparam integer DQ_W = D_W + 8;
+  wire [DQ_W-1:0] dq_q;
   always @(posedge clk) begin
-    if (rst_sync) begin
-      r_desc <= {D_W{1'b0}}; r_qst <= 8'd0;
-    end else begin
-      r_desc <= r_fwd ? w_desc : desc[ev_port];
-      r_qst  <= r_fwd ? w_qst  : qst[ev_port];
+    if (rst_sync) r_fwd_r <= 1'b0;
+    else begin
+      r_fwd_r   <= r_fwd;
+      r_wdesc_r <= w_desc;
+      r_wqst_r  <= w_qst;
     end
   end
+  bram_1w1r #(.W(DQ_W), .D(NUM_PORTS), .RD_NEG(0)) u_dq_ev (
+    .clk(clk), .wr_en(w_vld && w_we), .wr_addr(w_port[PORT_AW-1:0]),
+    .wr_data({w_desc, w_qst}), .rd_addr(ev_port[PORT_AW-1:0]), .rd_data(dq_q));
+  // 主机口加 4bit 填充，避免与事件口 36bit 被 Passkey 合并后落 LUT。
+  localparam integer HQ_W = DQ_W + 4;
+  wire [HQ_W-1:0] dq_host_w;
+  bram_1w1r #(.W(HQ_W), .D(NUM_PORTS), .RD_NEG(0)) u_dq_h (
+    .clk(clk), .wr_en(w_vld && w_we), .wr_addr(w_port[PORT_AW-1:0]),
+    .wr_data({4'd0, w_desc, w_qst}), .rd_addr(desc_rd_addr[PORT_AW-1:0]), .rd_data(dq_host_w));
+  assign desc_rd_data = {4'h0, dq_host_w[DQ_W-1:8]};
+  wire [D_W-1:0] r_desc = r_fwd_r ? r_wdesc_r : dq_q[DQ_W-1:8];
+  wire [7:0]     r_qst  = r_fwd_r ? r_wqst_r  : dq_q[7:0];
 
   // X stage combinational inputs/results. c_* is sampled into W at the clock.
   reg [D_W-1:0] c_src_desc, c_desc;
@@ -682,10 +705,6 @@ module tx_port_buf #(
 
   // W stage: all persistent port state has exactly one write point.
   always @(posedge clk) begin
-    if (w_vld && w_we) begin
-      desc[w_port] <= w_desc;
-      qst[w_port] <= w_qst;
-    end
     if (w_vld && w_link_we) next_tab[w_link_addr] <= w_link_val;
     if (w_vld && w_len_we)  len_tab[w_len_addr] <= w_len_val;
   end
@@ -744,8 +763,4 @@ module tx_port_buf #(
     end
   end
 
-  // Host descriptor read remains a one-cycle view of committed storage.
-  always @(posedge clk) begin
-    desc_rd_data <= {4'h0, desc[desc_rd_addr]};
-  end
 endmodule

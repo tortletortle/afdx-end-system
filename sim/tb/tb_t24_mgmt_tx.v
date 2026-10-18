@@ -9,11 +9,9 @@
 //   -> tx_port_buf msg_commit -> BAG 调度 -> builder 封装 -> mac_tx_if -> A/B 口
 //
 // 判定要点（不是"看到有帧就算过"）：
-//   1. 负例 CTL[9]=0 时响应不得上线（回到观测窗行为），证明开关真的隔离；
-//   2. 正例响应帧确实发出，A/B 两网都在且字节一致（§5.2 DUAL_NET_EN）；
-//   3. UDP 目的端口 == 请求源端口（源地址反转，§7.16），不是管理端口号；
-//   4. 载荷含 request-id 0x11223344（与请求一致）与 response-PDU tag A2；
-//   5. 目的 IP == 请求源 IP。
+//   1. 负例 CTL[9]=0 时响应不得上线（回到观测窗行为）；
+//   2. 正例固定 GET .1.3（NUM_TX_VL=128），A/B 帧与独立 BER/校验和/FCS 金标逐字节一致；
+//   3. 金标同时锁定 UDP sport/dport、peer IP 反转、UDP/IP 长度及 AFDX SN。
 //
 // 只覆盖"响应上线"这一段；不重复 T15 已覆盖的 BER 边界与响应解码判定。
 // =====================================================================
@@ -28,7 +26,8 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
   localparam [15:0]  DP_MGMT = 16'd5000;
   localparam [15:0]  SP_PEER = 16'd49152;
   localparam [31:0]  IP_PEER = 32'h0A00_0001;
-  localparam integer CASE_GET = 10;
+  localparam integer CASE_NEG = 10;
+  localparam integer CASE_TX  = 36;
 
   localparam [31:0] CTL_BASE = 32'h051F;
   localparam [31:0] CTL_TXON = 32'h071F;
@@ -50,6 +49,7 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
 
   AFDX_top #(.IF_MODE(IF_MODE), .FCS_MODE(2),
              .SNMP_SAP_PORT(5), .TFTP_SAP_PORT(9)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset),
     .tx_data(tx_data), .rx_data(rx_data), .tx_valid(tx_valid), .rx_valid(rx_valid),
     .tx_ready(tx_ready), .rx_ready(rx_ready),
@@ -60,10 +60,12 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
     .pps_in(1'b0), .pps_out(), .rtc_time_us(), .dbg_frame_event());
 
   // ---- 黄金向量（与 T15 同源，避免手搓帧的校验和/长度错误）----
-  reg [31:0] vec [0:2047];
-  integer clen [0:31];
-  integer cplen[0:31];
-  integer cbase[0:31];
+  reg [31:0] vec [0:4095];
+  reg [31:0] txexp [0:63];
+  integer clen [0:63];
+  integer cplen[0:63];
+  integer cbase[0:63];
+  integer exp_len [0:1], exp_base [0:1], exp_pos;
   integer ncase=0, vi2=1, cid, i, b, waitc, errors=0;
   integer na=0, nb=0;
   integer snmp_tx_prev=0;
@@ -79,6 +81,19 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
       case (off & 3)
         0: fbyte = q[31:24]; 1: fbyte = q[23:16];
         2: fbyte = q[15:8];  default: fbyte = q[7:0];
+      endcase
+    end
+  endfunction
+
+  function [7:0] expected_byte;
+    input integer frame_idx;
+    input integer off;
+    reg [31:0] q;
+    begin
+      q = txexp[exp_base[frame_idx] + (off >> 2)];
+      case (off & 3)
+        0: expected_byte = q[31:24]; 1: expected_byte = q[23:16];
+        2: expected_byte = q[15:8];  default: expected_byte = q[7:0];
       endcase
     end
   endfunction
@@ -165,20 +180,13 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
 
   // ---- 检查线上抓到的响应帧 ----
   task check_rsp;
-    integer j, found_rid, found_a2, dpv, spv;
+    integer j, dpv, spv, shown_a, shown_b;
     reg [31:0] dip;
     begin
+      shown_a = 0; shown_b = 0;
       if (na < 50) begin bad("response frame too short"); return; end
-      if (na != nb) begin bad("A/B frame length differ (dual-net mismatch)"); return; end
-      // A/B 仅 SMAC ifid（偏移 11：A=0x20/B=0x40）及随后 FCS 不同，其余须一致
-      for (j = 0; j < na; j = j + 1) begin
-        if (j == 11) begin
-          if (ca[j] !== 8'h20) bad("net-A SMAC ifid not 0x20");
-          if (cb[j] !== 8'h40) bad("net-B SMAC ifid not 0x40");
-        end else if (j < na - 4) begin
-          if (ca[j] !== cb[j]) begin bad("A/B frame bytes differ outside ifid/FCS"); return; end
-        end
-      end
+      if (na != exp_len[0]) bad("net-A length differs from exact full-frame golden");
+      if (nb != exp_len[1]) bad("net-B length differs from exact full-frame golden");
       if (ca[0] !== 8'h03) bad("response DMAC prefix wrong");
       // 大端：UDP sport@34-35，dport@36-37；IP dst@30-33
       spv = {ca[34], ca[35]};
@@ -188,26 +196,33 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
       if (dpv !== SP_PEER) bad("response dp must be reversed peer sport");
       if (dpv === DP_MGMT) bad("response dp must not equal management port");
       if (dip !== IP_PEER) bad("response dst IP must be reversed peer IP");
-      // request-id：正例用 case11（rid=0x55），负例 case10（0x11223344）都会在
-      // 线上帧里回显；这里接受两种黄金 rid，避免绑死单一用例。
-      found_rid = 0;
-      for (j = 42; j < (na - 4); j = j + 1) begin
-        if (ca[j] === 8'h11 && ca[j+1] === 8'h22 && ca[j+2] === 8'h33 && ca[j+3] === 8'h44)
-          found_rid = 1;
-        if (ca[j] === 8'h02 && ca[j+1] === 8'h01 && ca[j+2] === 8'h55)
-          found_rid = 1; // case11：INTEGER 0x55
-      end
-      if (!found_rid) bad("response does not echo known request-id");
-      found_a2 = 0;
-      for (j = 42; j < (na - 4); j = j + 1) if (ca[j] === 8'hA2) found_a2 = 1;
-      if (!found_a2) bad("response payload has no response-PDU tag A2");
+      for (j = 0; j < exp_len[0] && j < na; j = j + 1)
+        if (ca[j] !== expected_byte(0, j)) begin
+          if (shown_a < 8) $display("  [diff] net-A byte[%0d] got=%02x want=%02x", j, ca[j], expected_byte(0, j));
+          shown_a = shown_a + 1;
+          bad("net-A byte differs from full BER/frame golden");
+        end
+      for (j = 0; j < exp_len[1] && j < nb; j = j + 1)
+        if (cb[j] !== expected_byte(1, j)) begin
+          if (shown_b < 8) $display("  [diff] net-B byte[%0d] got=%02x want=%02x", j, cb[j], expected_byte(1, j));
+          shown_b = shown_b + 1;
+          bad("net-B byte differs from full BER/frame golden");
+        end
     end
   endtask
 
   initial begin
     $readmemh("vec/t15_mgmt.hex", vec);
+    $readmemh("vec/snmp_tx_expected.hex", txexp);
+    exp_pos = 1;
+    if (txexp[0] != 2) bad("full-frame SNMP expectation vector missing or malformed");
+    for (i = 0; i < 2; i = i + 1) begin
+      exp_len[i] = txexp[exp_pos];
+      exp_base[i] = exp_pos + 1;
+      exp_pos = exp_base[i] + (exp_len[i] + 3) / 4;
+    end
     ncase = vec[0];
-    if (ncase < 22) begin
+    if (ncase < 37) begin
       $display("T24 MGMT-TX FAIL (golden vectors missing)");
       $finish;
     end
@@ -233,6 +248,10 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
     // 与 T15 同款：RX 哈希 + SAP 端口 type=2
     host_write(16'h0078, 32'h172D); host_write(16'h007C, 32'hAB61);
     host_write(16'h42B2, 32'h1010_0100); host_write(16'h0080, 32'h1);
+    // The frame oracle uses UDI=0x172D and IFIDs A=1/B=2; program SMAC_CFG.
+    host_write(16'h0060, 32'h172D_2001);
+    host_read(16'h0060, rd);
+    if (rd !== 32'h172D_2001) bad("SMAC_CFG readback mismatch");
     host_write(16'h1F80, W0_VL); host_write(16'h1F81, 32'h0000_0100);
     host_write(PT_SAP,   32'h8006_0000); host_write(PT_SAP+1, {16'd0, DP_MGMT});
     host_write(PT_SAP+2, 32'h0000_0000); host_write(PT_SAP+3, 32'h0000_0001);
@@ -265,7 +284,7 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
       $display("  [diag] CTL readback=%0h want=%0h", rd, CTL_BASE);
       bad("CTL_BASE not accepted");
     end
-    send_case(10);
+    send_case(CASE_NEG);
     repeat (600) @(negedge clk);
     if (na > 0) bad("response went on-wire while MGMT_TX_EN=0 (negative case)");
     // 清掉观测窗里挂着的响应，避免开 MGMT_TX_EN 后把负例响应也发出去
@@ -279,7 +298,7 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
     if (rd[9] !== 1'b1) bad("CTL MGMT_TX_EN(bit9) not set");
     if (rd[0] !== 1'b1) bad("CTL TX_EN(bit0) not set");
     na = 0; nb = 0;
-    send_case(11);
+    send_case(CASE_TX);
     waitc = 0;
     while (na == 0 && waitc < 30000) begin @(negedge clk); waitc = waitc + 1; end
     if (waitc >= 30000) begin
@@ -291,8 +310,20 @@ module tb_t24_mgmt_tx #(parameter integer IF_MODE=0);
                dut.u_builder.st, dut.u_builder.p1_done);
       bad("SNMP response frame did not go on-wire");
     end
-    // 等整帧收完（EOF 后还有 FCS；给足字节间隙）
-    repeat (800) @(negedge clk);
+    // Wait for the MAC envelope to close; an IF_MODE=0 frame with FCS can
+    // take more than 800 clocks at BYTE_SLOT_CYC=10.
+    waitc = 0;
+    if (IF_MODE == 0) begin
+      while ((tx_ready || tx_ready_b) && waitc < 4000) begin
+        @(negedge clk); waitc = waitc + 1;
+      end
+    end else begin
+      while (!(tx_ready && tx_ready_b) && waitc < 4000) begin
+        @(negedge clk); waitc = waitc + 1;
+      end
+    end
+    if (waitc >= 4000) bad("MAC frame envelope did not close");
+    repeat (2) @(negedge clk);
     $display("T24 FSM: state=%0d len=%0d port=%0d blk=%0d | wrvld=%0b txen=%0b pb_req=%0b sch_en=%0b na=%0d macc=%0d",
              dut.mt_state, dut.mt_len, dut.mt_sel_port, dut.mt_blk,
              dut.pb_wr_valid, dut.mt_tx_en, dut.pb_req[P_SAP], dut.sch_enable, na,

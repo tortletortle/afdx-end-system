@@ -19,7 +19,8 @@
 `timescale 1 ns / 1 ps
 module rx_ip_udp_parse #(
   parameter integer DW        = 174,
-  parameter integer NUM_PORTS = 256
+  parameter integer NUM_PORTS = 256,
+  parameter integer CHAIN_ENABLE = 0
 ) (
   input  wire          clk,
   input  wire          rst_sync,
@@ -40,7 +41,14 @@ module rx_ip_udp_parse #(
   output reg  [3:0]    out_depth,
   output reg  [3:0]    out_blk,
   output reg  [10:0]   out_plen,
-  output reg  [23:0]   out_ts
+  output reg  [23:0]   out_ts,
+  // Optional chain sideband; appended to keep legacy port order.
+  input  wire [13:0]   in_app_len,
+  input  wire [19:0]   in_blocks,
+  input  wire [2:0]    in_block_count,
+  output reg  [13:0]   out_app_len,
+  output reg  [19:0]   out_blocks,
+  output reg  [2:0]    out_block_count
 );
   localparam [2:0] R_OK=3'd0, R_RANGE=3'd1, R_CFG=3'd2, R_DIR=3'd3,
                    R_DPORT=3'd4, R_SAP=3'd5;
@@ -74,4 +82,34 @@ module rx_ip_udp_parse #(
       out_ts     <= in_desc[147:124];
     end else if (out_ready) out_vld <= 1'b0;
   end
+  // Both branches capture on the same ownership handshake as out_desc.
+  // A stalled descriptor keeps all fields, including a drop's block ownership.
+  generate
+    if (CHAIN_ENABLE != 0) begin : g_chain_sideband
+      always @(posedge clk) begin
+        if (rst_sync) begin
+          out_app_len <= 14'd0;
+          out_blocks <= 20'd0;
+          out_block_count <= 3'd0;
+        end else if (in_vld && in_ready) begin
+          out_app_len <= in_app_len;
+          out_blocks <= in_blocks;
+          out_block_count <= in_block_count;
+        end
+      end
+    end else begin : g_legacy_sideband
+      // No references to optional inputs: existing named instances may omit them.
+      always @(posedge clk) begin
+        if (rst_sync) begin
+          out_app_len <= 14'd0;
+          out_blocks <= 20'd0;
+          out_block_count <= 3'd0;
+        end else if (in_vld && in_ready) begin
+          out_app_len <= {3'd0, in_desc[173:163]};
+          out_blocks <= {16'd0, in_desc[162:159]};
+          out_block_count <= 3'd1;
+        end
+      end
+    end
+  endgenerate
 endmodule

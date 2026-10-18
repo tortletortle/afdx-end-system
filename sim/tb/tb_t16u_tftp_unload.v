@@ -1,15 +1,10 @@
 // =====================================================================
-// T16u -- ARINC 615A data LOAD + UNLOAD at the TFTP layer (RFC 1350)
-// (test-set completion 20260928; ACCEPTANCE TEST FOR PLAN STEP 3).
+// T16u -- ARINC 615A data LOAD + UNLOAD at the TFTP layer (RFC 1350 subset).
+// This unit-level bench checks the implemented transfer paths and selected
+// error boundaries; it does not prove full ARINC 615A interoperability.
 //
-// Status when written: the current a615a_tftp.v only serves the fixed
-// 32 B "STATUS" file on RRQ, so U2..U6 are EXPECTED TO FAIL until the
-// step-3 RTL (read-back of the loaded image) is in.  The test is written
-// first on purpose; do not weaken it to match the old RTL.
-//
-// Minimal unload contract (to be implemented in step 3; scope = TFTP layer
-// only, per the competition's 615A boundary -- no Find/Information/upper
-// A615A protocol):
+// Unload contract (scope = TFTP layer only; no Find/Information/upper A615A
+// protocol):
 //   * RRQ "UPLOAD", mode octet, after a completed load (loaded_ok=1):
 //       DATA(1)..DATA(N) carry the loaded image, 512 B per block, from the
 //       load area; the last block is < 512 B.  If the image length is an
@@ -26,6 +21,8 @@
 //   * RRQ "UPLOAD" with no loaded image -> ERROR(1) file not found.
 //   * RRQ "STATUS" keeps working; unloading does not alter the loaded
 //     image, loaded_ok or crc32_val.
+//   * One-byte overflow at the exact LOAD_BYTES boundary -> ERROR(3), with
+//     no byte-count increment or loaded_ok; future DATA block -> ERROR(0).
 // Load-side checks included here as well (existing behaviour + gaps):
 //   * WRQ/DATA load of 1300 B: ACK(0..3), loaded_ok, bytes, CRC-32.
 //   * Load of exactly 1024 B ending in a 0-byte DATA(3): must be ACKed and
@@ -46,6 +43,8 @@
 `timescale 1ns/1ps
 module tb_t16u_tftp_unload;
   localparam integer TO_US = 2000;
+  localparam integer LOAD_WORDS = 8192;
+  localparam integer LOAD_BYTES = LOAD_WORDS * 4;
 
   reg clk = 0; always #4 clk = ~clk;
   reg rst = 1;
@@ -55,6 +54,7 @@ module tb_t16u_tftp_unload;
   wire       in_ready;
   wire       resp_vld;
   wire [10:0] resp_len;
+  wire [15:0] resp_tid;
   reg        resp_ack = 0;
   reg [10:0] resp_rd_addr = 0;
   wire [7:0] resp_byte;
@@ -65,12 +65,15 @@ module tb_t16u_tftp_unload;
   wire [7:0]  retry_cnt;
   wire [3:0]  state_o;
 
-  a615a_tftp #(.TIMEOUT_US(TO_US)) dut (
+  a615a_tftp #(.LOAD_WORDS(LOAD_WORDS), .TIMEOUT_US(TO_US)) dut (
     .clk(clk), .rst_sync(rst), .en(1'b1), .tick_us(!rst),
+    .control_mode(1'b0), .control_ack(1'b0), .control_abort(1'b0),
+    .control_file_valid(), .control_busy(),
+    .in_srcip(32'd0), .resp_peer_ip(),
     .in_vld(in_vld), .in_sop(in_sop), .in_eop(in_eop), .in_data(in_data),
     .in_sport(in_sport), .in_ready(in_ready),
-    .resp_vld(resp_vld), .resp_len(resp_len), .resp_ack(resp_ack),
-    .resp_rd_addr(resp_rd_addr), .resp_byte(resp_byte),
+    .resp_vld(resp_vld), .resp_len(resp_len), .resp_tid(resp_tid), .resp_ack(resp_ack),
+    .resp_rd_addr(resp_rd_addr), .resp_rd_ahead(1'b0), .resp_byte(resp_byte), .resp_byte_sync(),
     .host_rd(1'b0), .host_addr(13'd0), .host_rdata(host_rdata),
     .loaded_ok(loaded_ok), .err_code(err_code), .tid(tid), .blk_expect(blk_expect),
     .bytes_rcvd(bytes_rcvd), .crc32_val(crc32_val), .pkt_cnt(pkt_cnt),
@@ -172,7 +175,7 @@ module tb_t16u_tftp_unload;
   task expect_err(input [15:0] code, input [8*72-1:0] msg);
     begin
       get_resp(20000);
-      chk(got && r16(0) == 16'd5 && r16(2) == code, msg);
+      chk(got && rlen == 13 && r16(0) == 16'd5 && r16(2) == code, msg);
     end
   endtask
   // DATA(blk) carrying image[off .. off+n-1]
@@ -203,6 +206,48 @@ module tb_t16u_tftp_unload;
         mk_data(b, (b - 1) * 512, len); send(t);
         expect_ack(b, "load DATA not ACKed (0-byte last block needs full blk_num at EOP)");
       end
+    end
+  endtask
+
+  // Fill the default load area, then send one byte just beyond its end.
+  // The last payload byte is also EOP so this checks the same-clock `ovf`
+  // update/ERROR(3) decision at the exact capacity boundary.
+  task do_capacity_overflow(input [15:0] t);
+    integer b;
+    reg [31:0] err_before;
+    begin
+      mk_rq(16'd2, "UPLOAD"); send(t);
+      expect_ack(16'd0, "U7 WRQ before capacity-boundary load not ACKed");
+      for (b = 1; b <= (LOAD_BYTES / 512); b = b + 1) begin
+        mk_data(b, (b - 1) * 512, 512); send(t);
+        expect_ack(b, "U7 in-range full DATA block not ACKed");
+      end
+      chk(bytes_rcvd == LOAD_BYTES, "U7 full-capacity byte count is wrong");
+      err_before = err_cnt;
+      mk_data((LOAD_BYTES / 512) + 1, LOAD_BYTES, 1); send(t);
+      expect_err(16'd3, "U7 one byte beyond capacity must return ERROR(3)");
+      chk(err_code == 16'd3 && err_cnt == err_before + 1,
+          "U7 overflow error status/counter was not recorded");
+      chk(bytes_rcvd == LOAD_BYTES, "U7 overflow byte must not increase bytes_rcvd");
+      chk(loaded_ok === 1'b0, "U7 overflow must not mark the image loaded");
+      chk(dut.load_mem[0] === {img(0), img(1), img(2), img(3)},
+          "U7 overflow byte wrapped and corrupted the first load word");
+      chk(state_o[2] === 1'b0, "U7 overflow must terminate the write session");
+    end
+  endtask
+  task do_future_block_error(input [15:0] t);
+    reg [31:0] err_before;
+    begin
+      mk_rq(16'd2, "UPLOAD"); send(t);
+      expect_ack(16'd0, "U8 WRQ before future-block test not ACKed");
+      err_before = err_cnt;
+      mk_data(16'd2, 0, 1); send(t);  // expected DATA(1), receives DATA(2)
+      expect_err(16'd0, "U8 future DATA block must return ERROR(0)");
+      chk(err_code == 16'd0 && err_cnt == err_before + 1,
+          "U8 future-block error status/counter was not recorded");
+      chk(bytes_rcvd == 0 && loaded_ok === 1'b0,
+          "U8 rejected future block changed committed image state");
+      chk(state_o[2] === 1'b0, "U8 future-block error must terminate the write session");
     end
   endtask
 
@@ -254,6 +299,7 @@ module tb_t16u_tftp_unload;
     expect_data(16'd1, 0, 512, "U4 DATA(1) wrong");
     mk_ack(16'd1); send(16'd2000);                               // intruder
     expect_err(16'd5, "U4 foreign TID must get ERROR(5)");
+    chk(resp_tid == 16'd2000, "U4 ERROR(5) response must target the requesting foreign TID");
     mk_ack(16'd1); send(16'd1072);                               // real peer
     expect_data(16'd2, 512, 512, "U4 session did not survive the foreign TID");
     mk_ack(16'd2); send(16'd1072);
@@ -284,8 +330,14 @@ module tb_t16u_tftp_unload;
     mk_ack(16'd3); send(16'd1081);
     expect_none(3 * TO_US, "U6 response after final ACK (lingering session resends on timeout)");
 
+    // ---- U7: exact capacity + one same-cycle-EOP overflow byte ----
+    do_capacity_overflow(16'd1082);
+
+    // ---- U8: future DATA block must be rejected without committing bytes ----
+    do_future_block_error(16'd1083);
+
     if (errors == 0)
-      $display("T16u 615A LOAD/UNLOAD PASS (TFTP layer: load 1300 B + 1024 B, unload by RRQ UPLOAD with ACK lockstep, dup-ACK no resend, timeout resend, foreign TID ERROR(5), no-image ERROR(1), 0-byte terminator; %0d checks)", checks);
+      $display("T16u 615A LOAD/UNLOAD PASS (TFTP layer: load/unload, ACK/timeout/TID, 0-byte terminator, capacity+1 ERROR(3), future-block ERROR(0); %0d checks)", checks);
     else
       $display("T16u 615A LOAD/UNLOAD FAIL (errors=%0d of %0d checks)", errors, checks);
     $finish;

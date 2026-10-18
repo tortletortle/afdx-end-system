@@ -26,13 +26,18 @@ module tb_t11_core #(parameter integer IF_MODE=0);
   wire [31:0] host_rdata;
   wire host_ack;
   AFDX_top #(.IF_MODE(IF_MODE),.FCS_MODE(2)) dut (
-    .clk(clk),.reset(reset),.tx_data(),.tx_valid(),.tx_ready(),
+    .clk(clk),.reset(reset),.tx_data(),.tx_valid(),.tx_ready(), .rx_error(1'bz), .rx_error_b(1'bz),
     .rx_data(rx_data),.rx_valid(rx_valid),.rx_ready(rx_ready),
     .tx_data_b(),.tx_valid_b(),.tx_ready_b(),
     .rx_data_b(rx_data_b),.rx_valid_b(rx_valid_b),.rx_ready_b(rx_ready_b),
     .host_cs(host_cs),.host_we(host_we),.host_addr(host_addr),
     .host_wdata(host_wdata),.host_rdata(host_rdata),.host_ack(host_ack),
     .host_irq(),.pps_in(1'b0),.pps_out(),.rtc_time_us(),.dbg_frame_event());
+  afdx_cov_rsrc u_cov_rsrc (
+    .clk(clk), .rst_sync(reset),
+    .pmem_free(dut.pmem_free),
+    .pb_ev_sample(dut.pb_ev_sample), .pb_ev_queue(dut.pb_ev_queue),
+    .pb_ev_ovf(dut.pb_ev_ovf), .pb_ev_drop(dut.pb_ev_drop));
 
   localparam integer P = 5;                         // RX port under test
   localparam [15:0] PT = 16'h7D80 + 4*P;            // port table entry
@@ -338,6 +343,18 @@ module tb_t11_core #(parameter integer IF_MODE=0);
     pair(8'hE1); settle(1);
     read_desc(rd); check_desc(rd,1,1,0,0,1); check_payload(rd[23:20],8'hE1);
     msg_rd; settle(0);
+    begin : dump_rsrc
+      integer fd;
+      fd = $fopen("out/metrics/cover_rsrc.csv", "w");
+      if (fd != 0) begin
+        $fdisplay(fd, "free0,free1,free2,free_gt2,sample,queue,ovf,pdrop");
+        $fdisplay(fd, "%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d",
+                  u_cov_rsrc.n_free0, u_cov_rsrc.n_free1, u_cov_rsrc.n_free2,
+                  u_cov_rsrc.n_free_gt2, u_cov_rsrc.n_sample, u_cov_rsrc.n_queue,
+                  u_cov_rsrc.n_ovf, u_cov_rsrc.n_pdrop);
+        $fclose(fd);
+      end
+    end
     if(errors==0)
       $display("T11 TOP PORT PASS (IF_MODE=%0d deliver=%0d ovr=%0d qovf=%0d port_drop=%0d rm_dup=%0d sampling/pin/queue/parse-drop/err/reset ok)",
         IF_MODE,exp_deliv,exp_ovr,exp_qovf,exp_pdrop,exp_dup);

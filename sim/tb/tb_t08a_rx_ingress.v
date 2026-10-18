@@ -20,8 +20,8 @@ module tb_t08a_core #(parameter IF_MODE=0);
   wire [2:0] desc_ifid;
   mac_rx_if #(.IF_MODE(IF_MODE),.FCS_MODE(2),.MAX_FRAME(1518),.NET_ID(0)) dut (
     .clk(clk),.rst_sync(reset),.enable(enable),.udp_csum_en(udp_csum_en),.tb_us(tb_us),
-    .rx_data(rx_data),.rx_valid(rx_valid),.rx_ready(rx_ready),
-    .rx_blk(rx_blk),.rx_blk_valid(rx_blk_valid),
+    .rx_data(rx_data),.rx_valid(rx_valid),.rx_ready(rx_ready),.rx_frame_error(1'b0),
+    .rx_blk(rx_blk),.rx_blk_valid(rx_blk_valid),.frame_busy(),
     .pmem_wr_en(pmem_wr_en),.pmem_wr_addr(pmem_wr_addr),
     .pmem_wr_data(pmem_wr_data),.pmem_wr_be(pmem_wr_be),
     .blk_release(blk_release),.blk_release_id(blk_release_id),
@@ -29,6 +29,8 @@ module tb_t08a_core #(parameter IF_MODE=0);
     .desc_vlid(desc_vlid),.desc_sn(desc_sn),.desc_net(desc_net),.desc_ifid(desc_ifid),
     .desc_src_ip(desc_src_ip),.desc_dst_ip(desc_dst_ip),
     .desc_sport(desc_sport),.desc_dport(desc_dport),
+    .desc_plen(),.desc_first_frag(),.desc_is_frag(),.desc_frag_off(),
+    .desc_df(),.desc_mf(),.desc_ident(),
     .frame_err(frame_err),.crc_err(crc_err),.drop_reason(drop_reason),
     .good_cnt(good_cnt),.drop_cnt(drop_cnt),.disabled_cnt(disabled_cnt));
 

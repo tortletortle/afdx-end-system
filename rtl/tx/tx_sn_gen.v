@@ -33,6 +33,10 @@ module tx_sn_gen #(
   output reg  [7:0]  snap,
   output reg         snap_ack,
   // ---- 提交（来自 mac_tx_if.frame_done，经 tx_rm 对齐）----
+  // Cancel a failed staged fragment's snapshot without consuming an SN.
+  // commit_vl also identifies the cancel owner. Cancel wins over commit;
+  // a same-edge new snapshot is accepted after cancellation.
+  input  wire        cancel,
   input  wire        commit,
   input  wire [7:0]  commit_vl,
   // ---- 控制/调试 ----
@@ -56,7 +60,8 @@ module tx_sn_gen #(
   // 申请当拍读出的现值（同拍 commit 优先旁路，保证同 VL 连发拿到新值）
   wire [7:0] cur_raw  = sn_cur[snap_vl];
   wire [7:0] next_val = (pend_val == SN_MAX) ? SN_FIRST : (pend_val + 8'd1);
-  wire       commit_hit = commit && (sn_pend != 2'd0) && (commit_vl == pend_vl);
+  wire       cancel_hit = cancel && (sn_pend != 2'd0) && (commit_vl == pend_vl);
+  wire       commit_hit = commit && !cancel_hit && (sn_pend != 2'd0) && (commit_vl == pend_vl);
   wire [7:0] cur_eff  = (commit_hit && (commit_vl == snap_vl)) ? next_val : cur_raw;
   wire [7:0] sn_tx    = (cur_eff == SN_RST) ? SN_FIRST : cur_eff;
 
@@ -98,15 +103,17 @@ module tx_sn_gen #(
         pend_vl  <= snap_vl;
         pend_val <= sn_tx;
         // 违规: 上一次申请尚未提交（且本拍不是在提交它）
-        if (sn_pend != 2'd0 && !commit_hit) begin
+        if (sn_pend != 2'd0 && !commit_hit && !cancel_hit) begin
           err     <= 1'b1;
           sn_pend <= (sn_pend == 2'd3) ? 2'd3 : (sn_pend + 2'd1);
         end else begin
           sn_pend <= 2'd1;
         end
+      end else if (cancel_hit) begin
+        sn_pend <= 2'd0;
       end else if (commit_hit) begin
         sn_pend <= sn_pend - 2'd1;
-      end else if (commit) begin
+      end else if (commit || cancel) begin
         err <= 1'b1;        // 无挂起或 VL 不匹配的 commit（防御性）
       end
     end

@@ -12,23 +12,26 @@
 //     .3  afdxNumTxVl        INTEGER           RO
 //     .4  afdxNumRxVl        INTEGER           RO
 //     .10 afdxEsRxMaxJitUs   INTEGER           RO
-//     .11 afdxEsCtl          INTEGER           RW  （唯一可写对象）
+//     .11 afdxEsCtl          INTEGER           RW
 //     .12 afdxEsDropCnt      Counter32(0x41)   RO
 //     .13 afdxEsBufUtil      Gauge32(0x42)     RO
 //   组 2（STATS_BLOCK 只读组，OID = <pfx>.2.<w>.0，w=0..47）
 //     直接映射全局统计页 0x0100 的第 w 个字，Counter32，只读。
-//   GETNEXT 在"组 1 的 8 个标量 → 组 2 的 48 个字"共 56 项上做有序游走。
+//   组 1 的 .5 BAG(RW)、.6 TX/.7 RX/.8 drop/.9 status(RO) 各有 128 个实例。
+//   GETNEXT 按 8 个标量、5×128 个 indexed 实例及 48 个统计字共 696 项游走。
 //
 // 错误语义：
-//   community != "public" 或 version 非 0/1 或 BER 不合法 → 静默丢弃 + 计数
+//   community != "public" 或 version 非 0（仅 SNMPv1）或 BER 不合法 → 静默丢弃 + 计数
 //   GET/SET 到不存在对象 → noSuchName(2)，error-index = 出错 VarBind 序号
 //   SET 到只读对象       → readOnly(4)
 //   SET 类型非 INTEGER 或值 > 0xFFFF → badValue(3)
 //   VarBind > 8 个，或响应任一长度域 > 255 → tooBig(1) + 空 VarBind 列表
+//   非 tooBig 错误响应原样回抄请求 VarBindList 内容（OID、类型及值）。
 //
 // 覆盖边界（如实标注，未实现/不宣称）：
 //   - 只支持短式长度与 0x81 单字节长式（≤255），0x82 及以上一律丢弃；
-//   - 只支持 SNMPv1(0)/v2c(1)，无 v3 / 无认证加密 / 无 Trap / 无 GETBULK；
+//   - 只支持 SNMPv1(version=0) 单一版本；v2c/v3 版本字段静默丢弃（计数），
+//     无认证加密 / 无 Trap / 无 GETBULK；
 //   - community 为编译期常量 "public"，未做运行时可配；
 //   - OID 叶子号限 0..127（单字节子标识符），不支持多字节叶子；
 //   - request-id 与 community 在响应中按原始字节回抄，不做重新编码；
@@ -51,6 +54,11 @@
 //   - SET_ACK_EN=1: set_active serializes host configuration, one write pulse
 //     is followed by set_ack before the next write/response. Default 0 keeps
 //     the existing standalone pulse-sink interface. Response peer is held.
+//   - 2026-10-06：请求缓存改为上升沿 8 bit BRAM（不再 RD_NEG×32）。eLinx
+//     对同一阵列 posedge 写 + negedge 读常展开成数千 $dffe/$eq。解析/回抄
+//     community 与 request-id 在地址稳定后插入 1 拍再消费，语义不变。
+//     响应窗原 RD_NEG=1；2026-10-07 改为 RD_NEG=0（同步读），切开半周期
+//     RD_NEG→pmem/rdata。主机 0xAC1B 自增读本有空拍；上线 FSM 见 MT_WARM。
 // =====================================================================
 `timescale 1 ns / 1 ps
 module snmp_lite #(
@@ -115,8 +123,6 @@ module snmp_lite #(
   localparam [7:0] PDU_GET = 8'hA0, PDU_NXT = 8'hA1, PDU_RSP = 8'hA2, PDU_SET = 8'hA3;
   localparam integer COMM_N = 6;                      // "public"
 
-  reg [7:0] req  [0:255];
-  reg [7:0] rsp  [0:255];
   reg [7:0] oidb [0:15];
 
   // ---------------- 接收 ----------------
@@ -142,12 +148,16 @@ module snmp_lite #(
     P_RESOLVE2=70,                           // OID 解析结果寄存后再取值（continue10 时序修复）
     P_COMMIT=71,                             // SET 两阶段提交（核查 A01）
     P_BUILD5=72, P_COMMIT_WAIT=73,           // full response bound; commit acknowledgement
+    P_RESOLVE3=74,                           // posedge BRAM：地址稳后等读出
+    P_RESOLVE4=75,                           // 再一拍后采 vl_data（避免同沿 NBA 见旧值）
+    P_RESOLVE1=76,                           // 2026-10-07：walk() 结果打拍，切开 oid_len→rq_l
     E_SEQT=33, E_SEQL1=34, E_SEQL2=35, E_VER0=36, E_VER1=37, E_VER2=38,
     E_COMT=39, E_COML=40, E_COMB=41, E_PDUT=42, E_PDUL1=43, E_PDUL2=44,
     E_RIDT=45, E_RIDL=46, E_RIDB=47, E_ES0=48, E_ES1=49, E_ES2=50,
     E_EI0=51,  E_EI1=52,  E_EI2=53,  E_VBLT=54, E_VBLL1=55, E_VBLL2=56,
     E_VBT=57,  E_VBL=58,  E_OIDT=59, E_OIDL=60, E_OIDB=61,
-    E_VALT=62, E_VALL=63, E_VALB=64, E_NEXT=65, E_FIN=66;
+    E_VALT=62, E_VALL=63, E_VALB=64, E_NEXT=65, E_FIN=66,
+    E_VBCOPY=77;                             // 错误响应回抄已校验的原始 VarBindList
 
   reg [6:0]  st;
   reg [3:0]  ci;               // P_COMMIT 提交序号
@@ -155,6 +165,8 @@ module snmp_lite #(
   assign rx_rej      = en && in_vld && in_sop && !rx_can_take;
   reg [8:0]  pp;               // 解析指针
   reg [8:0]  msg_end, pdu_end, vbl_end, vb_end;
+  reg [8:0]  vbl_pos, copy_pos;
+  reg [7:0]  req_vbl_len;
   reg        lp;               // 长式长度待读
   reg [7:0]  ver;
   reg [8:0]  comm_pos; reg [7:0] comm_len; reg [7:0] comm_i; reg comm_ok;
@@ -178,7 +190,23 @@ module snmp_lite #(
 
   // Bound every request byte by both received length and its containing TLV.
   // Use 10-bit arithmetic BEFORE narrowing: pp + 1 + length must not wrap.
-  wire [7:0] req_b = req[pp[7:0]];
+  // Single shared read mux/BRAM port: many req[pp] combo fans were ~60k LE.
+  wire [7:0] req_rd_addr = (st == E_COMB) ? (comm_pos[7:0] + comm_i) :
+                           (st == E_RIDB) ? (rid_pos[7:0] + rid_i) :
+                           (st == E_VBCOPY) ? copy_pos[7:0] :
+                           pp[7:0];
+  wire       req_we = en && in_vld &&
+                      ((in_sop && rx_can_take) ||
+                       (!in_sop && rx_acc && (wp < 9'd256)));
+  wire [7:0] req_wa = (in_sop && rx_can_take) ? 8'd0 : wp[7:0];
+  // 请求窗：上升沿同步读。地址（pp / community / request-id）变化后由
+  // ram_got 空一拍，再在下一拍用 req_b。禁止 RD_NEG，避免 eLinx 把 256×32
+  // 展开成触发器（综合曾见 ~9k $dffe / ~10k $eq）。
+  wire [7:0] req_b;
+  bram_1w1r #(.W(8), .D(256), .RD_NEG(0)) u_req (
+    .clk(clk), .wr_en(req_we), .wr_addr(req_wa), .wr_data(in_data),
+    .rd_addr(req_rd_addr), .rd_data(req_b));
+  reg ram_got;
   wire [9:0] tlv_end = {1'b0,pp} + 10'd1 + {2'd0,req_b};
   wire parse_outer = (st == P_SEQT) || (st == P_SEQL) ||
                      (st == P_VERT) || (st == P_VERL) || (st == P_VERV) ||
@@ -192,6 +220,8 @@ module snmp_lite #(
   wire parse_vb = (st == P_OIDT) || (st == P_OIDL) || (st == P_OIDB) ||
                   (st == P_VALT) || (st == P_VALL) || (st == P_VALB);
   wire parse_byte = parse_outer || parse_pdu || parse_list || parse_vb;
+  wire need_req_byte = parse_byte || (st == E_COMB) || (st == E_RIDB) ||
+                       (st == E_VBCOPY);
   wire [8:0] parse_limit = (st == P_SEQT || st == P_SEQL) ? req_len :
                           parse_outer ? msg_end :
                           parse_pdu ? pdu_end :
@@ -210,9 +240,23 @@ module snmp_lite #(
   // prevents host TX configuration writes racing a validated multi-object SET.
   assign set_active = (SET_ACK_EN != 0) && is_set && (err_st == 4'd0) &&
                       (((st >= P_PDUL) && (st <= P_BUILD)) ||
-                       ((st >= P_BUILD2) && (st <= P_COMMIT_WAIT)));
+                       ((st >= P_BUILD2) && (st <= P_COMMIT_WAIT)) ||
+                       (st == P_RESOLVE1) || (st == P_RESOLVE2) ||
+                       (st == P_RESOLVE3) || (st == P_RESOLVE4));
   assign state_o = st[5:0];
-  assign resp_byte = rsp[resp_rd_addr[7:0]];
+  wire rsp_we = !rst_sync && (
+    (st == E_SEQT) || (st == E_SEQL1) || (st == E_SEQL2) ||
+    (st == E_VER0) || (st == E_VER1) || (st == E_VER2) ||
+    (st == E_COMT) || (st == E_COML) || (st == E_COMB) ||
+    (st == E_PDUT) || (st == E_PDUL1) || (st == E_PDUL2) ||
+    (st == E_RIDT) || (st == E_RIDL) || (st == E_RIDB) ||
+    (st == E_ES0) || (st == E_ES1) || (st == E_ES2) ||
+    (st == E_EI0) || (st == E_EI1) || (st == E_EI2) ||
+    (st == E_VBLT) || (st == E_VBLL1) || (st == E_VBLL2) ||
+    (st == E_VBT) || (st == E_VBL) || (st == E_OIDT) ||
+    (st == E_OIDL) || (st == E_OIDB) || (st == E_VALT) ||
+    (st == E_VALL) || (st == E_VALB) ||
+    ((st == E_VBCOPY) && ram_got));
 
   // ================= 工具函数 =================
   function [7:0] comm_ch; input [7:0] k;
@@ -350,10 +394,13 @@ module snmp_lite #(
                       (sv_val == 32'd0 || sv_val > 32'h007F_FFFE)) ? 4'd3
                    : (((o_g == 8'd1 && o_l == 8'd5) && (sv_val > 32'h00FF_FFFF)) ||
                       (!(o_g == 8'd1 && o_l == 8'd5) && (sv_val > 32'h0000_FFFF))) ? 4'd3 : 4'd0;
-  // 解析结果寄存一拍：原 P_RESOLVE 在同一拍内完成 walk() 解析 → 组合输出 mib_* → 顶层
-  // 索引 tx_cfg_mem/统计表 → stats_data/vl_data 回流 → n_val 选择 → 写 vb_val，
-  // post-fit 11.4 ns（continue10/p1-snmp）。现由 rq_* 驱动对外查询口，P_RESOLVE2 取值。
+  // 解析结果寄存：原 P_RESOLVE 一拍内 walk()→rq_* 在 post-fit 上 oid_len→rq_l
+  // 为 −0.246（timing_cut_v4）。现拆 P_RESOLVE（锁 walk/oid 域）→ P_RESOLVE1
+  // （leaf_i/grp_i→rq_*）→ P_RESOLVE2..4（BRAM 取值）。对外查询口仍由 rq_* 驱动。
   reg [7:0] rq_g, rq_l, rq_i;
+  reg [9:0] wi_q;
+  reg [7:0] o_g_q, o_l_q, o_i_q;
+  reg       use_next_q;
   assign stats_off = rq_l;
   assign mib_group = rq_g;
   assign mib_leaf  = rq_l;
@@ -395,14 +442,58 @@ module snmp_lite #(
                         (ek == 4'd9) ? vb_leaf[vi[2:0]] : 8'h00;
 
   wire [7:0] e_inst_byte = vb_inst[vi[2:0]];
+  reg [7:0] rsp_wd;
+  always @(*) begin
+    rsp_wd = 8'd0;
+    case (st)
+      E_SEQT:  rsp_wd = T_SEQ;
+      E_SEQL1: rsp_wd = (msg_len > 9'd127) ? 8'h81 : msg_len[7:0];
+      E_SEQL2: rsp_wd = msg_len[7:0];
+      E_VER0:  rsp_wd = T_INT;
+      E_VER1:  rsp_wd = 8'd1;
+      E_VER2:  rsp_wd = ver;
+      E_COMT:  rsp_wd = T_OCT;
+      E_COML:  rsp_wd = comm_len;
+      E_COMB:  rsp_wd = req_b;
+      E_PDUT:  rsp_wd = PDU_RSP;
+      E_PDUL1: rsp_wd = (pdu_len > 9'd127) ? 8'h81 : pdu_len[7:0];
+      E_PDUL2: rsp_wd = pdu_len[7:0];
+      E_RIDT:  rsp_wd = T_INT;
+      E_RIDL:  rsp_wd = rid_len;
+      E_RIDB:  rsp_wd = req_b;
+      E_ES0:   rsp_wd = T_INT;
+      E_ES1:   rsp_wd = 8'd1;
+      E_ES2:   rsp_wd = {4'd0, err_st};
+      E_EI0:   rsp_wd = T_INT;
+      E_EI1:   rsp_wd = 8'd1;
+      E_EI2:   rsp_wd = {4'd0, err_ix};
+      E_VBLT:  rsp_wd = T_SEQ;
+      E_VBLL1: rsp_wd = (vbl_len > 9'd127) ? 8'h81 : vbl_len[7:0];
+      E_VBLL2: rsp_wd = vbl_len[7:0];
+      E_VBT:   rsp_wd = T_SEQ;
+      E_VBL:   rsp_wd = vb_tl[vi[2:0]];
+      E_OIDT:  rsp_wd = T_OID;
+      E_OIDL:  rsp_wd = 8'd11;
+      E_OIDB:  rsp_wd = (ek == 4'd10) ? e_inst_byte : e_oidb;
+      E_VALT:  rsp_wd = e_tag;
+      E_VALL:  rsp_wd = e_vlen8;
+      E_VALB:  rsp_wd = e_vbyte;
+      E_VBCOPY: rsp_wd = req_b;
+      default: rsp_wd = 8'd0;
+    endcase
+  end
+  wire [7:0] rsp_word;
+  assign resp_byte = rsp_word;
+  bram_1w1r #(.W(8), .D(256), .RD_NEG(0)) u_rsp (
+    .clk(clk), .wr_en(rsp_we), .wr_addr(ep[7:0]), .wr_data(rsp_wd),
+    .rd_addr(resp_rd_addr[7:0]), .rd_data(rsp_word));
   // 长度计算：原 P_BUILD 在一拍内对 8 个 VarBind 做 ilen 比较 + 串行累加 + 4 级 TLV 加法，
   // post-fit 关键路径 28 级 / 12.5 ns（continue10/POST-FIT-FINDINGS.md 根因 A）。
   // 现拆为：P_BUILD 每拍处理一个 VarBind 累加到 acc_r；P_BUILD2 tooBig 判决；
   // P_BUILD3 求 vbl/pdu 长度；P_BUILD4 求 msg 长度。响应延迟增加 ≤ 11 拍，语义不变。
   reg [3:0] bi;                // 当前累加的 VarBind 序号
   reg [8:0] acc_r;             // VarBind 列表内容长度累加器
-  wire [7:0] tl_w = (err_st != 4'd0)    ? 8'd15 :                       // OID TLV(13) + NULL TLV(2)
-                    vb_str[bi[2:0]]     ? 8'd31 :                       // + OCTET STRING(16)
+  wire [7:0] tl_w = vb_str[bi[2:0]]     ? 8'd31 :                       // + OCTET STRING(16)
                     8'd15 + {4'd0, ilen(vb_val[bi[2:0]])};             // + INTEGER(2+ilen)
   wire [8:0] vbl_tl_w = 9'd2 + ((acc_r   > 9'd127) ? 9'd1 : 9'd0) + acc_r;
   wire [8:0] pdu_tl_w = 9'd2 + ((pdu_len > 9'd127) ? 9'd1 : 9'd0) + pdu_len;
@@ -420,6 +511,7 @@ module snmp_lite #(
       rx_overflow <= 1'b0; pkt_oversize <= 1'b0;
       rx_peer <= 16'd0; req_peer <= 16'd0;
       msg_end <= 9'd0; pdu_end <= 9'd0; vbl_end <= 9'd0; vb_end <= 9'd0;
+      vbl_pos <= 9'd0; copy_pos <= 9'd0; req_vbl_len <= 8'd0;
       sv_neg <= 1'b0;
       resp_vld <= 1'b0; resp_len <= 11'd0; ctl_we <= 1'b0; ctl_wdata <= 16'd0;
       vl_bag_we <= 1'b0; vl_bag_index <= 8'd0; vl_bag_wdata <= 32'd0;
@@ -427,10 +519,12 @@ module snmp_lite #(
       last_err <= 4'd0; last_idx <= 4'd0; last_pdu <= 8'd0; peer_port <= 16'd0;
       vb_n <= 4'd0; nvb <= 4'd0; ei <= 4'd0; err_st <= 4'd0; err_ix <= 4'd0;
       lp <= 1'b0; pp <= 9'd0; ep <= 9'd0; vi <= 4'd0; ek <= 4'd0;
+      ram_got <= 1'b0;
       comm_ok <= 1'b0; vb_ovf <= 1'b0; emit_done <= 1'b0;
       msg_len <= 9'd0; pdu_len <= 9'd0; vbl_len <= 9'd0;
       bi <= 4'd0; acc_r <= 9'd0;
       rq_g <= 8'd0; rq_l <= 8'd0; rq_i <= 8'd0;
+      wi_q <= 10'd0; o_g_q <= 8'd0; o_l_q <= 8'd0; o_i_q <= 8'd0; use_next_q <= 1'b0;
       e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
     end else begin
       ctl_we <= 1'b0;
@@ -441,7 +535,7 @@ module snmp_lite #(
       if (en && in_vld) begin
         if (in_sop) begin
           if (rx_can_take) begin
-            req[0] <= in_data; wp <= 9'd1;
+            wp <= 9'd1;
             rx_acc <= !in_eop; rx_overflow <= 1'b0; rx_peer <= in_sport;
             if (in_eop) begin
               req_len <= 9'd1; have_pkt <= 1'b1; req_peer <= in_sport;
@@ -451,7 +545,7 @@ module snmp_lite #(
             rx_acc <= 1'b0;                        // 本包其余字节全部忽略
           end
         end else if (rx_acc) begin
-          if (wp < 9'd256) begin req[wp[7:0]] <= in_data; wp <= wp + 9'd1; end
+          if (wp < 9'd256) begin wp <= wp + 9'd1; end
           else rx_overflow <= 1'b1; // saturate the pointer, never wrap a long PDU
           if (in_eop) begin
             req_len  <= (wp < 9'd256) ? wp + 9'd1 : 9'd256;
@@ -465,8 +559,13 @@ module snmp_lite #(
       drop_pdu_cnt <= drop_pdu_cnt + {31'd0, rx_rej} + {31'd0, (st == P_DROP)};
 
       if (read_oob) begin
+        ram_got <= 1'b0;
         st <= P_DROP; // no request read, metadata update, or SET side effect
-      end else case (st)
+      end else if (need_req_byte && !ram_got) begin
+        ram_got <= 1'b1;
+      end else begin
+      ram_got <= 1'b0;
+      case (st)
         // =============== 解析 ===============
         P_IDLE: if (have_pkt && !resp_vld) begin
           have_pkt <= 1'b0; pp <= 9'd0; lp <= 1'b0;
@@ -477,7 +576,7 @@ module snmp_lite #(
           rx_pdu_cnt <= rx_pdu_cnt + 32'd1;
         end
         P_SEQT: begin
-          if (req[pp[7:0]] != T_SEQ) st <= P_DROP;
+          if (req_b != T_SEQ) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_SEQL; end
         end
         P_SEQL: begin
@@ -492,7 +591,7 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_VERT: begin
-          if (req[pp[7:0]] != T_INT) st <= P_DROP;
+          if (req_b != T_INT) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_VERL; end
         end
         P_VERL: begin
@@ -507,12 +606,16 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_VERV: begin
-          ver <= req[pp[7:0]];
-          if (req[pp[7:0]] > 8'd1) st <= P_DROP;
+          ver <= req_b;
+          // P04（2026-10-10）单一版本范围：只接受 SNMPv1（version=0）。
+          // 比赛未指定版本；错误语义（noSuchName/readOnly/badValue）为 v1 风格，
+          // 因此不再接受 v2c(1)——version≠0 一律静默丢弃并计入 drop_pdu_cnt，
+          // 使接受范围、实现与测试/报告一致。如需 v2c 例外语义须另行实现。
+          if (req_b != 8'd0) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_COMT; end
         end
         P_COMT: begin
-          if (req[pp[7:0]] != T_OCT) st <= P_DROP;
+          if (req_b != T_OCT) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_COML; end
         end
         P_COML: begin
@@ -527,17 +630,17 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_COMB: begin
-          if (req[pp[7:0]] != comm_ch(comm_i)) comm_ok <= 1'b0;
+          if (req_b != comm_ch(comm_i)) comm_ok <= 1'b0;
           comm_i <= comm_i + 8'd1;
           pp <= pp + 9'd1;
           if (comm_i + 8'd1 >= comm_len) st <= P_PDUT;
         end
         P_PDUT: begin
-          pdu_t    <= req[pp[7:0]];
-          last_pdu <= req[pp[7:0]];
+          pdu_t    <= req_b;
+          last_pdu <= req_b;
           if (!comm_ok) st <= P_DROP;
-          else if (req[pp[7:0]] != PDU_GET && req[pp[7:0]] != PDU_NXT &&
-                   req[pp[7:0]] != PDU_SET) st <= P_DROP;
+          else if (req_b != PDU_GET && req_b != PDU_NXT &&
+                   req_b != PDU_SET) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_PDUL; end
         end
         P_PDUL: begin
@@ -552,7 +655,7 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_RIDT: begin
-          if (req[pp[7:0]] != T_INT) st <= P_DROP;
+          if (req_b != T_INT) st <= P_DROP;
           else begin pp <= pp + 9'd1; st <= P_RIDL; end
         end
         P_RIDL: begin
@@ -564,7 +667,7 @@ module snmp_lite #(
               pp <= tlv_end[8:0]; st <= P_EST; end
           end else st <= P_DROP;
         end
-        P_EST:  begin if (req[pp[7:0]] != T_INT) st <= P_DROP;
+        P_EST:  begin if (req_b != T_INT) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_ESL; end end
         P_ESL: begin
           if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
@@ -578,7 +681,7 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_ESV:  begin pp <= pp + 9'd1; st <= P_EIT; end
-        P_EIT:  begin if (req[pp[7:0]] != T_INT) st <= P_DROP;
+        P_EIT:  begin if (req_b != T_INT) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_EIL; end end
         P_EIL: begin
           if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
@@ -592,7 +695,7 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_EIV:  begin pp <= pp + 9'd1; st <= P_VBLT; end
-        P_VBLT: begin if (req[pp[7:0]] != T_SEQ) st <= P_DROP;
+        P_VBLT: begin if (req_b != T_SEQ) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_VBLL; end end
         P_VBLL: begin
           if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
@@ -601,11 +704,12 @@ module snmp_lite #(
             if (!(tlv_end == {1'b0,pdu_end})) st <= P_DROP;
             else begin
               vbl_end <= tlv_end[8:0];
+              vbl_pos <= pp + 9'd1; req_vbl_len <= req_b;
               pp <= pp + 9'd1; st <= (req_b == 8'd0) ? P_BUILD : P_VBT;
             end
           end else st <= P_DROP;
         end
-        P_VBT:  begin if (req[pp[7:0]] != T_SEQ) st <= P_DROP;
+        P_VBT:  begin if (req_b != T_SEQ) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_VBLN; end end
         P_VBLN: begin
           if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
@@ -618,7 +722,7 @@ module snmp_lite #(
             end
           end else st <= P_DROP;
         end
-        P_OIDT: begin if (req[pp[7:0]] != T_OID) st <= P_DROP;
+        P_OIDT: begin if (req_b != T_OID) st <= P_DROP;
                       else begin pp <= pp + 9'd1; st <= P_OIDL; end end
         P_OIDL: begin
           if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
@@ -632,12 +736,12 @@ module snmp_lite #(
           end else st <= P_DROP;
         end
         P_OIDB: begin
-          oidb[oid_i[3:0]] <= req[pp[7:0]];
+          oidb[oid_i[3:0]] <= req_b;
           oid_i <= oid_i + 8'd1;
           pp <= pp + 9'd1;
           if (oid_i + 8'd1 >= oid_len) st <= P_VALT;
         end
-        P_VALT: begin sv_tag <= req[pp[7:0]]; sv_val <= 32'd0; sv_neg <= 1'b0;
+        P_VALT: begin sv_tag <= req_b; sv_val <= 32'd0; sv_neg <= 1'b0;
                       pp <= pp + 9'd1; st <= P_VALL; end
         P_VALL: begin
           if (!lp && req_b == 8'h81) begin lp <= 1'b1; pp <= pp + 9'd1; end
@@ -652,7 +756,7 @@ module snmp_lite #(
         end
         P_VALB: begin
           if (sv_i == 8'd0) sv_neg <= req_b[7];
-          if (sv_i < 8'd4) sv_val <= {sv_val[23:0], req[pp[7:0]]};
+          if (sv_i < 8'd4) sv_val <= {sv_val[23:0], req_b};
           sv_i <= sv_i + 8'd1;
           pp <= pp + 9'd1;
           if (sv_i + 8'd1 >= sv_len) st <= P_RESOLVE;
@@ -662,11 +766,22 @@ module snmp_lite #(
             vb_ovf <= 1'b1;
             st <= (pp == vbl_end) ? P_BUILD : P_VBT; // validate all excess TLVs, no writes
           end else begin
-            rq_g <= r_g; rq_l <= r_l; rq_i <= r_i;   // 对外查询口下一拍稳定
-            st <= P_RESOLVE2;
+            // 本拍只锁 walk/OID 域，避免 oid_len→leaf_i→rq_l 单周期长链
+            wi_q <= wi; o_g_q <= o_g; o_l_q <= o_l; o_i_q <= o_i;
+            use_next_q <= is_nxt && nxt_ok;
+            st <= P_RESOLVE1;
           end
         end
-        P_RESOLVE2: begin
+        P_RESOLVE1: begin
+          // 终止/非法 GETNEXT 保留原 OID，禁止把 walk 的 3FF 哨兵当作对象。
+          rq_g <= use_next_q ? grp_i(wi_q) : o_g_q;
+          rq_l <= use_next_q ? leaf_i(wi_q) : o_l_q;
+          rq_i <= use_next_q ? inst_i(wi_q) : o_i_q;
+          st <= P_RESOLVE2;
+        end
+        P_RESOLVE2: st <= P_RESOLVE3; // rq_* 已稳，本拍 BRAM 采地址
+        P_RESOLVE3: st <= P_RESOLVE4; // 读数据在本拍上升沿更新
+        P_RESOLVE4: begin
           vb_grp [ei[2:0]] <= rq_g;
           vb_leaf[ei[2:0]] <= rq_l;
           vb_inst[ei[2:0]] <= rq_i;
@@ -676,8 +791,6 @@ module snmp_lite #(
           if (r_err != 4'd0 && err_st == 4'd0) begin
             err_st <= r_err; err_ix <= ei + 4'd1;
           end
-          // A01：此处不再直接写；SET 的目标/值已登记在 vb_grp/vb_leaf/vb_inst/vb_val，
-          // 由 P_COMMIT 在全部 VarBind 校验通过后统一提交。
           nvb <= ei + 4'd1;
           ei  <= ei + 4'd1;
           st  <= (pp == vbl_end) ? P_BUILD : P_VBT;
@@ -685,7 +798,13 @@ module snmp_lite #(
         // =============== 长度计算 ===============
         P_BUILD: begin
           // 每拍一个 VarBind（bi 与 acc_r 在复位及 P_BUILD4 退出时清零，进入时恒为 0）
-          if (bi < nvb) begin
+          if (err_st != 4'd0) begin
+            // RFC 1157 4.1.2/4.1.3/4.1.5: error VarBinds retain the
+            // request OID, syntax and value, including values wider than 32 bits.
+            // Bounds/TLV validation has completed before this byte-copy path.
+            acc_r <= {1'b0, req_vbl_len};
+            st <= P_BUILD2;
+          end else if (bi < nvb) begin
             vb_tl[bi[2:0]] <= tl_w;
             acc_r <= acc_r + 9'd2 + {1'b0, tl_w};
             bi    <= bi + 4'd1;
@@ -741,86 +860,85 @@ module snmp_lite #(
           st <= P_IDLE;                             // drop_pdu_cnt 在 case 外统一累加
         end
         // =============== 编码 ===============
-        E_SEQT:  begin rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_SEQL1; end
+        E_SEQT:  begin ep <= ep + 9'd1; st <= E_SEQL1; end
         E_SEQL1: begin
-          if (msg_len > 9'd127) begin rsp[ep[7:0]] <= 8'h81; ep <= ep + 9'd1; st <= E_SEQL2; end
-          else begin rsp[ep[7:0]] <= msg_len[7:0]; ep <= ep + 9'd1; st <= E_VER0; end
+          if (msg_len > 9'd127) begin ep <= ep + 9'd1; st <= E_SEQL2; end
+          else begin ep <= ep + 9'd1; st <= E_VER0; end
         end
-        E_SEQL2: begin rsp[ep[7:0]] <= msg_len[7:0]; ep <= ep + 9'd1; st <= E_VER0; end
-        E_VER0:  begin rsp[ep[7:0]] <= T_INT; ep <= ep + 9'd1; st <= E_VER1; end
-        E_VER1:  begin rsp[ep[7:0]] <= 8'd1;  ep <= ep + 9'd1; st <= E_VER2; end
-        E_VER2:  begin rsp[ep[7:0]] <= ver;   ep <= ep + 9'd1; st <= E_COMT; end
-        E_COMT:  begin rsp[ep[7:0]] <= T_OCT; ep <= ep + 9'd1; st <= E_COML; end
-        E_COML:  begin rsp[ep[7:0]] <= comm_len; ep <= ep + 9'd1; comm_i <= 8'd0; st <= E_COMB; end
+        E_SEQL2: begin ep <= ep + 9'd1; st <= E_VER0; end
+        E_VER0:  begin ep <= ep + 9'd1; st <= E_VER1; end
+        E_VER1:  begin ep <= ep + 9'd1; st <= E_VER2; end
+        E_VER2:  begin ep <= ep + 9'd1; st <= E_COMT; end
+        E_COMT:  begin ep <= ep + 9'd1; st <= E_COML; end
+        E_COML:  begin ep <= ep + 9'd1; comm_i <= 8'd0; st <= E_COMB; end
         E_COMB:  begin
-          rsp[ep[7:0]] <= req[comm_pos[7:0] + comm_i];
           ep <= ep + 9'd1; comm_i <= comm_i + 8'd1;
           if (comm_i + 8'd1 >= comm_len) st <= E_PDUT;
         end
-        E_PDUT:  begin rsp[ep[7:0]] <= PDU_RSP; ep <= ep + 9'd1; st <= E_PDUL1; end
+        E_PDUT:  begin ep <= ep + 9'd1; st <= E_PDUL1; end
         E_PDUL1: begin
-          if (pdu_len > 9'd127) begin rsp[ep[7:0]] <= 8'h81; ep <= ep + 9'd1; st <= E_PDUL2; end
-          else begin rsp[ep[7:0]] <= pdu_len[7:0]; ep <= ep + 9'd1; st <= E_RIDT; end
+          if (pdu_len > 9'd127) begin ep <= ep + 9'd1; st <= E_PDUL2; end
+          else begin ep <= ep + 9'd1; st <= E_RIDT; end
         end
-        E_PDUL2: begin rsp[ep[7:0]] <= pdu_len[7:0]; ep <= ep + 9'd1; st <= E_RIDT; end
-        E_RIDT:  begin rsp[ep[7:0]] <= T_INT; ep <= ep + 9'd1; st <= E_RIDL; end
-        E_RIDL:  begin rsp[ep[7:0]] <= rid_len; ep <= ep + 9'd1; rid_i <= 8'd0; st <= E_RIDB; end
+        E_PDUL2: begin ep <= ep + 9'd1; st <= E_RIDT; end
+        E_RIDT:  begin ep <= ep + 9'd1; st <= E_RIDL; end
+        E_RIDL:  begin ep <= ep + 9'd1; rid_i <= 8'd0; st <= E_RIDB; end
         E_RIDB:  begin
-          rsp[ep[7:0]] <= req[rid_pos[7:0] + rid_i];
           ep <= ep + 9'd1; rid_i <= rid_i + 8'd1;
           if (rid_i + 8'd1 >= rid_len) st <= E_ES0;
         end
-        E_ES0:   begin rsp[ep[7:0]] <= T_INT; ep <= ep + 9'd1; st <= E_ES1; end
-        E_ES1:   begin rsp[ep[7:0]] <= 8'd1;  ep <= ep + 9'd1; st <= E_ES2; end
-        E_ES2:   begin rsp[ep[7:0]] <= {4'd0, err_st}; ep <= ep + 9'd1; st <= E_EI0; end
-        E_EI0:   begin rsp[ep[7:0]] <= T_INT; ep <= ep + 9'd1; st <= E_EI1; end
-        E_EI1:   begin rsp[ep[7:0]] <= 8'd1;  ep <= ep + 9'd1; st <= E_EI2; end
-        E_EI2:   begin rsp[ep[7:0]] <= {4'd0, err_ix}; ep <= ep + 9'd1; st <= E_VBLT; end
-        E_VBLT:  begin rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_VBLL1; end
+        E_ES0:   begin ep <= ep + 9'd1; st <= E_ES1; end
+        E_ES1:   begin ep <= ep + 9'd1; st <= E_ES2; end
+        E_ES2:   begin ep <= ep + 9'd1; st <= E_EI0; end
+        E_EI0:   begin ep <= ep + 9'd1; st <= E_EI1; end
+        E_EI1:   begin ep <= ep + 9'd1; st <= E_EI2; end
+        E_EI2:   begin ep <= ep + 9'd1; st <= E_VBLT; end
+        E_VBLT:  begin ep <= ep + 9'd1; st <= E_VBLL1; end
         E_VBLL1: begin
-          if (vbl_len > 9'd127) begin rsp[ep[7:0]] <= 8'h81; ep <= ep + 9'd1; st <= E_VBLL2; end
+          if (vbl_len > 9'd127) begin ep <= ep + 9'd1; st <= E_VBLL2; end
           else begin
-            rsp[ep[7:0]] <= vbl_len[7:0]; ep <= ep + 9'd1;
+            ep <= ep + 9'd1;
             vi <= 4'd0; ek <= 4'd0;
-            st <= (nvb == 4'd0) ? E_FIN : E_VBT;
+            copy_pos <= vbl_pos;
+            st <= (nvb == 4'd0) ? E_FIN : ((err_st != 4'd0) ? E_VBCOPY : E_VBT);
           end
         end
         E_VBLL2: begin
-          rsp[ep[7:0]] <= vbl_len[7:0]; ep <= ep + 9'd1;
+          ep <= ep + 9'd1;
           vi <= 4'd0; ek <= 4'd0;
-          st <= (nvb == 4'd0) ? E_FIN : E_VBT;
+          copy_pos <= vbl_pos;
+          st <= (nvb == 4'd0) ? E_FIN : ((err_st != 4'd0) ? E_VBCOPY : E_VBT);
         end
         E_VBT:   begin
-          rsp[ep[7:0]] <= T_SEQ; ep <= ep + 9'd1; st <= E_VBL;
-          if (err_st != 4'd0) begin
-            e_tag_q <= T_NUL; e_isstr_q <= 1'b0; e_vlen_q <= 4'd0; e_val_q <= 32'd0;
-          end else begin
-            e_tag_q   <= vb_tag[vi[2:0]];
-            e_isstr_q <= vb_str[vi[2:0]];
-            e_vlen_q  <= vb_str[vi[2:0]] ? 4'd0 : ilen(vb_val[vi[2:0]]);
-            e_val_q   <= vb_val[vi[2:0]];
-          end
+          ep <= ep + 9'd1; st <= E_VBL;
+          e_tag_q   <= vb_tag[vi[2:0]];
+          e_isstr_q <= vb_str[vi[2:0]];
+          e_vlen_q  <= vb_str[vi[2:0]] ? 4'd0 : ilen(vb_val[vi[2:0]]);
+          e_val_q   <= vb_val[vi[2:0]];
         end
-        E_VBL:   begin rsp[ep[7:0]] <= vb_tl[vi[2:0]]; ep <= ep + 9'd1; st <= E_OIDT; end
-        E_OIDT:  begin rsp[ep[7:0]] <= T_OID; ep <= ep + 9'd1; st <= E_OIDL; end
-        E_OIDL:  begin rsp[ep[7:0]] <= 8'd11; ep <= ep + 9'd1; ek <= 4'd0; st <= E_OIDB; end
+        E_VBL:   begin ep <= ep + 9'd1; st <= E_OIDT; end
+        E_OIDT:  begin ep <= ep + 9'd1; st <= E_OIDL; end
+        E_OIDL:  begin ep <= ep + 9'd1; ek <= 4'd0; st <= E_OIDB; end
         E_OIDB:  begin
-          rsp[ep[7:0]] <= e_oidb; ep <= ep + 9'd1; ek <= ek + 4'd1;
+          ep <= ep + 9'd1; ek <= ek + 4'd1;
           if (ek >= 4'd10) begin ek <= 4'd0; st <= E_VALT; end
-           if (ek == 4'd10) rsp[ep[7:0]] <= e_inst_byte;
         end
-        E_VALT:  begin rsp[ep[7:0]] <= e_tag; ep <= ep + 9'd1; st <= E_VALL; end
+        E_VALT:  begin ep <= ep + 9'd1; st <= E_VALL; end
         E_VALL:  begin
-          rsp[ep[7:0]] <= e_vlen8; ep <= ep + 9'd1; ek <= 4'd0;
+          ep <= ep + 9'd1; ek <= 4'd0;
           st <= (e_vlen8 == 8'd0) ? E_NEXT : E_VALB;
         end
         E_VALB:  begin
-          rsp[ep[7:0]] <= e_vbyte; ep <= ep + 9'd1; ek <= ek + 4'd1;
+          ep <= ep + 9'd1; ek <= ek + 4'd1;
           if ({4'd0, ek} + 8'd1 >= e_vlen8) st <= E_NEXT;
         end
         E_NEXT:  begin
           vi <= vi + 4'd1; ek <= 4'd0;
           st <= ((vi + 4'd1) >= nvb) ? E_FIN : E_VBT;
+        end
+        E_VBCOPY: begin
+          ep <= ep + 9'd1; copy_pos <= copy_pos + 9'd1;
+          if (copy_pos + 9'd1 >= vbl_end) st <= E_FIN;
         end
         E_FIN:   begin
           resp_len <= {2'd0, ep};
@@ -831,6 +949,7 @@ module snmp_lite #(
         end
         default: st <= P_IDLE;
       endcase
+      end
 
     end
   end

@@ -145,6 +145,7 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
   wire [7:0] tx_data; wire tx_valid, tx_ready;
   wire [7:0] tx_data_b; wire tx_valid_b, tx_ready_b;
   AFDX_top #(.NUM_RX_VL(512), .NUM_PORTS(16), .IF_MODE(IF_MODE), .FCS_MODE(2), .SNMP_SAP_PORT(5), .TFTP_SAP_PORT(9)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset), .tx_data(tx_data), .tx_valid(tx_valid), .tx_ready(tx_ready),
     .rx_data(rx_data), .rx_valid(rx_valid), .rx_ready(rx_ready),
     .tx_data_b(tx_data_b), .tx_valid_b(tx_valid_b), .tx_ready_b(tx_ready_b),
@@ -242,8 +243,8 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
     committed_vl=dut.snmp_bag_vl_q;committed_addr=dut.snmp_bag_addr_q;
     committed_bag=dut.snmp_bag_wdata_q;
     #1;
-    if(dut.tx_cfg_mem[committed_addr][31:8]!==committed_bag ||
-       dut.u_sched.bag_arr[committed_vl]!==committed_bag)
+    if(dut.u_txcfg_h1.mem[committed_vl][31:8]!==committed_bag ||
+       dut.u_sched.bag_arr[committed_vl] !== (committed_bag * 125))
       bad("table/scheduler did not commit the same BAG on the same edge");
   end
   time starts[0:31];
@@ -303,7 +304,7 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
         if(is_diagnostic)begin
           if(gap_ns<expected_min_us*1000)begin
             cfg_findings=cfg_findings+1;bad("SNMP BAG did not reach wire scheduler");
-            $display("DIAG BAG_WIRE FAIL if_mode=%0d requested_bag_us=%0d observed_start_gap_ns=%0d cfg_bag=%0d scheduler_bag=%0d",IF_MODE,expected_min_us,gap_ns,dut.tx_cfg_mem[5*V_TX+1][31:8],dut.u_sched.bag_arr[V_TX]);
+            $display("DIAG BAG_WIRE FAIL if_mode=%0d requested_bag_us=%0d observed_start_gap_ns=%0d cfg_bag_us=%0d scheduler_bag_cycles=%0d",IF_MODE,expected_min_us,gap_ns,dut.u_txcfg_h1.mem[V_TX][31:8],dut.u_sched.bag_arr[V_TX]);
           end else $display("DIAG BAG_WIRE PASS if_mode=%0d gap_ns=%0d",IF_MODE,gap_ns);
         end else begin
           if(gap_ns<expected_min_us*1000 || gap_ns>(expected_min_us+50)*1000)bad("wire BAG positive control out of bounds");
@@ -343,7 +344,7 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
     host_write(TXBASE+3,32'hE000_0001);host_write(TXBASE+4,P_TX<<16);
     host_write(16'h0480+V_TX,7047);host_write(TXBASE,TXW0);
     repeat(8)@(negedge clk);
-    if(dut.u_sched.bag_arr[V_TX]!==24'd1000)bad("host configuration did not reach scheduler");
+    if(dut.u_sched.bag_arr[V_TX]!==31'd125000)bad("host configuration did not reach scheduler");
     host_write(16'h0008,32'h051F);
     two_wire_frames(1000,0);
     host_write(16'h0008,32'h051E);
@@ -353,7 +354,7 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
     drive_case(1);t_grab;
     if(r_err!==0 || vbv[0]!==2000)bad("on-wire SET BAG acceptance control failed");
     host_read(TXBASE+1,d);
-    $display("DIAG BAG_STATE if_mode=%0d response_error=%0d set_echo=%0d host_table_bag=%0d scheduler_bag=%0d cfg_sum_q20=%0d",IF_MODE,r_err,vbv[0],d[31:8],dut.u_sched.bag_arr[V_TX],dut.cfg_sum_r);
+    $display("DIAG BAG_STATE if_mode=%0d response_error=%0d set_echo=%0d host_table_bag_us=%0d scheduler_bag_cycles=%0d cfg_sum_q20=%0d",IF_MODE,r_err,vbv[0],d[31:8],dut.u_sched.bag_arr[V_TX],dut.cfg_sum_r);
     if(d[31:8]!==24'd2000)bad("SET did not update top table control");
     host_write(16'h0008,32'h051F);
     two_wire_frames(2000,1);
@@ -376,14 +377,14 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
     end else $display("DIAG TOP_TRUNCATED_SET PASS if_mode=%0d",IF_MODE);
     // Decreasing back to the originally reserved BAG must also update both copies.
     drive_case(4);t_grab;
-    if(r_err!==0 || vbv[0]!==1000 || dut.u_sched.bag_arr[V_TX]!==1000)
+    if(r_err!==0 || vbv[0]!==1000 || dut.u_sched.bag_arr[V_TX]!==31'd125000)
       bad("decreasing BAG did not commit");
     host_write(16'h0008,32'h051F);two_wire_frames(1000,1);
     host_write(16'h0008,32'h051E);
     // Mixed multi-object SET: no dropped pulses and repeated BAG writes are ordered.
     commits0=bag_commits;drive_case(5);t_grab;
     if(r_err!==0 || r_nvb!==3 || bag_commits!==commits0+2 ||
-       dut.u_sched.bag_arr[V_TX]!==2000 || dut.tx_cfg_mem[5*V_TX+1][31:8]!==2000 ||
+       dut.u_sched.bag_arr[V_TX]!==31'd250000 || dut.u_txcfg_h1.mem[V_TX][31:8]!==2000 ||
        dut.snmp_ctl_shadow!==16'h3456)bad("mixed SET ordered/acknowledged commit");
     host_write(16'h0008,32'h051F);two_wire_frames(2000,1);
     host_write(16'h0008,32'h2000);host_write(TXBASE,32'h8000_0002); // B-only
@@ -405,7 +406,7 @@ module tb_t15c_snmp_bag #(parameter integer IF_MODE = 0);
     if(!dut.snmp_resp_vld)bad("BAG SET response missing while B link-down");
     t_grab;
     if(r_err!==0 || vbv[0]!==1000 || bag_commits!==commits0+1 ||
-       dut.u_sched.bag_arr[V_TX]!==1000 || dut.tx_cfg_mem[5*V_TX+1][31:8]!==1000 ||
+       dut.u_sched.bag_arr[V_TX]!==31'd125000 || dut.u_txcfg_h1.mem[V_TX][31:8]!==1000 ||
        !dut.u_sched.ifq_nonempty)
       bad("link-down atomic BAG commit or retained in-flight frame");
     // The old, already-granted frame starts after link recovery; the queued

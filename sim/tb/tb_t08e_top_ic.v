@@ -25,6 +25,7 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
   wire [31:0] host_rdata;
   wire host_ack;
   AFDX_top #(.IF_MODE(IF_MODE),.FCS_MODE(2)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk),.reset(reset),.tx_data(),.tx_valid(),.tx_ready(),
     .rx_data(rx_data),.rx_valid(rx_valid),.rx_ready(rx_ready),
     .tx_data_b(),.tx_valid_b(),.tx_ready_b(),
@@ -32,6 +33,10 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
     .host_cs(host_cs),.host_we(host_we),.host_addr(host_addr),
     .host_wdata(host_wdata),.host_rdata(host_rdata),.host_ack(host_ack),
     .host_irq(),.pps_in(1'b0),.pps_out(),.rtc_time_us(),.dbg_frame_event());
+  afdx_cov_ic u_cov_ic (
+    .clk(clk), .rst_sync(reset),
+    .out_vld(dut.u_rxic.out_vld), .out_ready(dut.u_rxic.out_ready),
+    .out_reason(dut.u_rxic.out_reason), .net_id(dut.u_rxic.out_desc[99]));
 
   localparam [2:0] R_OK=0,R_RESET=1,R_LOST1=2,R_FANY=3,R_FFAIL=4,R_OOO=5;
   localparam [12:0] ADDR_A=13'h0100, ADDR_B=13'h1100;
@@ -326,6 +331,18 @@ module tb_t08e_core #(parameter integer IF_MODE=0);
       bad("PSN RAM not cleared by re-init sweep");
     host_read(16'h0048,rd); if(rd!==32'd0) bad("IC drop counter not cleared");
     host_read(16'h001C,rd); if(rd!==32'd0) bad("DROP_CNT not cleared");
+    begin : dump_ic
+      integer fd;
+      fd = $fopen("out/metrics/cover_ic.csv", "w");
+      if (fd != 0) begin
+        $fdisplay(fd, "ok,reset,lost1,first_any,first_fail,ooo,badvl,net_a,net_b");
+        $fdisplay(fd, "%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d",
+                  u_cov_ic.n_ok, u_cov_ic.n_reset, u_cov_ic.n_lost1,
+                  u_cov_ic.n_first_any, u_cov_ic.n_first_fail, u_cov_ic.n_ooo,
+                  u_cov_ic.n_badvl, u_cov_ic.n_net_a, u_cov_ic.n_net_b);
+        $fclose(fd);
+      end
+    end
     if(errors==0)
       $display("T08e TOP IC PASS (IF_MODE=%0d ic=%0d accept=%0d reject=%0d flt_reject=%0d drain_overlap=%0d skew=0..9 rxen_sweep=169 wrap/first_any/bypass/reset ok)",
         IF_MODE,ic_seen,ic_acc,ic_rej,flt_rej,drain_ic_overlap);

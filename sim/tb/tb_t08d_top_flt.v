@@ -16,6 +16,7 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
   wire [31:0] host_rdata;
   wire host_ack;
   AFDX_top #(.IF_MODE(IF_MODE),.FCS_MODE(2)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk),.reset(reset),.tx_data(),.tx_valid(),.tx_ready(),
     .rx_data(rx_data),.rx_valid(rx_valid),.rx_ready(rx_ready),
     .tx_data_b(),.tx_valid_b(),.tx_ready_b(),
@@ -23,6 +24,10 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
     .host_cs(host_cs),.host_we(host_we),.host_addr(host_addr),
     .host_wdata(host_wdata),.host_rdata(host_rdata),.host_ack(host_ack),
     .host_irq(),.pps_in(1'b0),.pps_out(),.rtc_time_us(),.dbg_frame_event());
+  afdx_cov_flt u_cov_flt (
+    .clk(clk), .rst_sync(reset),
+    .out_vld(dut.flt_out_vld), .out_ready(1'b1),
+    .out_pass(dut.flt_out_pass), .out_reason(dut.flt_out_reason));
   reg [31:0] vec [0:1144];
   integer errors=0,flt_seen=0,pass_seen=0,drop_seen=0,crc_seen=0;
   integer i,waitc;
@@ -186,6 +191,17 @@ module tb_t08d_core #(parameter integer IF_MODE=0);
     if(dut.ic_accept_cnt!==0) bad("IC saw frames while IC_EN=0 (bypass broken)");
     if(dut.u_rxic.psn_mem[13'h100]!==8'd0 || dut.u_rxic.psn_mem[13'h1100]!==8'd0)
       bad("PSN written while IC_EN=0");
+    begin : dump_flt
+      integer fd;
+      fd = $fopen("out/metrics/cover_flt.csv", "w");
+      if (fd != 0) begin
+        $fdisplay(fd, "pass,unconf,net,lmax,vlid");
+        $fdisplay(fd, "%0d,%0d,%0d,%0d,%0d",
+                  u_cov_flt.n_pass, u_cov_flt.n_unconf, u_cov_flt.n_net,
+                  u_cov_flt.n_lmax, u_cov_flt.n_vlid);
+        $fclose(fd);
+      end
+    end
     // Reset clears counters and verdict pipeline.
     @(negedge clk);reset=1;repeat(6) @(negedge clk);reset=0;
     waitc=0;

@@ -1,8 +1,8 @@
 // =====================================================================
 // T16 —— A615-A TFTP 引擎 + RTC/PPS 对时
 // A 部分（单元级 a615a_tftp）：WRQ/DATA/ACK/ERROR/RRQ 真实报文字节流，
-//   校验 ACK 编码、加载区落盘内容、CRC32、重复块、错块、白名单、mode、
-//   RRQ STATUS 文件、非法操作码、超时重传与重试上限。
+//   校验 ACK 编码、加载区落盘内容、CRC32、重复块、白名单、mode、无会话 DATA、
+//   RRQ STATUS 文件、非法操作码、超时重传与重试上限；未覆盖未来块号/错误 TID。
 // B 部分（单元级 rtc_sync）：自由运行 PPS 周期、大误差跳变、小误差平滑、
 //   锁定判据、失步看门狗、HOLD。
 // C 部分（顶层）：真实 SAP 帧（vec/t15_mgmt.hex，含线序 FCS）经 mac_rx_if
@@ -47,16 +47,20 @@ module tb_t16_tftp_rtc #(parameter integer IF_MODE = 0);
   reg [12:0] t_haddr = 0;
   wire        t_rdy, t_rvld, t_ok;
   wire [10:0] t_rlen;
+  wire [15:0] t_resp_tid;
   wire [7:0]  t_rbyte, t_retry;
   wire [31:0] t_hdata, t_bytes, t_crc, t_pkt, t_dup, t_ecnt, t_to, t_fnh;
   wire [15:0] t_err, t_tid, t_blk;
   wire [3:0]  t_st;
   a615a_tftp #(.LOAD_WORDS(8192), .RETRY_MAX(3), .TIMEOUT_US(50)) tut (
     .clk(clk), .rst_sync(t_rst), .en(1'b1), .tick_us(t_tick),
+    .control_mode(1'b0), .control_ack(1'b0), .control_abort(1'b0),
+    .control_file_valid(), .control_busy(),
+    .in_srcip(32'd0), .resp_peer_ip(),
     .in_vld(t_vld), .in_sop(t_sop), .in_eop(t_eop), .in_data(t_data),
     .in_sport(t_sport), .in_ready(t_rdy),
-    .resp_vld(t_rvld), .resp_len(t_rlen), .resp_ack(t_rack),
-    .resp_rd_addr(t_raddr), .resp_byte(t_rbyte),
+    .resp_vld(t_rvld), .resp_len(t_rlen), .resp_tid(t_resp_tid), .resp_ack(t_rack),
+    .resp_rd_addr(t_raddr), .resp_rd_ahead(1'b0), .resp_byte(t_rbyte), .resp_byte_sync(),
     .host_rd(t_hrd), .host_addr(t_haddr), .host_rdata(t_hdata),
     .loaded_ok(t_ok), .err_code(t_err), .tid(t_tid), .blk_expect(t_blk),
     .bytes_rcvd(t_bytes), .crc32_val(t_crc), .pkt_cnt(t_pkt), .dup_cnt(t_dup),
@@ -179,9 +183,9 @@ module tb_t16_tftp_rtc #(parameter integer IF_MODE = 0);
   AFDX_top #(.IF_MODE(IF_MODE), .FCS_MODE(2), .TFTP_SAP_PORT(5), .SNMP_SAP_PORT(9),
              .RTC_US_PER_SEC(4), .RTC_SYNC_TO_US(40), .TFTP_TIMEOUT_US(100000)) dut (
     .clk(clk), .reset(reset), .tx_data(), .tx_valid(), .tx_ready(),
-    .rx_data(rx_data), .rx_valid(rx_valid), .rx_ready(rx_ready),
+    .rx_data(rx_data), .rx_valid(rx_valid), .rx_ready(rx_ready), .rx_error(1'b0),
     .tx_data_b(), .tx_valid_b(), .tx_ready_b(),
-    .rx_data_b(rx_data_b), .rx_valid_b(rx_valid_b), .rx_ready_b(rx_ready_b),
+    .rx_data_b(rx_data_b), .rx_valid_b(rx_valid_b), .rx_ready_b(rx_ready_b), .rx_error_b(1'b0),
     .host_cs(host_cs), .host_we(host_we), .host_addr(host_addr),
     .host_wdata(host_wdata), .host_rdata(host_rdata), .host_ack(host_ack),
     .host_irq(), .pps_in(tb_pps), .pps_out(pps_o), .rtc_time_us(), .dbg_frame_event());
@@ -204,7 +208,7 @@ module tb_t16_tftp_rtc #(parameter integer IF_MODE = 0);
   localparam [15:0] PT_SAP = 16'h7D80 + 4*P_SAP;
   // Lmax 必须覆盖最大管理帧（生成器报告 124 B），T23 的 79 只够 64 B 帧。
   localparam [31:0] W0_VL  = 32'hF500_0000 | (P_SAP<<12) | 32'd700;   // 最大管理帧 563 B（512 B TFTP 满块）
-  reg [31:0] vec [0:2047];
+  reg [31:0] vec [0:4095];
   integer cbase [0:63];
   integer clen  [0:63];
   integer cplen [0:63];

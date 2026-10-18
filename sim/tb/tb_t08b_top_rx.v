@@ -19,6 +19,7 @@ module tb_t08b_core #(parameter IF_MODE=0);
   wire [31:0] host_rdata;
   wire host_ack, host_irq;
   AFDX_top #(.IF_MODE(IF_MODE),.FCS_MODE(2)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk),.reset(reset),.tx_data(),.tx_valid(),.tx_ready(),
     .rx_data(rx_data),.rx_valid(rx_valid),.rx_ready(rx_ready),
     .tx_data_b(),.tx_valid_b(),.tx_ready_b(),

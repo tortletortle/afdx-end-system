@@ -28,6 +28,7 @@ module tb_t05b_core #(parameter integer IF_MODE=0);
   wire tx_valid, tx_valid_b, tx_ready, tx_ready_b;
 
   AFDX_top #(.IF_MODE(IF_MODE), .FCS_MODE(2)) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset),
     .tx_data(tx_data), .rx_data(8'd0), .tx_valid(tx_valid), .rx_valid(1'b0),
     .tx_ready(tx_ready), .rx_ready(1'b1),

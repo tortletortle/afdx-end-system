@@ -23,7 +23,7 @@ module tb_t02_tx_buf_sn;
   // ---------------------------------------------------------------
   // DUT 1: tx_sn_gen
   // ---------------------------------------------------------------
-  reg        s_req = 0, s_commit = 0, s_init = 0, s_ovr_we = 0;
+  reg        s_req = 0, s_commit = 0, s_cancel = 0, s_init = 0, s_ovr_we = 0;
   reg  [7:0] s_req_vl = 0, s_commit_vl = 0, s_ovr_vl = 0, s_ovr_val = 0;
   wire [7:0] s_snap;
   wire       s_ack, s_err;
@@ -31,7 +31,7 @@ module tb_t02_tx_buf_sn;
   tx_sn_gen #(.NUM_TX_VL(128)) u_sn (
     .clk(clk), .rst_sync(reset),
     .snap_req(s_req), .snap_vl(s_req_vl), .snap(s_snap), .snap_ack(s_ack),
-    .commit(s_commit), .commit_vl(s_commit_vl),
+    .cancel(s_cancel), .commit(s_commit), .commit_vl(s_commit_vl),
     .init_all(s_init), .ovr_we(s_ovr_we), .ovr_vl(s_ovr_vl), .ovr_val(s_ovr_val),
     .sn_pend(s_pend), .err(s_err));
 
@@ -245,7 +245,23 @@ module tb_t02_tx_buf_sn;
     if (s_pend !== 2'd1) begin $display("  [err] sn_pend after snap = %0d", s_pend); err = err + 1; end
     sn_commit(8'd5);
     if (s_pend !== 2'd0) begin $display("  [err] sn_pend after commit = %0d", s_pend); err = err + 1; end
-    $display("  [ok] tx_sn_gen basic/wrap/override/init");
+    // Failed staged fragments release the pending snapshot without increment.
+    sn_expect(8'd3,8'd1);
+    @(negedge clk);s_commit_vl=3;s_cancel=1;
+    @(negedge clk);s_cancel=0;
+    if(s_pend!==0 || s_err)begin $display("  [err] cancel did not clear snapshot");err=err+1;end
+    sn_expect(8'd3,8'd1);
+    @(negedge clk);s_cancel=1;s_req=1;s_req_vl=3;
+    @(negedge clk);s_cancel=0;s_req=0;
+    if(s_pend!==1 || s_err || s_snap!==1)begin $display("  [err] cancel/request collision");err=err+1;end
+    sn_commit(8'd3);sn_expect(8'd3,8'd2);
+    @(negedge clk);s_commit_vl=4;s_cancel=1;
+    @(negedge clk);
+    if(s_pend!==1 || !s_err)begin $display("  [err] wrong-owner cancel accepted");err=err+1;end
+    s_commit_vl=3;s_commit=1;
+    @(negedge clk);s_cancel=0;s_commit=0;
+    sn_expect(8'd3,8'd2);sn_commit(8'd3);
+    $display("  [ok] tx_sn_gen basic/wrap/override/init/cancel");
 
     // =============================================================
     $display("== check 2: tx_port_buf");

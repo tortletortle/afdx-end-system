@@ -104,7 +104,7 @@ module bram_1w1r (clk, wr_en, wr_addr, wr_data, rd_addr, rd_data);
   input  wire [W-1:0]  wr_data;
   input  wire [AW-1:0] rd_addr;
   output reg  [W-1:0]  rd_data;
-  (* no_rw_check *)
+  (* no_rw_check, ramstyle = "M4K" *)
   reg [W-1:0] mem [0:D-1];
   always @(posedge clk) begin
     if (wr_en) mem[wr_addr] <= wr_data;

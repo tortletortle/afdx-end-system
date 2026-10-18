@@ -25,6 +25,7 @@ module timebase #(
   reg [15:0] tick_ctr;
   reg [23:0] beat_cnt;
   reg [15:0] frac;
+  reg        tick_us_r;
   wire [16:0] frac_sum = frac + {1'b0, freq_adj};   // [17] 恒 0，不保留
   wire us_inc = frac_sum[16];
 
@@ -38,16 +39,23 @@ module timebase #(
       // 没有模块消费 tick_us（BAG 直接用 rtc64），所以一直没有暴露；
       // rtc_sync / a615a_tftp 接上 tick_us 后必须修掉。
       tick_ctr <= 16'd0;
+      tick_us_r <= 1'b0;
     end else begin
       beat_cnt <= beat_cnt + 24'd1;                       // 2^24 拍 → ALIVE
       if (!rtc_hold) begin
         frac  <= frac_sum[15:0];
         rtc64 <= rtc64 + (us_inc ? 64'd1 : 64'd0);
         tick_ctr <= ((tick_ctr + 16'd1) == TICK_US[15:0]) ? 16'd0 : (tick_ctr + 16'd1);
+        // 2026-10-07：tick_us 打一拍，切开 post-fit WNS
+        // frac→Add→tick_us 组合 → rtc_sync.sec_phase（52 级 / −0.471）。
+        // 消费者（RTC/TFTP/uptime）只晚 1 个 clk（8 ns），不是晚 1 μs。
+        tick_us_r <= us_inc & (tick_ctr == 16'd0);
+      end else begin
+        tick_us_r <= 1'b0;
       end
     end
   end
 
   assign alive   = beat_cnt[23];
-  assign tick_us = us_inc & (tick_ctr == 16'd0);
+  assign tick_us = tick_us_r;
 endmodule

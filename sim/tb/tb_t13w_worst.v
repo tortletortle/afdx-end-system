@@ -79,6 +79,7 @@ module tb_t13w_core #(parameter integer IF_MODE = 0);
     .IF_MODE(IF_MODE),
     .FCS_MODE(2)
   ) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk), .reset(reset),
     .tx_data(tx_data), .rx_data(rx_data), .tx_valid(tx_valid), .rx_valid(rx_valid),
     .tx_ready(tx_ready), .rx_ready(rx_ready),
@@ -416,7 +417,7 @@ module tb_t13w_core #(parameter integer IF_MODE = 0);
     for (r = 0; r < NROUNDS; r = r + 1) begin
       if (r > 0) begin
         // next round only after every VL is due again: next_tx = frame
-        // start + BAG + 1 us (tx_vl_scheduler), plus 10 us margin, so the
+        // start + BAG (tx_vl_scheduler), plus 10 us margin, so the
         // measured queue never contains a BAG-regulation wait.
         last_start = 0;
         for (v = 0; v < NVL; v = v + 1) if (t_txf[v] > last_start) last_start = t_txf[v];

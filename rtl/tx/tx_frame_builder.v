@@ -28,7 +28,7 @@
 // 时钟/复位: clk / rst_sync（§4.2）。
 // 依赖表项: VL 表 w0~w4、端口表 w0.sp、SMAC_CFG/IP_CFG/UDP_CFG 由上层在
 //   start_vld 拍给出（hdr_* 输入），本模块锁存。IP ident 由上层维护（每 VL 计数）。
-// 已知限制: 不做 IP 分片（P2）；L 须 8..1471，越界置 len_err 并按 IDLE 退出。
+// 已知限制: 不做 IP 分片（P2）；L 须 1..1471，越界置 len_err 并按 IDLE 退出。
 // =====================================================================
 `timescale 1 ns / 1 ps
 module tx_frame_builder #(
@@ -84,7 +84,9 @@ module tx_frame_builder #(
   output reg  [15:0] p1_stall_cnt      // 偏移 40 处等待 pass1 的帧数（应为 0）
 );
   // ---- §6.1 常量 ----
-  localparam [12:0] L_MIN      = 13'd8;
+  // Ethernet minimum-frame pad is outside UDP payload, so protocol payloads
+  // such as the 4-byte RFC 1350 TFTP ACK are valid builder inputs.
+  localparam [12:0] L_MIN      = 13'd1;
   localparam [12:0] L_MAX      = 13'd1471;
   localparam [10:0] HDR_LEN    = 11'd42;     // 14 + 20 + 8
   localparam [10:0] FRAME_MIN  = 11'd60;     // 不含 FCS

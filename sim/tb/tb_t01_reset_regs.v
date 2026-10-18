@@ -20,8 +20,8 @@ module tb_t01_reset_regs;
   wire        host_ack;
   wire        host_irq;
 
-  AFDX_top #(.CLK_FREQ_HZ(125_000_000), .TICK_US(1)) dut (
-    .clk(clk),        .reset(reset),
+  AFDX_top #(.IF_MODE(0), .CLK_FREQ_HZ(125_000_000), .TICK_US(1)) dut (
+    .clk(clk),        .reset(reset), .rx_error(1'bz), .rx_error_b(1'bz),
     .tx_data(),       .rx_data(8'h00),
     .tx_valid(),      .rx_valid(1'b0),
     .tx_ready(),      .rx_ready(1'b0),
@@ -230,10 +230,9 @@ module tb_t01_reset_regs;
     end
     if (dut.u_rxic.psn_mem[8191] !== 8'd0 || dut.u_rxrm.rm_mem[4095] !== 33'd0 ||
         dut.u_rxlookup.table1way1[2047] !== 32'd0 ||
-        // continue2: RX_VL_CFG w0 now lives in 4 BRAM replicas (was rx_cfg_mem[8190])
+        // continue2/v0.6.2: RX_VL_CFG w0 物理副本只剩主机 + FLT（RM/解析随帧下传）
         dut.u_rxcfg_h0.mem[4095] !== 32'd0 || dut.u_rxcfg_flt0.mem[4095] !== 32'd0 ||
-        dut.u_rxcfg_rm0.mem[4095] !== 32'd0 || dut.u_rxcfg_prs0.mem[4095] !== 32'd0 ||
-        dut.tx_cfg_mem[635] !== 32'd0 || dut.port_cfg_mem[1020] !== 32'd0 ||
+        dut.u_txcfg_h0.mem[127] !== 32'd0 || dut.u_pcfg_h0.mem[255] !== 32'd0 ||
         dut.u_rxpb.p_cnt[255] !== 4'd0 || dut.vl_stat_mem[127] !== 32'd0) begin
       $display("  [err] last address of some scanned RAM not cleared"); err = err + 1;
     end
@@ -315,8 +314,8 @@ module tb_t01_reset_regs;
     while (dut.init_done !== 1'b1 && wait_cycles < 30000) begin
       @(negedge clk); wait_cycles = wait_cycles + 1;
     end
-    if (wait_cycles >= 30000 || dut.tx_cfg_mem[0] !== 32'd0 ||
-        dut.port_cfg_mem[0] !== 32'd0 || dut.u_rxlookup.table0way0[0] !== 32'd0) begin
+    if (wait_cycles >= 30000 || dut.u_txcfg_h0.mem[0] !== 32'd0 ||
+        dut.u_pcfg_h0.mem[0] !== 32'd0 || dut.u_rxlookup.table0way0[0] !== 32'd0) begin
       $display("  [err] reset repeat did not reinitialize table valid/hash"); err = err + 1;
     end
     if (err == 0) $display("T01 INIT/REG PASS (25344 writes + re-reset + table R/W + pipeline + timebase)");

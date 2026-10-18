@@ -25,6 +25,7 @@ module tb_t18_core #(parameter integer IF_MODE = 0);
     .IF_MODE(IF_MODE),
     .FCS_MODE(2)
   ) dut (
+    .rx_error(1'b0), .rx_error_b(1'b0),
     .clk(clk),
     .reset(reset),
     .tx_data(tx_data),
