@@ -19,9 +19,7 @@ def wire(body):
     return b"\x55" * 7 + b"\xd5" + body + struct.pack("<I", zlib.crc32(body))
 
 
-def generate(directory):
-    assert not directory.exists(), "Preserve existing vectors"
-    directory.mkdir(parents=True)
+def generate(directory, verify_existing=False):
     cases = []
     records = []
     src = bytes([192, 168, 1, 1])
@@ -78,15 +76,28 @@ def generate(directory):
                 fragment += 1
             assert offset == len(datagram)
             message += 1
-    vector = directory / "cases.hex"
-    vector.write_text("\n".join(f"{word:08x}" for word in [len(cases)] + records) + "\n", encoding="ascii")
-    (directory / "manifest.json").write_text(json.dumps({"scope": "Standalone TX fragment builder; not production-top TX8KiB",
-                                                        "messages": message, "cases": cases,
-                                                        "case_count": len(cases)}, indent=2) + "\n", encoding="utf-8")
+    outputs = {
+        "cases.hex": "\n".join(f"{word:08x}" for word in [len(cases)] + records) + "\n",
+        "manifest.json": json.dumps({"scope": "Standalone TX fragment builder; not production-top TX8KiB",
+                                     "messages": message, "cases": cases,
+                                     "case_count": len(cases)}, indent=2) + "\n",
+    }
+    if directory.exists():
+        assert verify_existing, "Preserve existing vectors"
+        for name, text in outputs.items():
+            # Existing Windows fixtures may use CRLF; Path.read_text
+            # normalizes newlines, so compare canonical text only.
+            assert (directory / name).read_text(encoding="utf-8") == text, name
+    else:
+        directory.mkdir(parents=True)
+        for name, text in outputs.items():
+            (directory / name).write_bytes(text.encode("utf-8"))
     print(f"TX FRAGMENT GOLDEN PASS messages={message} fragments={len(cases)}", flush=True)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
-    generate(parser.parse_args().out)
+    parser.add_argument("--verify-existing", action="store_true")
+    args = parser.parse_args()
+    generate(args.out, args.verify_existing)

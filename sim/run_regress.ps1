@@ -362,8 +362,10 @@ if (@($manifest | Where-Object { $_.Id -eq 'T82' }).Count -gt 0) {
   }
 }
 # T80: independent full-message/fragment and dual-GMII golden vectors.
+# --verify-existing: clean checkout may already ship vec/tx_fragment_builder
+# (same pattern as T82/T83/T84). Refuse silent rewrite of frozen fixtures.
 if (@($manifest | Where-Object { $_.Id -eq 'T80' }).Count -gt 0) {
-  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_tx_fragment_builder.py') --out (Join-Path $sim 'vec/tx_fragment_builder')
+  python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_tx_fragment_builder.py') --out (Join-Path $sim 'vec/tx_fragment_builder') --verify-existing
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T80 TX fragment vector generation failed'
     exit 1
