@@ -102,6 +102,20 @@ elinx/prj/quartus/output_files/
 *_work/
 *_work_iso/
 
+# ==== formal SymbiYosys 中间产物（只保留 .sby/.sv/PASS/logfile/ENV_STATUS）====
+formal/*/model/
+formal/*/engine_0/
+formal/*_fail*/
+formal/*/status.sqlite
+formal/*/*.sqlite
+formal/*/src/
+formal/*/logfile.txt
+!formal/pool_bmc/logfile.txt
+formal/*/config.sby
+formal/*/*.xml
+formal/*/status
+formal/*/status.path
+
 # 归档区的第三方二进制（非 AFDX 工程内容；archive/ 其余文本材料仍纳入版本管理，
 # 见 archive/README.md 的逐项清单与 out/arena-debug/folder_cleanup_20261001/）
 archive/20261001_root_capture/unrelated_installer/

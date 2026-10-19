@@ -1,0 +1,25 @@
+# bag.sby -- tx_vl_scheduler BAG interval BMC entry
+#
+# Wait for timing-knife freeze of tx_vl_scheduler.v before running.
+# If FSM/signal names change, sync tx_vl_scheduler_bag.sv bind ports.
+# Do NOT run against half-edited RTL (result void).
+
+[tasks]
+bmc
+
+[options]
+bmc: mode bmc
+bmc: depth 40
+
+[engines]
+smtbmc boolector
+
+[script]
+# Uncomment after scheduler freeze; paths are workdir-local copies from [files].
+# read -sv tx_vl_scheduler.v
+# read -formal tx_vl_scheduler_bag.sv
+# prep -top tx_vl_scheduler
+
+[files]
+tx_vl_scheduler_bag.sv
+# ../rtl/tx/tx_vl_scheduler.v

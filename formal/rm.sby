@@ -1,0 +1,24 @@
+# rm.sby -- rx_rm same-(VL,SN) in-window drop BMC
+# Read-only rtl/rx/rx_rm.v. Wrapper shrinks NUM_RX_VL=2.
+
+[tasks]
+bmc20
+bmc40
+
+[options]
+bmc20: mode bmc
+bmc20: depth 20
+bmc40: mode bmc
+bmc40: depth 40
+
+[engines]
+smtbmc boolector
+
+[script]
+read -sv rx_rm.v
+read -formal rx_rm_cons.sv
+prep -top rm_formal_top
+
+[files]
+rx_rm_cons.sv
+../rtl/rx/rx_rm.v

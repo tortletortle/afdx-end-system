@@ -1,0 +1,21 @@
+# pool.sby -- rx_block_pool local invariants BMC (OPT-10)
+# Read-only on rtl/rx/rx_block_pool.v. Default CHAIN_ENABLE=0.
+
+[tasks]
+bmc
+
+[options]
+bmc: mode bmc
+bmc: depth 40
+
+[engines]
+smtbmc boolector
+
+[script]
+read -sv rx_block_pool.v
+read -formal rx_block_pool_cons.sv
+prep -top pool_formal_top
+
+[files]
+rx_block_pool_cons.sv
+../rtl/rx/rx_block_pool.v
