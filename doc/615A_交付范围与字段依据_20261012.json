@@ -1,0 +1,190 @@
+{
+  "schema": "a615a-delivery-scope-field-evidence-v1",
+  "normative_status": "NEEDS_SPEC_CONFIRMATION: official615A-4 publication/scope verified; normative field/state clauses unavailable",
+  "source_sha256": {
+    "rtl/mgmt/a615a_init_tx.v": "5e2a8bbf71d84909a811806af7be1a714e41510061097377bc17c5a9d7a537bc",
+    "rtl/mgmt/a615a_lur_rx.v": "3a199f134861da84a2a30b599a1f467c91c4ac32c61e232ca2660aeb42cf8762",
+    "rtl/mgmt/a615a_lur_orchestrator.v": "be365610b8ba56a3ae0117083a7ce087d0cc353634c2c2649786a623d597b278",
+    "rtl/mgmt/a615a_tftp_client_1350.v": "40cc08ed95dda6038858973d77a60515042bf87c76cb2a46bf878ba42c18d6db",
+    "sw/golden/a615a_files.py": "9b479cacbf3702fa878b1584dd4e4a5e3f03c1f4361c98a285ac5d06a9d31a51",
+    "tmp/arinc615a_reference/provenance.json": "da01c6ee06f6dbf02afe1acaf192c8ed5ad2196f18f79bd47d29b4000f625bb6"
+  },
+  "competition_basis": [
+    {
+      "file": "doc/赛方答疑原文_20261009.txt",
+      "line": 11,
+      "meaning": "Loading/unloading content refers to protocol specifications"
+    },
+    {
+      "file": "doc/赛方答疑原文_20261009.txt",
+      "line": 64,
+      "meaning": "No prescribed edition or reference stimulus"
+    }
+  ],
+  "implemented_operations": [
+    {
+      "operation": "Explicit initialization publication and host-started WRQ",
+      "trigger": "AC59 raw fields; AC58 start; AC40 WRQ",
+      "file": "9 octets, empty description, host-configured name/peer/TID",
+      "status": "BOUNDED_IMPLEMENTED_FROZEN_FULL140_PASS_NORMATIVE_OPEN",
+      "evidence": "sim/out/a615a_init_source_20261012_r3/INIT_SOURCE_AUDIT.json",
+      "limit": "No passive standard LUI RRQ or automatic standard operation lifecycle",
+      "historical_status_before_refresh": "BOUNDED_IMPLEMENTED_DIRECTED_PASS_FULL_PENDING",
+      "latest_frozen_full_evidence": {
+        "run": "sim/out/production_repairs_full140_20261013_r1",
+        "manifest_items": 140,
+        "metadata_sha256": "c6d02801376f664a5b7677380b3ea747480a1b88578a825acc42b4e61e26fac0",
+        "independent_audit": "INIT_SOURCE_AUDIT.json",
+        "audit_sha256": "e5efa546d702eaf467f530a38b6973f7f0ba596d5bbc35c6958014041ed45698",
+        "limit": "Same-run bounded behavior only; normative fields, complete615A and665 remain OPEN."
+      },
+      "historical_frozen_full137_evidence": {
+        "run": "sim/out/gmii_guard_full137_20261013_r3",
+        "manifest_items": 137,
+        "metadata_sha256": "668c389af2ebcbd277ddc9b54b6e3f972b277bd9869b2a2f25337e89f1533fbf",
+        "independent_audit": "INIT_SOURCE_AUDIT.json",
+        "audit_sha256": "7486dad7f77a5f05ae62381905b5c33a2fddcece0c75783e9d219cd9cfd3d57f",
+        "limit": "Same-run evidence for bounded behavior, not full 615A conformity or future source revisions."
+      },
+      "historical_directed_evidence": "sim/out/gmii_guard_production_scale_20261012_r3/INIT_SOURCE_AUDIT.json"
+    },
+    {
+      "operation": "Configured complete LUR reception and listed-file fetch",
+      "trigger": "AC87 bit1 + configured TARGET.LUR WRQ; complete file before parser",
+      "file": "bounded 1..8 request items; fetched files retained until explicit host acknowledgement",
+      "status": "BOUNDED_IMPLEMENTED_FROZEN_FULL140_PASS_NORMATIVE_OPEN",
+      "evidence": "sim/out/a615a_init_source_20261012_r3/FILE_HOLD_AUDIT.json",
+      "limit": "No ARINC665 part interpretation/installation or full selected standard loading operation",
+      "historical_status_before_refresh": "BOUNDED_IMPLEMENTED_DIRECTED_PASS_FULL_PENDING",
+      "latest_frozen_full_evidence": {
+        "run": "sim/out/production_repairs_full140_20261013_r1",
+        "manifest_items": 140,
+        "metadata_sha256": "c6d02801376f664a5b7677380b3ea747480a1b88578a825acc42b4e61e26fac0",
+        "independent_audit": "FILE_HOLD_AUDIT.json",
+        "audit_sha256": "d7b47dddb35e6c31a0f704924088464f4a3eb7dabbc9f4d3c29b4f0c7a4e6047",
+        "limit": "Same-run bounded behavior only; normative fields, complete615A and665 remain OPEN."
+      },
+      "historical_frozen_full137_evidence": {
+        "run": "sim/out/gmii_guard_full137_20261013_r3",
+        "manifest_items": 137,
+        "metadata_sha256": "668c389af2ebcbd277ddc9b54b6e3f972b277bd9869b2a2f25337e89f1533fbf",
+        "independent_audit": "FILE_HOLD_AUDIT.json",
+        "audit_sha256": "ff7902ea271231fbfc793fac48ab64a32bbf88ce554881a63b79d7b2b265b934",
+        "limit": "Same-run evidence for bounded behavior, not full 615A conformity or future source revisions."
+      },
+      "historical_directed_evidence": "sim/out/gmii_guard_production_scale_20261012_r3/T62_console.txt"
+    },
+    {
+      "operation": "Private UPLOAD/STATUS transport",
+      "trigger": "existing TFTP compatibility endpoint",
+      "status": "PRIVATE_TRANSPORT_ONLY",
+      "limit": "Not standard unloading"
+    }
+  ],
+  "fields": [
+    {
+      "field": "total_file_length",
+      "encoding": "uint32 big endian",
+      "basis": "local codecs/init_tx/lur_rx and pinned public references",
+      "normative": "REFERENCE_ONLY"
+    },
+    {
+      "field": "wire_version_tag",
+      "encoding": "two explicit ASCII octets; parser profile A1..A4",
+      "basis": "host expected_version and local parser; no mapping to edition numbers",
+      "normative": "UNRESOLVED_EDITION_MAPPING"
+    },
+    {
+      "field": "initialization_status",
+      "encoding": "two explicit host-supplied big endian octets",
+      "basis": "AC59 / a615a_init_tx; no automatically chosen standard state",
+      "normative": "UNRESOLVED_OPERATION_STATUS_LIFECYCLE"
+    },
+    {
+      "field": "empty_description",
+      "encoding": "zero length; fixed initialization source total9B",
+      "basis": "current bounded encoder and independent exact-byte audit",
+      "normative": "REFERENCE_PROFILE_ONLY"
+    },
+    {
+      "field": "LUS_progress",
+      "encoding": "three opaque raw octets",
+      "basis": "Wireshark ASCII display conflicts with ARIEL integer interpretation; preserve raw_hex",
+      "normative": "NEEDS_SPEC_CONFIRMATION"
+    },
+    {
+      "field": "LUS_exception_timer",
+      "encoding": "edition-dependent, no production lifecycle claim",
+      "basis": "public references differ; local full standard unavailable",
+      "normative": "NEEDS_SPEC_CONFIRMATION"
+    },
+    {
+      "field": "ARINC665_part_headers_and_checks",
+      "encoding": "not implemented as interpreted part data",
+      "basis": "no complete local normative text or selected profile",
+      "normative": "OPEN"
+    }
+  ],
+  "closure_required": [
+    "Trace selected load/unload roles, operation order and control/status files to a supported specification",
+    "Implement and independently verify initialization/request/transfer/progress/success/rejection/timeout/abort/retry/unload with exact file bytes",
+    "Bind current production and frozen same-version PHY/host evidence; transport PASS does not close full615A"
+  ],
+  "current_revalidation": "Observed 2026-10-13T12:18:42.458888+08:00; current root 50 production sources/140 manifest items. root已变更：2份生产源、实际manifest 140项；当前新候选完整回归：PASS 140/140 rc=0。旧冻结137仅属于旧版证据。 Same-run audits: TX_PRODUCTION=PASS, INIT_SOURCE=PASS, TXRX_COEXIST=PASS, FILE_HOLD=PASS, GMII_SCALE=PASS, PUBLIC_TXRX=PASS. Same-version full RTL/audits/frontend correspondence satisfied=True. Current complete synthesis=FAIL; mapped cost=NOT_CREATED. See out/continuation_checkpoint_20261013_r2_inflight/CHECKPOINT.json; no full615A, official2ms or mapped-business closure inferred.",
+  "updated_local": "2026-10-13T12:18:42.458888+08:00",
+  "scope_decision": "User has no prescribed subset or additional specification; research primary normative edition/clauses. Mandatory load/unload scope awaiting competition clarification. Unknown fields remain open.",
+  "normative_research": "doc/615A_规范依据研究_20261013.md; PRIMARY_CATALOG_SCOPE_ONLY_CLAUSES_OPEN",
+  "normative_research_sha256": "6c667ae9d446c35326c05eaea520857fa9f8cb58dd1c877a48cecba79430340f",
+  "current_normative_research": "doc/615A_规范依据研究_20261013.md",
+  "current_official_access_supplement": "doc/615A_665_官方依据补充_20261013.md",
+  "competition_questions": "doc/需向赛方确认的问题_20261013.md",
+  "historical_revalidation_before_live_refresh": "sim/out/gmii_guard_production_scale_20261012_r3 strict20/20 PASS; current full137 RUNNING separately",
+  "current_candidate_evidence": {
+    "checkpoint": "out/continuation_checkpoint_20261013_r2_inflight/CHECKPOINT.json",
+    "full_run": {
+      "path": "sim/out/production_repairs_full140_20261013_r1/run_metadata.json",
+      "sha256": "c6d02801376f664a5b7677380b3ea747480a1b88578a825acc42b4e61e26fac0",
+      "regression_result": "PASS",
+      "current_test": null,
+      "tests_completed": 140,
+      "test_count": 140,
+      "pass_count": 140,
+      "return_code": 0,
+      "compile_rc": 0
+    },
+    "same_run_audits": {
+      "TX_PRODUCTION": {
+        "path": "sim/out/production_repairs_full140_20261013_r1/TX_PRODUCTION_AUDIT.json",
+        "status": "PASS",
+        "sha256": "e686db371895bf1abaa84f0e9957b1b88e55c6012a47db58664de56aa368a9c9"
+      },
+      "INIT_SOURCE": {
+        "path": "sim/out/production_repairs_full140_20261013_r1/INIT_SOURCE_AUDIT.json",
+        "status": "PASS",
+        "sha256": "e5efa546d702eaf467f530a38b6973f7f0ba596d5bbc35c6958014041ed45698"
+      },
+      "TXRX_COEXIST": {
+        "path": "sim/out/production_repairs_full140_20261013_r1/TXRX_COEXIST_AUDIT.json",
+        "status": "PASS",
+        "sha256": "9ca23d53b1af20e17c487c24f681f9138878222517cf6716ae1aace8aa79854a"
+      },
+      "FILE_HOLD": {
+        "path": "sim/out/production_repairs_full140_20261013_r1/FILE_HOLD_AUDIT.json",
+        "status": "PASS",
+        "sha256": "d7b47dddb35e6c31a0f704924088464f4a3eb7dabbc9f4d3c29b4f0c7a4e6047"
+      },
+      "GMII_SCALE": {
+        "path": "sim/out/production_repairs_full140_20261013_r1/GMII_SCALE_AUDIT.json",
+        "status": "PASS",
+        "sha256": "95ed9ec9e24a4b81d1022d8d0f4bbd68f3d0ca4407e18014f6d75ed1cf57fb57"
+      },
+      "PUBLIC_TXRX": {
+        "path": "sim/out/production_repairs_full140_20261013_r1/PUBLIC_TXRX_AUDIT.json",
+        "status": "PASS",
+        "sha256": "644bcd67f17631c0560ab877f416ffc7d762ed8a0884fbf4a030878a5a284d8c"
+      }
+    },
+    "full_rtl_and_audits_pass": true,
+    "normative_closure": false
+  }
+}

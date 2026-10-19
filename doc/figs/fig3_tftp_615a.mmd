@@ -1,0 +1,35 @@
+%% 图3 现行 TFTP 子集。完整 ARINC 615A / 665 为 OPEN，不在本图。
+%% 固定 512 字节块。无 blksize，无 OACK。带选项的请求由 a615a_tftp 回 ERROR(4)。
+%% 状态名取自 a615a_tftp_client_1350 与 AFDX_top 里 init_file_state。
+flowchart TB
+  subgraph srv["服务端 a615a_tftp u_tftp，加载区独立于 PMEM 块池"]
+    s0["sess=0"]
+    s1["收到 WRQ + octet<br/>发 ACK 块号 0<br/>sess=1"]
+    s2["收到 DATA 块号=期望<br/>写入加载区<br/>发 ACK 该块号"]
+    s3["载荷短于 512 字节<br/>loaded_ok，会话结束"]
+    s0 -->|"opcode 2 WRQ"| s1
+    s1 -->|"opcode 3 DATA"| s2
+    s2 -->|"仍满 512 字节"| s2
+    s2 -->|"短块"| s3
+  end
+  subgraph cli["客户端 a615a_fetch_engine u_fetch<br/>核为 a615a_tftp_client_1350，start_write=1"]
+    c0["S_IDLE"]
+    c1["S_SEND_REQ<br/>opcode WRQ"]
+    c2["S_WAIT_FIRST<br/>等 ACK 块号 0"]
+    c3["S_WAIT_UPLOAD<br/>从 file_mem 取满块或末块"]
+    c4["S_SEND_DATA"]
+    c5["S_WAIT_ACK"]
+    c6["S_DONE"]
+    c0 --> c1 --> c2 --> c3 --> c4 --> c5
+    c5 -->|"ACK 匹配且未结束"| c3
+    c5 -->|"末块已被确认"| c6
+  end
+  subgraph init["a615a_init_tx u_init_file<br/>只产 9 字节初始化源，不发 TFTP opcode"]
+    i0["init_file_state=0 空闲"]
+    i1["1 等 preload_start_ready"]
+    i2["2 逐字节写入 fetch 预载"]
+    i3["3 commit，长度固定 9"]
+    i4["4 看 file_valid 且 file_len=9"]
+    i0 --> i1 --> i2 --> i3 --> i4 --> i0
+  end
+  i2 -.->|"preload_data 进 u_fetch 的 file_mem"| c3

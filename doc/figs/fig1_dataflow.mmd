@@ -1,0 +1,52 @@
+%% 图1 总体数据流。对照 rtl/top/AFDX_top.v 默认参数例化（2026-10-19）。
+%% IF_MODE=2, DUAL_NET_EN=1, NUM_TX_VL=128, NUM_RX_VL=4096, CLK_FREQ_HZ=125_000_000。
+%% 单时钟域参数，不是时序收敛结论。
+%% 未画进主链：rx_reassembly_chain / rx_pmem_scatter_copy（RX_REASM_CHAIN_BLOCKS==5 才例化，默认 1）。
+%% tx_message_store / tx_fragment_launch（TX_MESSAGE_CHAIN_BLOCKS==4 才例化，默认 1）。
+%% rx_reassembly + rx_pmem_copy_engine 已例化，但 ctl_r[7] 复位为 0，RM forward 直连解析。
+%% host_if.v 空壳、未例化。主机译码在 AFDX_top。
+flowchart TB
+  subgraph clkbox["单时钟 clk，参数 CLK_FREQ_HZ = 125_000_000"]
+    subgraph rxp["RX 默认主链"]
+      phyA["GMII A<br/>rx_data / rx_valid / rx_error"]
+      phyB["GMII B<br/>rx_data_b / rx_valid_b / rx_error_b"]
+      stripA["gmii_rx_strip u_strip_a"]
+      stripB["gmii_rx_strip u_strip_b"]
+      macA["mac_rx_if u_mac_rx_a<br/>NET_ID=0"]
+      macB["mac_rx_if u_mac_rx_b<br/>NET_ID=1，DUAL_NET_EN=1"]
+      qA["rx_pmem_queue u_rxq_a"]
+      qB["rx_pmem_queue u_rxq_b"]
+      ser["AFDX_top 串行<br/>A 有描述符则先取 A"]
+      look["rx_vl_lookup u_rxlookup<br/>布谷鸟哈希，NUM_RX_VL=4096"]
+      flt["rx_flt u_rxflt"]
+      ic["rx_ic u_rxic<br/>完整性；CTL_RST bit2=1"]
+      rm["rx_rm u_rxrm<br/>双网去重；CTL_RST bit3=1"]
+      prs["rx_ip_udp_parse u_rxprs"]
+      pb["rx_port_buf u_rxpb"]
+      sap["mgmt_sap_rx u_mgmt_sap<br/>仅 out_type=2"]
+    end
+    subgraph txp["TX 默认主链，NUM_TX_VL=128"]
+      host["主机前门<br/>译码在 AFDX_top<br/>host_if 未例化"]
+      txb["tx_port_buf u_txbuf"]
+      sch["tx_vl_scheduler u_sched<br/>BAG，锚点 frame_start"]
+      sn["tx_sn_gen u_sn"]
+      bld["tx_frame_builder u_builder<br/>TX_CHAIN_ENABLE=0"]
+      trm["tx_rm u_rm"]
+      pace["tx_pace u_pace"]
+      mta["mac_tx_if u_mac_a"]
+      mtb["mac_tx_if u_mac_b"]
+    end
+    phyA --> stripA --> macA --> qA --> ser
+    phyB --> stripB --> macB --> qB --> ser
+    ser --> look --> flt --> ic --> rm --> prs
+    prs --> pb --> host
+    prs -.-> sap
+    host --> txb --> sch --> bld --> trm
+    sn --- bld
+    trm --> mta
+    trm --> mtb
+    pace --- mta
+    pace --- mtb
+  end
+  mta --> gma["GMII A<br/>tx_data / tx_valid / tx_ready"]
+  mtb --> gmb["GMII B<br/>tx_data_b / tx_valid_b / tx_ready_b"]

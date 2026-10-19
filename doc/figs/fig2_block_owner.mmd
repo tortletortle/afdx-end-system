@@ -1,0 +1,23 @@
+%% 图2 RX 块所有权。默认 RX_CHAIN_ENABLE=0（RX_REASM_CHAIN_BLOCKS=1）。
+%% 池：rx_block_pool。复位 free_map=16'hFFC0，块号 6..15。块 0..5 属 tx_port_buf。
+%% 守恒（形式验证尚未做，本图只列不变量）：
+%% 块号 6..15 每一拍只在 free_map 或唯一持有者中出现一次。
+%% 同拍只从一个释放口归还该块。归还下一拍才回到 free_map。
+flowchart TB
+  free["空闲<br/>free_map 对应位为 1"]
+  mac["mac_rx_if 持有<br/>alloc 后、帧未结束"]
+  queue["rx_pmem_queue 持有<br/>好帧描述符在队列内<br/>写指针未追上 mark 前不放出"]
+  pipe["流水持有<br/>块号在描述符里<br/>lookup 到 flt 到 ic 到 rm<br/>同一描述符只在一级"]
+  port["rx_port_buf 持有<br/>解析不丢且不是 SAP"]
+  sap["mgmt_sap_rx 持有<br/>out_type=2"]
+  free -->|"alloc_a 或 alloc_b<br/>首字节且 frame_room"| mac
+  mac -->|"坏帧 blk_release<br/>free_a 或 free_b"| free
+  mac -->|"好帧 desc_vld"| queue
+  queue -->|"desc_pop 且 PMEM 写已提交"| pipe
+  pipe -->|"free_pipe 单口<br/>RM 重复，否则 IC 拒绝<br/>否则 FLT 拒绝，否则停流 drain"| free
+  pipe -->|"解析不丢，非 SAP"| port
+  pipe -->|"解析不丢，SAP"| sap
+  port -->|"free_pb0 或 free_pb1<br/>MSG_RD、覆盖或队满"| free
+  sap -->|"free_req 进 free_pb1 或 spill"| free
+  copy["rx_pmem_copy_engine<br/>默认无作业<br/>仅 ctl_r[7]=1 且链式关时<br/>由 rx_reassembly 借用<br/>源块与目的块仍各有一个主人"]
+  pipe -.-> copy

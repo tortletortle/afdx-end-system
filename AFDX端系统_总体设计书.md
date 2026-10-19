@@ -176,11 +176,63 @@ ES 的本质是两条流水加一块包存储：发送流水把"主机消息"变
    GMII A  8b+vld+rdy            GMII B  8b+vld+rdy
 ```
 
-接收必须是 **先查表、后过滤**。发送 BAG 锚点是线上 `frame_start`，不是 builder 启动。
+接收必须是 **先查表、后过滤**。发送 BAG 锚点是线上 `frame_start`，不是 builder 启动。PHY 剥离、队列与块主人以 §3.3 图 1、§8.6 图 2 为准（2026-10-19，对照 `AFDX_top.v` 例化）。
 
 ### 3.3 数据通路
 
-发送（单帧视角，标注周期数 @125 MHz）：
+图 1 是默认参数下的数据流。等级 **I**：只对照例化，没有为本图新跑 T。参数 `CLK_FREQ_HZ=125_000_000` 表示单时钟域，不是时序收敛。源文件 `doc/figs/fig1_dataflow.mmd`。
+
+对照结果（与任务稿里「解析在过滤之前」不同，以例化为准）：好帧经 `rx_pmem_queue` 后，`AFDX_top` 以 A 优先串行，顺序是 `rx_vl_lookup` → `rx_flt` → `rx_ic` → `rx_rm` → `rx_ip_udp_parse` → `rx_port_buf`。`ctl_r[7]` 复位为 0（`CTL_RST=32'h51C`），`rx_reassembly` 旁路，RM 的 forward 直连解析。`rx_reassembly_chain`、`rx_pmem_scatter_copy` 要 `RX_REASM_CHAIN_BLOCKS=5` 才例化，默认 1，**未例化**。`tx_message_store`、`tx_fragment_launch` 要 `TX_MESSAGE_CHAIN_BLOCKS=4` 才例化，默认 1，**未例化**。`host_if.v` 未例化。
+
+```mermaid
+flowchart TB
+  subgraph clkbox["单时钟 clk，参数 CLK_FREQ_HZ = 125_000_000"]
+    subgraph rxp["RX 默认主链"]
+      phyA["GMII A<br/>rx_data / rx_valid / rx_error"]
+      phyB["GMII B<br/>rx_data_b / rx_valid_b / rx_error_b"]
+      stripA["gmii_rx_strip u_strip_a"]
+      stripB["gmii_rx_strip u_strip_b"]
+      macA["mac_rx_if u_mac_rx_a<br/>NET_ID=0"]
+      macB["mac_rx_if u_mac_rx_b<br/>NET_ID=1，DUAL_NET_EN=1"]
+      qA["rx_pmem_queue u_rxq_a"]
+      qB["rx_pmem_queue u_rxq_b"]
+      ser["AFDX_top 串行<br/>A 有描述符则先取 A"]
+      look["rx_vl_lookup u_rxlookup<br/>布谷鸟哈希，NUM_RX_VL=4096"]
+      flt["rx_flt u_rxflt"]
+      ic["rx_ic u_rxic<br/>完整性；CTL_RST bit2=1"]
+      rm["rx_rm u_rxrm<br/>双网去重；CTL_RST bit3=1"]
+      prs["rx_ip_udp_parse u_rxprs"]
+      pb["rx_port_buf u_rxpb"]
+      sap["mgmt_sap_rx u_mgmt_sap<br/>仅 out_type=2"]
+    end
+    subgraph txp["TX 默认主链，NUM_TX_VL=128"]
+      host["主机前门<br/>译码在 AFDX_top<br/>host_if 未例化"]
+      txb["tx_port_buf u_txbuf"]
+      sch["tx_vl_scheduler u_sched<br/>BAG，锚点 frame_start"]
+      sn["tx_sn_gen u_sn"]
+      bld["tx_frame_builder u_builder<br/>TX_CHAIN_ENABLE=0"]
+      trm["tx_rm u_rm"]
+      pace["tx_pace u_pace"]
+      mta["mac_tx_if u_mac_a"]
+      mtb["mac_tx_if u_mac_b"]
+    end
+    phyA --> stripA --> macA --> qA --> ser
+    phyB --> stripB --> macB --> qB --> ser
+    ser --> look --> flt --> ic --> rm --> prs
+    prs --> pb --> host
+    prs -.-> sap
+    host --> txb --> sch --> bld --> trm
+    sn --- bld
+    trm --> mta
+    trm --> mtb
+    pace --- mta
+    pace --- mtb
+  end
+  mta --> gma["GMII A<br/>tx_data / tx_valid / tx_ready"]
+  mtb --> gmb["GMII B<br/>tx_data_b / tx_valid_b / tx_ready_b"]
+```
+
+发送（单帧视角，下表周期数是历史预算，不是本图的时序结论）：
 
 | 阶段 | 动作 | 周期 |
 |---|---|---|
@@ -938,6 +990,46 @@ GETNEXT 语义：在已排序的 OID 列表中查第一个大于目标项（列�
 
 取证边界以 §2.6 为准。**下面的 OACK/选项协商表、615A opcode 状态图与消息头均为未实现的方案记录**，不能冒充现行 RTL；当前模块只做 RFC 1350 TFTP 加/卸载子集（含 RRQ `UPLOAD` 读回），不含原生 Find/Information/Upload 报文。
 
+图 3 只画现行子集。等级 **I**。固定 **512** 字节块。无 blksize，无 OACK；带选项的请求在 `a615a_tftp` 里回 ERROR(4)。完整 615A 与 ARINC 665 为 **OPEN**。源文件 `doc/figs/fig3_tftp_615a.mmd`。
+
+角色：`a615a_tftp` 是服务端（WRQ 进来后回 ACK(0)，再收 DATA 回 ACK）。`a615a_fetch_engine` 是客户端，核为 `a615a_tftp_client_1350`；`start_write=1` 时自己发 WRQ，等 ACK(0)，再发 DATA。`a615a_init_tx` 不发 TFTP opcode，只把 9 字节初始化源经 preload 写入 fetch 的 `file_mem`（`AFDX_top` 的 `init_file_state` 0→4）。
+
+```mermaid
+flowchart TB
+  subgraph srv["服务端 a615a_tftp u_tftp，加载区独立于 PMEM 块池"]
+    s0["sess=0"]
+    s1["收到 WRQ + octet<br/>发 ACK 块号 0<br/>sess=1"]
+    s2["收到 DATA 块号=期望<br/>写入加载区<br/>发 ACK 该块号"]
+    s3["载荷短于 512 字节<br/>loaded_ok，会话结束"]
+    s0 -->|"opcode 2 WRQ"| s1
+    s1 -->|"opcode 3 DATA"| s2
+    s2 -->|"仍满 512 字节"| s2
+    s2 -->|"短块"| s3
+  end
+  subgraph cli["客户端 a615a_fetch_engine u_fetch<br/>核为 a615a_tftp_client_1350，start_write=1"]
+    c0["S_IDLE"]
+    c1["S_SEND_REQ<br/>opcode WRQ"]
+    c2["S_WAIT_FIRST<br/>等 ACK 块号 0"]
+    c3["S_WAIT_UPLOAD<br/>从 file_mem 取满块或末块"]
+    c4["S_SEND_DATA"]
+    c5["S_WAIT_ACK"]
+    c6["S_DONE"]
+    c0 --> c1 --> c2 --> c3 --> c4 --> c5
+    c5 -->|"ACK 匹配且未结束"| c3
+    c5 -->|"末块已被确认"| c6
+  end
+  subgraph init["a615a_init_tx u_init_file<br/>只产 9 字节初始化源，不发 TFTP opcode"]
+    i0["init_file_state=0 空闲"]
+    i1["1 等 preload_start_ready"]
+    i2["2 逐字节写入 fetch 预载"]
+    i3["3 commit，长度固定 9"]
+    i4["4 看 file_valid 且 file_len=9"]
+    i0 --> i1 --> i2 --> i3 --> i4 --> i0
+  end
+  i2 -.->|"preload_data 进 u_fetch 的 file_mem"| c3
+```
+
+
 TFTP（RFC 1350，无选项扩展为 P2）：
 
 | opcode | 方向 | 本端动作 |
@@ -1061,6 +1153,29 @@ pass1 走 PMEM 读口 A 每拍读一个 32 bit 字（4 B/拍），把伪首部�
 `rx_vl_cfg`（逻辑 4096×64；物理 FLT+主机共 4×4096×32，见 §9）、`rx_hash`（2 bank ×2048 桶×64，一次并行读取两桶）、PSN（8192×8）、RM 状态（4096×41）均映射存储阵列。复位扫描完成前不得读未初始化状态（O-08）；运行时同一 VL 的 IC/RM 按「读—判决—写回」串行，后一帧不得越过前一帧的写回。O-04/O-05 使判决不回读 PMEM，最小帧间隔的预算：模式 0 ≥640 拍、GMII 模式 1 ≥76 拍（单网）；双网同 VL 同拍到达须由 §7.11 和 T10/T17 保证正确，不把「小于间隔」当作无旁路的无条件证明（A8）。
 
 ### 8.6 PMEM 分配与回收
+
+图 2 是默认单块路径上，RX 块号 6..15 的主人转移。等级 **I**。形式验证尚未做；图只列出要守的守恒：同一块号不同时出现在 `free_map` 和另一个持有者里，同拍只从一个释放口归还，归还下一拍才回到 `free_map`。`rx_pmem_copy_engine` 在 `ctl_r[7]=0` 时没有作业。链式 `alloc_chain` 在 `CHAIN_ENABLE=0` 时关闭。源文件 `doc/figs/fig2_block_owner.mmd`。
+
+```mermaid
+flowchart TB
+  free["空闲<br/>free_map 对应位为 1"]
+  mac["mac_rx_if 持有<br/>alloc 后、帧未结束"]
+  queue["rx_pmem_queue 持有<br/>好帧描述符在队列内<br/>写指针未追上 mark 前不放出"]
+  pipe["流水持有<br/>块号在描述符里<br/>lookup 到 flt 到 ic 到 rm<br/>同一描述符只在一级"]
+  port["rx_port_buf 持有<br/>解析不丢且不是 SAP"]
+  sap["mgmt_sap_rx 持有<br/>out_type=2"]
+  free -->|"alloc_a 或 alloc_b<br/>首字节且 frame_room"| mac
+  mac -->|"坏帧 blk_release<br/>free_a 或 free_b"| free
+  mac -->|"好帧 desc_vld"| queue
+  queue -->|"desc_pop 且 PMEM 写已提交"| pipe
+  pipe -->|"free_pipe 单口<br/>RM 重复，否则 IC 拒绝<br/>否则 FLT 拒绝，否则停流 drain"| free
+  pipe -->|"解析不丢，非 SAP"| port
+  pipe -->|"解析不丢，SAP"| sap
+  port -->|"free_pb0 或 free_pb1<br/>MSG_RD、覆盖或队满"| free
+  sap -->|"free_req 进 free_pb1 或 spill"| free
+  copy["rx_pmem_copy_engine<br/>默认无作业<br/>仅 ctl_r[7]=1 且链式关时<br/>由 rx_reassembly 借用<br/>源块与目的块仍各有一个主人"]
+  pipe -.-> copy
+```
 
 | 区域 | 范围 | 单位 | 管理 |
 |---|---|---|---|
