@@ -1235,6 +1235,27 @@ report_timing -delay_type max -max_paths 20 > rpt/timing.rpt
 
 ---
 
+### 11.5 TX 调度器时序优化尝试（2026-10-19，维持原设计）
+
+等级：**I**（有 post-fit 报告，未达项目自选 125 MHz）。满配 55.34 MHz 与「125 MHz 已收敛」均标 **F**。代理器件 EP4SGX530KF43C2，SDC 8 ns，只覆盖内部 reg-to-reg。不是板卡签核，未推云端。
+
+背景：满配 post-fit 基线 Fmax **41.66 MHz**，Setup **−16.005 ns**（`out/baseline_full140_fit_sta_20261018_223600`）。50 条 setup 违例都在 `tx_vl_scheduler`，最差路径 `group_idx[3] → go_viol`，数据路径 **61** 级逻辑。源是 8 路并行的 32 位 age 减法加比较树，在一拍内算完。
+
+尝试（只改过 `rtl/tx/tx_vl_scheduler.v`，未改 TB / 预言机 / `NUM_TX_VL`）：
+
+| 步 | 改动 | 报告 | Setup | Fmax | 功能 |
+|---|---|---|---|---|---|
+| 0 基线 | `SCAN_LANES=8`，一拍比较 | `baseline_full140_fit_sta_20261018_223600` | −16.005 ns | 41.66 MHz | 冻结 140/140（`post_fix4_full140_20261018_011708`） |
+| 1 | lane 8→2 | `timing_sched_lanes2_fit_20261019_123900` | −6.345 ns | 69.71 MHz | T04/T05c/T05b/T13/T13w/T27 PASS；T34 相位余量不过 |
+| 2 | lane=2，age 与比较拆拍 | `timing_sched_pipe2_fit_20261019_144500` | −5.819 ns | 72.36 MHz | 全芯片最差路径离开调度器，落到 RX；调度器内部定向约 102.5 MHz |
+| 3 | 重叠流水，lane 回到 8（一轮约 17 拍） | `timing_sched_overlap_fit_20261019_192700` | −10.070 ns | 55.34 MHz | T34 PASS（相位 5528 拍，限 6250，余量 722）；T04/T05c/T05b/T13/T13w/T27 6/6 PASS（`timing_sched_overlap_func6_20261019`） |
+
+lane=2 把一轮扫描从 16 拍拉长后，T34 相位漂移到 149 µs（限 50 µs，`timing_sched_step3_T34_20261019`）。两拍串行且 lane=8 时漂移 8813 拍（限 6250）。基线 T34 相位是 5599 拍，余量只有 651 拍（`post_fix4` 的 `T34_console.txt`）。lane 数同时卡着比较树深度和 T34 相位余量：减 lane 抬 Fmax、吃相位；保住相位就必须留 8 路比较，Fmax 回到 55.34 MHz。单纯切流水或减 lane 到此为止。
+
+取舍：125 MHz 是项目自选仿真时钟（§2.5 / 本节上文，§L303），不是赛方门槛。赛方答疑只要求时钟与接口速率匹配，未指定频率；赛题不要求上板或物理时序签核。吞吐、时延、抖动以 125 MHz 仿真节拍取证且已有日志：T42 每网 TX 131.072 Mbps（§2.2，16 活动 VL）；现行功能回归 140/140。故把 `tx_vl_scheduler.v` 恢复到已冻结 140/140 的原版（blob `50660ea`），深优化留作后续可选项。`formal/bag.sby` 与 `formal/tx_vl_scheduler_bag.sv` 仍对应该原版。
+
+---
+
 ## 12 验证计划
 
 ### 12.1 环境结构
@@ -1634,6 +1655,7 @@ TX Q20 份额是**独立的一字/每 VL 配置表**（`0x0480~0x04FF`，[20:0]=
 | v0.6.8 | 2026-10-06 | §5.4 补主机读写拍图；架构图页加「接口时序」。现行源全量回归另存 `sim/out/closeout_20261006`（进行中） |
 | v0.6.10 | 2026-10-06 | 现行源 Questa **80/80 PASS**（`sim/out/closeout_20261006/regress.csv`，wall_s=3144.7）。T27=1974.5 s。不覆盖 10-03 冻结 70/70。不宣称 Fit/STA/95% 覆盖 |
 | v0.6.11 | 2026-10-08 | 新增当前计划执行记录入口；区分 80 项捕获回归与后续 83 项 manifest；记录 T33/T33g 16 轮和 T34 100 轮记分板静态审查状态（未编译/仿真）、Quartus functional VO port-only TX→RX 业务回环、T30 正反控制、T31/T31g SNMP 语义、T32/T32g TFTP 正常线上流和 RTC PPS/FLL 证据；明确 eLinx ABC 重跑失败、未生成 VQM及网络 RTC `sync_vld` 未接入。未把 Quartus 旁证写成 eLinx 后综合通过 |
+| v0.6.12 | 2026-10-19 | §11.5 记录 TX 调度器时序尝试：基线 Fmax 41.66 MHz；减 lane 到 72.36 MHz 但 T34 相位不过；重叠流水 55.34 MHz 且 T34/功能最小集 PASS。lane 与相位余量冲突，125 MHz 非赛题门槛，RTL 维持原版。不宣称 125 MHz 收敛、不宣称板卡签核 |
 | v1.0（计划） | 提交前 | 后仿真口径确认、Fit/STA（若做）、全量回归与尺子对照表一并写入；未关项保持 F |
 
 ## 后综合网表顶层功能仿真（2026-09-30 01:33，新证据）
