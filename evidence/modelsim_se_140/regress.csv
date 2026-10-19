@@ -1,0 +1,141 @@
+test_id,config,tb,result,max_dev,wall_s,summary
+T00,default,tb_t00_common,PASS,na,3.6,# T00 COMMON PASS (crc32 x9 vectors; fifo 4000; bram 1W2R 8192 + BE)
+T01,default,tb_t01_reset_regs,PASS,na,52.4,# T01 INIT/REG PASS (25344 writes + re-reset + table R/W + pipeline + timebase)
+T02,default,tb_t02_tx_buf_sn,PASS,na,3.9,# T02 TXBUF PASS (tx_sn_gen wrap/override/init; tx_port_buf smp/queue/exhaust/T17-pending/random)
+T03,default,tb_t03_frame_builder,PASS,na,3.5,# T03 BUILDER PASS (19 golden frames x 3 rdy modes; L=1..1471; pad/SN/csum/B-net; stall=0 at line rate)
+T04,default,tb_t04_tx_chain,PASS,na,4.6,# T04 TXCHAIN PASS (IF_MODE=0; 143 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4050..4060 cyc)
+T04g,gmii,tb_t04g_tx_chain,PASS,na,4.2,# T04 TXCHAIN PASS (IF_MODE=1; 143 frames; BAG/FCS/SN/payload/dual-net/IFG ok; single-VL gap 4087..4418 cyc)
+T05c,default,tb_t05c_cfg_budget,PASS,na,4.9,# T05c CFGBUDGET PASS (Q20 32/128 VL; exact-boundary/burst/missing/over/reset; frontdoor)
+T08a,default,tb_t08a_rx_ingress,PASS,na,2.8,# T08a RXINGRESS PASS (IF_MODE=0; 22 model/zlib frames; bad frame isolation/PMEM BE)
+T08ag,gmii,tb_t08ag_rx_ingress,PASS,na,2.6,# T08a RXINGRESS PASS (IF_MODE=1; 22 model/zlib frames; bad frame isolation/PMEM BE)
+T08b,default,tb_t08b_top_rx,PASS,na,3.7,# T08b RX-TOP-INGRESS PASS (IF_MODE=0; dual net; BE; ACK priority; bad FCS; drain=17/24 cycles; unconf=2)
+T08bg,gmii,tb_t08bg_top_rx,PASS,na,3.8,# T08b RX-TOP-INGRESS PASS (IF_MODE=1; dual net; BE; ACK priority; bad FCS; drain=17/24 cycles; unconf=2)
+T08c,host-arb,tb_t08c_host_arb,PASS,na,4.1,# T08c HOST-ARBITRATION PASS (IF_MODE=0 real_dual_frames=56 host_writes=40 deferred=40 held=20 pulse=20 commits=40 max_wait=2 reset_abort=1)
+T08cg,host-arb-gmii,tb_t08cg_host_arb,PASS,na,4.3,# T08c HOST-ARBITRATION PASS (IF_MODE=1 real_dual_frames=56 host_writes=40 deferred=40 held=20 pulse=20 commits=40 max_wait=2 reset_abort=1)
+T08d,flt,tb_t08d_top_flt,PASS,na,3.6,# T08d TOP FLT PASS (IF_MODE=0 verdicts=7 pass=3 drop=4 unconf/net/vlid=3 lmax=1 crc=1)
+T08dg,flt-gmii,tb_t08dg_top_flt,PASS,na,3.6,# T08d TOP FLT PASS (IF_MODE=1 verdicts=7 pass=3 drop=4 unconf/net/vlid=3 lmax=1 crc=1)
+T08e,ic-top,tb_t08e_top_ic,PASS,na,5,# T08e TOP IC PASS (IF_MODE=0 ic=468 accept=463 reject=5 flt_reject=164 drain_overlap=5 skew=0..9 rxen_sweep=169 wrap/first_any/bypass/reset ok)
+T08eg,ic-top-gmii,tb_t08eg_top_ic,PASS,na,5.8,# T08e TOP IC PASS (IF_MODE=1 ic=468 accept=463 reject=5 flt_reject=166 drain_overlap=2 skew=0..9 rxen_sweep=169 wrap/first_any/bypass/reset ok)
+T08f,full-table-scoreboard,tb_t08f_full_scoreboard,PASS,na,6,# T08 FULL SCOREBOARD PASS (IF_MODE=0 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+T08fg,full-table-scoreboard-gmii,tb_t08fg_full_scoreboard,PASS,na,5.7,# T08 FULL SCOREBOARD PASS (IF_MODE=1 hash=8192W/8192R rx_cfg=8192W/8192R keys=4096 ways=1111 delivery=1 payload=8B)
+T10,rm-top,tb_t10_top_rm,PASS,na,5,# T10 TOP RM PASS (IF_MODE=0 rm=102 fwd=56 dup=46 skew=3 pairs=37 ic_rej=1 bypass=2 first0/window/disable/pollution/late-copy-history/reset ok)
+T10g,rm-top-gmii,tb_t10g_top_rm,PASS,na,5.3,# T10 TOP RM PASS (IF_MODE=1 rm=102 fwd=56 dup=46 skew=3 pairs=36 ic_rej=1 bypass=2 first0/window/disable/pollution/late-copy-history/reset ok)
+T11,rx-port-top,tb_t11_top_port,PASS,na,4.2,# T11 TOP PORT PASS (IF_MODE=0 deliver=14 ovr=4 qovf=2 port_drop=4 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)
+T11g,rx-port-top-gmii,tb_t11g_top_port,PASS,na,3.9,# T11 TOP PORT PASS (IF_MODE=1 deliver=14 ovr=4 qovf=2 port_drop=4 rm_dup=23 sampling/pin/queue/parse-drop/err/reset ok)
+T17,min-frame-dual-net-512,tb_t17_min_frame_stress,PASS,na,4.3,# T17 MIN-FRAME STRESS PASS (IF_MODE=0 pairs=512 host_writes=4096 reads=256 deferred=4096 max_wait=2 crc_reject=1 free=FFC0)
+T17g,min-frame-dual-net-512-gmii,tb_t17g_min_frame_stress,PASS,na,4.4,# T17 MIN-FRAME STRESS PASS (IF_MODE=1 pairs=512 host_writes=4096 reads=256 deferred=4096 max_wait=2 crc_reject=1 free=FFC0)
+T21,block-pool-exhaust,tb_t21_block_pool,PASS,na,5,# T21 BLOCK-POOL PASS (IF_MODE=0 filled=10 no_blk=1 exhaust=1 borrow=4 returned=10 recovery=1 deliver=11 no_pmem_empty=0)
+T21g,block-pool-exhaust-gmii,tb_t21g_block_pool,PASS,na,4.5,# T21 BLOCK-POOL PASS (IF_MODE=1 filled=10 no_blk=1 exhaust=1 borrow=4 returned=10 recovery=1 deliver=11 no_pmem_empty=0)
+T09,full,tb_t09_rx_ic,PASS,na,3.8,# T09 RX-IC PASS (N=4096; 6007 descriptors incl 5632 Python golden; accept=1759 reject=4248; strict/first-any/reset/loss/wrap/banks/backpressure)
+T09s,small,tb_t09s_rx_ic,PASS,na,3.6,# T09 RX-IC PASS (N=16; 6009 descriptors incl 5632 Python golden; accept=1756 reject=4253; strict/first-any/reset/loss/wrap/banks/backpressure)
+T09p,full,tb_t09p_rx_ic,PASS,na,3.5,# T09p RX-IC PRESSURE PASS (N=4096; frames=10240; covered=8192/8192; accept=9134 reject=1106; in_stall=69386 out_stall=38669 max_hold=57; bins=411/189/375/8159/2/1104/0; seed=9E3779B9)
+T09ps,small,tb_t09ps_rx_ic,PASS,na,3.7,# T09p RX-IC PRESSURE PASS (N=16; frames=2080; covered=32/32; accept=966 reject=1114; in_stall=14032 out_stall=7795 max_hold=56; bins=373/197/342/54/44/1020/50; seed=9E3779B9)
+T12c,full-contiguous,tb_t12c_lookup,PASS,na,20.3,# T12 LOOKUP PASS (case=0; N=4096; buckets=2048; image=4096/8192; lookups=100000; hits=61638 misses=38362; all_idx=4096 ways=1111; in_stall=1070621 out_stall=570626 max_hold=69; seed=172d/ab61)
+T12r,full-random,tb_t12r_lookup,PASS,na,20.8,# T12 LOOKUP PASS (case=1; N=4096; buckets=2048; image=4096/8192; lookups=100000; hits=61638 misses=38362; all_idx=4096 ways=1111; in_stall=1070621 out_stall=570626 max_hold=69; seed=172d/ab61)
+T12s,small-collision,tb_t12s_lookup,PASS,na,7.5,# T12 LOOKUP PASS (case=2; N=16; buckets=32; image=16/128; lookups=20000; hits=12006 misses=7994; all_idx=16 ways=1111; in_stall=214033 out_stall=114038 max_hold=69; seed=172d/ab61)
+T12h,small-rehash,tb_t12h_lookup,PASS,na,3.4,# T12 LOOKUP PASS (case=3; N=16; buckets=32; image=16/128; lookups=20000; hits=12006 misses=7994; all_idx=16 ways=1111; in_stall=214033 out_stall=114038 max_hold=69; seed=b564/f13a)
+T12f,frontdoor-ingress,tb_t12f_top_lookup,PASS,na,4.8,# T12f TOP LOOKUP PASS (IF_MODE=0 image=4096/8192 frontdoor=8192W+8192R ways=1111 real_lookup=4 hit=3 miss=1 badCRC=1 seed=172d/ab61)
+T12fg,frontdoor-gmii,tb_t12fg_top_lookup,PASS,na,5,# T12f TOP LOOKUP PASS (IF_MODE=1 image=4096/8192 frontdoor=8192W+8192R ways=1111 real_lookup=4 hit=3 miss=1 badCRC=1 seed=172d/ab61)
+T22,loopback,tb_t22_top_loopback,PASS,na,14.2,# T22 TOP LOOPBACK PASS (IF_MODE=0 cold init + 2 looped frames; byte-exact payload; IC dedup; INT bit0)
+T22g,loopback-gmii,tb_t22g_top_loopback,PASS,na,12.7,# T22 TOP LOOPBACK PASS (IF_MODE=1 cold init + 2 looped frames; byte-exact payload; IC dedup; INT bit0)
+T11i,int-top,tb_t11i_top_int,PASS,na,4.6,# T11i TOP INT PASS (sw IRQ; mask/level; sample/queue/ovf; crc bit3; event>W1C; W1C semantics)
+T11ig,int-top-gmii,tb_t11ig_top_int,PASS,na,4.4,# T11i TOP INT PASS (sw IRQ; mask/level; sample/queue/ovf; crc bit3; event>W1C; W1C semantics)
+T22a,default,tb_t22a_frontdoor_tx,PASS,na,4.4,# T22a FRONTDOOR-TX PASS (init + table/PMEM frontdoor + A/B FCS/SN/payload)
+T23,sap-minimal,tb_t23_sap_min,PASS,na,4.5,# T23 SAP MINIMAL PASS (IF_MODE=0 accept=2 return=2 SN=0;1;2;3 sample_blocks=6;7 sap_blocks=8;6 streams=2 pb1_collisions=2 max_wait=0 disabled_rsap=1)
+T23g,sap-minimal-gmii,tb_t23g_sap_min,PASS,na,4.5,# T23 SAP MINIMAL PASS (IF_MODE=1 accept=2 return=2 SN=0;1;2;3 sample_blocks=6;7 sap_blocks=8;9 streams=2 pb1_collisions=2 max_wait=0 disabled_rsap=1)
+T05b,saturated-jitter,tb_t05b_jitter,PASS,na,5.3,# T05b SATURATED JITTER PASS (IF_MODE=0 VLs=32 frames=96 startup_jitter=2us steady_max_jitter=0us avg_steady_jitter=0us link_load=99.86%)
+T05bg,saturated-jitter-gmii,tb_t05bg_jitter,PASS,na,5.3,# T05b SATURATED JITTER PASS (IF_MODE=1 VLs=32 frames=96 startup_jitter=2us steady_max_jitter=0us avg_steady_jitter=0us link_load=99.86%)
+T13,latency,tb_t13_latency,PASS,na,4.6,# T13 END-TO-END LATENCY PASS (IF_MODE=0 cases=3 asserted total<=1000us tx_pipe<=150us rx_pipe<=150us worst_total=243416ns)
+T13g,latency-gmii,tb_t13g_latency,PASS,na,4.6,# T13 END-TO-END LATENCY PASS (IF_MODE=1 cases=3 asserted total<=1000us tx_pipe<=150us rx_pipe<=150us worst_total=27728ns)
+T13w,worst-case-latency,tb_t13w_worst,PASS,na,7.1,# T13w WORST-CASE LATENCY PASS (IF_MODE=0 VLs=6 rounds=2 frames=12 worst_total=453752ns worst_queue=425200ns arinc_bound=499360ns worst_rx_pipe=152ns asserted total<=1000us rx_pipe<=150us host_ack_wait_max=1cyc)
+T13wg,worst-case-latency-gmii,tb_t13wg_worst,PASS,na,5.9,# T13w WORST-CASE LATENCY PASS (IF_MODE=1 VLs=6 rounds=2 frames=12 worst_total=30096ns worst_queue=27104ns arinc_bound=499360ns worst_rx_pipe=152ns asserted total<=1000us rx_pipe<=150us host_ack_wait_max=2cyc)
+T18,random-stress,tb_t18_random_stress,PASS,na,8.8,# T18 RANDOM STRESS PASS (IF_MODE=0 rounds=25 frames=102 pair_inflight=2 seed=51c0ffee min=17 max=1471 stalls=96 spaced=99 tx_overlap=1 rx_stall=1064)
+T18g,random-stress-gmii,tb_t18g_random_stress,PASS,na,4.2,# T18 RANDOM STRESS PASS (IF_MODE=1 rounds=25 frames=102 pair_inflight=2 seed=51c0ffee min=17 max=1471 stalls=96 spaced=99 tx_overlap=1 rx_stall=72)
+T14,stats-page,tb_t14_stats_regs,PASS,na,3.7,# T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW; 1 real frame; bytes=64; scoreboard match)
+T15,snmp-lite,tb_t15_snmp,PASS,na,3.6,# T15 SNMP PASS (unit: real BER PDUs; GET/GETNEXT/SET; STATS_BLOCK; error responses and community drop; top: SAP request backpressure/ordered release; atomic CTL/BAG SET + ordered commit)
+T15u,snmp-robust,tb_t15u_snmp_robust,PASS,na,2.6,# T15u SNMP ROBUST PASS (11 cases; 422 checks: pending-slot reject+count; parse-time arrival reject; atomic SET; bounded tooBig; exact error VarBind echo through byte 255; terminal GETNEXT; short unknown OID; v1-only version policy)
+T16,tftp-rtc,tb_t16_tftp_rtc,PASS,na,3.6,# T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: 11 on-wire SAP frames; load area verified; unload RRQ UPLOAD 516+12 B via 11-bit byte port; pps fired)
+T16r,rtc-default-1pps,tb_t16r_rtc_default,PASS,na,22.5,# T16r RTC DEFAULT PASS (default US_PER_SEC=1e6 SYNC_TIMEOUT=2.5e6: 1 Hz PPS no false loss; lock; loss at 2.5 s; recovery; 11 checks)
+T16a,rtc-drift-accuracy,tb_t16a_rtc_drift,PASS,na,19.9,# T16a FLL STRICT PASS (PPS <=1us and three within-second samples <=1us; P-only negative control; 364 checks)
+T16u,a615a-load-unload,tb_t16u_tftp_unload,PASS,na,3.4,# T16u 615A LOAD/UNLOAD PASS (TFTP layer: load/unload; ACK/timeout/TID; 0-byte terminator; capacity+1 ERROR(3); future-block ERROR(0); 118 checks)
+T14g,stats-page-gmii,tb_t14_stats_regs_gmii,PASS,na,4.4,# T14 STATS PASS (unit: frame/byte/drop12/hist8+vl8/W1C/read-clear/freeze/reset; top: page RW; 1 real frame; bytes=64; scoreboard match)
+T15g,snmp-lite-gmii,tb_t15_snmp_gmii,PASS,na,3.6,# T15 SNMP PASS (unit: real BER PDUs; GET/GETNEXT/SET; STATS_BLOCK; error responses and community drop; top: SAP request backpressure/ordered release; atomic CTL/BAG SET + ordered commit)
+T16g,tftp-rtc-gmii,tb_t16_tftp_rtc_gmii,PASS,na,3.3,# T16 TFTP/RTC PASS (unit tftp: WRQ/DATA/dup/final/CRC/whitelist/mode/RRQ/ACK/illegal/retry; unit rtc: period/jump/smooth/lock/loss/hold; top: 11 on-wire SAP frames; load area verified; unload RRQ UPLOAD 516+12 B via 11-bit byte port; pps fired)
+T15b,snmp-ber-bounds,tb_t15b_snmp_bounds,PASS,na,4.9,# T15b SNMP BOUNDS PASS (74 cases; 674 checks: all-byte truncation; nested TLV ends; oversize; unsigned values; response capacity; peer context)
+T15c,snmp-bag-commit,tb_t15c_snmp_bag,PASS,na,13.4,# T15c SNMP BAG PASS (wire increase/decrease; table-cache same-edge commit; mixed repeated SET; truncated BER; link-down in-flight commit; host-write arbitration)
+T15cg,snmp-bag-commit-gmii,tb_t15cg_snmp_bag,PASS,na,8.3,# T15cg SNMP BAG PASS (wire increase/decrease; table-cache same-edge commit; mixed repeated SET; truncated BER; link-down in-flight commit; host-write arbitration)
+T16b,rtc-drift-550-recovery,tb_t16b_fll_disturb,PASS,na,6.5,# T16b FLL DISTURB PASS (82 checks)
+T24,mgmt-tx-onwire,tb_t24_mgmt_tx,PASS,na,3.8,# T24 MGMT-TX PASS (IF_MODE=0: negative clean; SNMP GET -> response on-wire; A/B match; dp=49152 sport=5000; reqid echoed; A2 present)
+T24g,mgmt-tx-onwire-gmii,tb_t24g_mgmt_tx,PASS,na,4.3,# T24 MGMT-TX PASS (IF_MODE=1: negative clean; SNMP GET -> response on-wire; A/B match; dp=49152 sport=5000; reqid echoed; A2 present)
+T25,mgmt-tftp-tx-onwire,tb_t25_mgmt_tftp_tx,PASS,na,4.7,# T25 MGMT-TFTP-TX PASS (IF_MODE=0: ACK/DATA/unload full frames; queued peer metadata isolation; A/B full-frame match)
+T25g,mgmt-tftp-tx-onwire-gmii,tb_t25g_mgmt_tftp_tx,PASS,na,4.5,# T25 MGMT-TFTP-TX PASS (IF_MODE=1: ACK/DATA/unload full frames; queued peer metadata isolation; A/B full-frame match)
+T26,es-comm-net-model,tb_s1_es_comm,PASS,na,4.8,# T26 ES COMM PASS (IF_MODE=0 net_model DELAY_US=10 2 good + 1 bad FCS)
+T26g,es-comm-net-model-gmii,tb_s1_es_comm_gmii,PASS,na,4.6,# T26 ES COMM PASS (IF_MODE=1 net_model DELAY_US=10 2 good + 1 bad FCS)
+T27,bag-1-to-128ms-onwire,tb_s3_bag_legal,PASS,na,204.8,# T27 BAG LEGAL PASS (IF_MODE=0 slots 1..128 ms on wire)
+T28,vl32-1ms-jitter-net-model,tb_s4_vl32_jitter,PASS,na,4.4,# T28 VL32 JITTER PASS (IF_MODE=0 BAG=1ms N=32 startup=1us steady=1us via net_model)
+T29,vl128-2frame-net-model,tb_s5_vl128,PASS,na,4.3,# T29 VL128 PASS (IF_MODE=0 BAG=1ms N=128 rounds=2 via net_model)
+T33,vl128-16rounds-net-model,tb_s5_vl128_continuous,PASS,na,10,# T33 VL128 PASS (IF_MODE=0 BAG=1ms N=128 rounds=16 via net_model)
+T33g,vl128-16rounds-net-model-gmii,tb_s5_vl128_continuous_gmii,PASS,na,9,# T33 VL128 PASS (IF_MODE=1 BAG=1ms N=128 rounds=16 via net_model)
+T34,vl128-100rounds-128tx-net-model,tb_s5_vl128_100rounds,PASS,na,42.3,# T34 VL128 PASS (IF_MODE=0 BAG=1ms N=128 rounds=100 via net_model)
+T33p,vl128-16rounds-phy-gmii,tb_s5_vl128_continuous_phy,PASS,na,9.5,# T33 VL128 PASS (IF_MODE=2 BAG=1ms N=128 rounds=16 via net_model) | independent128-VL PHY byte/timing and negative-control audit passed
+T34p,vl128-100rounds-phy-gmii,tb_s5_vl128_100rounds_phy,PASS,na,38.5,# T34 VL128 PASS (IF_MODE=2 BAG=1ms N=128 rounds=100 via net_model) | independent128-VL PHY byte/timing and negative-control audit passed
+T35,rx4096-live-frame-host-readback,tb_t35_rx4096,PASS,na,17.2,# T35 RX4096 PASS IF_MODE=0 requested=4096 covered=4096 inputA=4096 inputB=4096 unique=4096 duplicate=4096 drops=0 | independent host payload/4096-bit coverage audit passed
+T35g,rx4096-live-frame-host-readback-gmii,tb_t35g_rx4096,PASS,na,6.8,# T35 RX4096 PASS IF_MODE=1 requested=4096 covered=4096 inputA=4096 inputB=4096 unique=4096 duplicate=4096 drops=0 | independent host payload/4096-bit coverage audit passed
+T35p,rx4096-phy-gmii-host-readback,tb_t35p_rx4096,PASS,na,7.6,# T35 RX4096 PASS IF_MODE=2 requested=4096 covered=4096 inputA=4096 inputB=4096 unique=4096 duplicate=4096 drops=0 | independent host payload/4096-bit coverage audit passed
+T36,snmp-exceptions-atomicity-onwire,tb_t36_snmp_onwire,PASS,na,3.3,# T36 SNMP ONWIRE PASS (IF_MODE=0 exception/atomicity cases via mac_bfm DELAY_US=10) | SNMP case-spec BER; peer; checksum and FCS PASS
+T36g,snmp-exceptions-atomicity-onwire-gmii,tb_t36g_snmp_onwire,PASS,na,3.4,# T36 SNMP ONWIRE PASS (IF_MODE=1 exception/atomicity cases via mac_bfm DELAY_US=10) | SNMP case-spec BER; peer; checksum and FCS PASS
+T38,mac-length-checker-boundaries,tb_t38_mac_len,PASS,na,2.4,# T38 MAC LENGTH CHECKER PASS (IF_MODE=0 fcs=5 nofcs=6 exact_error_deltas=1)
+T38g,mac-length-checker-boundaries-gmii,tb_t38g_mac_len,PASS,na,2.7,# T38 MAC LENGTH CHECKER PASS (IF_MODE=1 fcs=5 nofcs=6 exact_error_deltas=1)
+T41,phy-gmii-preamble-fcs-ready-errors,tb_t41_gmii_phy,PASS,na,2.4,# T41 GMII PHY PASS checks=5607 tx_frames=4 accepted=5 rejected=3 bad_preamble=1 ready_ignored=1
+T42,phy-gmii-verified-payload-throughput-latency,tb_t42_gmii_metrics,PASS,na,4.7,# T42 GMII METRICS PASS checks=131072 rounds=3 frames_a=48 frames_b=48 rx_frames=32 ready_ignored=1
+T43,phy-gmii-default-snmp-tftp-full-frame,tb_t43_gmii_management,PASS,na,6,# T43 GMII MANAGEMENT PASS checks=2330 responses=16 quiet_cases=2 snmp_set_get_getnext=1 tftp_load_unload_bytes=520
+T30,e2e-latency-net-model,tb_s6_latency,PASS,na,4.4,# T30 LATENCY PASS (IF_MODE=0 DELAY_US=10 tot 25..1001 us avg 757 us)
+T31,snmp-get-getnext-set-net-model,tb_s7_snmp_onwire,PASS,na,4.1,# T31 SNMP ONWIRE PASS (IF_MODE=0 GET+GETNEXT+SET via mac_bfm DELAY_US=10) | SNMP BER; peer; checksum and FCS PASS
+T31g,snmp-get-getnext-set-net-model-gmii,tb_s7_snmp_onwire_gmii,PASS,na,3.7,# T31 SNMP ONWIRE PASS (IF_MODE=1 GET+GETNEXT+SET via mac_bfm DELAY_US=10) | SNMP BER; peer; checksum and FCS PASS
+T32,tftp-wrq-data-net-model,tb_s8_tftp_onwire,PASS,na,4.1,# T32 TFTP ONWIRE PASS (IF_MODE=0 WRQ+DATA via mac_bfm DELAY_US=10)
+T32g,tftp-wrq-data-net-model-gmii,tb_s8_tftp_onwire_gmii,PASS,na,4.6,# T32 TFTP ONWIRE PASS (IF_MODE=1 WRQ+DATA via mac_bfm DELAY_US=10)
+T37,tftp-multiblock-net-model,tb_t37_tftp_multiblock,PASS,na,13.4,# T37 TFTP NETWORK PASS (IF_MODE=0 multi-block load/unload; wrong-TID recovery; duplicate DATA; zero-byte final block; lost ACK retry; retry exhaustion cleanup; A/B full-frame match)
+T37g,tftp-multiblock-net-model-gmii,tb_t37g_tftp_multiblock,PASS,na,13.5,# T37 TFTP NETWORK PASS (IF_MODE=1 multi-block load/unload; wrong-TID recovery; duplicate DATA; zero-byte final block; lost ACK retry; retry exhaustion cleanup; A/B full-frame match)
+T40,tftp-capacity-net-model,tb_t40_tftp_capacity,PASS,na,3.5,# T40 TFTP NETWORK CAPACITY PASS (IF_MODE=0 configured LOAD_WORDS=256; exact-capacity multi-block load; capacity+1 ERROR(3); byte count and public memory no-wrap checks; A/B full-frame match)
+T40g,tftp-capacity-net-model-gmii,tb_t40g_tftp_capacity,PASS,na,3.1,# T40 TFTP NETWORK CAPACITY PASS (IF_MODE=1 configured LOAD_WORDS=256; exact-capacity multi-block load; capacity+1 ERROR(3); byte count and public memory no-wrap checks; A/B full-frame match)
+T39,rtc-public-control,tb_t39_rtc_top,PASS,na,3.1,# T39 RTC TOP CONTROL PASS (IF_MODE=0 public CTL RTC_EN/HOLD; offset retention; PPS correction gating; hold/release; reset; shortened US_PER_SEC=64; no CDC/board claim)
+T39g,rtc-public-control-gmii,tb_t39g_rtc_top,PASS,na,4.2,# T39 RTC TOP CONTROL PASS (IF_MODE=1 public CTL RTC_EN/HOLD; offset retention; PPS correction gating; hold/release; reset; shortened US_PER_SEC=64; no CDC/board claim)
+T44,sap-hold-contract,tb_t44_mgmt_hold,PASS,na,2.5,# T44 MGMT SAP HOLD PASS cases=9 checks=3286
+T45,tftp-timeout-contract-gmii,tb_t45_tftp_timeout,PASS,na,20.4,# T45 TFTP TIMEOUT CONTRACT PASS checks=4376 events=25 images_ok=2
+T46,a615a-init-tx-encoding,tb_t46_init_tx,PASS,na,2.8,# T46 INIT_TX PASS checks=58
+T47,a615a-lur-parse,tb_t47_lur_rx,PASS,na,3.1,# T47 LUR_RX PASS checks=40
+T48,a615a-file-buffer,tb_t48_file_rx,PASS,na,3,# T48 FILE_RX PASS checks=330
+T49,a615a-tftp-client-core,tb_t49_tftp_client,PASS,na,3.4,# T49 TFTP_CLIENT PASS checks=43 tx=65553
+T50,a615a-file-rx-adapter,tb_t50_file_rx_adapter,PASS,na,3.6,# T50 FILE_RX_ADAPTER PASS checks=830
+T51,ipv4-fragment-plan,tb_t51_fragment_plan,PASS,na,2.9,# T51 FRAGMENT_PLAN PASS checks=103
+T52,ipv4-fragment-header,tb_t52_fragment_header,PASS,na,2.7,# T52 FRAGMENT_HEADER PASS checks=183
+T53,pmem-byte-reader,tb_t53_byte_reader,PASS,na,2.6,# T53 BYTE_READER PASS checks=36993
+T54,a615a-tftp-dgram-rx,tb_t54_dgram_rx,PASS,na,3,# T54 DGRAM_RX PASS checks=20 ok=6 drop=8
+T55,a615a-tftp-tx-pack,tb_t55_tx_pack,PASS,na,3.1,# T55 TX_PACK PASS checks=613 pkts=8 err=2
+T56,a615a-fetch-engine,tb_t56_fetch_engine,PASS,na,2.7,# T56 FETCH ENGINE PASS checks=741 ok=4 drop=1
+T57,a615a-fetch-gmii,tb_t57_fetch_gmii,PASS,na,8.9,# T57 FETCH GMII PASS checks=532 frames=3
+T62,a615a-lur-top-gmii,tb_t62_lur_top,PASS,na,23.4,# T62 LUR TOP PASS checks=1651 frames=26 readback_bytes=1560 confirmed_files=2 aborted_files=1 control_cases=5
+T58,a615a-lur-orchestrator,tb_t58_lur_orch,PASS,na,2.4,# T58 LUR ORCH PASS checks=184
+T59,ipv4-rx-reassembly,tb_t59_reassembly,PASS,na,2.9,# T59 REASSEMBLY PASS checks=29
+T60,ipv4-rx-reassembly-e2e,tb_t60_reasm_e2e,PASS,na,4.6,# T60 REASM E2E PASS checks=86
+T64,rx-reassembled-udp-checksum,tb_t64_rx_udp_checksum,PASS,na,2.8,# T64 UDP_CHECKSUM PASS RESP_DELAY=1
+T64a,rx-reassembled-udp-checksum-zero-response,tb_t64a_rx_udp_checksum,PASS,na,2.8,# T64 UDP_CHECKSUM PASS RESP_DELAY=0
+T64b,rx-reassembled-udp-checksum-delayed-response,tb_t64b_rx_udp_checksum,PASS,na,2.5,# T64 UDP_CHECKSUM PASS RESP_DELAY=5
+T65,rx-reassembly-metadata-ownership,tb_t65_reasm_metadata,PASS,na,4.2,# T65 REASM METADATA PASS checks=671
+T66,rx-reassembly-host-read-contention,tb_t66_reasm_host_contention,PASS,na,4.3,# T66 REASM HOST CONTENTION PASS checks=655
+T67,rx-reassembly-host-write-contention,tb_t67_reasm_host_write_contention,PASS,na,4.1,# T67 REASM HOST WRITE CONTENTION PASS checks=657
+T63,a615a-lur-host-read,tb_t63_lur_hostread,PASS,na,4.6,# T63 LUR HOST RD PASS checks=38
+T70,tx-pmem-window-reader,tb_t70_tx_window_reader,PASS,na,3,# T70 TX_WINDOW_READER PASS
+T75,a615a-fetch-upload,tb_t75_fetch_upload,PASS,na,3.3,# T75 PASS checks=18820
+T76,a615a-fetch-retry-tid,tb_t76_fetch_retry_tid,PASS,na,3.9,# T76 PASS checks=55
+T77,a615a-fetch-abort-restart,tb_t77_fetch_abort_restart,PASS,na,3,# T77 PASS checks=59
+T78,a615a-host-preload-top,tb_t78_fetch_preload_top,PASS,na,3.7,# T78 FETCH PRELOAD TOP PASS
+T79,rx-fragment-min-frame-boundary,tb_t79_rx_frag_minlen,PASS,na,3.1,# T79 RX FRAGMENT MIN-LENGTH PASS cases=4 good=3 drop=1
+T80,tx-fragment-frame-builder,tb_tx_fragment_frame_builder,PASS,na,4.3,# T80 TX_FRAGMENT_FRAME_BUILDER PASS cases=158 fragments=76 checks=1371315
+T81,tx-complete-message-store,tb_tx_message_store,PASS,na,3,# T81 TX_MESSAGE_STORE PASS cases=25 checks=10074
+T82,tx8k-production-gmii,tb_t82_tx8k_gmii,PASS,na,37.9,# T82 TX8K GMII PASS cases=18 frames_per_net=50 bytes=59116 checks=275072
+T83,tx4-rx5-gmii-host-tftp-coexist,tb_t83_txrx_coexist,PASS,na,13.6,# T83 COEXIST PASS cases=3 data_frames_per_net=18 mgmt_frames_per_net=9 rx_app_bytes=24576 checks=2905800
+T84,a615a-init-source-gmii-wrq,tb_t84_init_source,PASS,na,4,# T84 INIT SOURCE PASS checks=109 jobs=2 frames_per_net=4 file_bytes=18 control_cases=5
+T85,rtc-management-hold-pps,tb_t85_rtc_management,PASS,na,6.9,# T85 RTC MANAGEMENT PASS checks=2330 responses=16 quiet_cases=2 rtc_events=6 disabled=2 holds=2 request_overlap=10 snmp_set_get_getnext=1 private_tftp_bytes=520
+T86,public-tx4-rx5-phy-host-coactivity,tb_t86_public_txrx,PASS,na,13.8,# T86 PUBLIC TXRX PASS cases=3 data_frames_per_net=18 mgmt_frames_per_net=9 rx_app_bytes=24576 checks=235970
+T87,rtc-hold-decision-contract,tb_t87_rtc_hold,PASS,na,17.5,# T87 RTC HOLD DECISION UNIT PASS cases=9 checks=179
