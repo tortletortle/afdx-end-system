@@ -119,3 +119,16 @@ formal/*/status.path
 # 归档区的第三方二进制（非 AFDX 工程内容；archive/ 其余文本材料仍纳入版本管理，
 # 见 archive/README.md 的逐项清单与 out/arena-debug/folder_cleanup_20261001/）
 archive/20261001_root_capture/unrelated_installer/
+
+# ==== 2026-10-20 快照：未跟踪的生成物与本机工具目录 ====
+# /out/ 已在上方排除，但历史提交里仍有已跟踪的 out/ 与少量 sim/out 日志，
+# gitignore 不能把它们从已有 commit 里拿掉。下面挡住新的未跟踪大目录。
+out/
+sim/out/
+.cursor/
+.kiro/
+.workbuddy/
+.mimosa/
+.zcode/
+_tmp_*
+abc.history
