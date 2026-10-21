@@ -22,7 +22,8 @@ module tb_gate_public_loopback;
   wire [31:0] host_rdata;
   wire host_ack, host_irq;
 
-  AFDX_top #(.IF_MODE(IF_MODE), .FCS_MODE(2)) dut (
+  // VO 无 parameter 口；RTL 默认 IF_MODE=2 / FCS_MODE=2，与本 TB 一致，故不加 #()。
+  AFDX_top dut (
     .clk(clk), .reset(reset),
     .tx_data(tx_data), .rx_data(rx_data), .tx_valid(tx_valid), .rx_valid(rx_valid),
     .tx_ready(tx_ready), .rx_ready(1'b0),
@@ -260,17 +261,18 @@ module tb_gate_public_loopback;
       $display("GATE_S2 PASS (A/B frames, MSG_CNT=1, payload match, RM dup=1)");
     end else $display("GATE_S2 FAIL errors=%0d", errors);
 
+    // regress_verdict.ps1 要求恰好一行 "# T88b ... PASS|FAIL"
     if (s1_ok && s2_ok && errors == 0)
-      $display("GATE_PUBLIC_LOOPBACK PASS checks=%0d", checks);
+      $display("T88b GATE PUBLIC LOOPBACK PASS checks=%0d s1=1 s2=1", checks);
     else
-      $display("GATE_PUBLIC_LOOPBACK FAIL errors=%0d checks=%0d s1=%0d s2=%0d",
+      $display("T88b GATE PUBLIC LOOPBACK FAIL errors=%0d checks=%0d s1=%0d s2=%0d",
                errors, checks, s1_ok, s2_ok);
     $finish;
   end
 
   initial begin
     #20_000_000;
-    $display("GATE_PUBLIC_LOOPBACK FAIL: timeout");
+    $display("T88b GATE PUBLIC LOOPBACK FAIL: timeout");
     $finish;
   end
 endmodule

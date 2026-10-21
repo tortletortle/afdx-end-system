@@ -91,7 +91,7 @@
 | T30 严格时延 | **PASS**；10 μs 网络延迟模型下 4 帧 26–1003 μs，判据 `<2 ms` | `sim/out/plan_execution_20261008_t30_strict_r1/`；超界负控在 2100 μs 延迟下 4 帧按预期设计级 FAIL，仿真器本身 0 errors/0 warnings；不是 128 TX 连续压力结果 |
 | T31/T31g SNMP 语义 | **PASS** | `sim/out/plan_execution_20261008_snmp_semantic_r3/`；12 个完整 A/B 响应帧独立 BER/链路层解码 PASS |
 | T32/T32g TFTP 正常网络流 | **PASS** | 捕获版 80 项含 10 μs 网络模型下 WRQ→ACK(0)、DATA(1)→ACK(1)；多块网络、丢包/超时恢复仍未覆盖 |
-| Final r3 release 验收记录 | 旧包 **4/4 PASS** | `out/submission_20261008_final_r3/` 中 ZIP 及旁置 `FINAL_ZIP_REPLAY.json` 绑定旧 ZIP 的 SHA/CRC、成员清单和干净解压 T13/T13g/T25/T25g 结果；当前 83 项 manifest 和本轮文档尚未进入此 ZIP |
+| Final r3 release 验收记录 | 旧包 **4/4 PASS**（历史） | 原路径 `out/submission_20261008_final_r3/` 可能已迁入 `out/archive_20261016_203815/submission_20261008_final_r3/`；旁置 `FINAL_ZIP_REPLAY.json` 绑定旧 ZIP。**不等于当前工作树已打包** |
 
 这些是 RTL 与 post-map 仿真证据，不含实际上板、SDF、post-fit 或真实网络设备闭环；比赛交卷不要求实际上板。
 
@@ -99,20 +99,20 @@
 
 | 项 | 本包路径 | 数字 | 不是 |
 |---|---|---|---|
-| RTL 回归（冻结） | `evidence/rtl_regress_70/regress.csv` | **70/70 PASS**，SHA-256 `7C197B9CC2C5D5E83007704AC4F75330C155841220374BBE20C6EFB6B8931A6C` | 不是门级；不是 9/29 的 65/65 |
+| RTL 回归（冻结） | ~~`evidence/rtl_regress_70/regress.csv`~~（仓库根下已无此目录；历史 70 包） | **70/70 PASS**，SHA-256 `7C197B9CC2C5D5E83007704AC4F75330C155841220374BBE20C6EFB6B8931A6C` | 不是门级；不是现行 140；不是 9/29 的 65/65 |
 | 历史完整回归 | `sim/out/closeout_20261006/regress.csv` | **80/80 PASS**，SHA-256 `F12C99D7B6F92B731BA8CC355C523A09E78B371757999663B9F50B7098C7907C`，wall_s=3144.7 | 含 T26–T32 附加项；不是 8h T18；不覆盖 10-07 后最终工作树 |
 | 默认综合（70/70 冻结日） | `elinx/prj/AFDX_top_synth.log` | rc=0，顶层 **517×altsyncram** | 不是 Fit/STA |
 | 已有 Yosys 报告 | `elinx/prj/AFDX_top_synth_txmerge.log` | **474×altsyncram**、cell **39718** | 对应报告输入；最终候选综合待重绑；不是 GUI LUT；122542 未重测；不是 Fit/STA |
-| 时延 T13 | `evidence/rtl_regress_70/T13_console.txt` | 最大帧 Total=**244.856 µs**（IF_MODE=0，1518 B） | 无交换机；非 128 VL 满载 |
-| 争用 T13w | 同上 `T13w_console.txt` + [图](../evidence/waves/t13w_latency.png) | 最差 Total=**455.272 µs**（6 VL / 12 帧） | 不是网络端到端最坏 |
-| 抖动 T05b | `T05b_console.txt` + [图](../evidence/waves/t05b_saturated_jitter.png) | 32 VL，稳态约 **3.20 µs** | 不是 128 VL 同时满载 |
+| 时延 T13（历史 70 包） | 原 `evidence/rtl_regress_70/T13_console.txt`（目录已不在仓库根） | 最大帧 Total=**244.856 µs**（IF_MODE=0，1518 B） | **现行**见文首表：`post_fix4` **243.416 µs** |
+| 争用 T13w（历史） | 同上 + [图](../evidence/waves/t13w_latency.png) | 最差 Total=**455.272 µs**（6 VL / 12 帧） | **现行** `post_fix4` **453.752 µs** |
+| 抖动 T05b（历史） | 同上 + [图](../evidence/waves/t05b_saturated_jitter.png) | 32 VL，稳态约 **3.20 µs**（启动约 4 µs） | **现行** `post_fix4` startup=**2** / steady=**0** µs |
 | RTC T16a | `T16a_console.txt` + [图](../evidence/waves/t16a_rtc_drift.png) | **FLL STRICT PASS**，稳态 PPS 0/0/0/0/1 µs | 80/77/115 µs 是同日志 **旧 P-only 对照** |
 | 波形 | `evidence/waves/` | T15c/T05b/T13w/T16a/T16u PNG | 原始 VCD、覆盖率 UCDB **未打包** |
 | 综合后单网一帧 | `out/arena-debug/postsyn_closeout_20261007/gate_frame_v1/` | **PASS**（单网 TX 64 B） | ≠ 双网回环；≠ 80 门级；vsim 2799.9 s |
 | 综合后双网一帧 | `…/gate_frame_dual_v1/` | **PASS**（txA=txB=64） | ≠ 回环/SDF/80 门级；vsim 2120.1 s；VO SHA `851fd9df…6dff68` |
 | 覆盖率 | — | 未随本包 | 旧 UCDB 含 TB、非本版 |
 
-历史完整回归和 2026-10-03 冻结包仍按各自来源保留；当前完整回归请查阅上面的 `goal_completion_20261008_warning_fix_r1`，不要复用或覆盖历史目录。冻结 70 包仍在 `evidence/rtl_regress_70/`。
+历史完整回归和 2026-10-03 冻结包仍按各自来源保留；**现行**完整回归唯一来源为 `sim/out/post_fix4_full140_20261018_011708/`。原 `evidence/rtl_regress_70/` 已不在仓库根（历史附录数字保留，路径标死链）。
 
 ## A. 溯源：9/29 冻结包与本包增量
 

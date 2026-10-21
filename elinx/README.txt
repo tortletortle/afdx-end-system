@@ -3,7 +3,8 @@
 ## 2026-10-03 评阅包默认综合（优先看这里）
 
 默认脚本 `prj/AFDX_top_synth.ys`：现行工作区 RTL（含 SNMP/TFTP/RTC）+ `memory_bram`/`techmap` 后再 `memory_map`。  
-本机 2026-10-03 重跑 **rc=0**，`Yosys execute success`，顶层 `stat` **517 × altsyncram**。日志：`prj/AFDX_top_synth.log`。  
+本机 2026-10-03 重跑 **rc=0**，`Yosys execute success`，顶层 `stat` **517 × altsyncram**。日志：`prj/AFDX_top_synth.log`（冻结对照，**不要覆盖**）。  
+现行源另存：`prj/AFDX_top_synth_demirror.log` **479**；`prj/AFDX_top_synth_txmerge.log` **474** / cell 39718。GUI LUT 122542 未重测。不是 Fit/STA。  
 展平失败原件：`prj/AFDX_top_synth.memory_map_fail.log`（`ERROR: invalid vector<T> subscript`），不当 PASS。  
 本脚本不导出大网表。综合后整帧仍开放。
 
@@ -81,3 +82,7 @@ $mem 有 RD_DATA/RD_DATA_B 双驱动 bug（CHECK 必炸，与 RTL 写法无关�
 - prj/  工程脚点（.ys / 将来 .epr / .edc）
 - sdc/  时序约束（后筛入 prj 或单置）
 - ip/   自建 IP 目录（本项目无额外 IP，占位）
+
+## 2026-10-10 当前源码状态提示
+
+当前生产清单为 `AFDX_top_sources.f` 中 30 个 RTL 文件。最新静态结果见 `../out/luna_non_sim_20261010_r1/static_r2/static_status.json`；这是 Verilog 前端/结构检查，不是完整综合、技术映射或网表业务结果。本文上方 2026-10-03 综合记录以及下方 2026-09-29/更早结果均绑定各自源码清单，不能代表当前工作区的 TFTP/顶层修改。`a615a_init_tx`、`a615a_lur_rx`、`a615a_file_rx`、`a615a_tftp_client_1350` 只在 `AFDX_615A_prepare_sources.f`，尚未接入顶层；`ipv4_fragment_plan`、`ipv4_fragment_header` 和 `tx_pmem_byte_reader` 只在 `AFDX_fragment_prepare_sources.f`，也尚未接入生产路径。
