@@ -141,3 +141,7 @@ T84 tb_t84_init_source a615a-init-source-gmii-wrq
 T85 tb_t85_rtc_management rtc-management-hold-pps
 T86 tb_t86_public_txrx public-tx4-rx5-phy-host-coactivity
 T87 tb_t87_rtc_hold rtc-hold-decision-contract
+# T88a 新增系统场，非原矩阵：chipsim 缩配 GMII 回环冒烟（P1.1 对照）
+T88a tb_chipsim_smoke chipsim-gmii-loopback-smoke
+# T88b 新增系统场，非原矩阵：公开端口双网回环（综合后仿真 / eLinx 入口）
+T88b tb_gate_public_loopback public-port-gmii-loopback-s1-s2

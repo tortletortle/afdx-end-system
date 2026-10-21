@@ -530,6 +530,7 @@ if (-not $KeepWork) {
     '../rtl/common/rst_sync.v', '../rtl/common/timebase.v',
     '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
     '../rtl/common/bram_sdp.v',  '../rtl/top/init_sweep.v', '../rtl/top/AFDX_top.v',
+    '../rtl/top/AFDX_top_chipsim.v',
     '../rtl/top/stats_regs.v',
     '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
     '../rtl/tx/tx_frame_builder.v', '../rtl/tx/tx_vl_scheduler.v',
@@ -679,7 +680,8 @@ foreach ($m in $manifest) {
   # Same 100-round workload as T34, with complete PHY capture/audit. The
   # simulation time limit and protocol assertions are unchanged; only host
   # wall-clock allowance accommodates full-size top elaboration and I/O.
-  if ($m.Id -eq 'T34p') { $cap = 1800 }
+  # T34 same 100-round VL128 workload as T34p; wall-clock only (sim asserts unchanged).
+  if ($m.Id -eq 'T34' -or $m.Id -eq 'T34p') { $cap = 1800 }
   $meta.current_test = $m.Id
   $meta.current_test_started_local = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')
   Save-RunMetadata

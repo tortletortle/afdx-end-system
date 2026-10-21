@@ -4,6 +4,8 @@
 //
 // 刻意保持 PMEM_KB=32：块池按 16×2 KB 写死，缩 PMEM 会让块号越出 RAM。
 // HASH_BUCKETS 必须为 2 的幂（lookup 用低位作桶号）。
+// 2026-10-21 P1.1：补 rx_error/rx_error_b 并接到 u_es（漏接会悬空成 z，
+// gmii_rx_strip 遇 x 进 DROP）。对照见 T88a 修复前后日志。
 // =====================================================================
 `timescale 1 ns / 1 ps
 module AFDX_top_chipsim (
@@ -31,7 +33,9 @@ module AFDX_top_chipsim (
   input  wire        pps_in,
   output wire        pps_out,
   output wire [63:0] rtc_time_us,
-  output wire [3:0]  dbg_frame_event
+  output wire [3:0]  dbg_frame_event,
+  input  wire        rx_error,
+  input  wire        rx_error_b
 );
   AFDX_top #(
     .NUM_TX_VL(16),
@@ -52,6 +56,7 @@ module AFDX_top_chipsim (
     .tx_ready(tx_ready), .rx_ready(rx_ready),
     .tx_data_b(tx_data_b), .tx_valid_b(tx_valid_b), .tx_ready_b(tx_ready_b),
     .rx_data_b(rx_data_b), .rx_valid_b(rx_valid_b), .rx_ready_b(rx_ready_b),
+    .rx_error(rx_error), .rx_error_b(rx_error_b),
     .host_cs(host_cs), .host_we(host_we), .host_addr(host_addr),
     .host_wdata(host_wdata), .host_rdata(host_rdata),
     .host_ack(host_ack), .host_irq(host_irq),
