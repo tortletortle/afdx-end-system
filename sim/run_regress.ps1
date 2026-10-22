@@ -492,10 +492,15 @@ function Run-Vsim {
   $psi.CreateNoWindow = $true
   $p = [System.Diagnostics.Process]::Start($psi)
   $invocationClock = [Diagnostics.Stopwatch]::StartNew()
+  # Some Questa sessions print $finish + "Errors: N" then hang before cmd exits
+  # (observed on T42 inside smoke: log PASS at ~50s, runner TIMEOUT 600s).
+  # Harvest when the log is complete; do not wait out the full wall budget.
+  $logDoneAt = $null
+  $graceSec = 20
   try {
     while ($true) {
       $remainingMs = [int][math]::Max(0, $TimeoutSec * 1000 - $invocationClock.ElapsedMilliseconds)
-      if ($p.WaitForExit([int][math]::Min(30000, $remainingMs))) { break }
+      if ($p.WaitForExit([int][math]::Min(5000, $remainingMs))) { break }
       if ($invocationClock.Elapsed.TotalSeconds -ge $TimeoutSec) {
         taskkill /PID $p.Id /T /F 2>$null | Out-Null
         $p.WaitForExit(10000) | Out-Null
@@ -503,7 +508,22 @@ function Run-Vsim {
       }
       $tailLine = ''
       if (Test-Path -LiteralPath $Log) {
-        $tailLine = Get-Content -LiteralPath $Log -Tail 1 -ErrorAction SilentlyContinue
+        $tail = @(Get-Content -LiteralPath $Log -Tail 20 -ErrorAction SilentlyContinue)
+        if ($tail.Count -gt 0) { $tailLine = $tail[-1] }
+        $blob = ($tail -join "`n")
+        $finished = ($blob -match '\$finish') -and ($blob -match 'Errors:\s*\d+')
+        if ($finished) {
+          if ($null -eq $logDoneAt) {
+            $logDoneAt = $invocationClock.Elapsed.TotalSeconds
+            Write-Host ("VSIM_LOG_DONE cmd_pid=" + $p.Id + " at_s=" + [math]::Round($logDoneAt,1) + " grace_s=" + $graceSec)
+          } elseif (($invocationClock.Elapsed.TotalSeconds - $logDoneAt) -ge $graceSec) {
+            Write-Host ("VSIM_HARVEST_AFTER_FINISH cmd_pid=" + $p.Id + " elapsed_s=" + [math]::Round($invocationClock.Elapsed.TotalSeconds,1))
+            taskkill /PID $p.Id /T /F 2>$null | Out-Null
+            $p.WaitForExit(10000) | Out-Null
+            # Log already has end summary; treat as clean exit for verdict.
+            return 0
+          }
+        }
       }
       # Host output must not enter the integer return value captured by $rc.
       Write-Host ("VSIM_PROGRESS cmd_pid=" + $p.Id + " elapsed_s=" + [math]::Round($invocationClock.Elapsed.TotalSeconds,1) + " log=" + [IO.Path]::GetFileName($Log) + " last_line=" + $tailLine)
@@ -735,6 +755,20 @@ foreach ($m in $manifest) {
     }
   }
   $result = $vd.Result
+  if ($vd.Result -eq 'PASS' -and ($m.Id -eq 'T89')) {
+    foreach ($fn in @('t89_metrics.csv', 't89_verilog_summary.json')) {
+      $src = Join-Path $sim $fn
+      if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $runOutput $fn) -Force
+      }
+    }
+    & python (Join-Path $sourceRoot 'tools\t89_metrics_check.py') $runOutput
+    if ($LASTEXITCODE -ne 0) {
+      $vd = [pscustomobject]@{ Result='FAIL'; Reason='independent T89 metrics CSV/JSON check failed'; Verdict='' }
+    } else {
+      $semanticNote = 'independent T89 CSV/JSON metrics check PASS'
+    }
+  }
   if ($vd.Result -eq 'PASS' -and ($m.Id -in @('T33p','T34p'))) {
     $scaleTest = $m.Id.Substring(0,3)
     $scaleRounds = if ($m.Id -eq 'T34p') {100} else {16}

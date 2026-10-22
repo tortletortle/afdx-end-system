@@ -1,6 +1,7 @@
 // T88b — 公开端口双网回环（新增系统场，非原矩阵）
 // 只用顶层端口；禁止层次引用 / bind。IF_MODE=2 线回环。
 // S1：INIT/ID/REV/CTL；S2：1 TX VL + 1 RX VL，A/B 各一帧，载荷逐字节一致，RM 去重 +1。
+// S3：A 网注入一帧坏 FCS（TB 构造），不交付、stats CRC 类 +1（0x0117；0x003C 未接线）。
 // 载荷期望来自 sim/vec/t88b_payload32.hex（Python 生成），不复用 RTL 常量作金标。
 `timescale 1 ns / 1 ps
 module tb_gate_public_loopback;
@@ -10,9 +11,12 @@ module tb_gate_public_loopback;
 
   wire [7:0] tx_data, tx_data_b;
   wire tx_valid, tx_valid_b, tx_ready, tx_ready_b;
-  // IF_MODE=2：TX 已含前导码/SFD，线回环直接进 RX。
-  wire [7:0] rx_data = tx_data;
-  wire       rx_valid = tx_valid;
+  // IF_MODE=2：默认线回环；S3 期间 inject_a=1 时 A 网改由 TB 驱动。
+  reg        inject_a = 0;
+  reg [7:0]  inj_data = 0;
+  reg        inj_valid = 0;
+  wire [7:0] rx_data = inject_a ? inj_data : tx_data;
+  wire       rx_valid = inject_a ? inj_valid : tx_valid;
   wire [7:0] rx_data_b = tx_data_b;
   wire       rx_valid_b = tx_valid_b;
 
@@ -43,8 +47,9 @@ module tb_gate_public_loopback;
   reg [7:0] exp_pl [0:31];
   reg [7:0] cap_a [0:2047], cap_b [0:2047];
   integer na = 0, nb = 0, frame_a = 0, frame_b = 0;
-  integer errors = 0, checks = 0, s1_ok = 0, s2_ok = 0;
+  integer errors = 0, checks = 0, s1_ok = 0, s2_ok = 0, s3_ok = 0;
   integer waitc, i, k, base_addr, blk, polls;
+  integer crc_before, msg_before, crc_after, msg_after;
   reg [31:0] rd, w;
   reg prev_a = 0, prev_b = 0;
   integer capturing = 0;
@@ -261,17 +266,78 @@ module tb_gate_public_loopback;
       $display("GATE_S2 PASS (A/B frames, MSG_CNT=1, payload match, RM dup=1)");
     end else $display("GATE_S2 FAIL errors=%0d", errors);
 
+    // ========== S3：A 网注入坏 FCS（不经 DUT TX）；S1/S2 判据不变 ==========
+    // CRC 计数：stats_regs drop_k[7] @ 0x0117（regs 页 0x003C 未接线，恒 0）
+    begin : s3_bad_fcs
+      integer s3_err0, bi2, flen;
+      reg [7:0] badfrm [0:255];
+      s3_err0 = errors;
+      // W1C 清 INT_STATUS 后再看 bit3
+      host_write(16'h0018, 32'hFFFF_FFFF);
+      host_read(16'h0117, rd); crc_before = rd;
+      host_read(16'h8480 + P_RX, rd); msg_before = rd;
+
+      // 用 S2 捕获的 A 帧（含前导码）；翻最后一字节破坏 FCS
+      flen = na;
+      if (flen < 72 || flen > 256) begin
+        bad("S3 captured A frame length unexpected");
+        flen = 0;
+      end else begin
+        for (bi2 = 0; bi2 < flen; bi2 = bi2 + 1) badfrm[bi2] = cap_a[bi2];
+        badfrm[flen-1] = badfrm[flen-1] ^ 8'hFF;
+      end
+
+      // 等线静默后再注入，避免与回环重叠
+      waitc = 0;
+      while ((tx_valid || tx_valid_b) && waitc < 20000) begin
+        @(negedge clk); waitc = waitc + 1;
+      end
+      repeat (16) @(negedge clk);
+
+      inject_a = 1;
+      inj_valid = 0;
+      for (bi2 = 0; bi2 < flen; bi2 = bi2 + 1) begin
+        @(negedge clk);
+        inj_data = badfrm[bi2];
+        inj_valid = 1;
+      end
+      @(negedge clk);
+      inj_valid = 0;
+      inject_a = 0;
+
+      // 给 MAC/统计若干拍；不得新增交付
+      repeat (2000) @(negedge clk);
+      host_read(16'h0117, rd); crc_after = rd;
+      host_read(16'h8480 + P_RX, rd); msg_after = rd;
+      host_read(16'h0018, rd);
+      gate_check(crc_after === crc_before + 1, "S3 stats CRC class +1 @0x0117");
+      gate_check(msg_after === msg_before, "S3 MSG_CNT unchanged (no deliver)");
+      gate_check(rd[3] === 1'b1, "S3 INT_STATUS CRC bit3 set");
+
+      // Use NOT_PASS (not FAIL) so a bad S3 does not poison regress_verdict
+      // for S1+S2; S3 is recorded separately in simulation_status.json.
+      if (errors == s3_err0) begin
+        s3_ok = 1;
+        $display("GATE_S3 PASS (bad FCS: CRC %0d->%0d, MSG_CNT=%0d, INT[3]=1)",
+                 crc_before, crc_after, msg_after);
+      end else
+        $display("GATE_S3 NOT_PASS errors=%0d crc %0d->%0d msg %0d->%0d",
+                 errors - s3_err0, crc_before, crc_after, msg_before, msg_after);
+    end
+
+    // 总 PASS 仍以 S1+S2 为准（门级 S3 失败不撤销 S1/S2 的 P）
     // regress_verdict.ps1 要求恰好一行 "# T88b ... PASS|FAIL"
-    if (s1_ok && s2_ok && errors == 0)
-      $display("T88b GATE PUBLIC LOOPBACK PASS checks=%0d s1=1 s2=1", checks);
+    if (s1_ok && s2_ok)
+      $display("T88b GATE PUBLIC LOOPBACK PASS checks=%0d s1=1 s2=1 s3=%0d",
+               checks, s3_ok);
     else
-      $display("T88b GATE PUBLIC LOOPBACK FAIL errors=%0d checks=%0d s1=%0d s2=%0d",
-               errors, checks, s1_ok, s2_ok);
+      $display("T88b GATE PUBLIC LOOPBACK FAIL errors=%0d checks=%0d s1=%0d s2=%0d s3=%0d",
+               errors, checks, s1_ok, s2_ok, s3_ok);
     $finish;
   end
 
   initial begin
-    #20_000_000;
+    #40_000_000;
     $display("T88b GATE PUBLIC LOOPBACK FAIL: timeout");
     $finish;
   end

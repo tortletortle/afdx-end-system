@@ -1,5 +1,6 @@
-# eLinx behavioral sim CLI equivalent: build .do from AFDX_top_sources.f + TB, run vsim.
-# Does NOT hand-edit stale gui_afdx .do. Writes .do under -OutDir.
+# Equivalence / replay script: builds a .do from AFDX_top_sources.f + TB and runs vsim.
+# NOT an eLinx-generated artifact. Does NOT refresh gui_afdx/.../behav/{AFDX_top.do,run_sim.bat}.
+# Claim level: I for "ran inside eLinx GUI"; P only for "CLI compile+sim of listed sources+TB".
 # Simulator path via -VsimPath / ELINX_VSIM / VSIM_PATH (no hardcoded machine path required).
 # ASCII-only (PS 5.1 + UTF-8 Chinese comments break param parsing).
 param(

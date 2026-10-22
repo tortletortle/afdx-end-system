@@ -65,11 +65,8 @@ def run():
     OUT.mkdir(exist_ok=True)
     targets = (TOP, LOOK, PARSE, IC, MACT, MACR)
     originals = {p: hashlib.sha256(p.read_bytes()).hexdigest().upper() for p in targets}
-    runner = (SIM / "run_regress.ps1").read_text(encoding="utf-8")
-    rtl_list = re.findall(r"'(\../rtl/[^']+\.v)'", runner)
-    if len(rtl_list) < 15 or rtl_list.count("../rtl/top/AFDX_top.v") != 1:
-        raise RuntimeError("runner RTL list parse incomplete")
-    rtl_files = [(SIM / name).resolve() for name in rtl_list]
+    from mutant_compile_list import regress_compile_files
+    rtl_files = regress_compile_files(SIM)
     env = os.environ.copy()
     if not env.get("SALT_LICENSE_SERVER"):
         import winreg

@@ -26,10 +26,14 @@ VSIM_CANDIDATES = (
 )
 # Single, precisely matched top RTL faults: early ACK, lost data, wrong address.
 # A compile failure or timeout is not a detected functional fault.
+# Split note (2026-10-22): former combined "acks_before_write_port_available"
+# dropped both !rx_pmem_busy and !copy_wr_turn. Split retest: dropping only
+# !copy_wr_turn is MISSED under T08c (equivalent — TB never contends copy_wr_turn
+# against host PMEM commit). Keep the rx_pmem_busy-only fault (DETECTED).
 MUTATIONS = (
-    ("acks_before_write_port_available",
-     "assign host_commit_pending = host_pmem_pending && !rx_pmem_busy;",
-     "assign host_commit_pending = host_pmem_pending;"),
+    ("acks_ignores_rx_pmem_busy",
+     "assign host_commit_pending = host_pmem_pending && !rx_pmem_busy && !copy_wr_turn;",
+     "assign host_commit_pending = host_pmem_pending && !copy_wr_turn;"),
     ("pending_write_data_not_latched",
      "host_pmem_pending_data <= host_wdata;",
      "host_pmem_pending_data <= 32'd0;"),
@@ -46,11 +50,8 @@ def run():
     OUT.mkdir(exist_ok=True)
     source = RTL.read_text(encoding="utf-8")
     original = hashlib.sha256(RTL.read_bytes()).hexdigest().upper()
-    runner = (SIM / "run_regress.ps1").read_text(encoding="utf-8")
-    rtl_list = re.findall(r"'(\.\./rtl/[^']+\.v)'", runner)
-    if len(rtl_list) < 15 or rtl_list.count("../rtl/top/AFDX_top.v") != 1:
-        raise RuntimeError("runner RTL list parse incomplete")
-    rtl_files = [(SIM / name).resolve() for name in rtl_list]
+    from mutant_compile_list import regress_compile_files
+    rtl_files = regress_compile_files(SIM)
     env = os.environ.copy()
     if not env.get("SALT_LICENSE_SERVER"):
         import winreg

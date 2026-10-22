@@ -84,17 +84,24 @@ $console = ''
 if (Test-Path $logPath) { $console = Get-Content $logPath -Raw -ErrorAction SilentlyContinue }
 $pass = $console -match 'T88b GATE PUBLIC LOOPBACK PASS'
 $fail = $console -match 'T88b GATE PUBLIC LOOPBACK FAIL'
+$s1 = if ($console -match 'GATE_S1 PASS') { 'PASS' } elseif ($console -match 'GATE_S1 FAIL') { 'FAIL' } else { 'UNKNOWN' }
+$s2 = if ($console -match 'GATE_S2 PASS') { 'PASS' } elseif ($console -match 'GATE_S2 FAIL') { 'FAIL' } else { 'UNKNOWN' }
+$s3 = if ($console -match 'GATE_S3 PASS') { 'PASS' } elseif ($console -match 'GATE_S3 NOT_PASS') { 'FAIL' } else { 'UNKNOWN' }
+# Overall PASS tracks S1+S2 only; S3 is reported separately (S3 fail does not revoke S1/S2 P).
 $result = if ($pass -and -not $fail) { 'PASS' } elseif ($fail) { 'FAIL' } else { 'UNKNOWN' }
 $status = @{
   result = $result
+  gate_s1 = $s1
+  gate_s2 = $s2
+  gate_s3 = $s3
   vsim = $VsimPath
   vo_sha256 = $voSha
   tb_sha256 = $tbSha
   wall_s = [math]::Round($sw.Elapsed.TotalSeconds, 1)
   exit_code = $p.ExitCode
-  claim_allowed_if_pass = 'current-source Quartus functional VO public-port dual-net single-frame loopback S1+S2 PASS'
-  forbidden = @('gate full140', 'SDF/timing sim', 'eLinx native netlist PASS')
+  claim_allowed_if_pass = 'current-source Quartus functional VO public-port dual-net single-frame loopback S1+S2 PASS; S3 see gate_s3 field'
+  forbidden = @('gate full140', 'SDF/timing sim', 'eLinx native netlist PASS', 'S3 fail revokes S1/S2')
 }
 $status | ConvertTo-Json | Set-Content (Join-Path $OutDir 'simulation_status.json')
-Write-Output ('GATE_T88b result=' + $result + ' wall_s=' + $status.wall_s)
+Write-Output ('GATE_T88b result=' + $result + ' s3=' + $s3 + ' wall_s=' + $status.wall_s)
 if ($result -ne 'PASS') { exit 1 }

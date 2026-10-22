@@ -143,5 +143,9 @@ T86 tb_t86_public_txrx public-tx4-rx5-phy-host-coactivity
 T87 tb_t87_rtc_hold rtc-hold-decision-contract
 # T88a 新增系统场，非原矩阵：chipsim 缩配 GMII 回环冒烟（P1.1 对照）
 T88a tb_chipsim_smoke chipsim-gmii-loopback-smoke
-# T88b 新增系统场，非原矩阵：公开端口双网回环（综合后仿真 / eLinx 入口）
-T88b tb_gate_public_loopback public-port-gmii-loopback-s1-s2
+# T88 新增系统演示场，非原矩阵（P3.1；本轮步骤 1–4）
+T88 tb_t88_demo demo-steps-1-4-public-ports
+# T88b 新增系统场，非原矩阵：公开端口双网回环（综合后仿真 / eLinx 入口）；S1+S2 必过，S3 坏 FCS 另标
+T88b tb_gate_public_loopback public-port-gmii-loopback-s1-s2-s3
+# T89 新增系统场，非原矩阵（P5 GMII 指标 IF_MODE=2）
+T89 tb_t89_gmii_metrics_full phy-gmii-metrics-ifmode2
