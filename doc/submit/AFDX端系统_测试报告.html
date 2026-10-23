@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C · AFDX 端系统测试报告</title>
+<link rel="stylesheet" href="submit-reader.css">
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">提交阅读 · C</span>
+    <a href="00_先读.html">A 先读</a>
+    <a href="AFDX端系统_设计文档.html">B 设计</a>
+    <a class="active" href="AFDX端系统_测试报告.html">C 测试</a>
+    <a href="人工事项3到5.html">← 人工事项</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="eyebrow">盯什么：§3「不能推出」列 — 答辩每条都认</span>
+  <h1>AFDX 端系统测试报告（提交版）</h1>
+  <p class="lead">红色「不能推出」列是答辩红线：被问到只能认边界，不能改口成「其实全测了」。数字占位等 P8；历史全量只允许出现在历史附录。</p>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>本页导航</h2>
+    <div class="toc">
+      <a href="#s1">1 环境</a>
+      <a href="#s2">2 复现</a>
+      <a href="#s3">3 不能推出 ★</a>
+      <a href="#s4">4 全量</a>
+      <a href="#s5">5 指标</a>
+      <a href="#s6">6 门级</a>
+      <a href="#s7">7 质量</a>
+      <a href="#s8">8 缺陷</a>
+      <a href="#s9">9 边界</a>
+      <a href="#figs">缺图</a>
+    </div>
+  </section>
+
+  <section class="card" id="s1">
+    <h2>1. 验证环境</h2>
+    <ul>
+      <li>仿真器：Questa（功能全量）；ModelSim SE（门级）。</li>
+      <li>TB：<code>sim/tb</code> + <code>env</code> BFM + <code>chk</code> bind；独立黄金模型见 <code>sw/golden/</code>。</li>
+      <li>时钟：与 GMII 线速拍一致。</li>
+    </ul>
+
+    <h3>1.1 Runner 说明（harvest）</h3>
+    <p><code>sim/run_regress.ps1</code> 的 <code>Run-Vsim</code>：若日志已出现 <code>$finish</code> 与 <code>Errors: N</code> 而进程未退出，grace 后收割并返回 0，<strong>不改 TB 判据</strong>。用于消除个别用例「日志已 PASS、墙钟 TIMEOUT」的假失败。</p>
+    <p>本冻结全量 N=<span class="metric">{{metric:full_n}}</span> 在带 harvest 的 runner 上得到；与历史全量（旧 runner、不同 N）<strong>不可直接等同</strong>。</p>
+
+    <h3>1.2 判据独立性表</h3>
+    <table>
+      <thead><tr><th>类别</th><th>代表 T</th><th>外置模型</th><th>TB 内自比</th></tr></thead>
+      <tbody>
+        <tr><td>有外置 Python/golden</td><td>T09、T12 族、T35、T42/T43、T89、SNMP wire</td><td>是</td><td>兼有</td></tr>
+        <tr><td>主要 TB 记分板</td><td>T00–T08、T10/T11、T13/T13w、T22、T88</td><td>部分</td><td>是</td></tr>
+        <tr><td>负控变异</td><td>T08c/e、T09–T12、T22 mutants</td><td>注入期望 FAIL</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card" id="s2">
+    <h2>2. 如何复现</h2>
+    <ol class="steps">
+      <li>冒烟：<code>powershell -File sim/run_smoke.ps1</code></li>
+      <li>全量：<code>run_regress.ps1</code> → <code>freeze_regress.py --require-full</code></li>
+      <li>门级：导出 functional VO 后按 <code>run_gate_t88b.ps1</code> / 计划 P2</li>
+      <li>eLinx：<code>tools/run_baseline_full140_synth.py</code>（commit 改为本冻结）</li>
+    </ol>
+    <p class="callout i"><strong>需按本机修改</strong>：<code>SALT_LICENSE_SERVER</code>、Questa / ModelSim / <code>eLinx_synthesis</code> 安装路径（勿写死进包）。</p>
+  </section>
+
+  <section class="card" id="s3">
+    <h2>3. 需求 → T → 实测 → 不能推出 ★</h2>
+    <div class="legend">
+      <span><span class="badge p">实测</span> 可指到 metric / 日志</span>
+      <span><span class="badge f">不能推出</span> 答辩必须认，禁止改口</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>需求 / 指标</th>
+          <th>T</th>
+          <th>实测（metric）</th>
+          <th>不能推出</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>端到端时延（单 VL 最大帧）</td>
+          <td>T13</td>
+          <td class="okish"><span class="metric">{{metric:t13_worst_total_ns}}</span> ns</td>
+          <td class="cant">网络端到端；XAPP RX 参考界（非赛题项）</td>
+        </tr>
+        <tr>
+          <td>争用最差时延</td>
+          <td>T13w</td>
+          <td class="okish"><span class="metric">{{metric:t13w_worst_total_ns}}</span> ns</td>
+          <td class="cant">任意 BAG 档</td>
+        </tr>
+        <tr>
+          <td>饱和抖动</td>
+          <td>T05b</td>
+          <td class="okish">startup <span class="metric">{{metric:t05b_startup_jitter_us}}</span> μs / steady <span class="metric">{{metric:t05b_steady_max_jitter_us}}</span> μs</td>
+          <td class="cant">合法 BAG 全档</td>
+        </tr>
+        <tr>
+          <td>GMII 吞吐 / 时延</td>
+          <td>T42</td>
+          <td class="okish">tx <span class="metric">{{metric:t42_tx_commit_to_eof_max_us}}</span> μs；rx <span class="metric">{{metric:t42_rx_sof_to_host_max_us}}</span> μs</td>
+          <td class="cant">板级</td>
+        </tr>
+        <tr>
+          <td>GMII 指标场（IF_MODE=2）</td>
+          <td>T89</td>
+          <td class="okish">tx/rx/jit ns；40+Σ=<span class="metric">{{metric:t89_bound_40sig_us}}</span> μs</td>
+          <td class="cant">满配吞吐未测；与 T13w 同配置</td>
+        </tr>
+        <tr>
+          <td>IC</td>
+          <td>T09</td>
+          <td class="okish">accept <span class="metric">{{metric:t09_accept}}</span> / reject <span class="metric">{{metric:t09_reject}}</span></td>
+          <td class="cant">全错误笛卡尔积</td>
+        </tr>
+        <tr>
+          <td>RM</td>
+          <td>T10</td>
+          <td class="okish">fwd <span class="metric">{{metric:t10_fwd}}</span> dup <span class="metric">{{metric:t10_dup}}</span> skew <span class="metric">{{metric:t10_skew}}</span></td>
+          <td class="cant">babbling</td>
+        </tr>
+        <tr>
+          <td>全量</td>
+          <td>manifest</td>
+          <td class="okish"><span class="metric">{{metric:full_pass}}</span>/<span class="metric">{{metric:full_n}}</span></td>
+          <td class="cant">认证套件</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="callout">T13 / T13w / T05b 为 IF_MODE=0（或各 TB 标明）；T89 为 IF_MODE=2，<strong>分列</strong>，不混用。</p>
+  </section>
+
+  <section class="card" id="s4">
+    <h2>4. 全量清单</h2>
+    <p>由 <code>regress.csv</code> 自动生成（打包时附）。汇总：PASS <span class="metric">{{metric:full_pass}}</span> / N <span class="metric">{{metric:full_n}}</span>。</p>
+  </section>
+
+  <section class="card" id="s5">
+    <h2>5. 指标章</h2>
+    <h3>5.1 T42</h3>
+    <ul>
+      <li>吞吐与时延：见 §3 metric 行。</li>
+      <li>抖动 max：<span class="metric">{{metric:t42_jitter_max_us}}</span> μs。</li>
+    </ul>
+    <h3>5.2 T89（ns）</h3>
+    <table>
+      <thead><tr><th>项</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td>max_tx</td><td><span class="metric">{{metric:t89_max_tx_ns}}</span> ns</td></tr>
+        <tr><td>max_rx</td><td><span class="metric">{{metric:t89_max_rx_ns}}</span> ns</td></tr>
+        <tr><td>max_jit</td><td><span class="metric">{{metric:t89_max_jit_ns}}</span> ns</td></tr>
+        <tr><td>本场景 40+Σ</td><td><span class="metric">{{metric:t89_bound_40sig_us}}</span> μs</td></tr>
+        <tr><td>满配 VL 吞吐</td><td class="cant"><strong>未测</strong></td></tr>
+      </tbody>
+    </table>
+    <p>图：吞吐/时延/抖动占位（由 VCD 绘制，非 GUI 截屏）。缺图见文末。</p>
+  </section>
+
+  <section class="card" id="s6">
+    <h2>6. 综合后仿真章</h2>
+    <ul>
+      <li>门级 T88b：S1=<span class="metric">{{metric:gate_t88b_s1}}</span>
+        S2=<span class="metric">{{metric:gate_t88b_s2}}</span>
+        S3=<span class="metric">{{metric:gate_t88b_s3}}</span></li>
+      <li>VO sha256：<span class="metric">{{metric:gate_vo_sha256}}</span></li>
+    </ul>
+  </section>
+
+  <section class="card" id="s7">
+    <h2>7. 质量证据</h2>
+    <table>
+      <thead><tr><th>项</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td>变异杀死</td><td><span class="metric">{{metric:mutants_detected}}</span>/<span class="metric">{{metric:mutants_total}}</span></td></tr>
+        <tr><td>lint %Error</td><td><span class="metric">{{metric:lint_error}}</span>（含 BLKLOOPINIT 豁免则见 FREEZE）</td></tr>
+        <tr><td>覆盖率</td><td class="cant">未跑（本轮 FREEZE 标明）</td></tr>
+        <tr><td>形式 BMC</td><td>有界 <span class="badge i">I</span>；见 <code>formal/ENV_STATUS.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card" id="s8">
+    <h2>8. 缺陷与修复记录</h2>
+    <p class="callout i">定稿时从 git log 挑真实缺陷：根因、修复、回归 T。骨架阶段不填编年史。</p>
+  </section>
+
+  <section class="card" id="s9">
+    <h2>9. 边界与未覆盖</h2>
+    <ul>
+      <li>满配 VL 吞吐未测</li>
+      <li>ModelSim SE 全量逐项对比本轮未跑</li>
+      <li>覆盖率本轮未跑</li>
+      <li>Fmax 未闭合（<span class="badge i">I</span>）</li>
+    </ul>
+  </section>
+
+  <section class="card" id="figs">
+    <h2>缺图清单（人工补）</h2>
+    <ul>
+      <li>☐ eLinx GUI 工程截图（仅占位；证据亦可指 <code>out/p3_elinx_gui_20261023/</code>）</li>
+      <li>☐ T88 / T89 / T10 波形 PNG（VCD→脚本；注明 VCD sha256）</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="page-foot">
+  源 Markdown：<code>doc/submit/AFDX端系统_测试报告.md</code> · 读完回
+  <a href="人工事项3到5.html">人工事项 3～5</a>
+</footer>
+</body>
+</html>

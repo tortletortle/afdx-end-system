@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人工事项 3～5 · 阅读 / 赛务 / 答辩</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --card: #fffdf8;
+    --ink: #1a1f2e;
+    --mute: #5a6478;
+    --line: #d9d0c0;
+    --ok: #1b7a4e;
+    --todo: #b45309;
+    --done: #166534;
+    --accent: #1d4e89;
+    --warn: #9a3412;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+    font-size: 16px;
+  }
+  header {
+    background: var(--ink);
+    color: #f8fafc;
+    padding: 1.25rem 1.5rem;
+  }
+  header h1 { margin: 0 0 .35rem; font-size: 1.35rem; font-weight: 650; }
+  header p { margin: 0; opacity: .85; font-size: .95rem; }
+  .wrap { max-width: 52rem; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  .status {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: .6rem;
+    margin: 1rem 0 1.25rem;
+  }
+  .pill {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: .7rem .85rem;
+    font-size: .9rem;
+  }
+  .pill strong { display: block; font-size: .75rem; color: var(--mute); font-weight: 600; margin-bottom: .2rem; }
+  .pill .s-ok { color: var(--done); font-weight: 650; }
+  .pill .s-todo { color: var(--todo); font-weight: 650; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.1rem 1.15rem 1.2rem;
+    margin-bottom: 1rem;
+  }
+  section h2 {
+    margin: 0 0 .75rem;
+    font-size: 1.15rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: .45rem;
+  }
+  section h3 { margin: 1rem 0 .4rem; font-size: 1rem; color: var(--accent); }
+  .plain { margin: .4rem 0; color: var(--mute); }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: .5rem 0; }
+  th, td { border: 1px solid var(--line); padding: .45rem .55rem; text-align: left; vertical-align: top; }
+  th { background: #f0ebe1; font-weight: 650; }
+  code, .path {
+    font-family: ui-monospace, Consolas, "Cascadia Mono", monospace;
+    font-size: .86em;
+    background: #efe9dc;
+    padding: .05em .35em;
+    border-radius: 4px;
+  }
+  blockquote {
+    margin: .6rem 0;
+    padding: .75rem .9rem;
+    background: #eef4fb;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+  }
+  ul.check { list-style: none; padding: 0; margin: .4rem 0; }
+  ul.check li {
+    padding: .35rem 0 .35rem 1.6rem;
+    position: relative;
+    border-bottom: 1px dashed var(--line);
+  }
+  ul.check li:before {
+    content: "☐";
+    position: absolute;
+    left: 0;
+    color: var(--todo);
+    font-weight: 700;
+  }
+  .copybox {
+    background: #1a1f2e;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: .85rem 1rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: .82rem;
+    white-space: pre-wrap;
+    line-height: 1.45;
+  }
+  .nav { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 0; }
+  .nav a {
+    color: #93c5fd;
+    text-decoration: none;
+    border: 1px solid #334155;
+    padding: .25rem .55rem;
+    border-radius: 999px;
+    font-size: .85rem;
+  }
+  footer { margin-top: 1.5rem; color: var(--mute); font-size: .85rem; }
+  a.file { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>人工事项 3～5</h1>
+  <p>阅读提交文档 · 问组委会 · 练答辩 — 不是写代码。2026-10-23</p>
+  <div class="nav">
+    <a href="#s0">总览</a>
+    <a href="#s3">第3件 读文档</a>
+    <a href="#s4">第4件 赛务</a>
+    <a href="#s5">第5件 答辩</a>
+    <a href="#prompt">新窗口提示词</a>
+  </div>
+</header>
+<div class="wrap">
+
+<section id="s0">
+  <h2>五件事做到哪了</h2>
+  <div class="status">
+    <div class="pill"><strong>1. eLinx 截图</strong><span class="s-ok">已完成</span><br><span class="path">out/p3_elinx_gui_20261023/</span></div>
+    <div class="pill"><strong>2. AI 声明</strong><span class="s-ok">正文已定</span><br>核对人签字提交前补</div>
+    <div class="pill"><strong>2b. 团队分工</strong><span class="s-todo">提交前再填</span><br><span class="path">doc/团队分工.md</span></div>
+    <div class="pill"><strong>3～5</strong><span class="s-todo">本页要做的</span><br>读 / 问 / 练</div>
+  </div>
+  <p class="plain">一句话：AI 改不了「评委听不听得懂」和「组委会怎么收件」。这三件必须人做。</p>
+</section>
+
+<section id="s3">
+  <h2>第 3 件：读一遍提交版（约半天）</h2>
+  <p class="plain">按顺序读。读的时候只标「看不懂 / 矛盾」的句子，发给另一个窗口的 AI 改。不要把「不能推出」改成更满的承诺。</p>
+  <h3>必读三份（优先打开 HTML）</h3>
+  <table>
+    <thead><tr><th>#</th><th>阅读页</th><th>盯什么</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>A</td>
+        <td><a class="file" href="00_先读.html">00_先读.html</a>
+          <span style="color:var(--mute);font-size:.85rem">（源 <a class="file" href="00_先读.md">.md</a>）</span></td>
+        <td>外人拿到包，10 分钟能不能跑起来</td>
+      </tr>
+      <tr>
+        <td>B</td>
+        <td><a class="file" href="AFDX端系统_设计文档.html">AFDX端系统_设计文档.html</a>
+          <span style="color:var(--mute);font-size:.85rem">（源 <a class="file" href="AFDX端系统_设计文档.md">.md</a>）</span></td>
+        <td>§2 架构、§4–5 TX/RX、§8 关键算法；BAG / IC→RM / 双网能不能讲</td>
+      </tr>
+      <tr>
+        <td>C</td>
+        <td><a class="file" href="AFDX端系统_测试报告.html">AFDX端系统_测试报告.html</a>
+          <span style="color:var(--mute);font-size:.85rem">（源 <a class="file" href="AFDX端系统_测试报告.md">.md</a>）</span></td>
+        <td>§3「不能推出」列；答辩时每条都认</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>读完打勾</h3>
+  <ul class="check">
+    <li>A 00_先读 读完</li>
+    <li>B 设计文档关键章读完</li>
+    <li>C 测试报告「不能推出」读完并认账</li>
+  </ul>
+  <p class="plain">P8 已冻结（commit <code>225cd91</code>，144/144）。可读填数版见 <code>doc/submit/filled/</code>。</p>
+</section>
+
+<section id="s4">
+  <h2>第 4 件：赛务（问组委会）</h2>
+  <p class="plain">内部写的 <strong>2026-11-04 18:00</strong> 只是参考，以组委会通知为准。上传必须人手点。</p>
+  <h3>复制发给组委会</h3>
+  <div class="copybox">您好，请问确认：
+1）作品提交截止时间（含时区）与提交入口？
+2）提交包格式、是否有模板、大小上限？
+3）是否要求匿名（封面/文件名是否去校名姓名）？
+4）AI 工具使用声明是否须单独成文？
+5）是否必须附演示视频/照片及格式要求？
+6）逾期或补交通道？
+谢谢。</div>
+  <h3>队内</h3>
+  <ul class="check">
+    <li>把组委会答复的截止时刻记下来</li>
+    <li>提前 1～2 天首次上传，截止日只留重传</li>
+  </ul>
+</section>
+
+<section id="s5">
+  <h2>第 5 件：答辩准备</h2>
+  <p class="plain">详细稿：<a class="file" href="答辩要点.md">doc/submit/答辩要点.md</a></p>
+  <ul class="check">
+    <li>现场跑 T88b，一人操作一人讲</li>
+    <li>7 个预判问题每人都能答</li>
+    <li>第 1 题 Fmax：全队同一套话（见下）</li>
+  </ul>
+  <h3>第 1 题统一口径（背这一版）</h3>
+  <blockquote>
+    仿真 / TB 用 <strong>125 MHz</strong>（GMII 字节节拍）。<br>
+    满配代理器件 post-fit 测得 <strong>Fmax 41.66 MHz</strong>（Setup −16.005 ns），证据
+    <span class="path">out/baseline_full140_fit_sta_20261018_223600/</span>，等级 <strong>I（未闭合）</strong>。<br>
+    不是板卡签核；不能说「Fmax≥125 已签」。<br>
+    功能靠 RTL 回归与 T88b，不靠这条 Fmax。<br>
+    禁止把历史 128.44 MHz（旧源码）说成现行。
+  </blockquote>
+  <h3>另外 6 题（标题）</h3>
+  <ol>
+    <li>为什么自研 MAC，没用 eLinx IP</li>
+    <li>128 TX / 4096 RX 怎么验证、口径是什么</li>
+    <li>「2 ms」起止点</li>
+    <li>为什么在 1G GMII 上跑 100 Mbps AFDX</li>
+    <li>预言机和 RTL 同一批人，可信度怎么说</li>
+    <li>615A、SNMP 范围和依据</li>
+  </ol>
+  <p class="plain">答案全文在 <span class="path">答辩要点.md</span> §2～§7。</p>
+</section>
+
+<section id="prompt">
+  <h2>新窗口用的提示词</h2>
+  <p class="plain">完整文本也在：<span class="path">doc/submit/提示词_人工事项3到5.txt</span> — 复制整段粘到新 Cursor 对话即可。</p>
+  <p class="plain"><a href="提示词_人工事项3到5.txt">打开提示词文件</a></p>
+</section>
+
+<footer>
+  同源 Markdown：<span class="path">doc/submit/人工清单_3到5.md</span> ·
+  验收尺子：<span class="path">doc/验收尺子.md</span>
+</footer>
+</div>
+</body>
+</html>

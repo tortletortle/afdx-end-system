@@ -143,9 +143,11 @@ module tb_gate_public_loopback;
   integer fd, code, bi;
   reg [7:0] hb;
   initial begin
-    // 载荷金标：sim/vec/t88b_payload32.hex（相对仿真 cwd=sim/ 或仓库根）
+    // 载荷金标：sim/vec/t88b_payload32.hex
+    // cwd 可能是 sim/、仓库根，或 eLinx .../AFDX_top.sim/sim_1/behav
     fd = $fopen("vec/t88b_payload32.hex", "r");
     if (fd == 0) fd = $fopen("sim/vec/t88b_payload32.hex", "r");
+    if (fd == 0) fd = $fopen("../../../../../sim/vec/t88b_payload32.hex", "r");
     if (fd == 0) begin
       $display("GATE_S0 FAIL: cannot open t88b_payload32.hex");
       $finish;

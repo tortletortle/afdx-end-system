@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B · AFDX 端系统设计文档</title>
+<link rel="stylesheet" href="submit-reader.css">
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">提交阅读 · B</span>
+    <a href="00_先读.html">A 先读</a>
+    <a class="active" href="AFDX端系统_设计文档.html">B 设计</a>
+    <a href="AFDX端系统_测试报告.html">C 测试</a>
+    <a href="人工事项3到5.html">← 人工事项</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="eyebrow">盯什么：BAG / IC→RM / 双网 能不能讲通</span>
+  <h1>AFDX 端系统设计文档（提交版）</h1>
+  <p class="lead">答辩时指着架构与关键算法讲。数字一律占位，定稿后由 <code>metrics.json</code> 填充；正文不写开发编年史。</p>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>本页导航</h2>
+    <div class="toc">
+      <a href="#s1">1 范围</a>
+      <a href="#s2">2 架构</a>
+      <a href="#s3">3 接口</a>
+      <a href="#s4">4 TX</a>
+      <a href="#s5">5 RX</a>
+      <a href="#s6">6 存储</a>
+      <a href="#s7">7 管理面</a>
+      <a href="#s8">8 关键算法</a>
+      <a href="#s9">9 时钟参数</a>
+      <a href="#s10">10 综合</a>
+      <a href="#s11">11 边界</a>
+      <a href="#s12">12 附录</a>
+    </div>
+  </section>
+
+  <section class="card" id="s1">
+    <h2>1. 赛题与范围</h2>
+    <p>实现 AFDX（ARINC 664 Part 7）端系统（ES）五类功能：</p>
+    <ul>
+      <li>发送调度与流量整形</li>
+      <li>接收过滤与完整性 / 冗余管理</li>
+      <li>主机接口与存储</li>
+      <li>管理面（SNMP / 615A / TFTP）</li>
+      <li>时间同步（RTC / PPS）</li>
+    </ul>
+    <p>协议子集以赛题与答疑为准；默认 GMII 公开端口（<code>IF_MODE=2</code> 指标场另述），仿真时钟对齐 GMII 线速拍。</p>
+    <p class="callout warn">不宣称完整认证、交换机、对端真 ES 闭环。</p>
+  </section>
+
+  <section class="card" id="s2">
+    <h2>2. 总体架构</h2>
+    <p>顶层模块 <code>AFDX_top</code>。数据流见 <code>doc/figs/fig1_dataflow.mmd</code>。</p>
+    <div class="grid-2">
+      <div>
+        <h3>TX 链</h3>
+        <div class="flow">
+          <span class="node">port buf</span><span class="arrow">→</span>
+          <span class="node">VL / BAG</span><span class="arrow">→</span>
+          <span class="node">组帧 / SN</span><span class="arrow">→</span>
+          <span class="node">双网复制</span><span class="arrow">→</span>
+          <span class="node">MAC</span>
+        </div>
+      </div>
+      <div>
+        <h3>RX 链</h3>
+        <div class="flow rx">
+          <span class="node">MAC / strip</span><span class="arrow">→</span>
+          <span class="node">查表 / 过滤</span><span class="arrow">→</span>
+          <span class="node">IC</span><span class="arrow">→</span>
+          <span class="node">RM</span><span class="arrow">→</span>
+          <span class="node">重组 / 交付</span>
+        </div>
+      </div>
+    </div>
+    <p class="flow note">另有主机总线与管理 SAP、块池 / PMEM。</p>
+  </section>
+
+  <section class="card" id="s3">
+    <h2>3. 接口</h2>
+    <ul>
+      <li><strong>GMII</strong>：8-bit 数据 + valid；双网 A/B；ready 语义按赛方答疑（TX ready 可忽略场景有 TB 覆盖）。</li>
+      <li><strong>主机总线</strong>：<code>host_cs/we/addr/wdata/rdata/ack/irq</code>；配置表、PMEM、消息队列见 <code>regs.yaml</code> 生成附录。</li>
+      <li><strong>PPS</strong>：<code>pps_in</code> / <code>pps_out</code>；RTC 微秒计数可读。</li>
+    </ul>
+  </section>
+
+  <section class="card" id="s4">
+    <h2>4. TX 通路</h2>
+    <p>端口消息经 <code>tx_port_buf</code> / <code>tx_message_store</code> 进入调度；<code>tx_vl_scheduler</code> 按 BAG 与份额整形；<code>tx_frame_builder</code> 组以太网/IP/UDP/AFDX SN；<code>tx_rm</code> 双网复制；<code>mac_tx_if</code> 附加前导/FCS/IFG。</p>
+    <p class="callout"><strong>答辩一句</strong>：BAG 错相，避免多 VL 同相突发。</p>
+  </section>
+
+  <section class="card" id="s5">
+    <h2>5. RX 通路</h2>
+    <div class="flow rx">
+      <span class="node">mac_rx / strip</span><span class="arrow">→</span>
+      <span class="node">vl_lookup</span><span class="arrow">→</span>
+      <span class="node">flt</span><span class="arrow">→</span>
+      <span class="node">IC (SN)</span><span class="arrow">→</span>
+      <span class="node">RM (SkewMax)</span><span class="arrow">→</span>
+      <span class="node">重组 / 解析</span><span class="arrow">→</span>
+      <span class="node">port_buf</span>
+    </div>
+    <p class="callout warn"><strong>顺序固定（必须能背）</strong>：过滤 → <strong>IC</strong> → <strong>RM</strong>。不要说成 RM 在 IC 前面。</p>
+  </section>
+
+  <section class="card" id="s6">
+    <h2>6. 存储与块所有权</h2>
+    <p>块池与 PMEM 预算见图 2（<code>figs/fig2_block_owner</code>）。RX 块在过滤拒绝、IC 拒绝、RM 重复、交付完成等路径上释放；主机与 RX 写端口仲裁，避免同拍冲突。</p>
+  </section>
+
+  <section class="card" id="s7">
+    <h2>7. 管理面</h2>
+    <ul>
+      <li><strong>SNMP</strong>：<code>snmp_lite</code>（v1；community/长度策略见模块头注释）。</li>
+      <li><strong>ARINC 615A / TFTP</strong>：加载/卸载状态机与数据报路径见图 3（<code>figs/fig3_tftp_615a</code>）。</li>
+      <li><strong>RTC</strong>：PPS 驯服 FLL；漂移与扰动有专用 TB。</li>
+    </ul>
+    <p>当前 RTL <strong>支持</strong> IP 分片重组与 615A 路径（覆盖范围以测试报告为准）；不以过期设计书「未实现」句为准。</p>
+  </section>
+
+  <section class="card" id="s8">
+    <h2>8. 关键算法（答辩重点）</h2>
+    <div class="grid-2">
+      <div>
+        <h3>BAG</h3>
+        <p>每 VL 令牌/年龄与错相偏移。</p>
+      </div>
+      <div>
+        <h3>查表</h3>
+        <p>可配置种子哈希，双表多路。</p>
+      </div>
+      <div>
+        <h3>RM</h3>
+        <p>窗口与 SkewMax；双网先后到达去重。</p>
+      </div>
+      <div>
+        <h3>时延界</h3>
+        <p>工程总时延与规范 BAG+抖动+技术时延分列；数字见测试报告。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="s9">
+    <h2>9. 时钟复位与参数</h2>
+    <p>系统时钟与 GMII 线速拍一致（仿真）。异步复位经 <code>rst_sync</code>。可配置：<code>NUM_TX_VL</code> / <code>NUM_RX_VL</code>、BAG、Lmax、份额、SkewMax、IC first-any 等，经主机表加载；init_sweep 清表。</p>
+  </section>
+
+  <section class="card" id="s10">
+    <h2>10. 综合与实现结果</h2>
+    <table>
+      <thead><tr><th>项</th><th>值</th><th>等级</th></tr></thead>
+      <tbody>
+        <tr><td>cells</td><td><span class="metric">{{metric:cells}}</span></td><td><span class="badge p">P</span>（若 FREEZE 有）</td></tr>
+        <tr><td>altsyncram</td><td><span class="metric">{{metric:altsyncram}}</span></td><td><span class="badge p">P</span></td></tr>
+        <tr><td>post-fit Fmax (MHz)</td><td><span class="metric">{{metric:fmax_mhz}}</span></td><td><span class="badge i">I</span></td></tr>
+        <tr><td>Setup (ns)</td><td><span class="metric">{{metric:setup_ns}}</span></td><td><span class="badge i">I</span></td></tr>
+      </tbody>
+    </table>
+    <p class="callout i">代理器件；非板卡签核。门级 VO sha256：<span class="metric">{{metric:gate_vo_sha256}}</span>。</p>
+  </section>
+
+  <section class="card" id="s11">
+    <h2>11. 设计取舍与已知边界</h2>
+    <table>
+      <thead><tr><th>取舍 / 边界</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>预言机与 RTL 同队编写</td><td>靠变异、独立 Python/golden、双仿真器抬可信度</td></tr>
+        <tr><td>满配 VL 吞吐</td><td class="cant">未测</td></tr>
+        <tr><td>Fmax 相对线速拍</td><td class="cant">未闭合（I）</td></tr>
+        <tr><td>管理面 SNMP</td><td>v1 子集</td></tr>
+        <tr><td>评委 TB</td><td>自建矩阵，非官方 A664 套件</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card" id="s12">
+    <h2>12. 附录</h2>
+    <ul>
+      <li>寄存器：由 <code>doc/regs.yaml</code> 生成（提交包内附）。</li>
+      <li>VL 表项格式：见主机接口与 <code>rx_vl_lookup</code> / TX 表字定义。</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="page-foot">
+  源 Markdown：<code>doc/submit/AFDX端系统_设计文档.md</code> · 下一份 →
+  <a href="AFDX端系统_测试报告.html">C 测试报告</a>
+</footer>
+</body>
+</html>

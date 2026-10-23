@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A · 先读（提交版入口）</title>
+<link rel="stylesheet" href="submit-reader.css">
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">提交阅读 · A</span>
+    <a class="active" href="00_先读.html">A 先读</a>
+    <a href="AFDX端系统_设计文档.html">B 设计</a>
+    <a href="AFDX端系统_测试报告.html">C 测试</a>
+    <a href="人工事项3到5.html">← 人工事项</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="eyebrow">盯什么：外人 10 分钟能不能跑起来</span>
+  <h1>先读（提交版入口）</h1>
+  <p class="lead">拿到包后的第一页。路径、怎么跑、证据在哪、能说什么 / 不能说什么——先对齐这一页再往下读。</p>
+</header>
+
+<main class="wrap">
+  <section class="card" id="ver">
+    <h2>版本</h2>
+    <div class="grid-2">
+      <div>
+        <p>冻结候选 commit</p>
+        <p><span class="metric">{{metric:freeze_commit}}</span></p>
+      </div>
+      <div>
+        <p>全量用例</p>
+        <p>N = <span class="metric">{{metric:full_n}}</span>
+           · PASS = <span class="metric">{{metric:full_pass}}</span></p>
+      </div>
+    </div>
+    <p class="callout i" style="margin-top:0.8rem">占位 <span class="metric">{{metric:…}}</span> 等 P8 / <code>metrics.json</code> 落地后再替换。口头数字先以验收尺子与日志为准。</p>
+  </section>
+
+  <section class="card" id="run">
+    <h2>怎么跑（10 分钟冒烟盯这里）</h2>
+    <ol class="steps">
+      <li><strong>冒烟</strong>：<code>sim/run_smoke.ps1</code>（含 T88；一次全绿）</li>
+      <li><strong>全量</strong>：<code>sim/run_regress.ps1</code> → <code>sim/freeze_regress.py --require-full</code></li>
+      <li><strong>门级</strong>：ModelSim SE + functional VO；T88b S1–S3（见测试报告「综合后仿真」章）</li>
+      <li><strong>eLinx</strong>：按 <code>tools/run_baseline_full140_synth.py</code>（输入绑定本 commit）</li>
+    </ol>
+    <p class="callout">仿真器路径参数化；本机路径见测试报告 §2「需按本机修改」清单。</p>
+  </section>
+
+  <section class="card" id="evidence">
+    <h2>证据在哪</h2>
+    <ul>
+      <li>目录：<code>evidence/&lt;C7&gt;/</code> 及 <code>out/p8_freeze_&lt;C7&gt;/</code></li>
+      <li>内容：<code>FREEZE.json</code>、<code>metrics.json</code>、<code>regress.csv</code>、console、综合/STA 摘要、门级日志、变异/lint</li>
+      <li><strong>数字唯一来源</strong>：<code>metrics.json</code>（由 <code>FREEZE.json</code> 提取）</li>
+    </ul>
+  </section>
+
+  <section class="card" id="p">
+    <h2><span class="badge p">P</span> 能宣称什么</h2>
+    <ul>
+      <li>全量 <span class="metric">{{metric:full_pass}}</span>/<span class="metric">{{metric:full_n}}</span> PASS（本 TB 矩阵，本 commit）</li>
+      <li>冒烟全绿；T88 演示步骤 1–4；T89 本场指标（ns）；门级 T88b S1–S3（若 FREEZE 记录 PASS）</li>
+      <li>综合 cells / altsyncram（若 FREEZE 有）</li>
+      <li>既有变异 <span class="metric">{{metric:mutants_detected}}</span>/<span class="metric">{{metric:mutants_total}}</span>（FREEZE 绑定）</li>
+    </ul>
+  </section>
+
+  <section class="card" id="f">
+    <h2><span class="badge f">F</span> / <span class="badge i">I</span> 不能宣称什么</h2>
+    <ul>
+      <li>完整 ARINC 认证、对端真 ES、覆盖率目标百分比、板卡签核</li>
+      <li>Fmax 已签到线速（post-fit 标 <span class="badge i">I</span>：<span class="metric">{{metric:fmax_mhz}}</span> MHz）</li>
+      <li>满配 VL 吞吐（未测项见测试报告）</li>
+      <li>历史全量计数或旧 Fmax 冒充本 commit（仅历史附录）</li>
+    </ul>
+    <p class="callout warn">读完打勾前自问：外人只靠这一页，能否找到冒烟命令、证据目录、以及「不能说满」的边界？</p>
+  </section>
+</main>
+
+<footer class="page-foot">
+  源 Markdown：<code>doc/submit/00_先读.md</code> · 下一份 →
+  <a href="AFDX端系统_设计文档.html">B 设计文档</a>
+</footer>
+</body>
+</html>

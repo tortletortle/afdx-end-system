@@ -41,6 +41,8 @@ STEPS = [
     ("check_s9", "§9 存储预算（逐行反算 Kbit 与块数）", "check_s9_final.py"),
     ("gen_regs", "寄存器同源（YAML ↔ 附录 A ↔ A.1~A.3）", "gen_regs.py"),
     ("check_doc_numbers", "§8.2 用例数字（判决式复算）", "check_doc_numbers.py"),
+    # P9: {{metric:key}} vs metrics.json；FREEZE 未出时用 --allow-missing-metrics
+    ("check_doc_metrics", "提交版 metric 锚点 vs metrics.json", "check_doc_metrics.py"),
 ]
 
 
@@ -50,7 +52,14 @@ def main():
         p = os.path.join(HERE, script)
         if not os.path.exists(p):
             print("SKIP  %-18s 缺 %s" % (name, script)); bad.append(name + "(缺文件)"); continue
-        r = subprocess.run([sys.executable, p], cwd=ROOT, capture_output=True,
+        cmd = [sys.executable, p]
+        if name == "check_doc_metrics":
+            metrics = os.path.join(ROOT, "out", "p8_freeze_225cd91", "metrics.json")
+            if not os.path.isfile(metrics):
+                cmd.append("--allow-missing-metrics")
+            else:
+                cmd.extend(["--metrics", metrics])
+        r = subprocess.run(cmd, cwd=ROOT, capture_output=True,
                            text=True, encoding="utf-8", errors="replace", env=_CHILD_ENV)
         tail = [l for l in (r.stdout or "").splitlines() if l.strip()]
         err = [l for l in (r.stderr or "").splitlines() if l.strip()]
