@@ -92,7 +92,7 @@ Simulation X risk: after rst, unread `next_tx`/`bag_arr` are X until cfg; wrappe
 
 **Secondary: (b) documented** — RTL does not reset `next_tx`/`bag_arr`; formal init shows arbitrary values. Post-cfg should overwrite all 4 VLs; no evidence yet that X/anyseq after cfg causes the step-27 fire. **Do not stop for RTL fix** on (b) alone (cfg path present).
 
-**Not (c)**: no decoded proof that `start_vld` occurred with `cycle_count < next_tx[vl]` (due). Would need reliable VCD of `start_vld`/`start_vl`/`next_tx[vl]`; VCD scalar extract incomplete in this harness.
+**(c) 未排除（VCD 未能解码 start_vld/next_tx）**: no decoded proof that `start_vld` occurred with `cycle_count < next_tx[vl]` (due). Would need reliable VCD of `start_vld`/`start_vl`/`next_tx[vl]`; VCD scalar extract incomplete in this harness.
 
 ## 5. VCD scalar scrap (best-effort)
 
@@ -115,7 +115,7 @@ Matched ids: `{'n12': 'cfg_we', 'n63': 'cfg_we', 'n66': 'enable', 'n68': 'frame_
 |---|---|
 | cover | 可达（第二 grant ~26–27） |
 | bmc20 | **vacuous（空真）** — 不得引用 |
-| bmc40 | FAIL；主因 **(a) wrapper**；**(b)** 数组不复位已记录；**非 (c)** |
+| bmc40 | FAIL；主因 **(a) wrapper**；**(b)** 数组不复位已记录；**(c) 未排除（VCD 未能解码 start_vld/next_tx）** |
 | RTL | **未改**；未以 early-grant 停问 |
 
 重试（grant 锚点 + `frame_start==$past(start_vld)`）后 bmc40 仍 FAIL（2026-10-24 23:57）→ 时间盒内未收绿。

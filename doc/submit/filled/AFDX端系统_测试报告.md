@@ -207,7 +207,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 变异杀死 | FREEZE 键仍 **null**。**分列**：历史 **57/57**；C3 **新增 28、杀死 21、存活 7、已证等价 0**（`MUTANTS_SUMMARY.md`）。超时/PASS 不计杀 | P（分列） / FREEZE 键 I |
 | lint %Error | `lint_error` = **null** → **未跑/未入冻结**（工程门曾 PASS 见执行记录，不得冒充本 FREEZE 数） | I / 未跑 |
 | 覆盖率 | 未跑（本轮 FREEZE 标明；D 阶段后再填） | I / 未跑 |
-| 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（wrapper）；**不宣称 BAG** — `ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
+| 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（主因 wrapper (a)）；**(c) 未排除（VCD 未能解码 start_vld/next_tx）**；**不宣称 BAG** — `ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
 | 形式 BMC（pool/RM 历史） | 有界 PASS 见 ENV_STATUS；不替代仿真 T | I |
 
 **不能推出**：95% 覆盖；变异已覆盖全部新模块；BMC 无界证明；bmc20 空真当 BAG 证据。

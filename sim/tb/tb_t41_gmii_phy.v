@@ -60,6 +60,7 @@ module tb_t41_gmii_phy;
   integer bases[0:3], lengths[0:3], plens[0:3];
   integer errors=0, checks=0, tx_frames=0, good_seen=0, bad_seen=0;
   integer active_case=0, cap_count=0, gap=100, k;
+  integer ifg_run=0; // C3 加严：ST_IFG 精确 12 拍（杀 ifg_minus_one）
   reg in_frame=0;
   reg [7:0] last_drop=0;
 
@@ -100,6 +101,13 @@ module tb_t41_gmii_phy;
         if (cap_count!=8+lengths[active_case]) bad("DV fell inside a frame or frame length wrong");
         tx_frames=tx_frames+1; in_frame=0;
       end
+    end
+    // 精确 IFG：在 ST_IFG(5) 的连续拍数须 =12（mutant ifg_minus_one → 11）
+    if (u_tx.st === 3'd5) ifg_run = ifg_run + 1;
+    else if (ifg_run != 0) begin
+      checks = checks + 1;
+      if (ifg_run !== 12) bad("ST_IFG cycles != 12 (exact IFG)");
+      ifg_run = 0;
     end
     if (pm_we) begin
       if (pm_addr[12:9]!==4'd6) bad("RX wrote outside allocated block");

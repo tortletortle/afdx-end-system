@@ -21,7 +21,7 @@
 | cover | PASS；**第二次 grant/pop 最早 ~step 26–27** |
 | bmc20 | PASS — **vacuous（空真）**：depth 20 < 第二次事件 step，断言未武装。**不得作为 BAG 证据引用** |
 | bmc40 | FAIL（step ~27）；见 `bag_bmc40_CE_ANALYSIS.md` |
-| 归因 | 主因 **(a) wrapper**（ghost/采样）；**(b)** `next_tx`/`bag_arr` 不复位已记录；**未证 (c) RTL early-grant** |
+| 归因 | 主因 **(a) wrapper**（ghost/采样）；**(b)** `next_tx`/`bag_arr` 不复位已记录；**(c) 未排除（VCD 未能解码 start_vld/next_tx）** |
 | 宣称等级 | **F** — cover 可达；bmc20 空真；bmc40 反例未收成 PASS；**不宣称任何 BAG 形式结论** |
 | 证据 | `formal/bag_cover/`、`bag_bmc20/`、`bag_bmc40/`、`bag_bmc40_CE_ANALYSIS.md`、`bag_bmc20_FAIL_NOTE.md` |
 

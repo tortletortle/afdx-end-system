@@ -94,9 +94,17 @@ module tb_t16a_rtc_drift;
     run_case("C",-20,-20);
     run_case("D",50,50);
     run_case("E",0,1);
-    if(errors==0)$display("T16a FLL STRICT PASS (PPS <=1us and three within-second samples <=1us; P-only negative control; %0d checks)",checks);
+    // C3 加严：停 PPS ≥ SYNC_TIMEOUT(250000) us-tick → 期望 sync_loss（杀 sync_loss_never）
+    begin : c3_sync_loss
+      integer t0;
+      t0 = cyc;
+      wait_cyc(t0 + 250001);
+      chk(sync_loss===1'b1,"SYNC_LOSS must assert after SYNC_TIMEOUT without PPS");
+    end
+    if(errors==0)$display("T16a FLL STRICT PASS (PPS <=1us and three within-second samples <=1us; P-only negative control; sync_loss after timeout; %0d checks)",checks);
     else $display("T16a FLL STRICT FAIL errors=%0d checks=%0d",errors,checks);
     $finish;
   end
-  initial begin #200_000_000;$display("T16a FLL STRICT FAIL watchdog");$finish;end
+  // 250k timeout 尾段约再 +2ms；总墙钟仍远低于本上限
+  initial begin #220_000_000;$display("T16a FLL STRICT FAIL watchdog");$finish;end
 endmodule
