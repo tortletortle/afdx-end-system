@@ -1,7 +1,9 @@
-// T88 — 系统演示场（新增，非原矩阵）。本轮步骤 1–4；5–8 未做。
+// T88 — 系统演示场（新增，非原矩阵）。步骤 1–8；1–4 判据与既有一致。
 // 公开端口；AFDX_top 默认 IF_MODE=2；禁止层次引用。
 // 配置/抓帧对齐已过的 T88b；载荷金标：sim/vec/t88b_payload32.hex。
+// 5–6 管理面金标：sim/vec/gmii_management.hex（gen_gmii_management.py）。
 `timescale 1 ns / 1 ps
+`include "vec/gmii_management.vh"
 module tb_t88_demo;
   reg clk = 0, reset = 1;
   always #4 clk = ~clk;
@@ -11,10 +13,14 @@ module tb_t88_demo;
   reg disconnect_a = 0, inject_a = 0;
   reg [7:0] inj_data = 0;
   reg inj_valid = 0;
+  reg pps_drv = 0;
+  // mgmt_mode：与 T43 相同，管理面禁止 TX→RX 回环（否则应答再入 SAP）。
+  reg mgmt_mode = 0;
   wire [7:0] rx_data = inject_a ? inj_data : tx_data;
-  wire       rx_valid = disconnect_a ? 1'b0 : (inject_a ? inj_valid : tx_valid);
+  wire       rx_valid = mgmt_mode ? (inject_a ? inj_valid : 1'b0)
+                                  : (disconnect_a ? 1'b0 : (inject_a ? inj_valid : tx_valid));
   wire [7:0] rx_data_b = tx_data_b;
-  wire       rx_valid_b = tx_valid_b;
+  wire       rx_valid_b = mgmt_mode ? 1'b0 : tx_valid_b;
 
   reg host_cs = 0, host_we = 0;
   reg [15:0] host_addr = 0;
@@ -31,7 +37,7 @@ module tb_t88_demo;
     .rx_error(1'b0), .rx_error_b(1'b0),
     .host_cs(host_cs), .host_we(host_we), .host_addr(host_addr), .host_wdata(host_wdata),
     .host_rdata(host_rdata), .host_ack(host_ack), .host_irq(host_irq),
-    .pps_in(1'b0), .pps_out(), .rtc_time_us(), .dbg_frame_event()
+    .pps_in(pps_drv), .pps_out(), .rtc_time_us(), .dbg_frame_event()
   );
 
   localparam integer P_RX = 5;
@@ -51,6 +57,15 @@ module tb_t88_demo;
   reg [31:0] rd, w, cnow, unow;
   reg prev_a = 0, prev_b = 0;
   integer capturing = 0;
+  // ---- steps 5–8 helpers (gmii_management.hex) ----
+  reg [31:0] mgmt_vec [0:`GMII_MGMT_WORDS-1];
+  integer mgmt_pos, mgmt_phase, mgmt_req_len, mgmt_exp_len, mgmt_req_base;
+  integer mgmt_exp_base_a, mgmt_exp_base_b;
+  integer mgmt_frames_a, mgmt_frames_b, mgmt_count_a, mgmt_count_b;
+  integer mgmt_idle_a, mgmt_idle_b;
+  reg mgmt_active_a, mgmt_active_b, mgmt_watch;
+  integer step5_ok, step6_ok, step7_ok, step8_ok;
+  integer rtc0, rtc1, pps_i;
 
   function [10:0] mix_bucket;
     input [15:0] vlid, seed; input table_id;
@@ -104,6 +119,148 @@ module tb_t88_demo;
     end else if (prev_b && nb > 0) frame_b = frame_b + 1;
     prev_a = tx_valid; prev_b = tx_valid_b;
   end
+
+  function [7:0] mgmt_byte_at;
+    input integer base, off;
+    reg [31:0] word;
+    begin word = mgmt_vec[base + off / 4]; mgmt_byte_at = word[31-8*(off%4) -: 8]; end
+  endfunction
+
+  always @(posedge clk) if (!reset && mgmt_watch) begin
+    if (tx_valid) begin
+      if (!mgmt_active_a) begin
+        if (mgmt_idle_a < 12 && mgmt_count_a != 0) bad("mgmt A IFG");
+        mgmt_active_a = 1; mgmt_count_a = 0;
+      end
+      if (mgmt_exp_len == 0) bad("mgmt unexpected A TX");
+      if (mgmt_count_a < 7) begin
+        if (tx_data !== 8'h55) bad("mgmt A preamble");
+      end else if (mgmt_count_a == 7) begin
+        if (tx_data !== 8'hD5) bad("mgmt A SFD");
+      end else if (mgmt_count_a - 8 >= mgmt_exp_len) bad("mgmt A extra");
+      else if (tx_data !== mgmt_byte_at(mgmt_exp_base_a, mgmt_count_a - 8))
+        bad("mgmt A byte != golden");
+      mgmt_count_a = mgmt_count_a + 1; mgmt_idle_a = 0;
+    end else begin
+      mgmt_idle_a = mgmt_idle_a + 1;
+      if (mgmt_active_a) begin
+        if (mgmt_count_a != mgmt_exp_len + 8) bad("mgmt A len");
+        mgmt_frames_a = mgmt_frames_a + 1; mgmt_active_a = 0;
+      end
+    end
+    if (tx_valid_b) begin
+      if (!mgmt_active_b) begin
+        if (mgmt_idle_b < 12 && mgmt_count_b != 0) bad("mgmt B IFG");
+        mgmt_active_b = 1; mgmt_count_b = 0;
+      end
+      if (mgmt_exp_len == 0) bad("mgmt unexpected B TX");
+      if (mgmt_count_b < 7) begin
+        if (tx_data_b !== 8'h55) bad("mgmt B preamble");
+      end else if (mgmt_count_b == 7) begin
+        if (tx_data_b !== 8'hD5) bad("mgmt B SFD");
+      end else if (mgmt_count_b - 8 >= mgmt_exp_len) bad("mgmt B extra");
+      else if (tx_data_b !== mgmt_byte_at(mgmt_exp_base_b, mgmt_count_b - 8))
+        bad("mgmt B byte != golden");
+      mgmt_count_b = mgmt_count_b + 1; mgmt_idle_b = 0;
+    end else begin
+      mgmt_idle_b = mgmt_idle_b + 1;
+      if (mgmt_active_b) begin
+        if (mgmt_count_b != mgmt_exp_len + 8) bad("mgmt B len");
+        mgmt_frames_b = mgmt_frames_b + 1; mgmt_active_b = 0;
+      end
+    end
+  end
+
+  // T43 同口径：管理面前复位，使 SN/RTC/池与 gmii_management 金标对齐。
+  task soft_reboot;
+    begin
+      reset = 1; pps_drv = 0; disconnect_a = 0; inject_a = 0; inj_valid = 0;
+      mgmt_watch = 0; capturing = 0;
+      repeat (8) @(negedge clk); reset = 0;
+      waitc = 0; host_read(16'h000C, rd);
+      while (rd[13] !== 1'b1 && waitc < 40000) begin host_read(16'h000C, rd); waitc = waitc + 1; end
+      chk(rd[13] === 1'b1, "INIT_DONE after reboot");
+    end
+  endtask
+
+  task cfg_mgmt_sap;
+    input integer port;
+    begin
+      mgmt_mode = 1;
+      host_write(16'h0008, 32'h0000_2000);
+      host_write(16'h0078, 32'h172D);
+      host_write(16'h007C, 32'hAB61);
+      host_write(16'h42B2, 32'h1010_0100);
+      host_write(16'h0080, 32'h1);
+      host_write(16'h1F80, 32'hF500_0000 | (port << 12) | 32'd700);
+      host_write(16'h1F81, 32'h0000_0100);
+      host_write(16'h7D80 + 4 * port, 32'h8006_0000);
+      host_write(16'h7D81 + 4 * port, 32'd5000);
+      host_write(16'h7D82 + 4 * port, 32'd0);
+      host_write(16'h7D83 + 4 * port, 32'd1);
+      host_write(16'h0204, port << 16);
+      host_write(16'h0203, 32'd0);
+      host_write(16'h0202, 32'd5000 << 16);
+      host_write(16'h0201, 32'd1000 << 8);
+      host_write(16'h0480, 32'd6040);
+      host_write(16'h0200, 32'h8000_0003 | (32'd700 << 12));
+      host_write(16'h0060, 32'h172D_2001);
+      host_write(16'h0064, 32'h0A00_0002);
+      host_write(16'h0070, 32'h0142);
+      host_read(16'h005C, rd);
+      chk(rd === 32'd0, "mgmt CFG_ERR");
+      host_write(16'h0008, 32'h071F);
+    end
+  endtask
+
+  task inject_mgmt_frame;
+    input integer base, length;
+    integer bi;
+    begin
+      disconnect_a = 0; inject_a = 1; inj_valid = 0;
+      for (bi = 0; bi < length + 8; bi = bi + 1) begin
+        @(negedge clk);
+        inj_data = (bi < 7) ? 8'h55 : ((bi == 7) ? 8'hD5 : mgmt_byte_at(base, bi - 8));
+        inj_valid = 1;
+      end
+      @(negedge clk); inj_valid = 0; inject_a = 0;
+    end
+  endtask
+
+  task run_mgmt_case;
+    input integer want_phase;
+    input integer case_id;
+    begin
+      mgmt_phase = mgmt_vec[mgmt_pos];
+      mgmt_req_len = mgmt_vec[mgmt_pos + 1];
+      mgmt_exp_len = mgmt_vec[mgmt_pos + 2];
+      mgmt_req_base = mgmt_pos + 3;
+      mgmt_exp_base_a = mgmt_req_base + (mgmt_req_len + 3) / 4;
+      mgmt_exp_base_b = mgmt_exp_base_a + (mgmt_exp_len + 3) / 4;
+      mgmt_pos = mgmt_exp_base_b + (mgmt_exp_len + 3) / 4;
+      chk(mgmt_phase === want_phase, "mgmt phase");
+      mgmt_frames_a = 0; mgmt_frames_b = 0;
+      mgmt_count_a = 0; mgmt_count_b = 0;
+      mgmt_idle_a = 100; mgmt_idle_b = 100;
+      mgmt_active_a = 0; mgmt_active_b = 0;
+      mgmt_watch = 1;
+      inject_mgmt_frame(mgmt_req_base, mgmt_req_len);
+      if (mgmt_exp_len != 0) begin
+        waitc = 0;
+        while ((mgmt_frames_a < 1 || mgmt_frames_b < 1) && waitc < 250000) begin
+          @(negedge clk); waitc = waitc + 1;
+        end
+        chk(mgmt_frames_a === 1, "mgmt A rsp");
+        chk(mgmt_frames_b === 1, "mgmt B rsp");
+        repeat (40) @(negedge clk);
+      end else begin
+        repeat (250000) @(negedge clk);
+        chk(mgmt_frames_a === 0 && mgmt_frames_b === 0, "mgmt quiet");
+      end
+      mgmt_watch = 0;
+      $display("[DEMO mgmt] case=%0d phase=%0d exp_len=%0d t=%0t", case_id, want_phase, mgmt_exp_len, $time);
+    end
+  endtask
 
   // Enter CFG mode, program 1 TX VL (A+B) + 2 RX hash keys, exit to run.
   task cfg_base;
@@ -263,6 +420,10 @@ module tb_t88_demo;
       exp_pl[bi] = hb;
     end
     $fclose(fd);
+    $readmemh("vec/gmii_management.hex", mgmt_vec, 0, `GMII_MGMT_WORDS - 1);
+    if (mgmt_vec[0] !== 10) begin $display("T88 DEMO FAIL: missing gmii_management.hex"); $finish; end
+    mgmt_pos = 1; mgmt_watch = 0;
+    step5_ok = 0; step6_ok = 0; step7_ok = 0; step8_ok = 0;
 
     repeat (8) @(negedge clk); reset = 0;
 
@@ -387,13 +548,81 @@ module tb_t88_demo;
     if (errors == e0) begin steps_ok = steps_ok + 1; $display("[DEMO step 4] PASS"); end
     else $display("[DEMO step 4] NOT_PASS");
 
-    $display("[DEMO steps 5-8] NOT DONE");
-    if (steps_ok == 4 && errors == 0)
-      $display("T88 DEMO PASS checks=%0d steps_ok=4 (1-4 only)", checks);
+    // ===== step 5: SNMP SET / GET / GETNEXT（gmii_management cases 0..2；case3 错 community 静默）=====
+    e0 = errors;
+    soft_reboot();
+    cfg_mgmt_sap(6);
+    run_mgmt_case(0, 0); // SET
+    run_mgmt_case(0, 1); // GET after SET
+    run_mgmt_case(0, 2); // GETNEXT
+    run_mgmt_case(0, 3); // wrong community → quiet
+    if (errors == e0) begin
+      steps_ok = steps_ok + 1; step5_ok = 1;
+      $display("[DEMO step 5] PASS snmp_set_get_getnext=1 t=%0t", $time);
+    end else $display("[DEMO step 5] NOT_PASS t=%0t", $time);
+
+    // ===== step 6: TFTP WRQ+DATA 加载 + RRQ 读回（cases 4..9）=====
+    e0 = errors;
+    soft_reboot();
+    cfg_mgmt_sap(7);
+    run_mgmt_case(1, 4); // WRQ
+    run_mgmt_case(1, 5); // DATA1
+    run_mgmt_case(1, 6); // DATA2 final
+    host_read(16'hAC20, rd);
+    chk(rd[31] === 1'b1, "TFTP loaded_ok");
+    host_read(16'hAC21, rd);
+    chk(rd === 32'd520, "TFTP bytes_rcvd=520");
+    run_mgmt_case(1, 7); // RRQ UPLOAD → DATA1
+    run_mgmt_case(1, 8); // ACK1 → DATA2
+    run_mgmt_case(1, 9); // ACK2 close
+    if (errors == e0) begin
+      steps_ok = steps_ok + 1; step6_ok = 1;
+      $display("[DEMO step 6] PASS tftp_load_unload_bytes=520 t=%0t", $time);
+    end else $display("[DEMO step 6] NOT_PASS t=%0t", $time);
+
+    // ===== step 7: PPS 注入 + RTC（T16 C9 同口径：sync_loss 清、RTC 前进）=====
+    e0 = errors;
+    mgmt_mode = 0;
+    host_read(16'hAC30, rd);
+    // sync_loss may already be clear if PPS never seen; pulse external PPS
+    for (pps_i = 0; pps_i < 6; pps_i = pps_i + 1) begin
+      @(negedge clk); pps_drv = 1'b1; repeat (30) @(negedge clk);
+      pps_drv = 1'b0; repeat (200) @(negedge clk);
+    end
+    host_read(16'hAC30, rd);
+    chk(rd[1] === 1'b0, "RTC sync_loss clear after PPS");
+    host_read(16'hAC36, rtc0);
+    repeat (600) @(negedge clk);
+    host_read(16'hAC36, rtc1);
+    chk(rtc1 > rtc0, "RTC advances after PPS lock");
+    if (errors == e0) begin
+      steps_ok = steps_ok + 1; step7_ok = 1;
+      $display("[DEMO step 7] PASS rtc0=%0d rtc1=%0d t=%0t", rtc0, rtc1, $time);
+    end else $display("[DEMO step 7] NOT_PASS t=%0t", $time);
+
+    // ===== step 8: 恢复双网数据面，交付 + A/B 去重 =====
+    e0 = errors;
+    soft_reboot();
+    mgmt_mode = 0;
+    cfg_base(32'd1518);
+    msg_rd_all();
+    host_read(16'h004C, rd); rmdup0 = rd;
+    capture_ab();
+    wait_msg_ge(32'd1);
+    wait_rm_dup_ge(rmdup0 + 1);
+    if (errors == e0) begin
+      steps_ok = steps_ok + 1; step8_ok = 1;
+      $display("[DEMO step 8] PASS dual_net_dedup t=%0t", $time);
+    end else $display("[DEMO step 8] NOT_PASS t=%0t", $time);
+
+    $display("[DEMO SUMMARY] step1-4_ok=%0d step5=%0d step6=%0d step7=%0d step8=%0d checks=%0d errors=%0d",
+             (steps_ok >= 4), step5_ok, step6_ok, step7_ok, step8_ok, checks, errors);
+    if (steps_ok == 8 && errors == 0)
+      $display("T88 DEMO PASS checks=%0d steps_ok=8", checks);
     else
       $display("T88 DEMO FAIL errors=%0d checks=%0d steps_ok=%0d", errors, checks, steps_ok);
     $finish;
   end
 
-  initial begin #120_000_000; $display("T88 DEMO FAIL: timeout"); $finish; end
+  initial begin #600_000_000; $display("T88 DEMO FAIL: timeout"); $finish; end
 endmodule
