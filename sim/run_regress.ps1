@@ -512,7 +512,8 @@ function Run-Vsim {
         if ($tail.Count -gt 0) { $tailLine = $tail[-1] }
         $blob = ($tail -join "`n")
         $finished = ($blob -match '\$finish') -and ($blob -match 'Errors:\s*\d+')
-        if ($finished) {
+        # Coverage: do NOT harvest — UCDB must flush on clean process exit (D plan).
+        if ($finished -and -not $Coverage) {
           if ($null -eq $logDoneAt) {
             $logDoneAt = $invocationClock.Elapsed.TotalSeconds
             Write-Host ("VSIM_LOG_DONE cmd_pid=" + $p.Id + " at_s=" + [math]::Round($logDoneAt,1) + " grace_s=" + $graceSec)

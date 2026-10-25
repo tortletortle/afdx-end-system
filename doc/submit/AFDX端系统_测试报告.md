@@ -15,9 +15,10 @@
          └─ sw/golden + Python ───┴─ 独立复算（部分 T）
 ```
 
-- **仿真器**：Questa（功能全量）；ModelSim SE 2020.4（门级 T88b、eLinx GUI 行为）。
+- **仿真器**：Questa FSE（功能全量）；ModelSim SE 2020.4（功能全量对照 + 门级 T88b、eLinx GUI 行为）。
 - **TB**：`sim/tb/`；清单 `sim/tests.manifest`；runner `sim/run_regress.ps1` / `sim/run_smoke.ps1`。
 - **时钟**：与 GMII 线速拍一致（仿真 125 MHz）；≠ 代理 post-fit Fmax。
+- **双仿真器墙钟**：同树 `098efc9` 全量 Questa FSE **wall_s=6306.3**、ModelSim SE **wall_s=840.9**（约 **7.5×**）。原因：Questa **FSE 受限版** 仿真吞吐低于 SE；**判据与 PASS/FAIL 逐项一致**（`dual_sim_compare.csv` 145/145 match），墙钟差**不得**写成结果不一致。
 
 ### 1.1 BFM 列表（`sim/env/`）
 
@@ -338,10 +339,10 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 |---|---|---|
 | 官方单帧 SFD→SFD ≤2 ms 对口列 | 待 C0 T89 补测；metrics 无 `t89_max_sfd2sfd_ns` | I |
 | 128 TX VL 同时活动吞吐（T90） | r6 PASS（`p_c1_t90_r6_20261024_214647`） | **P** |
-| T88 演示步骤 1–8 | `p_c2_t88_r3` PASS；分段演示 | **P**（Questa）；SE→D |
+| T88 演示步骤 1–8 | `p_c2_t88_r3` + D 全量 Questa/SE PASS；分段演示 | **P** |
 | BAG 有界 BMC（C4） | bmc20 空真；bmc40 未收绿 | **F**（不宣称） |
-| ModelSim SE 全量逐项 vs Questa | 本轮 FREEZE 未跑 | I / 未测 |
-| 覆盖率 / FREEZE 内变异·lint 数值 | null → 未跑 | I |
+| ModelSim SE 全量逐项 vs Questa | D：145/145 一致（`dual_sim_compare.csv`）；墙钟 SE 快约 7.5×（FSE） | **P**（结果）；墙钟差 I |
+| 覆盖率 / FREEZE 内变异·lint 数值 | D 覆盖率进行中；变异分列见 §7 | I（覆盖未结）/ P（C3 分列） |
 | 代理 Fmax≥125 / 板卡签核 | Setup 负裕量 | I / F |
 | 门级 full 矩阵、SDF、eLinx 原生网表业务 | 未做 | F |
 | 完整 ARINC / 615A/665 认证、对端真 ES | 不做 | F |
