@@ -45,10 +45,15 @@
 |---|---|---|---|---|
 | 有外置 Python/golden | T09 族、T12 族、T35、T42/T43 向量、T89 `t89_metrics_check`、SNMP wire | 是 | 兼有 | Verilog 与 Python 一致才记 PASS（各 T 钩子） |
 | 主要 TB 记分板 | T00–T08、T10/T11、T13/T13w、T22、T88 演示 1–4 | 部分 | 是 | 期望值多在 TB/chk；部分引用 golden 常量 |
-| 负控变异 | T08c/e、T09–T12、T22 + **C3** `test_c3_mutants.py` | 注入故障期望 FAIL | — | 仅「编译成功且功能 FAIL」计杀死；C3：**新增 28 / 杀死 21 / 存活 7 / 等价 0** |
+| 负控变异 | T08c/e、T09–T12、T22 + **C3** `test_c3_mutants.py` | 注入故障期望 FAIL | — | 仅「编译成功且功能 FAIL」计杀死；C3：**新增 28 / 杀死 23 / 存活 5 / 已证等价 0**（基线 21/28 + 加严再杀 2；与历史 **57/57** 分列） |
 | 公开端口回环 | T88b（RTL/门级/GUI） | 载荷 hex / 步骤打印 | 是 | 只用顶层端口，便于 VO |
 
-### 1.4 Runner 说明（harvest）
+### 1.4 白盒与看门狗口径（C3 加严）
+
+- **T41 IFG**：精确 12 拍判据为**白盒**——TB 读 `u_tx.st`（`mac_tx_if` 状态机 `ST_IFG`），非仅观 GMII 线上空闲。用于杀 `ifg_minus_one`；不得写成「线上 IFG 已黑盒证明」。
+- **T16a 看门狗**：仿真墙钟由 **200 ms → 220 ms**（`#220_000_000`）。原因：C3 加严新增约 **2 ms** 量级的停 PPS→`sync_loss` 场景；**FLL 精度判据未放宽**。不得写成「超时放宽换 PASS」。
+
+### 1.5 Runner 说明（harvest）
 
 `sim/run_regress.ps1` 的 `Run-Vsim`：若日志已出现 `$finish` 与 `Errors: N` 而进程未退出，grace 后**收割**并返回 0，**不改 TB 判据**。用于消除个别用例（如历史冒烟 T42）「日志已 PASS、墙钟 TIMEOUT」的假失败。  
 本冻结全量 N=`{{metric:full_n}}` 在带 harvest 的 runner 上得到；与历史全量（旧 runner、不同 N）**不可直接等同**。详见 §9。
@@ -199,7 +204,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 
 | 项 | 值 | 等级 |
 |---|---|---|
-| 变异杀死 | FREEZE 键 **null**。**分列**：历史 **57/57**；C3 **新增 28、杀死 21、存活 7、已证等价 0**（`sim/out/p_c3_mutants_20261024_215956/MUTANTS_SUMMARY.md`） | P（分列） / FREEZE 键 I |
+| 变异杀死 | FREEZE 键 **null**。**分列**：历史 **57/57**；C3 **新增 28、杀死 23、存活 5、已证等价 0**（`p_c3_mutants_20261024_215956` + `p_c3_retighten_20261025_010733`） | P（分列） / FREEZE 键 I |
 | lint %Error | `lint_error` = **null** → **未跑/未入冻结**（工程门曾 PASS 见执行记录，不得冒充本 FREEZE 数） | I / 未跑 |
 | 覆盖率 | 未跑（本轮 FREEZE 标明；D 阶段后再填） | I / 未跑 |
 | 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（主因 wrapper (a)）；**(c) 未排除（VCD 未能解码 start_vld/next_tx）**；**不宣称 BAG** — `formal/ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
