@@ -440,8 +440,17 @@ foreach ($f in $hashFiles) {
   $rel = $f.FullName.Substring($projectRoot.Length + 1).Replace('\','/')
   $sourceHashes[$rel] = (Get-FileHash -LiteralPath $f.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
 }
-$head = (& git -C $sourceRoot rev-parse HEAD 2>$null | Select-Object -First 1)
-$statusLines = @(& git -C $sourceRoot status --porcelain=v1 -uall 2>$null)
+# Packaged/unpacked trees may lack .git; never let git stderr abort under $ErrorActionPreference=Stop.
+$head = ''
+$statusLines = @()
+try {
+  $gitOut = & git -C $sourceRoot rev-parse HEAD 2>$null
+  if ($LASTEXITCODE -eq 0 -and $gitOut) { $head = ("$gitOut").Trim() }
+} catch { $head = '' }
+try {
+  $statusLines = @(& git -C $sourceRoot status --porcelain=v1 -uall 2>$null)
+  if ($LASTEXITCODE -ne 0) { $statusLines = @() }
+} catch { $statusLines = @() }
 $statusText = $statusLines -join "`n"
 $sha256 = [Security.Cryptography.SHA256]::Create()
 $statusHash = ([BitConverter]::ToString($sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($statusText)))).Replace('-','').ToLowerInvariant()

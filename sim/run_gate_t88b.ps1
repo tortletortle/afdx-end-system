@@ -8,7 +8,8 @@ param(
   [Parameter(Mandatory = $true)][string]$OutDir,
   [string]$VsimPath = '',
   [string]$ModelsimIni = '',
-  [string]$TbFile = ''
+  [string]$TbFile = '',
+  [string]$ElinxLib = ''
 )
 $ErrorActionPreference = 'Stop'
 $sim = $PSScriptRoot
@@ -28,10 +29,25 @@ if (-not $ModelsimIni) {
   $ModelsimIni = Join-Path $root 'out\archive_20261016_203815\plan_execution_20261008_r1\quartus_gate\run_v2\modelsim.ini'
 }
 if (-not (Test-Path -LiteralPath $ModelsimIni)) { throw "modelsim.ini missing: $ModelsimIni" }
+if (-not $ElinxLib) {
+  $localLib = Join-Path $root 'out\elinx_lib'
+  if (Test-Path -LiteralPath $localLib) { $ElinxLib = $localLib }
+  else { $ElinxLib = 'C:\Program Files (x86)\eHiWay\eLinx3.0\Simulation\elinx_lib' }
+}
 
 $OutDir = [IO.Path]::GetFullPath($OutDir)
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
-Copy-Item -Force $ModelsimIni (Join-Path $OutDir 'modelsim.ini')
+
+# Force VoptFlow=0: SE 2020.4 vopt hangs (CPU=0) on this host for AFDX VO (2026-10-23).
+$iniText = Get-Content -LiteralPath $ModelsimIni -Raw
+$iniText = $iniText -replace 'elinx_lib\s*=\s*.+', ('elinx_lib = ' + ($ElinxLib -replace '\\', '/'))
+if ($iniText -match 'VoptFlow\s*=') {
+  $iniText = $iniText -replace 'VoptFlow\s*=\s*\d+', 'VoptFlow = 0'
+} else {
+  $iniText = $iniText + "`nVoptFlow = 0`n"
+}
+Set-Content -LiteralPath (Join-Path $OutDir 'modelsim.ini') -Value $iniText -Encoding ASCII
+
 Copy-Item -Force $VoPath (Join-Path $OutDir 'AFDX_top.vo')
 New-Item -ItemType Directory -Force -Path (Join-Path $OutDir 'vec') | Out-Null
 Copy-Item -Force (Join-Path $sim 'vec\t88b_payload32.hex') (Join-Path $OutDir 'vec\')
@@ -48,15 +64,17 @@ $tbUnix = ($TbFile -replace '\\', '/')
 $doPath = Join-Path $OutDir 'run_gate.do'
 $logPath = Join-Path $OutDir 'vsim.log'
 
-# Functional VO: compile VO + TB; map work; +acc=n for speed (prior dual-net gate precedent).
+# suppress 12110 required when VoptFlow=0 (else vlog treats as Error).
 $doLines = @(
   ('cd ' + $outUnix),
   ('if {[file exists ' + $workRel + ']} { file delete -force ' + $workRel + ' }'),
   ('vlib ' + $workRel),
   ('vmap work ' + $workRel),
-  ('vlog -work work +acc=n {' + $voUnix + '}'),
-  ('vlog -work work +acc=n {' + $tbUnix + '}'),
-  'if {[catch {vsim -c -t 1ps -L elinx_lib -voptargs=+acc=n work.tb_gate_public_loopback} err]} { puts "VSIM_ELAB_FAIL: $err"; quit -code 2 }',
+  ('vlog -suppress 12110 -work work +acc=n {' + $voUnix + '}'),
+  ('vlog -suppress 12110 -work work +acc=n {' + $tbUnix + '}'),
+  'puts "ELAB_START"',
+  'if {[catch {vsim -suppress 12110 -c -t 1ps -L elinx_lib work.tb_gate_public_loopback} err]} { puts "VSIM_ELAB_FAIL: $err"; quit -code 2 }',
+  'puts "ELAB_DONE"',
   'onfinish stop',
   'run -all',
   'quit -f'
@@ -87,7 +105,6 @@ $fail = $console -match 'T88b GATE PUBLIC LOOPBACK FAIL'
 $s1 = if ($console -match 'GATE_S1 PASS') { 'PASS' } elseif ($console -match 'GATE_S1 FAIL') { 'FAIL' } else { 'UNKNOWN' }
 $s2 = if ($console -match 'GATE_S2 PASS') { 'PASS' } elseif ($console -match 'GATE_S2 FAIL') { 'FAIL' } else { 'UNKNOWN' }
 $s3 = if ($console -match 'GATE_S3 PASS') { 'PASS' } elseif ($console -match 'GATE_S3 NOT_PASS') { 'FAIL' } else { 'UNKNOWN' }
-# Overall PASS tracks S1+S2 only; S3 is reported separately (S3 fail does not revoke S1/S2 P).
 $result = if ($pass -and -not $fail) { 'PASS' } elseif ($fail) { 'FAIL' } else { 'UNKNOWN' }
 $status = @{
   result = $result
@@ -99,6 +116,7 @@ $status = @{
   tb_sha256 = $tbSha
   wall_s = [math]::Round($sw.Elapsed.TotalSeconds, 1)
   exit_code = $p.ExitCode
+  elab = 'VoptFlow=0 + suppress 12110 (vopt hung on this host)'
   claim_allowed_if_pass = 'current-source Quartus functional VO public-port dual-net single-frame loopback S1+S2 PASS; S3 see gate_s3 field'
   forbidden = @('gate full140', 'SDF/timing sim', 'eLinx native netlist PASS', 'S3 fail revokes S1/S2')
 }
