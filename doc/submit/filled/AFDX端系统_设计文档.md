@@ -4,7 +4,7 @@
 
 > 数字一律 metrics 锚点（键见 `out/p9_freeze_dfac58a/metrics.json`），定稿由 `tools/render_doc_metrics.py` 填充。面向评委阅读；开发编年史不写入正文。  
 > 冻结：`098efc98d379c29b113d52dfccb24cdf36be7391` · 全量 `145`/`145`。  
-> 宣称等级：P 可宣称／I 仅实现旁证／F 不宣称。关键结论附适用边界。
+> 结论附适用边界：可核对测试编号的写实测；仅有实现无专用测试的注明边界；未测的不写进成果句。
 
 ---
 
@@ -19,14 +19,14 @@
 | 1 | 发送调度与流量整形 | `tx_port_buf` → `tx_vl_scheduler`（BAG）→ `tx_frame_builder`/`tx_sn_gen` → `tx_rm` → `mac_tx_if` | T04 / T05b / T27 / T34p |
 | 2 | 接收过滤与 IC/RM | `gmii_rx_strip` → `mac_rx_if` → `rx_vl_lookup` → `rx_flt` → `rx_ic` → `rx_rm` → 解析/端口 | T08* / T09 / T10 |
 | 3 | 主机接口与存储 | `host_*` 前门译码（在 `AFDX_top`）；PMEM 块池；端口消息队列 | T01 / T11 / T22 |
-| 4 | 管理面 SNMP / 615A·TFTP | `snmp_lite`；`a615a_tftp` / fetch / LUR 子集 | T43 / T27 旁证；演示场 T88 |
+| 4 | 管理面 SNMP / 615A·TFTP | `snmp_lite`；`a615a_tftp` / fetch / LUR 子集 | T43 / T27；演示场 T88 |
 | 5 | 时间同步 RTC/PPS | `rtc_sync` + `timebase`；`pps_in`/`pps_out`/`rtc_time_us` | T16a |
 
 ### 1.2 四项指标（口径分列）
 
 | 指标 | 官方（S）口径 | 工程计量（本仓） | 等级提示 |
 |---|---|---|---|
-| 吞吐 | 有效载荷 ≥100 Mbps；RX 侧 A/B **去重后只计一次**；须千兆 GMII 拍 | T42 等场景按有效载荷；A/B 各自 TX ≥100 为工程加严旁证 | 场景内可 P；128 VL 同时活动见 T90 |
+| 吞吐 | 有效载荷 ≥100 Mbps；RX 侧 A/B **去重后只计一次**；须千兆 GMII 拍 | T42 等场景按有效载荷；A/B 各自 TX ≥100 为工程加严 | 场景内可核对；128 VL 同时活动见 T90 |
 | 时延 | 官方字面：单帧 GMII **SFD→同帧 SFD** ≤2 ms（单 ES 回环无网络段→**I**）；跨多 BAG 多帧不受此限 | **ES 贡献**：commit→TX SFD、RX SFD→host、`es_total`（T89）；另有工程 commit→eof / sof→host（T42：`16.08` / `12.936` μs） | 官方字面 SFD→SFD 不在单 ES 验收范围 |
 | 抖动 | 同 VL 多帧端到端时延 **max−min** | 同统计量。T42：`5.016` μs；T89：`72` ns，本场景 40+Σ=`141` μs | 「几十微秒」无硬性官方上限数字 |
 | 规模能力 | 128 TX / 4096 RX 为能力声明；后仿可切片 | 默认参数满配综合；门级为 T88b 切片 | 门级全量矩阵不在本作品证据范围 |
@@ -86,9 +86,27 @@
 
 可选链（默认关）：`TX_MESSAGE_CHAIN_BLOCKS=4` 启用 `tx_message_store`/`tx_fragment_*`；`RX_REASM_CHAIN_BLOCKS=5` 启用链式重组。`host_if.v` 为空壳、**未例化**。
 
+### 2.2 关键通路要点
+
+#### 2.2.3 块池释放（`free_pipe`）
+
+RX 块 6..15 由 `rx_block_pool` 分配；顶层 **唯一** `free_pipe` 口按拍互斥归还（`AFDX_top.v` L1752–L1753、L1786–L1787、L2106–L2110）：
+
+**优先级：** RM 输出（`rm_dup_fire`） > IC 拒绝（`ic_rej_fire`） > FLT 拒绝（`flt_free`） > drain（`lookup_drain`）。
+
+未获准占用 `free_pipe` 的上游 **不是一拍脉冲**：用 valid/ready 反压保持到握手，释放请求不会因仲裁落选而丢失。关键 ready 门控（`AFDX_top.v`）：
+
+| 源 | ready / 门控表达式 | 行号 |
+|---|---|---|
+| IC 出口 | `ic_out_ready = ic_out_accept ? rm_in_ready : !rm_out_vld` | L1794 |
+| FLT 出口 | `flt_out_ready = !ic_out_vld && (flt_to_ic ? ic_in_ready : flt_to_rm ? rm_in_ready : !rm_out_vld)` | L1797–L1799 |
+| RM 出口 | `rm_out_ready = rm_out_fwd ? (reasm_en ? reasm_in_ready : prs_in_ready) : 1'b1` | L2010 |
+| 查表出口 | `out_ready` ← `flt_in_ready`（例化） | L1770 |
+
+证据：`formal/` 块池有界 BMC（`ENV_STATUS` 块 2b，等级 **I**）；功能回环 T22 族。  
+**适用边界：** 有界 BMC ≠ 无限深度证明；不宣称任意拓扑下块永不泄漏。
+
 ---
-
-
 
 ## 3. 创新点与工程特色
 
@@ -106,23 +124,35 @@
 
 ### 3.2 4096 RX 哈希双表 4-way 流水查表
 
-- **做了什么：** 在 `NUM_RX_VL=4096` 下，VLID→索引用双表并行、每表 2-way，COMPARE 共 4 路匹配；流水为 HASH_ADD→HASH_MUL→RAM_READ→COMPARE。
-- **与常规做法相比：** 常见为线性扫表或单口大 CAM；本设计用离线摆放与固定 4-way 比较换取可综合的常量延迟。
+- **做了什么：** 在 `NUM_RX_VL=4096` 下，VLID→索引用双表并行、每表 2-way，COMPARE 共 4 路匹配；流水为 HASH_ADD→HASH_MUL→RAM_READ→COMPARE→OUTPUT。
+- **与常规做法相比：** 见下表（本方案周期与 RAM 映射可复核；线性/CAM 为估算）。
 - **实现位置：** `rtl/rx/rx_vl_lookup.v`（`HASH_BUCKETS=2048`）；对照黄金 `sw/golden/hash_seed.py`；算法摘要见 §9.2。
-- **证据：** 冻结 `098efc9` Questa 全量 `regress.csv`：**T12c** `lookups=100000`（hits=61638 / misses=38362，N=4096，buckets=2048，`ways=1111`）；**T12f** 顶层前门写读 + `real_lookup=4`；规模旁证 `t35p_pass`=`True`、`t34p_pass`=`True`。
-- **文献依据：** L109–L113 给出布谷鸟 / 多 way / FPGA 查表的方法可行性；对账次数以本项目冻结日志为准。
-- **本作品贡献：** 将动态 cuckoo 插入/驱逐改为双表×2-way **离线摆放**与固定五段流水比较，以适应配置期可重摆、运行期常量延迟的端系统约束；满配查表由 T12c/T12f 自证。
-- **适用边界：** 验证的是表项覆盖与查表正确性，不是 4096 路同时收；摆放依赖配置期种子，运行期不做动态驱逐。
+- **查表时延（三个量，勿混）：**
+  1. **无反压时结果延迟：** 输入接受后 **5** 个时钟边沿完成首次输出握手（`rx_vl_lookup.v` L8）。
+  2. **下游反压下的交付时间：** 卡在 `OUTPUT` 直至 `out_ready`（L180–182），**不固定**。
+  3. **两次查询最小间隔：** `in_ready` 仅当 `state==IDLE`（L133–134）；**不是每拍可接收一次**。无反压时相邻两次接受间隔为 **6** 拍（L8 五拍至握手 + L180–182 回 IDLE 后下一拍才 `in_ready`）。
+- **方案对比：**
+
+| 方案 | 查找周期 | 资源 | 配置限制 |
+|---|---|---|---|
+| 本方案（双表 4-way 流水） | 无反压首次握手 **5** 拍（RTL L8）；最小再接受间隔 **6** 拍（RTL L8+L180–182+L133–134） | eLinx 综合分层：`elinx/gui_afdx/AFDX_top.runs/synth_1/AFDX_top.map.rpt`（页眉 eLinx 64-Bit Version 3.0）§7 Resource Utilization by Entity，`rx_vl_lookup:u_rxlookup` 逻辑 cells **604**；其子 `table0/1way0/1` 共 **4** 个 `altsyncram`（各 65536 bit，合计 memory bits 262144） | 配置期离线摆放；运行期无插入/驱逐；须先装 `HASH_IMAGE` 再 `RX_EN` |
+| 线性扫描（估算） | 最坏 **4096** 拍/次 | 约 1 路比较器 + 计数器（估算） | 表越大延迟线性涨 |
+| 全并联 CAM（估算） | **1** 拍匹配（理想） | 4096×(16+12+1)≈**118784** bit 内容寻址（估算） | 面积/布线通常不可接受 |
+
+- **证据：** 冻结 Questa 全量：**T12c** `lookups=100000`（hits=61638 / misses=38362，N=4096，buckets=2048，`ways=1111`）；**T12f**；规模相关 `t35p_pass`=`True`、`t34p_pass`=`True`。
+- **文献依据：** L109–L113（C 级二手摘要）给出多 way / FPGA 查表可行性。
+- **本作品贡献：** 动态 cuckoo 改为离线摆放 + 固定深度流水比较；满配查表由 T12c/T12f 自证。
+- **适用边界：** 验表项与查表正确性，不是同时收满 4096 VL；**禁止**写成「任何情况下固定拍数交付」。
 
 ### 3.3 共享块池与所有权不变量
 
-- **做了什么：** TX/RX 共用 PMEM 字空间；RX 块 6..15 由 `rx_block_pool` 分配/回收；顶层 `free_pipe` 规定同拍单口归还与优先级，维持每块唯一持有者。
+- **做了什么：** TX/RX 共用 PMEM；RX 块 6..15 由 `rx_block_pool` 分配/回收；顶层 `free_pipe` **单口**按优先级互斥归还（详 §2.2.3），维持每块唯一持有者；未获准来源用 valid/ready 反压保持到握手。
 - **与常规做法相比：** 常见为每端口或每 VL 独立缓冲，面积大且回收路径分散。
-- **实现位置：** `rtl/rx/rx_block_pool.v`；所有权关系见 §7；释放优先级在 `AFDX_top`。
-- **证据：** 回环/交付相关 T22 族；全量 `full_pass`/`full_n`=`145`/`145`；综合规模 `cells`/`altsyncram`=`106241`/`507`。
-- **文献依据：** L010、L044 提供共享存储与端口路径线索；L121–L123 提供公共池配额、缓冲上界与空闲块管理方法（多文献组合）。本芯片字段布局由本工程定义。
-- **本作品贡献：** 将共享池与空闲链表思路落到固定 16 块 PMEM、主机字址与 `free_pipe` 优先级；资源数字仅采用本项目综合结果。
-- **适用边界：** 默认配置为单块消息路径；块守恒的形式证明仅为局部（见 `bmc_bag_grade`=`F`），文献中的缓冲上界不直接等同本芯片容量。
+- **实现位置：** `rtl/rx/rx_block_pool.v`；释放优先级与 ready 门控见 `AFDX_top.v` L1786–L1800、L2010、L2106–L2110；所有权关系见 §7。
+- **证据：** T22 族；全量 `full_pass`/`full_n`=`145`/`145`；综合 `cells`/`altsyncram`=`106241`/`507`；块池有界 BMC（**I**，`formal/ENV_STATUS` 块 2b）。
+- **文献依据：** L010、L044；L121–L123（多文献组合）。
+- **本作品贡献：** 固定 16 块 PMEM + `free_pipe` 优先级与反压保持。
+- **适用边界：** 默认单块消息路径；块守恒形式证明仅为有界局部；BAG 形式结论见 `bmc_bag_grade`=`F`（**F**，与块池 BMC 分列）。
 
 ### 3.4 时延可预算（界 vs 实测）与 BAG 预算
 
@@ -138,11 +168,12 @@
 
 - **做了什么：** 同一结论可追溯到独立黄金模型、双仿真器一致、变异分列、形式 BMC 边界、单一 `metrics.json` 与 P/I/F 分级；IC/RM 判据与抗重放历史窗可复核。
 - **与常规做法相比：** 常见仅依赖自研测试台一次通过，或把覆盖率/BMC 空真表述为「已证明」。
-- **实现位置：** `sw/golden/`；`sim/tests.manifest` 与 Questa/ModelSim SE；C3 变异汇总；`formal/` BAG BMC；`rx_ic`／`rx_rm`（hist／SkewMax）。
-- **证据：** `dual_sim_match`=`145`（`full_pass`=`145`，`se_full_pass`=`145`）；C3 `c3_mutants_killed`/`c3_mutants_total`=`23`/`28`（历史 57/57 另列）；`bmc_bag_grade`=`F`；T09/T10 `t09_accept`/`t09_reject`/`t10_fwd`/`t10_dup`/`t10_skew`=`1759`/`4248`/`56`/`46`/`3`；覆盖率见测试报告 §7.1。
+- **实现位置：** `sw/golden/`；`sim/tests.manifest` 与 Questa/ModelSim SE；新增变异汇总；`formal/` BAG BMC；`rx_ic`／`rx_rm`（hist／SkewMax）。
+- **证据：** `dual_sim_match`=`145`（`full_pass`=`145`，`se_full_pass`=`145`）；新增变异 `c3_mutants_killed`/`c3_mutants_total`=`23`/`28`（历史 57/57 另列）；`bmc_bag_grade`=`F`；T09/T10 `t09_accept`/`t09_reject`/`t10_fwd`/`t10_dup`/`t10_skew`=`1759`/`4248`/`56`/`46`/`3`；覆盖率见测试报告 §7.1。
 - **文献依据：** L158 给出 IC/RM 窗口与 First-Valid 语义（规范依据）；L137（RFC 4303 ESP 抗重放滑动窗口）提供「最高序列＋窗口」的结构借鉴；L071／L087、L117、L153、L136 分别支撑自动化测试、变异、覆盖率表述与小模块形式验证方法（多文献组合）。
-- **本作品贡献：** 将 L158 规则落实到 `rx_ic`/`rx_rm`，把 L137 结构借鉴落到工程 hist／SkewMax（冲突时以 L158 为准）；验证侧用自建清单、双仿真器、C3 变异与 BMC 边界分列报告。
-- **适用边界：** PASS 仅覆盖对应测试标题；不是认证实验室结论；覆盖率双口径见测试报告；L137 不是 A664 强制条款；本作品不声明任何 DAL／DO-254 等级。
+- **本作品贡献：** 将 L158 规则落实到 `rx_ic`/`rx_rm`，把 L137 结构借鉴落到工程 hist／SkewMax（冲突时以 L158 为准）；验证侧用自建清单、双仿真器、新增变异与 BMC 边界分列报告。
+- **适用边界：** PASS 仅覆盖对应测试标题；不是认证实验室结论；覆盖率统一表见测试报告 §7.1；L137 不是 A664 强制条款；本作品不声明任何 DAL／DO-254 等级。
+- **验证剩余项（同步官方模板 §3.3 / `doc/学习/08_验证剩余项一页.md`）：** 新增变异存活 5 体分类与 BAG BMC（cover 可达 / bmc20 空真 / bmc40 反例；环境约束不完整最可能，真实反例未排除）见该页；**不影响**已冻结仿真证据（`full_pass`/`dual_sim_match`）。
 
 ### 3.6 `IF_MODE` 三模式复用
 
@@ -208,7 +239,7 @@ RX 对称：自前导起 `rx_valid` 连续 1，下降沿结束帧。证据场：
 | 级 | 行为 | 流水/拍 | 背压 |
 |---|---|---|---|
 | `tx_port_buf` | 主机写 PMEM + `MSG_WR` 入队 | 描述符握手 1 拍量级 | 池满/队满拒写，置 ERR |
-| `tx_vl_scheduler` | `age = cycle + PREPARE − next_tx`；8 路并行，128 VL **16 拍**扫一轮；选 age 最大且 due | 扫描 16 拍；grant/ack | 下游未 ack 则 inflight 占位；`frame_permit` 卡原始 BAG 截止 |
+| `tx_vl_scheduler` | `age = cycle + PREPARE − next_tx`；8 路并行，128 VL **16 拍**扫一轮；选 age 最大且 due；`pop` 时 `next_tx ← cycle_count + BAG`（L207，非 `+=`） | 扫描 16 拍；grant/ack | 下游未 ack 则 inflight 占位；`frame_permit` 卡原始 BAG 截止 |
 | `tx_frame_builder` | pass1 UDP csum + pass2 出字节 | 与载荷长度成比例；头字段 mux | `vld/rdy` 对 `tx_rm` |
 | `tx_sn_gen` | 帧起始取 SN，成功发送后递增 | 与 builder 并行耦合 | — |
 | `tx_rm` | A/B 各一份字节流 | 1:1 复制 | 任一侧背压可停 |
@@ -257,8 +288,10 @@ BAG 合法间隔：T27/T34p 等。**适用边界：** 任意 128 VL 同相满载
 
 ### 7.2 所有权不变量
 
-块 6..15 每一拍只在 `free_map` 或唯一持有者中；同拍单口归还；归还下一拍才回空闲。释放优先级（顶层 `free_pipe`）：RM 重复 > IC 拒绝 > FLT 拒绝 > drain。  
-**适用边界：** 形式化块守恒已全覆盖（BMC 仅局部）；8 KiB 链式路径为默认生产配置。
+块 6..15 每一拍只在 `free_map` 或唯一持有者中；同拍 **单口** `free_pipe` 归还；归还下一拍才回空闲。  
+释放优先级（`AFDX_top.v` L1786、L2106–L2110）：**RM 输出 > IC 拒绝 > FLT 拒绝 > drain**。未获准来源经 valid/ready 反压保持到握手（L1794、L1797–L1799、L2010），不是一拍脉冲，不会因仲裁落选丢失。详 §2.2.3。  
+证据：块池有界 BMC（**I**）；T22 族。  
+**适用边界：** 有界 BMC ≠ 无限深度；8 KiB 链式路径非默认生产配置。
 
 ---
 
@@ -296,12 +329,16 @@ BAG 合法间隔：T27/T34p 等。**适用边界：** 任意 128 VL 同相满载
 ### 9.1 BAG 与错相
 
 - 判决：`due = valid ∧ ¬inflight ∧ port_ready ∧ ¬age[31]`；选最大 age（最早到期）。
-- 发送成功后 `next_tx ← frame_start_cycle + bag_cycles`。
+- **锚定（禁止写成 `next_tx += bag`）：** 线上帧起始 `pop` 时  
+  `next_tx[pop_vl] ← cycle_count + bag_arr[pop_vl]`（`tx_vl_scheduler.v` **L207**）。  
+  含义：以**实际上线时刻**为锚再加一整 BAG；任何下游延迟后，同 VL 相邻帧间隔仍 ≥ BAG，**不会追赶发送**。  
+  「长阻塞后恢复」专用场景：**未单独测**；由该锚定方式保证。相关测试：T05b/T05c/T27（合法 BAG / 抖动 / 预算），不覆盖任意长阻塞剧本。
 - **错相（D10）**：多 VL 同相会使队尾排队下界过大；由配置/激励在提交与首帧相位上错开（TB 如 T05b），调度器本身按到期选路。硬件无单独「相位寄存器」字段时，错相体现在各 VL 的 `next_tx` 初值与消息到达时刻。
 
 ### 9.2 哈希查表（双表 4-way 比较）
 
-流水：IDLE 捕获 → `HASH_ADD` → `HASH_MUL` → `RAM_READ` → `COMPARE`（与 `sw/golden/hash_seed.py` 一致）。
+流水：IDLE 捕获 → `HASH_ADD` → `HASH_MUL` → `RAM_READ` → `COMPARE` → `OUTPUT`（与 `sw/golden/hash_seed.py` 一致）。  
+时延三分法见 §3.2（无反压 5 拍握手 / 反压不固定 / 非每拍可接收）。
 
 ```
 sum0 = (vlid + seed0 + 0x9E37)[15:0]

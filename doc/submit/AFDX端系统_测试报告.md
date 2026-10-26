@@ -214,16 +214,23 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（主因 wrapper (a)）；**(c) 未排除（VCD 未能解码 start_vld/next_tx）**；**不宣称 BAG** — `formal/ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
 | 形式 BMC（pool/RM 历史） | 有界 PASS 见 ENV_STATUS；不替代仿真 T | I |
 
-### 7.1 覆盖率两种口径（并列，均 I）
+### 7.1 覆盖率统一表（并列，均 **I**）
 
-| 口径 | 语句 | 分支 | 合计 | 怎么算 | 含什么 |
-|---|---:|---:|---:|---|---|
-| **DU 加权（全设计）** | `{{metric:coverage_stmt_pct}}`% | `{{metric:coverage_branch_pct}}`% | `{{metric:coverage_total_pct}}`% | `elinx/AFDX_top_sources.f` 各生产模块 `vcover -du=<mod>`，再 **Σhits/Σbins** | 仅生产 RTL DU；**不含 TB** |
-| **实例口径** | 58.73% | 44.63% | 51.68% | `vcover summary -codeAll` **BY INSTANCES** | **含 TB / bind / 多实例展开**；与 9 月含 TB 的 67.82% 同族、不可直接等同 |
+| 指标 | 统计对象 | 是否含 TB/bind | 来源报告文件 | 数值 |
+|---|---|---|---|---|
+| 语句% | 全设计生产 DU 加权（Σhits/Σbins） | **否** | `out/p9_freeze_dfac58a/coverage_by_du.md` | `{{metric:coverage_stmt_pct}}`% |
+| 分支% | 同上 | **否** | 同上 | `{{metric:coverage_branch_pct}}`% |
+| 合计% | 同上（语句/分支再合成） | **否** | 同上 | `{{metric:coverage_total_pct}}`% |
+| 语句% | UCDB **BY INSTANCES**（8379 实例） | **是** | `out/p9_freeze_dfac58a/coverage_summary_all145.txt` | **58.73%** |
+| 分支% | 同上 | **是** | 同上 | **44.63%** |
+| 合计% | 同上 | **是** | 同上 | **51.68%** |
+| 语句% | 仅 `AFDX_top` 单 DU 参考 | **否**（该 DU） | `coverage_report_du_AFDX_top.txt` | `{{metric:coverage_top_du_stmt_pct}}`% |
+| 分支% | 仅 `AFDX_top` 单 DU 参考 | **否** | 同上 | `{{metric:coverage_top_du_branch_pct}}`% |
+| 合计% | 仅 `AFDX_top` 单 DU 参考 | **否** | 同上 | `{{metric:coverage_top_du_total_pct}}`% |
 
-**DU 口径含义：** 对某一 design unit，**任一仿真实例上该 bin 被命中即计为覆盖**（跨 TB 合并后取并集），再按各 DU 的 bins 数加权求和。因此 DU 加权数字 **高于** 实例口径是预期现象，**不是**「设计已测到 93% 行级」。实例口径把每个 TB 下的 `dut/...`、TB 自身与 bind 实例分开计数，未命中的实例拉低总比。
+**读表规则：** DU 加权 = 各生产模块 `vcover -du` 后 Σhits/Σbins（**任一实例命中即算该 DU bin**），数字可高于实例口径——**不是**「设计已测到 93% 行级」。实例口径含 TB/bind/多实例，未命中实例拉低总比。顶层单 DU 行**不得**当作全设计覆盖率。三者并列，**不可混称「另一口径」糊弄**。
 
-证据：`out/p9_freeze_dfac58a/coverage_by_du.md`、`coverage_summary_all145.txt`、`coverage_hotspots_top20.md`。
+旁证：`coverage_hotspots_top20.md`。
 
 **语句覆盖最低的 5 个生产 DU（及原因，I）：**
 

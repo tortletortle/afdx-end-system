@@ -206,7 +206,7 @@ def build_sections(catalog: dict) -> dict[str, str]:
 
     s12 = """目标应用为综合模块化航电等场景下的端系统通信节点：连接主机应用与AFDX交换网络，按虚拟链路提供确定性发送整形与双网冗余接收。亦可作为协议芯片原型，供教学、预研与自建测试台对照。本作品交付为可综合RTL与仿真验证包，评测环境为自建测试台；不替代适航取证、交换机实现或对端真实端系统闭环。物理层侧对接标准GMII语义的千兆以太网PHY接口模型；主机侧以寄存器与表项配置虚拟链路、端口与管理参数。应用边界以赛题评分项与已披露协议子集为准。"""
 
-    s13 = """（1）全硬件数据面与管理面同片实现，无嵌入式CPU或软核协议栈。（2）接收侧4096 VL能力采用双表并行、每表2-way的固定流水查表，配置期离线摆放，运行期常量比较延迟。（3）收发共享报文块池，顶层规定同拍单口归还优先级以维持块所有权不变量。（4）验证方法学：独立Python黄金模型、双仿真器同清单、变异分列报告、覆盖率按两种测量条件并列、形式验证边界如实披露、文档数字来自冻结测试结果。（5）接口模式参数化，公开GMII与内部口复用同一RTL。eLinx综合规模：cells {{metric:cells}}、altsyncram {{metric:altsyncram}}。不做Fit或STA签核表述。"""
+    s13 = """（1）全硬件数据面与管理面同片实现，无嵌入式CPU或软核协议栈。（2）接收侧4096 VL能力采用双表并行、每表2-way流水查表，配置期离线摆放；无反压时结果延迟可预算，有反压则交付时间不固定，且非每拍可接收。（3）收发共享报文块池，顶层唯一free_pipe按优先级互斥归还并以valid/ready反压保持，维持块所有权不变量。（4）验证方法学：独立Python黄金模型、双仿真器同清单、变异分列报告、覆盖率统一表并列、形式验证边界如实披露、文档数字来自冻结测试结果。（5）接口模式参数化，公开GMII与内部口复用同一RTL。eLinx综合规模：cells {{metric:cells}}、altsyncram {{metric:altsyncram}}。不做Fit或STA签核表述。"""
 
     s15 = """1. 全硬件管理面：SNMP、TFTP·615A与RTC均在FPGA内，无软核。2. 4096接收VL双表4-way流水查表，离线摆放换常量延迟。3. 验证方法学：黄金模型、双仿真器{{metric:dual_sim_match}}项一致、变异测试（新增28个）杀死{{metric:c3_mutants_killed}}/{{metric:c3_mutants_total}}、单一冻结测试结果。4. IF_MODE三模式复用同一套收发RTL。"""
 
@@ -472,14 +472,34 @@ def main() -> int:
     try_add_picture(doc, figs / "fig_mgmt_modules.png", 12.0)
     add_caption(doc, "图 管理面模块框图")
 
-    add_para(doc, "存储与公共", bold=True)
+    add_para(doc, "存储与公共（块池释放）", bold=True)
     add_para(
         doc,
-        "接收块池管理块分配回收；顶层规定同拍单口归还优先级。公共模块含复位同步与统计寄存器页。块所有权关系见图。",
+        "接收块 6..15 由块池分配；顶层唯一 free_pipe 口按拍互斥归还，优先级："
+        "RM 输出 > IC 拒绝 > FLT 拒绝 > drain（AFDX_top 注释与 L2106–L2110 优先级链）。"
+        "未获准来源通过 valid/ready 反压保持到握手（例如 ic_out_ready、flt_out_ready、rm_out_ready，"
+        "见 AFDX_top L1794、L1797–L1799、L2010），不是一拍脉冲，仲裁落选不会丢失释放请求。"
+        "证据：块池有界 BMC（形式侧 I）与 T22 族回环。公共模块含复位同步与统计寄存器页。块所有权关系见图。",
         first_line=True,
     )
     try_add_picture(doc, figs / "fig2_block_owner.png", 12.0)
     add_caption(doc, "图 接收块所有权关系")
+
+    add_para(doc, "BAG 锚定与查表时延（答辩易混点）", bold=True)
+    add_para(
+        doc,
+        "BAG：pop 时 next_tx ← cycle_count + bag_arr（tx_vl_scheduler L207），"
+        "以实际上线时刻为锚，禁止写成 next_tx += bag；延迟后同 VL 间隔仍 ≥ BAG，不会追赶。"
+        "长阻塞后恢复无专用测试编号，由锚定方式保证；相关测试见 T05b/T05c/T27。"
+        "查表：无反压首次握手 5 拍（rx_vl_lookup L8）；"
+        "无反压最小再接受间隔 6 拍（L8+L180–182+L133–134）；"
+        "下游反压交付不固定；仅 IDLE 时 in_ready。"
+        "勿写「任何情况下固定拍数」。"
+        "资源：eLinx 综合分层报告（页眉 eLinx 64-Bit Version 3.0；"
+        "elinx/gui_afdx/.../AFDX_top.map.rpt §7）"
+        "rx_vl_lookup cells 604、4×altsyncram。",
+        first_line=True,
+    )
 
     add_heading_like(doc, "2.3 软件系统介绍", style="List Paragraph")
     add_heading_like(doc, "2.3.1 软件整体介绍", style="List Paragraph")
@@ -563,9 +583,22 @@ def main() -> int:
         f"变异测试（新增 {fmt_metric(catalog,'c3_mutants_total')} 个）：杀死 {fmt_metric(catalog,'c3_mutants_killed')}，"
         f"存活 {fmt_metric(catalog,'c3_mutants_survived')}，已证等价 {fmt_metric(catalog,'c3_mutants_equiv')}；"
         f"历史 {fmt_metric(catalog,'mutants_historical_detected')}/{fmt_metric(catalog,'mutants_historical_total')} 分列，不得拼成现行。"
-        f"覆盖率两种测量条件：设计单元加权语句 {fmt_metric(catalog,'coverage_stmt_pct')}% / 分支 {fmt_metric(catalog,'coverage_branch_pct')}%；"
-        "实例统计（含测试台与绑定）语句约 58.73% / 分支约 44.63%，并列不可混称。"
-        f"BAG 形式验证未闭合；lint 错误计数 {fmt_metric(catalog,'lint_error')}。",
+        f"覆盖率统一表（测试报告 §7.1）：设计单元加权语句 {fmt_metric(catalog,'coverage_stmt_pct')}% / "
+        f"分支 {fmt_metric(catalog,'coverage_branch_pct')}%（不含 TB）；"
+        "实例 BY INSTANCES 语句 58.73% / 分支 44.63%（含 TB/bind）；顶层单 DU 参考另列——均 I，不可混称。"
+        f"BAG 形式验证未闭合（bmc_bag_grade={fmt_metric(catalog,'bmc_bag_grade')}）；"
+        f"lint 错误计数 {fmt_metric(catalog,'lint_error')}。",
+        first_line=True,
+    )
+    add_para(doc, "验证剩余项（与学习材料 08 同步）", bold=True)
+    add_para(
+        doc,
+        "新增变异存活 5 体：bag_ge_to_gt、skip_scan_lanes 归「已激活未检出」；"
+        "comm_len_unchecked、pdu_tag_accept_all 归「未激活」；fll_gain_zero 归「已激活未检出」；已证等价 0。"
+        "BAG BMC：cover 可达；bmc20 空真；bmc40 反例。分类为环境约束不完整（wrapper）最可能，真实反例未排除；"
+        "形式侧未闭合，不写入成果宣称；不影响已冻结功能仿真证据（全量与双仿真器一致）。"
+        "块池有界 BMC 与 BAG BMC 分列。"
+        "细表见仓内学习材料「验证剩余项一页」（不进提交包）。",
         first_line=True,
     )
     try_add_picture(doc, figs / "S8_T88_signals.png", 14.0)
@@ -746,7 +779,8 @@ def main() -> int:
         "| 2.2.2 / 3.2.1 机械 | 本作品不涉及机械结构 |",
         "| 2.3 软件 | PC 端验证环境（Verilog TB、Python 黄金模型、回归脚本）；无嵌入式软件 |",
         "| 3.2.2 电路成果 | eLinx 综合 + 综合后仿真（T88b） |",
-        "| 3.3 特性成果 | 四指标、波形图、145 回归、双仿真器、变异测试、覆盖率两种测量条件 |",
+        "| 3.3 特性成果 | 四指标、波形图、145 回归、双仿真器、变异/BMC 剩余项、覆盖率统一表 |",
+        "| 2.2.3 块池 | free_pipe 单口优先级 + valid/ready 反压保持 |",
         "",
         "## 去身份抽查（docx 全文自动扫描）",
         "",
@@ -778,18 +812,31 @@ def main() -> int:
         "- [20] 徐进等，《电子科技》2017, 30(3): 101-103（仓内原文 PDF）。",
         "- 编号 [1]–[20] 与正文一致；正文无单独改号的内联引用需核对（参考文献表整表列出）。",
         "",
+        "## 外部评审意见处理",
+        "",
+        "| # | 意见 | 处理结果 | 落点 |",
+        "|---|---|---|---|",
+        "| 1 | free_pipe 单口优先级与反压保持 | 已写清优先级 RM>IC>FLT>drain；列出 ready 门控；非一拍脉冲、不丢失；证据 pool BMC(I)+T22 | 设计 §2.2.3/§7.2；学习 03；官方 2.2.3 |",
+        "| 2 | BAG 锚定 next_tx←cycle+BAG | 改为 L207 锚定；不追赶；长阻塞恢复未单独测 | 设计 §9.1；学习 02；官方 2.2.3 附段 |",
+        "| 3 | 查表时延三分法 | 无反压 5 拍/反压不固定/非每拍可收；删固定拍数宣称 | 设计 §3.2/§9.2；学习 03/06/07 |",
+        "| 4 | 存活变异+BAG BMC | 新建学习 08；同步设计 §3.5 与官方 §3.3 | doc/学习/08_验证剩余项一页.md |",
+        "| 5 | 覆盖率统一表 | 测试报告 §7.1；修正学习 07 第15题 | 测试报告；学习 05/07；答辩要点 |",
+        "| 6 | 哈希方案对比表 | 周期 5/6 拍（RTL 确定值）；资源 eLinx map.rpt（页眉 3.0）§7 分层 604+4×altsyncram；线性/CAM 估算 | 设计 §3.2 |",
+        "| 7 | 重生 docx/PDF + run_all | 本轮执行 | 本交付表 |",
+        "| 8 | 冻结前小修 | map.rpt 标明 eLinx 3.0；6 拍确定值+RTL 行号；学习07第12题不主动报 fmax | 设计 §3.2；学习 07 |",
+        "",
         "## 验收卡",
         "",
         "```",
-        "改动：T91 门级停 F；[19] 换期刊；身份扫描；重生 docx/PDF；H 预备 diff",
-        "触及模块：tools/build_official_tech_report.py、sim/tests.manifest、doc/submit/*",
-        "宣称等级：T91 门级 F；T91 RTL R=3 P（checks=144）；3.2.2 仅 T88b；无新 RTL",
-        "对应 T 号：T91（RTL）；T88b（综合后仿真）",
-        "实际跑了：字数/残留/身份统计；docx/PDF 生成；未重跑仿真",
-        "日志路径：本交付表；out/g4_t91_vo_nvl16_20261026_123734/；sim/out/g4_t91_rtl_nvl16_r3_20261026_164718/",
+        "改动：冻结前小修（哈希来源/6拍/学习07第12题）+ 外部评审修订落仓；重生 docx/PDF",
+        "触及模块：doc/submit/*、doc/学习/*、tools/build_official_tech_report.py；无 rtl/sim/tb/manifest",
+        "宣称等级：文档对齐；无新仿真宣称",
+        "对应 T 号：无新跑",
+        "实际跑了：build_official_tech_report；run_all --strict",
+        "日志路径：本交付表；out/p9_freeze_dfac58a/metrics.json",
         "未跑的相关 T：全量/门级未因文档重跑；不再启 T91 门级",
         "面积/时序：未重测",
-        "禁止写出的句子：T91 门级已 P；门级全量；队属学校姓名路径；首创",
+        "禁止写出的句子：T91 门级已 P；门级全量；队属学校姓名路径；首创；Quartus map 冒充 eLinx",
         "```",
         "",
     ]
