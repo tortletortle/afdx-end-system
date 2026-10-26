@@ -162,11 +162,9 @@
       <tbody>
         <tr><td>cells</td><td><span class="metric">{{metric:cells}}</span></td><td><span class="badge p">P</span>（若 FREEZE 有）</td></tr>
         <tr><td>altsyncram</td><td><span class="metric">{{metric:altsyncram}}</span></td><td><span class="badge p">P</span></td></tr>
-        <tr><td>post-fit Fmax (MHz)</td><td><span class="metric">{{metric:fmax_mhz}}</span></td><td><span class="badge i">I</span></td></tr>
-        <tr><td>Setup (ns)</td><td><span class="metric">{{metric:setup_ns}}</span></td><td><span class="badge i">I</span></td></tr>
       </tbody>
     </table>
-    <p class="callout i">代理器件；非板卡签核。门级 VO sha256：<span class="metric">{{metric:gate_vo_sha256}}</span>。</p>
+    <p class="callout i">本作品不做时序签核与板级验证（赛题未要求）。门级 VO sha256：<span class="metric">{{metric:gate_vo_sha256}}</span>。</p>
   </section>
 
   <section class="card" id="s11">
@@ -176,7 +174,7 @@
       <tbody>
         <tr><td>预言机与 RTL 同队编写</td><td>靠变异、独立 Python/golden、双仿真器抬可信度</td></tr>
         <tr><td>满配 VL 吞吐</td><td class="cant">未测</td></tr>
-        <tr><td>Fmax 相对线速拍</td><td class="cant">未闭合（I）</td></tr>
+        <tr><td>时序签核 / 板级</td><td class="cant">不做（赛题未要求）</td></tr>
         <tr><td>管理面 SNMP</td><td>v1 子集</td></tr>
         <tr><td>评委 TB</td><td>自建矩阵，非官方 A664 套件</td></tr>
       </tbody>

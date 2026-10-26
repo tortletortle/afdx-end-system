@@ -1,9 +1,9 @@
-<!-- rendered from AFDX端系统_测试报告.md using C:/Workspace/diansai/out/p8_freeze_225cd91/metrics.json commit=225cd91be4f6a4b332db1674b44761bca367bd67 -->
+<!-- rendered from AFDX端系统_测试报告.md using C:/Workspace/diansai/out/p9_freeze_dfac58a/metrics.json commit=098efc98d379c29b113d52dfccb24cdf36be7391 -->
 
 # AFDX 端系统测试报告（提交版）
 
 > 数字一律双花括号 metric 锚点（对照 `out/p8_freeze_225cd91/metrics.json`）。历史全量计数等只允许出现在历史附录并注明版本。  
-> 每个 **P** 结论后附「不能推出」。冻结 commit：`225cd91be4f6a4b332db1674b44761bca367bd67`。
+> 每个 **P** 结论后附适用边界。冻结 commit：`098efc98d379c29b113d52dfccb24cdf36be7391`。
 
 ---
 
@@ -19,8 +19,8 @@
 
 - **仿真器**：Questa FSE（功能全量）；ModelSim SE 2020.4（功能全量对照 + 门级 T88b、eLinx GUI 行为）。
 - **TB**：`sim/tb/`；清单 `sim/tests.manifest`；runner `sim/run_regress.ps1` / `sim/run_smoke.ps1`。
-- **时钟**：与 GMII 线速拍一致（仿真 125 MHz）；≠ 代理 post-fit Fmax。
-- **双仿真器墙钟**：同树 `098efc9` 全量 Questa FSE **wall_s=6306.3**、ModelSim SE **wall_s=840.9**（约 **7.5×**）。原因：Questa **FSE 受限版** 仿真吞吐低于 SE；**判据与 PASS/FAIL 逐项一致**（`dual_sim_compare.csv` 145/145 match），墙钟差**不得**写成结果不一致。
+- **时钟**：与 GMII 线速拍一致（仿真 125 MHz）。
+- **双仿真器墙钟**：同树 `098efc9` 全量 Questa FSE **wall_s=6306.3**、ModelSim SE **wall_s=840.9**（约 **7.5×**）。原因：Questa **FSE 受限版** 仿真吞吐低于 SE；**判据与 PASS/FAIL 逐项一致**（`dual_sim_compare.csv` 145/145 match），墙钟差不表示结果不一致。
 
 ### 1.1 BFM 列表（`sim/env/`）
 
@@ -48,18 +48,18 @@
 |---|---|---|---|---|
 | 有外置 Python/golden | T09 族、T12 族、T35、T42/T43 向量、T89 `t89_metrics_check`、SNMP wire | 是 | 兼有 | Verilog 与 Python 一致才记 PASS（各 T 钩子） |
 | 主要 TB 记分板 | T00–T08、T10/T11、T13/T13w、T22、T88 演示 1–4 | 部分 | 是 | 期望值多在 TB/chk；部分引用 golden 常量 |
-| 负控变异 | T08c/e、T09–T12、T22 + **C3** `test_c3_mutants.py` | 注入故障期望 FAIL | — | 仅「编译成功且功能 FAIL」计杀死；C3：**新增 28 / 杀死 23 / 存活 5 / 已证等价 0**（基线 `p_c3_mutants_20261024_215956` 21/28 + 加严 `p_c3_retighten_20261025_010733` 再杀 2；与历史 **57/57** 分列） |
+| 负控变异 | T08c/e、T09–T12、T22 + **C3** `test_c3_mutants.py` | 注入故障期望 FAIL | — | 仅「编译成功且功能 FAIL」计杀死；C3：**新增 28 / 杀死 23 / 存活 5 / 已证等价 0**（基线 21/28 + 加严再杀 2；与历史 **57/57** 分列） |
 | 公开端口回环 | T88b（RTL/门级/GUI） | 载荷 hex / 步骤打印 | 是 | 只用顶层端口，便于 VO |
 
 ### 1.4 白盒与看门狗口径（C3 加严）
 
-- **T41 IFG**：精确 12 拍判据为**白盒**——TB 读 `u_tx.st`（`mac_tx_if` 状态机 `ST_IFG`），非仅观 GMII 线上空闲。用于杀 `ifg_minus_one`；不得写成「线上 IFG 已黑盒证明」。
-- **T16a 看门狗**：仿真墙钟由 **200 ms → 220 ms**（`#220_000_000`）。原因：C3 加严新增约 **2 ms** 量级的停 PPS→`sync_loss` 场景；**FLL 精度判据未放宽**。不得写成「超时放宽换 PASS」。
+- **T41 IFG**：精确 12 拍判据为**白盒**——TB 读 `u_tx.st`（`mac_tx_if` 状态机 `ST_IFG`），非仅观 GMII 线上空闲。用于杀 `ifg_minus_one`；该判据为白盒状态观测，不是仅观线上空闲的黑盒证明。
+- **T16a 看门狗**：仿真墙钟由 **200 ms → 220 ms**（`#220_000_000`）。原因：C3 加严新增约 **2 ms** 量级的停 PPS→`sync_loss` 场景；**FLL 精度判据未放宽**。FLL 精度判据未放宽。
 
 ### 1.5 Runner 说明（harvest）
 
 `sim/run_regress.ps1` 的 `Run-Vsim`：若日志已出现 `$finish` 与 `Errors: N` 而进程未退出，grace 后**收割**并返回 0，**不改 TB 判据**。用于消除个别用例（如历史冒烟 T42）「日志已 PASS、墙钟 TIMEOUT」的假失败。  
-本冻结全量 N=`144` 在带 harvest 的 runner 上得到；与历史全量（旧 runner、不同 N）**不可直接等同**。详见 §9。
+本冻结全量 N=`145` 在带 harvest 的 runner 上得到；与历史全量（旧 runner、不同 N）**不可直接等同**。详见 §9。
 
 ---
 
@@ -83,30 +83,30 @@
 
 ### 3.1 五功能
 
-| 赛题条目 | T（代表） | 配置 | 实测（metric） | 等级 | 不能推出 |
+| 赛题条目 | T（代表） | 配置 | 实测（metric） | 等级 | 适用边界 |
 |---|---|---|---|---|---|
-| 通信 / 调度与流量整形（BAG、端口缓冲、组帧） | T04/T05c/T27；回环切片 T22 | IF_MODE 分档见各 TB；T27 合法 BAG 扫档 | 全量计入 `144`/`144`；无单独 BAG 时延 key | P（各 TB 标题范围） | 任意 BAG×Lmax 笛卡尔积；板级线速调度 |
-| 高可靠：完整性检查 IC（SN/PSN） | T08e/T09 | 见 TB；向量+模型 | accept `1759` / reject `4248` | P | 顶层全错误笛卡尔积；babbling 全空间 |
-| 高可靠：冗余管理 RM（双网去重 / SkewMax） | T10 | 见 TB | fwd `56` dup `46` skew `3` | P | 任意迟到历史；网表级 RM |
-| SNMP 网络管理（v1 子集） | T15 族 / T31/T36；演示 T88 步 5 | v1 only | T88 步 5：**TB 内**金标 PASS（`p_c2_t88_r3`）；线上独立 BER 解码见 **T31/T36** | P（子集+演示步 5） | 完整 SNMP；T88 本场未挂 `check_snmp_wire_capture` 钩子 |
-| 615A / TFTP 加卸载（披露子集） | T34p/T35p；演示 T88 步 6 | 固定块长等；T88：520 B | T88 步 6 PASS（同上） | P（已跑子集+演示） | 完整 615A/665 认证 |
-| RTC 时钟同步（PPS/FLL） | **FLL 精度：T16a**；演示 T88 步 7 | T88：PPS 解除失步 + RTC 前进 | T88 步 7 PASS；精度不归 T88 | P（T16a 精度；T88 演示解除失步） | 把 FLL 精度说成 T88 测得；网络授时 |
+| 通信 / 调度与流量整形（BAG、端口缓冲、组帧） | T04/T05c/T27；回环切片 T22 | IF_MODE 分档见各 TB；T27 合法 BAG 扫档 | 全量计入 `145`/`145`；无单独 BAG 时延 key | P（各 TB 标题范围） | 限于各 TB 标题场景；不含任意 BAG×Lmax 笛卡尔积或板级线速调度 |
+| 高可靠：完整性检查 IC（SN/PSN） | T08e/T09 | 见 TB；向量+模型 | accept `1759` / reject `4248` | P | 限于该剧本向量；不含顶层全错误笛卡尔积或 babbling 全空间 |
+| 高可靠：冗余管理 RM（双网去重 / SkewMax） | T10 | 见 TB | fwd `56` dup `46` skew `3` | P | 限于该剧本；不含任意迟到历史或网表级 RM |
+| SNMP 网络管理（v1 子集） | T15 族；演示 T88 步 5 | v1 only | T88 步 5：**分段演示** TB 内 PASS（`p_c2_t88_r3`）；线上 BER 见 T31/T36 | P（子集+演示步 5） | 限于已实现 SNMP v1 子集与演示步 5；完整 SNMP 与独立 wire 钩子不在本场 |
+| 615A / TFTP 加卸载（披露子集） | T34p/T35p 等规模与管理相关；615A 专用 TB 见 manifest | 固定块长等边界见各 TB | `True` / `True` | P（已跑子集） | 限于已跑加卸载子集；不含完整 615A/665 认证或被动标准 LUI 全生命周期 |
+| RTC 时钟同步（PPS/FLL） | T16a 等 | 见 TB | `True` | P（该剧本） | 限于该 PPS/FLL 剧本；不含网络授时口或与 SNMP/TFTP 全共存矩阵 |
 
 ### 3.2 四指标
 
-| 指标 | T | 配置 | 实测（metric） | 等级 | 不能推出 |
+| 指标 | T | 配置 | 实测（metric） | 等级 | 适用边界 |
 |---|---|---|---|---|---|
-| 吞吐 ≥100 Mbps（S：RX 去重后有效载荷） | T42；T89；T90 | T42：16 VL；T89：见 §5；T90：128 TX / RX126+2unconf，CTL 0x051F | T42/T89 见各节；T90 rx_dedup **673.304** Mbps（§5.3 r6） | **P** | 任意 BAG；官方 SFD→SFD |
-| 官方字面：单帧 GMII **SFD→SFD** ≤2 ms | T89（列保留） | IF_MODE=2 单 ES 回环 | `sfd2sfd=0 by construction` → **I** | **I** | 「官方 2 ms 实测 0 ns」「SFD→SFD 已 P」；网络/交换机端到端 |
-| ES 发送/接收贡献与总占用 ≤2 ms | T89（C0） | IF_MODE=2 | L33：3384 / 2592 / 5976 ns（`p_c0_t89_questa_20261024_170643`） | **P** | 与工程 commit/eof 界混并；官方字面 SFD→SFD |
-| 工程时延（分列） | T13 / T13w / T42 / T89 | **IF_MODE=0**：T13/T13w；**IF_MODE=2**：T42/T89 | T13 worst `243416` ns；T13w `453752` ns；T42 tx `16.08` μs / rx `12.936` μs；T89 tx `15536` ns / rx `160` ns | P（各起止） | 冒充官方字面 SFD→SFD；XAPP RX&lt;150μs |
-| 抖动（同 VL 时延 max−min；本场景对照 40+Σ） | T05b；T42；T89 | T05b 压力档；T89：32VL×`3` 帧 | T05b startup `2` / steady `0` μs；T42 `5.016` μs；T89 max_jit `72` ns，本场景 40+Σ=`141` μs | P（各场景） | 「官方上限 50 μs」；合法 BAG 全档；未重算 40+Σ 套 500 μs |
-| 规模：128 TX / 4096 RX 能力 | T34p / T35p；满配吞吐 T90 | 见各 TB；T90 端口预算 128+126+2 SAP | `True` / `True`；T90 r6 **P** | **P** | 4096 路同时收；任意配置均 ≥100 Mbps |
+| 吞吐 ≥100 Mbps（S：RX 去重后有效载荷） | T42；T89；T90 | T42：16 VL；T89：见 §5；T90：128 TX / RX126+2unconf，CTL 0x051F | T42/T89 见各节；T90 r6 rx_dedup **673.304** Mbps（§5.3） | P（T42/T89）/ **P（T90）** | 限于各场 BAG/Lmax；不含任意 BAG 外推或官方字面 SFD→SFD |
+| 官方字面：单帧 GMII **SFD→SFD** ≤2 ms | T89（列保留） | IF_MODE=2 单 ES 回环 | `sfd2sfd=0 by construction` → **I** | **I** | 单 ES 回环无网络段，故不宣称官方字面已 P；不含网络/交换机端到端 |
+| ES 发送/接收贡献与总占用 ≤2 ms | T89（C0） | IF_MODE=2 | L33：3384 / 2592 / 5976 ns（`p_c0_t89_questa_20261024_170643`） | **P** | ES 贡献三列与工程 commit/eof 分列；不含官方字面 SFD→SFD |
+| 工程时延（分列） | T13 / T13w / T42 / T89 | **IF_MODE=0**：T13/T13w；**IF_MODE=2**：T42/T89 | T13 worst `243416` ns；T13w `453752` ns；T42 tx `16.08` μs / rx `12.936` μs；T89 tx `15536` ns / rx `160` ns | P（各起止） | 工程起止分列报告；不冒充官方字面 SFD→SFD，也不引用 XAPP RX&lt;150μs 为赛题项 |
+| 抖动（同 VL 时延 max−min；本场景对照 40+Σ） | T05b；T42；T89 | T05b 压力档；T89：32VL×`3` 帧 | T05b startup `2` / steady `0` μs；T42 `5.016` μs；T89 max_jit `72` ns，本场景 40+Σ=`141` μs | P（各场景） | 各场景实测；「几十微秒」无硬性官方上限；合法 BAG 全档与未重算的 40+Σ 不套用本场数字 |
+| 规模：128 TX / 4096 RX 能力 | T34p / T35p；满配吞吐 T90 | 见各 TB；T90 端口预算 128+126+2 SAP | `True` / `True`；T90 r6 **P** | P（规模 TB）/ **P（128 同时活动吞吐）** | 限于已跑规模/吞吐场；不含 4096 路同时收或任意配置均 ≥100 Mbps |
 
-**IF_MODE 分列（禁止混用）**：T13/T13w/T05b 等为 IF_MODE=0（或 TB 标明）；T42/T89/T88b 公开口指标为 IF_MODE=2。同一物理量在不同 IF_MODE 下**不得**拼成一条「现行」数字。
+**IF_MODE 分列（勿混读）**：T13/T13w/T05b 等为 IF_MODE=0（或 TB 标明）；T42/T89/T88b 公开口指标为 IF_MODE=2。同一物理量在不同 IF_MODE 下不拼成一条「现行」数字。
 
-全量矩阵：`144` / `144`（`True`）。  
-**不能推出**：认证实验室套件；评委自建 TB 以外的协议全集。
+全量矩阵：`145` / `145`（`True`）。  
+**适用边界：**认证实验室套件；评委自建 TB 以外的协议全集。
 
 ---
 
@@ -115,7 +115,7 @@
 由冻结同源 `regress.csv` **自动生成**（脚本 `tools/gen_regress_table.py`，只读 CSV）。  
 打包时附完整表或生成物；正文不手抄 144 行。
 
-- 汇总：PASS `144` / N `144`
+- 汇总：PASS `145` / N `145`
 - 建议 CSV：`out/p8_clean_20261022_191733/sim/out/p8_full_20261022_191856/regress.csv`（与 metrics `full_*` 同源）
 - 生成：`python tools/gen_regress_table.py --csv <上路径> [--out doc/submit/_generated_regress_table.md]`
 
@@ -133,7 +133,7 @@
 | RX sof→host max | `12.936` μs | 工程界 |
 | 抖动 max−min | `5.016` μs | 勿写「官方 50 μs」 |
 
-**不能推出**：官方 SFD→SFD；板级；128 VL 满配。
+**适用边界：**本结论限于 T42 工程起止与该场景 VL 配置；不含官方字面 SFD→SFD、板级测量或 128 VL 满配吞吐（见 T90）。
 
 ### 5.2 T89（IF_MODE=2；ns 主打印）
 
@@ -148,19 +148,18 @@
 | ES commit→TX SFD max | 3384 ns | **P**：`sim/out/p_c0_t89_questa_20261024_170643/T89_console.txt` **L33** |
 | ES RX SFD→host max | 2592 ns | **P**：同上 **L33** |
 | ES 总占用 | 5976 ns | **P**：同上 **L33**（≪2e6）；Python `T89_METRICS_CHECK PASS` |
-| 满配 128 VL 吞吐 | T90 r6 | **P**：rx_dedup 673.304 Mbps；见 §5.3 |
+| 满配 128 VL 吞吐 | （T90） | **P**：见 §5.3 |
 
-抖动说明：T89 对照本场景第一式 **40 μs + Σ** = `141` μs；实测 max_jit = `72` ns。新场景必须重算 40+Σ，不得套用他场数字。
+抖动说明：T89 对照本场景第一式 **40 μs + Σ** = `141` μs；实测 max_jit = `72` ns。新场景须重算 40+Σ。
 
-**不能推出**：T89 配置 ≡ T13w（BAG/Lmax 不同）；官方 SFD→SFD 已 P；官方 2 ms 实测 0 ns；T90 任意 BAG。
+**适用边界：**本结论限于 T89 场景参数；与 T13w 配置不同，不可混读；不含官方字面 SFD→SFD 已 P，也不外推到任意 BAG 的 T90。
 
 ### 5.3 T90（IF_MODE=2，128 TX VL；现行 **P**）
 
 **宣称口径**：128 TX VL 全测；RX **126** VL 交付 + **2** VL（126/127）精确丢弃对账；**SAP 开**（CTL 0x051F）；端口预算 `256 = 128 TX + 126 RX + 2 SAP`。
 
 证据：Questa `sim/out/p_c1_t90_r6_20261024_214647/` + Python `T90_METRICS_CHECK PASS`（wall 82s）。  
-TB sha256：`5938A22595C02051D2D8BF0F0E75D7EC170760DB80E410EBF4328941636DB29D`（=现行磁盘；见 `CARD_C1_r6.md`）。  
-manifest：`T90 tb_t90_vl128_throughput …`（已入 `sim/tests.manifest`）。
+TB sha256：`5938A22595C02051D2D8BF0F0E75D7EC170760DB80E410EBF4328941636DB29D`（=现行磁盘）。
 
 | 项 | 实测 |
 |---|---|
@@ -168,25 +167,23 @@ manifest：`T90 tb_t90_vl128_throughput …`（已入 `sim/tests.manifest`）。
 | RX deliver | **378** == 126×3 |
 | TX payload Mbps A/B | **679.188** |
 | RX 去重 Mbps | **673.304** |
-| e2e 抖动 max−min | **36936** ns ≤ 500 μs（本场景 40+Σ→500；节拍一致） |
+| e2e 抖动 max−min | **36936** ns ≤ 500 μs |
 | ES 总占用 | **85360** ns |
 | CFG_SUM | **815008** |
 | host_ack_wait_max | **368** ≤ 1000（契约 L93） |
 
 | 阶段 | 结果 | 说明 |
 |---|---|---|
-| r1–r5 | FAIL / 绕开 | 见冲刺卡；**不得**用 r3 关 SAP 冒充 |
-| **r6** | **PASS** | ACK=1000；定稿 P |
+| r1–r5 | FAIL / 绕开 | 见冲刺卡；不以关 SAP 的历史跑次冒充现行 |
+| **r6** | **PASS** | ACK=1000；定稿 **P** |
 
-抖动算式：`J=min(40+Σ_j(20+Lmax_j)·8/1000,500)`；Σ_bytescale=97152 → **500 μs**。
-
-**不能推出**：任意 BAG；官方 SFD→SFD；4096 路同时收。
+**适用边界：**本结论限于 T90 本场 BAG/Lmax 与端口预算；不含任意 BAG 外推、官方字面 SFD→SFD，或 4096 路同时收。
 
 图：占位（VCD 绘，非 GUI 截屏）。缺图见文末。
 
 #### 5.3.1 T88 演示场（并列；非 T90）
 
-Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5 前复位；步 5–6 `mgmt_mode` 断开 TX→RX 回环，与 T43 同口径；**不得**写「连续 8 步一次上电」）。步 7=PPS 解除失步+RTC 前进；**FLL 精度归 T16a**。SNMP 为 TB 内判据；独立线上 BER 见 T31/T36。SE 复跑 → D 阶段。
+Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5 前复位；步 5–6 `mgmt_mode` 断开 TX→RX 回环，与 T43 同口径；本场为分段演示，不是一次上电连续 8 步）。步 7=PPS 解除失步+RTC 前进；**FLL 精度归 T16a**。SNMP 为 TB 内判据；独立线上 BER 见 T31/T36。SE 复跑 → D 阶段。
 
 ---
 
@@ -197,12 +194,13 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 - 阐述：`VoptFlow=0`（见 `out/p8_freeze_225cd91/STATUS.md` / `out/p8g_t88b`）；**判据与 RTL 场相同**，仅加载路径不同。
 - **eLinx GUI 行为仿真（人工，2026-10-23）**：工程 `elinx/gui_afdx/AFDX_top.epr`，顶层 `tb_gate_public_loopback`，ModelSim SE。  
   证据（**仅此**）：`out/p3_elinx_gui_20261023/transcript` **L1102**（`T88b GATE PUBLIC LOOPBACK PASS…`）、**L1106**（`Errors: 0, Warnings: 2`）；`shots/elinx_sources.png`；`shots/elinx_modelsim_path.png`。  
-  等级：**P（GUI 行为）**；≠ 门级 VO；≠ Fit/STA。  
-  **不得引用** `elinx_pass.png` / `elinx_run_behav.png` / 记事本摘录 / `shots/_discard/`。
+  等级：**P（GUI 行为）**；≠ 门级 VO。  
+  证据不含 `elinx_pass.png` / `elinx_run_behav.png` / 记事本摘录 / `shots/_discard/`。
+- **T91 门级吞吐：F**（2026-10-26）。公开端口吞吐场在 RTL（Questa，NVL=16 ROUNDS=3，稳态第 2–3 轮）已 PASS；门级探速 ROUNDS=1 至 18:10 决策点仍未 `$finish`（墙钟约 20994 s），按外推不再启动 R=2/R=3 门级。综合后仿真证据以 **T88b 切片**为准，不以 T91 门级吞吐宣称。
 
-**不能推出**：门级 full 矩阵；SDF；eLinx 原生网表 ≡ Quartus VO；Fit 已签。
+**适用边界：**本结论限于公开端口门级切片 T88b；不含门级全量矩阵、SDF、T91 门级吞吐，也不将 eLinx 原生网表等同 Quartus VO。
 
-综合规模（旁证）：cells=`106241`，altsyncram=`507`；Fmax=`41.66` MHz / Setup=`-16.005` ns（**I**，代理器件未闭合）。
+综合规模（旁证）：cells=`106241`，altsyncram=`507`（eLinx；≠ GUI LUT）。本作品不做时序签核与板级验证（赛题未要求）。
 
 ---
 
@@ -210,13 +208,38 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 
 | 项 | 值 | 等级 |
 |---|---|---|
-| 变异杀死 | FREEZE 键仍 **null**。**分列**：历史 **57/57**；C3 **新增 28、杀死 23、存活 5、已证等价 0**（见上表证据树）。超时/PASS 不计杀 | P（分列） / FREEZE 键 I |
-| lint %Error | `lint_error` = **null** → **未跑/未入冻结**（工程门曾 PASS 见执行记录，不得冒充本 FREEZE 数） | I / 未跑 |
-| 覆盖率 | 未跑（本轮 FREEZE 标明；D 阶段后再填） | I / 未跑 |
-| 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（主因 wrapper (a)）；**(c) 未排除（VCD 未能解码 start_vld/next_tx）**；**不宣称 BAG** — `ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
+| 变异杀死 | **分列**：历史 `57`/`57`；C3 新增 `28`、杀死 `23`、存活 `5`、已证等价 `0`（`p_c3_merged_20261025`） | **P**（分列；勿与历史 57/57 拼接成现行） |
+| lint %Error | `lint_error` = `0`（`out/p4_lint_20261022_182034`；rtl 相对 `225cd91` 空差，见 `out/p9_freeze_dfac58a/rtl_empty_vs_225cd91.txt`） | **P** |
+| 覆盖率（DU 加权，全设计） | stmt `93.79`% / branch `89.72`% / total `91.76`% | **I** |
+| 覆盖率（实例口径，含 TB/bind） | stmt **58.73%** / branch **44.63%** / total **51.68%**（145 UCDB `vcover summary` BY INSTANCES，8379 实例） | **I** |
+| 覆盖率（单行 AFDX_top DU 参考） | stmt `93.36`% / branch `89.23`% / total `91.29`% — 仅作顶层 DU 参考，非全设计覆盖率 | **I** |
+| 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（主因 wrapper (a)）；**(c) 未排除（VCD 未能解码 start_vld/next_tx）**；**不宣称 BAG** — `formal/ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
 | 形式 BMC（pool/RM 历史） | 有界 PASS 见 ENV_STATUS；不替代仿真 T | I |
 
-**不能推出**：95% 覆盖；变异已覆盖全部新模块；BMC 无界证明；bmc20 空真当 BAG 证据。
+### 7.1 覆盖率两种口径（并列，均 I）
+
+| 口径 | 语句 | 分支 | 合计 | 怎么算 | 含什么 |
+|---|---:|---:|---:|---|---|
+| **DU 加权（全设计）** | `93.79`% | `89.72`% | `91.76`% | `elinx/AFDX_top_sources.f` 各生产模块 `vcover -du=<mod>`，再 **Σhits/Σbins** | 仅生产 RTL DU；**不含 TB** |
+| **实例口径** | 58.73% | 44.63% | 51.68% | `vcover summary -codeAll` **BY INSTANCES** | **含 TB / bind / 多实例展开**；与 9 月含 TB 的 67.82% 同族、不可直接等同 |
+
+**DU 口径含义：** 对某一 design unit，**任一仿真实例上该 bin 被命中即计为覆盖**（跨 TB 合并后取并集），再按各 DU 的 bins 数加权求和。因此 DU 加权数字 **高于** 实例口径是预期现象，**不是**「设计已测到 93% 行级」。实例口径把每个 TB 下的 `dut/...`、TB 自身与 bind 实例分开计数，未命中的实例拉低总比。
+
+证据：`out/p9_freeze_dfac58a/coverage_by_du.md`、`coverage_summary_all145.txt`、`coverage_hotspots_top20.md`。
+
+**语句覆盖最低的 5 个生产 DU（及原因，I）：**
+
+| DU | 语句% | 主要原因（不宣称已穷尽） |
+|---|---:|---|
+| `bram_sdp` | 42.85 | 包装层/少用端口与字节使能边角；多数访问走 `bram_sdp_core` |
+| `bram_1w1r` | 60.00 | 单口变体路径在现行 TB 矩阵中较少激励 |
+| `tx_sn_gen` | 79.66 | SN 回绕/复位/旁路等边沿未在全矩阵打满 |
+| `rx_reassembly_chain` | 80.08 | 分片超时、乱序、异常终止等负路径只覆盖子集 |
+| `rx_pmem_scatter_copy` | 83.09 | 散写/背压组合未笛卡尔扫满 |
+
+另：`a615a_tftp` 语句约 86%——TFTP 错误码/超时/TID 错等分支仅部分 TB 触及；本场覆盖为子集路径，非 615A/TFTP 全状态机。
+
+**适用边界：**覆盖率为两种并列 I 口径，不以 95% 为目标；DU 加权与实例口径不可混称；变异与 BMC 仅覆盖已报告范围，bmc20 空真不作 BAG 证明。
 
 ---
 
@@ -233,7 +256,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | 补端口并接 0（或驱动）；新增 `tb_chipsim_smoke.v`（T88a） |
 | 回归 | T88a：修复前 FAIL（MSG_CNT=0），修复后 PASS（MSG_CNT=1） |
 | 证据 | `sim/out/p1_chipsim_before_20261021_185558/`；`sim/out/p1_chipsim_after_20261021_185558/`；`doc/提分执行计划_20261020.md` §12 步骤 1b；commit `34383d4` |
-| 不能推出 | 满配 `AFDX_top` 也曾漏接；chipsim ≡ 满配门级 |
+| 适用边界 | 满配 `AFDX_top` 也曾漏接；chipsim ≡ 满配门级 |
 
 ### D2. T42 runner 卡死与 harvest
 
@@ -244,7 +267,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | `run_regress.ps1` Run-Vsim：见 `$finish`+Errors 后 grace **harvest**；`run_smoke.ps1` 同步 |
 | 回归 | 冒烟一次 15/15（含 T42） |
 | 证据 | `sim/out/p3_smoke_20261022_182316/SMOKE_SUMMARY.md`；提分计划 §12 步骤 9；commit `225cd91` |
-| 不能推出 | harvest 改变了 TB 判据；冒烟 = 全量 |
+| 适用边界 | harvest 只改进程退出判定，不改 TB 判据；冒烟集不等于全量矩阵 |
 
 ### D3. lint 误改 RTL 后回退
 
@@ -255,7 +278,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | `git restore` 回 `683e959`；改用 `-Wno-BLKLOOPINIT` 豁免 |
 | 回归 | `tools_lint.ps1` LINT GATE PASS（sources.f=48）；RTL 与锚点 ignore-cr 一致 |
 | 证据 | `out/p4_lint_20261022_182034/`；提分计划 §12 步骤 8；commit `225cd91` |
-| 不能推出 | lint 无 warning；本 FREEZE `lint_error` 已有数（实为 null） |
+| 适用边界 | lint 无 warning；本 FREEZE `lint_error` 已有数（实为 null） |
 
 ### D4. 门级 TB 参数覆盖 → vopt-2732
 
@@ -266,7 +289,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | `tb_gate_public_loopback` 去掉参数覆盖（依赖 RTL 默认 IF_MODE=2/FCS_MODE=2）；脚本补 `-L` |
 | 回归 | 门级 T88b S1+S2（后 S3）PASS |
 | 证据 | `out/p2_gate_vo_20261021_193847/sim_r3/`；提分计划 §12 步骤 4；现行 VO 键 `2801113d07f7f72cf8d9d3a6c737fc0d1fea3669effa1a53551058c85165fb46` |
-| 不能推出 | 门级 full 矩阵；SDF |
+| 适用边界 | 本条仅覆盖门级加载路径修复；不含门级 full 矩阵或 SDF |
 
 ### D5. T89 re-init 清 PSN
 
@@ -277,7 +300,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | TB：独立 VL_RX 索引；jit32 后 **hard re-init**（`wait_init`）再跑 e2e；注释见 `sim/tb/tb_t89_gmii_metrics_full.v` |
 | 回归 | T89 PASS（checks 与 Python 复算）；冻结键 `t89_*` |
 | 证据 | 提分计划 §12 步骤 10；`tb_t89_gmii_metrics_full.v`（「hard re-init after jit32 so IC PSN is clean」）；全量目录 T89_console |
-| 不能推出 | 官方 SFD→SFD 键已入本冻结 metrics |
+| 适用边界 | 本条修复 IC PSN 污染；官方字面 SFD→SFD 仍按 I 列，未写入本冻结主键 |
 
 ### D6. T15/T15g SAP 背压重复接收
 
@@ -288,7 +311,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | `AFDX_top`：`prs_to_sap && sap_engine_ready` |
 | 回归 | T15/T15g 及当时完整回归 |
 | 证据 | `doc/整改执行记录_20261008.md` §1 / §2.1 |
-| 不能推出 | 当时另一冻结全量 = 现行 `144` |
+| 适用边界 | 当时另一冻结全量 = 现行 `145` |
 
 ### D7. TFTP 主机地址位宽
 
@@ -299,7 +322,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | 先 `host_addr - 16'hCC20`，再取 `[12:0]`；穷举有效窗 |
 | 回归 | 地址空间穷举 + 完整回归相关项 |
 | 证据 | `doc/整改执行记录_20261008.md` §2.1；`warning_triage_r2/check_tftp_addr_width.py` |
-| 不能推出 | 完整 615A 认证 |
+| 适用边界 | 本条仅覆盖地址位宽修复；不含完整 615A 认证 |
 
 ### D8. 管理面提交暴露的真实缺陷（T24 过程）
 
@@ -310,7 +333,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | commit `d979f5a`（修缺陷）；`0aa8648`（管理面响应上线，CTL[9] 保护既有用例） |
 | 回归 | 相关 SNMP/管理 T |
 | 证据 | `git log`：`d979f5a`、`0aa8648` |
-| 不能推出 | 管理面 = 完整 SNMP/615A |
+| 适用边界 | 本条仅覆盖已合入缺陷修复；管理面仍为已披露子集 |
 
 ### D9.（补充）门级缺 `-L` / 加载路径（与 D4 同轮）
 
@@ -321,7 +344,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 修复 | `run_gate_t88b.ps1` 等补 `-L elinx_lib` |
 | 回归 | 同 D4 sim_r3 PASS |
 | 证据 | 提分计划 §12 步骤 4 卡内「r1 缺 -L」 |
-| 不能推出 | 一次失败次数可拼成 PASS |
+| 适用边界 | 以最终 PASS 证据为准；中间失败次数不拼成通过 |
 
 ---
 
@@ -331,10 +354,10 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 |---|---|---|
 | Runner **harvest** | 日志已结束则收割 hung 进程 | **不变**（只改退出判定） |
 | 门级 **VoptFlow=0** | 阐述/优化流关闭，加载 functional VO | **不变**（与 RTL 同 TB 判据） |
-| 全量 N=`144` vs 历史 `post_fix4` 全量 | manifest / runner 代际不同；另一 commit（计数见文末历史附录） | **不可等同、不可拼接** |
+| 全量 N=`145` vs 历史 `post_fix4` 全量 | manifest / runner 代际不同；另一 commit（计数见文末历史附录） | **不可等同、不可拼接** |
 | eLinx GUI vs 门级 VO | GUI 行为 P ≠ VO 门级 P | 分列 |
 
-**不能推出**：把历史附录中的旧全量计数与本冻结 `144`/`144` 写成「同一轮」。
+**适用边界：**把历史附录中的旧全量计数与本冻结 `145`/`145` 写成「同一轮」。
 
 ---
 
@@ -347,9 +370,10 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | T88 演示步骤 1–8 | `p_c2_t88_r3` + D 全量 Questa/SE PASS；分段演示 | **P** |
 | BAG 有界 BMC（C4） | bmc20 空真；bmc40 未收绿 | **F**（不宣称） |
 | ModelSim SE 全量逐项 vs Questa | D：145/145 一致（`dual_sim_compare.csv`）；墙钟 SE 快约 7.5×（FSE） | **P**（结果）；墙钟差 I |
-| 覆盖率 / FREEZE 内变异·lint 数值 | D 覆盖率进行中；变异分列见 §7 | I（覆盖未结）/ P（C3 分列） |
-| 代理 Fmax≥125 / 板卡签核 | Setup 负裕量 | I / F |
+| 覆盖率 / FREEZE 内变异·lint 数值 | 全设计加权覆盖率 I（非单行 AFDX_top）；lint_error=0 **P**；变异分列见 §7 | I（覆盖）/ P（lint·C3） |
+| 时序签核 / 板级验证 | 不做（赛题未要求） | — |
 | 门级 full 矩阵、SDF、eLinx 原生网表业务 | 未做 | F |
+| T91 门级吞吐（公开端口 ROUNDS=2/3） | 探速未在 18:10 前完成；不启门级 | **F**（RTL R=3 旁证另列） |
 | 完整 ARINC / 615A/665 认证、对端真 ES | 不做 | F |
 | T18 8h 长时 | 禁止宣称 | F |
 
@@ -358,8 +382,8 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 ## 缺图清单（人工补）
 
 - [x] eLinx GUI：`transcript` L1102/L1106 + `shots/elinx_sources.png` + `shots/elinx_modelsim_path.png`（`_discard/` 不入包）
-- [ ] T88 / T89 / T10 / T16u 波形 PNG（VCD→脚本；注明 VCD sha256）
-- [ ] T42/T89 吞吐时间序列、时延直方图、抖动箱线（D 阶段）
+- [x] T10 / T16u / T88 / T89 / T90 波形 PNG（`out/p9_freeze_dfac58a/wave_png/*_signals.png`；VCD→`plot_vcd_signals.py`；注明 VCD sha256）。图注：**取自 -Acc 调试运行（严格判官因 vopt-10908 警告记 FAIL，TB 自判 PASS），功能结论以全量回归为准**（等级 **I**）。探针：T10=RM fwd/dup/skew；T16u=TFTP unload ack/file_valid；T88/T89/T90=TX/RX valid + host_ack/MT_COMMIT（帧时序/去重/吞吐相关，非活动度直方）。
+- [ ] T42/T89 吞吐时间序列、时延直方图、抖动箱线（可选补；现行探针图已覆盖时延/去重窗口）
 
 ---
 
@@ -369,4 +393,4 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 - 2026-10-06：80/80 — `closeout_20261006`
 - 更早：70/70（2026-10-03）等  
 
-以上 N 与 runner **≠** 本报告 `144`。
+以上 N 与 runner **≠** 本报告 `145`。

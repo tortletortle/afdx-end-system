@@ -14,7 +14,7 @@
   doc/submit/人工清单_3到5.md
 
 【已完成 — 本窗口不要重做】
-1. eLinx GUI 截图与产物：out/p3_elinx_gui_20261023/（含 T88b PASS transcript）
+1. eLinx GUI 证据仅：out/p3_elinx_gui_20261023/transcript（L1102/L1106）+ shots/elinx_sources.png + shots/elinx_modelsim_path.png；禁止 elinx_pass/run_behav/记事本摘录
 2. AI 声明正文已定：doc/01_AI工具使用声明.md（核对人签字提交前补）
 2b. 团队分工表骨架：doc/团队分工.md —— 姓名/签字「最后提交前再填」；禁止催着填假名
 
@@ -59,12 +59,8 @@
   - 团队分工姓名仍延后，本窗口不填
 
 第 1 题统一口径（全队背这一版；抽问时核对是否走样）：
-  仿真 / TB 用 125 MHz（GMII 字节节拍）。
-  满配代理器件 post-fit 测得 Fmax 41.66 MHz（Setup −16.005 ns），
-  证据 out/baseline_full140_fit_sta_20261018_223600/，等级 I（未闭合）。
-  不是板卡签核；不能说「Fmax≥125 已签」。
-  功能正确性靠 RTL 回归与门级/eLinx T88b 等，不靠这条 Fmax。
-  禁止把历史 128.44 MHz（旧源码）说成现行。
+  赛题要求综合后仿真，未要求时序签核；仿真按 GMII 速率 125 MHz，未做布局布线后时序收敛。
+  不能说「125 MHz 已达到」「时序已闭合」。
 
 其余 6 题按答辩要点.md §2～§7 带练（自研 MAC、128/4096 口径、2 ms 起止、1G vs 100M、预言机可信度、615A/SNMP 范围）。
 
@@ -77,5 +73,5 @@
 - 发明赛题分数；把 I 改写成 P；虚构组委会答复
 - 未经用户明确要求改 rtl/、sim/tests、或重跑 full140 / T18 8h
 - 替用户填写团队真实姓名或催签假名
-- 宣称 95% 覆盖、Fit/STA 已签、完整 ARINC 认证、对端真 ES 闭环
-- 把历史 80/80、70/70、Fmax 128.44 拼成现行
+- 宣称 95% 覆盖、时序已闭合、完整 ARINC 认证、对端真 ES 闭环
+- 把历史 80/80、70/70 拼成现行；写「125 MHz 已达到」

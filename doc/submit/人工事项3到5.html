@@ -135,7 +135,7 @@
 <section id="s0">
   <h2>五件事做到哪了</h2>
   <div class="status">
-    <div class="pill"><strong>1. eLinx 截图</strong><span class="s-ok">已完成</span><br><span class="path">out/p3_elinx_gui_20261023/</span></div>
+    <div class="pill"><strong>1. eLinx 证据</strong><span class="s-ok">已完成</span><br><span class="path">transcript L1102/L1106 + 两张真截图</span></div>
     <div class="pill"><strong>2. AI 声明</strong><span class="s-ok">正文已定</span><br>核对人签字提交前补</div>
     <div class="pill"><strong>2b. 团队分工</strong><span class="s-todo">提交前再填</span><br><span class="path">doc/团队分工.md</span></div>
     <div class="pill"><strong>3～5</strong><span class="s-todo">本页要做的</span><br>读 / 问 / 练</div>
@@ -204,16 +204,12 @@
   <ul class="check">
     <li>现场跑 T88b，一人操作一人讲</li>
     <li>7 个预判问题每人都能答</li>
-    <li>第 1 题 Fmax：全队同一套话（见下）</li>
+    <li>第 1 题（125 MHz / 未做时序签核）：全队同一套话（见下）</li>
   </ul>
   <h3>第 1 题统一口径（背这一版）</h3>
   <blockquote>
-    仿真 / TB 用 <strong>125 MHz</strong>（GMII 字节节拍）。<br>
-    满配代理器件 post-fit 测得 <strong>Fmax 41.66 MHz</strong>（Setup −16.005 ns），证据
-    <span class="path">out/baseline_full140_fit_sta_20261018_223600/</span>，等级 <strong>I（未闭合）</strong>。<br>
-    不是板卡签核；不能说「Fmax≥125 已签」。<br>
-    功能靠 RTL 回归与 T88b，不靠这条 Fmax。<br>
-    禁止把历史 128.44 MHz（旧源码）说成现行。
+    赛题要求综合后仿真，未要求时序签核；仿真按 GMII 速率 125 MHz，未做布局布线后时序收敛。<br>
+    不能说「125 MHz 已达到」「时序已闭合」。
   </blockquote>
   <h3>另外 6 题（标题）</h3>
   <ol>

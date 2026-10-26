@@ -54,7 +54,7 @@ def main():
             print("SKIP  %-18s 缺 %s" % (name, script)); bad.append(name + "(缺文件)"); continue
         cmd = [sys.executable, p]
         if name == "check_doc_metrics":
-            metrics = os.path.join(ROOT, "out", "p8_freeze_225cd91", "metrics.json")
+            metrics = os.path.join(ROOT, "out", "p9_freeze_dfac58a", "metrics.json")
             if not os.path.isfile(metrics):
                 cmd.append("--allow-missing-metrics")
             else:

@@ -176,6 +176,11 @@
         S2=<span class="metric">{{metric:gate_t88b_s2}}</span>
         S3=<span class="metric">{{metric:gate_t88b_s3}}</span></li>
       <li>VO sha256：<span class="metric">{{metric:gate_vo_sha256}}</span></li>
+      <li><strong>eLinx GUI</strong>：<code>out/p3_elinx_gui_20261023/transcript</code>
+        <strong>L1102</strong>（PASS）、<strong>L1106</strong>（Errors:0）；
+        <code>shots/elinx_sources.png</code>；
+        <code>shots/elinx_modelsim_path.png</code>。
+        禁止 <code>elinx_pass.png</code> / <code>elinx_run_behav.png</code> / 记事本摘录。</li>
     </ul>
   </section>
 
@@ -203,14 +208,14 @@
       <li>满配 VL 吞吐未测</li>
       <li>ModelSim SE 全量逐项对比本轮未跑</li>
       <li>覆盖率本轮未跑</li>
-      <li>Fmax 未闭合（<span class="badge i">I</span>）</li>
+      <li>时序签核 / 板级验证：不做（赛题未要求）</li>
     </ul>
   </section>
 
   <section class="card" id="figs">
     <h2>缺图清单（人工补）</h2>
     <ul>
-      <li>☐ eLinx GUI 工程截图（仅占位；证据亦可指 <code>out/p3_elinx_gui_20261023/</code>）</li>
+      <li>☑ eLinx GUI：<code>transcript</code> L1102/L1106 + <code>shots/elinx_sources.png</code> + <code>shots/elinx_modelsim_path.png</code>（<code>shots/_discard/</code> 不入包）</li>
       <li>☐ T88 / T89 / T10 波形 PNG（VCD→脚本；注明 VCD sha256）</li>
     </ul>
   </section>

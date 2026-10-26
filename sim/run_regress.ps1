@@ -714,6 +714,7 @@ foreach ($m in $manifest) {
   if ($m.Id -eq 'T34' -or $m.Id -eq 'T34p') { $cap = 1800 }
   if ($m.Id -eq 'T89') { $cap = 1200 }
   if ($m.Id -eq 'T90') { $cap = 1800 }
+  if ($m.Id -eq 'T91') { $cap = 1800 }
   if ($m.Id -eq 'T88') { $cap = 900 }
   $meta.current_test = $m.Id
   $meta.current_test_started_local = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')
@@ -794,6 +795,20 @@ foreach ($m in $manifest) {
       $vd = [pscustomobject]@{ Result='FAIL'; Reason='independent T90 metrics CSV/JSON check failed'; Verdict='' }
     } else {
       $semanticNote = 'independent T90 CSV/JSON metrics check PASS'
+    }
+  }
+  if ($vd.Result -eq 'PASS' -and ($m.Id -eq 'T91')) {
+    foreach ($fn in @('t91_metrics.csv', 't91_verilog_summary.json')) {
+      $src = Join-Path $sim $fn
+      if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $runOutput $fn) -Force
+      }
+    }
+    & python (Join-Path $sourceRoot 'tools\t91_metrics_check.py') $runOutput
+    if ($LASTEXITCODE -ne 0) {
+      $vd = [pscustomobject]@{ Result='FAIL'; Reason='independent T91 metrics CSV/JSON check failed'; Verdict='' }
+    } else {
+      $semanticNote = 'independent T91 CSV/JSON metrics check PASS'
     }
   }
   if ($vd.Result -eq 'PASS' -and ($m.Id -in @('T33p','T34p'))) {

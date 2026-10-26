@@ -1,10 +1,10 @@
-<!-- rendered from AFDX端系统_设计文档.md using C:/Workspace/diansai/out/p8_freeze_225cd91/metrics.json commit=225cd91be4f6a4b332db1674b44761bca367bd67 -->
+<!-- rendered from AFDX端系统_设计文档.md using C:/Workspace/diansai/out/p9_freeze_dfac58a/metrics.json commit=098efc98d379c29b113d52dfccb24cdf36be7391 -->
 
 # AFDX 端系统设计文档（提交版）
 
-> 数字一律 metrics 锚点（键见 `out/p8_freeze_225cd91/metrics.json`），定稿由 `tools/render_doc_metrics.py` 填充。正文不写开发编年史。  
-> 冻结：`225cd91be4f6a4b332db1674b44761bca367bd67` · 全量 `144`/`144`。  
-> 对错按 `doc/验收尺子.md`：S/N/T；宣称 P/I/F。每个 P 句后跟「不能推出」。
+> 数字一律 metrics 锚点（键见 `out/p9_freeze_dfac58a/metrics.json`），定稿由 `tools/render_doc_metrics.py` 填充。面向评委阅读；开发编年史不写入正文。  
+> 冻结：`098efc98d379c29b113d52dfccb24cdf36be7391` · 全量 `145`/`145`。  
+> 宣称等级：P 可宣称／I 仅实现旁证／F 不宣称。关键结论附适用边界。
 
 ---
 
@@ -26,20 +26,20 @@
 
 | 指标 | 官方（S）口径 | 工程计量（本仓） | 等级提示 |
 |---|---|---|---|
-| 吞吐 | 有效载荷 ≥100 Mbps；RX 侧 A/B **去重后只计一次**；须千兆 GMII 拍 | T42；T90 r6：128 TX / RX126+2unconf / SAP 开 | 场景内可 P；T90 rx_dedup ≥100 Mbps（`p_c1_t90_r6`） |
-| 时延 | 官方字面：单帧 GMII **SFD→同帧 SFD** ≤2 ms（单 ES 回环无网络段→**I**）；跨多 BAG 多帧不受此限 | **ES 贡献**：commit→TX SFD、RX SFD→host、`es_total`=二者 max 之和≤2 ms（T89 Questa `p_c0_t89_questa_20261024_170643` **L33**：3384/2592/5976 ns）；另有工程 commit→eof / sof→host（T42：`16.08` / `12.936` μs） | 禁止「官方 2 ms 实测 0 ns」「SFD→SFD 已 P」 |
-| 抖动 | 同 VL 多帧端到端时延 **max−min**；「几十微秒」**无硬数字** | 同统计量；项目自设 50 μs 判据。T42：`5.016` μs；T89：`72` ns，本场景 40+Σ=`141` μs | 勿写「官方上限 50 μs」 |
-| 规模能力 | 128 TX / 4096 RX 为能力声明；后仿可切片 | 默认参数满配综合；门级为 T88b 切片 | 门级全量 F |
+| 吞吐 | 有效载荷 ≥100 Mbps；RX 侧 A/B **去重后只计一次**；须千兆 GMII 拍 | T42 等场景按有效载荷；A/B 各自 TX ≥100 为工程加严旁证 | 场景内可 P；128 VL 同时活动见 T90 |
+| 时延 | 官方字面：单帧 GMII **SFD→同帧 SFD** ≤2 ms（单 ES 回环无网络段→**I**）；跨多 BAG 多帧不受此限 | **ES 贡献**：commit→TX SFD、RX SFD→host、`es_total`（T89）；另有工程 commit→eof / sof→host（T42：`16.08` / `12.936` μs） | 官方字面 SFD→SFD 不在单 ES 验收范围 |
+| 抖动 | 同 VL 多帧端到端时延 **max−min** | 同统计量。T42：`5.016` μs；T89：`72` ns，本场景 40+Σ=`141` μs | 「几十微秒」无硬性官方上限数字 |
+| 规模能力 | 128 TX / 4096 RX 为能力声明；后仿可切片 | 默认参数满配综合；门级为 T88b 切片 | 门级全量矩阵不在本作品证据范围 |
 
 ### 1.3 协议子集与答疑依据
 
-- **物理口**：GMII（PHY）；MAC 可用 eLinx IP，**无强制**——本仓自研 `mac_tx_if`/`mac_rx_if`（`doc/赛方答疑原文_20261009.txt` L107–109；对照报告 §1.2）。
+- **物理口**：GMII（PHY）；MAC 可用 eLinx IP，**无强制**——本仓自研 `mac_tx_if`/`mac_rx_if`（赛方答疑确认；出处见附录 A）。
 - **ready**：可不用；`tx_valid=1`/`rx_valid=1` 即有效，不要求 valid∧ready（原文 L75、L111–119；契约 §2）。
-- **615A/665**：交付物为 AFDX 协议实现；615A 数据加载及 665 解析**非硬要求**（对照报告 §1.4）。本仓披露现测 TFTP 子集与边界，**不写「管理面可省略」**。
+- **615A/665**：交付物为 AFDX 协议实现；615A 数据加载及 665 解析**非硬要求**（赛方答疑：非硬性要求）。本仓披露现测 TFTP 子集与边界。
 - **SNMP / RTC**：参考规范；本仓 SNMP **v1 only**（GET/GETNEXT/SET），RTC 接 PPS/FLL。
-- **模板口答辩句**：网络公开口 = GMII A/B；主机 = 扩展 `host_*`；与答疑「模块在内部、可加端口」一致（对照报告 §3.3）。
+- **模板口答辩句**：网络公开口 = GMII A/B；主机 = 扩展 `host_*`；与答疑「模块在内部、可加端口」一致（出处见附录 A）。
 
-不宣称：完整 A664 认证、交换机、对端真 ES 闭环、完整 615A 认证、官方 SFD→SFD 已 P、官方 2 ms 实测 0 ns、128 VL 任意配置均达标、4096 路同时收、门级全量、Fmax≥125 已签。
+本作品范围之外还包括：完整 A664 认证、交换机、对端真 ES 闭环、完整 615A 认证、官方 SFD→SFD 已 P、官方 2 ms 实测 0 ns、128 VL 任意配置均达标、4096 路同时收、门级全量、时序签核/板级验证（赛题未要求）。
 
 ---
 
@@ -49,13 +49,13 @@
 
 ![图1 总体数据流](figs/fig1_dataflow.png)
 
-源：`doc/figs/fig1_dataflow.mmd`（已渲 PNG）。默认：`IF_MODE=2`、`DUAL_NET_EN=1`、`NUM_TX_VL=128`、`NUM_RX_VL=4096`、`CLK_FREQ_HZ=125_000_000`。单时钟参数声明，**不是**时序收敛结论。
+源：`doc/figs/fig1_dataflow.mmd`（已渲 PNG）。默认：`IF_MODE=2`、`DUAL_NET_EN=1`、`NUM_TX_VL=128`、`NUM_RX_VL=4096`、`CLK_FREQ_HZ=125_000_000`。单时钟参数用于功能仿真（与 GMII 速率匹配），非板级结论。
 
 ### 2.1 模块清单（生产主链）
 
 | 模块 | 文件 | 职责 | 关键参数 |
 |---|---|---|---|
-| `AFDX_top` | `rtl/top/AFDX_top.v` | 顶层；主机译码；流水互联 | 见 §9 |
+| `AFDX_top` | `rtl/top/AFDX_top.v` | 顶层；主机译码；流水互联 | 见 §10 |
 | `rst_sync` | `rtl/common/rst_sync.v` | 异步复位同步 | — |
 | `timebase` | `rtl/common/timebase.v` | μs 时基 | `TICK_US` |
 | `init_sweep` | `rtl/top/init_sweep.v` | 上电清表至 `INIT_DONE` | — |
@@ -69,7 +69,7 @@
 | `gmii_rx_strip` | `rtl/rx/gmii_rx_strip.v` | 剥前导/SFD | — |
 | `mac_rx_if` | `rtl/rx/mac_rx_if.v` | MAC 校验、写 PMEM、出描述符 | `MAX_FRAME` |
 | `rx_pmem_queue` | `rtl/rx/rx_pmem_queue.v` | 每网好帧描述符队列 | — |
-| `rx_vl_lookup` | `rtl/rx/rx_vl_lookup.v` | 双表×2-way 哈希查 VL 索引 | `HASH_BUCKETS`/`NUM_RX_VL` |
+| `rx_vl_lookup` | `rtl/rx/rx_vl_lookup.v` | 双表×2-way（共 4-way）哈希查 VL 索引 | `HASH_BUCKETS`/`NUM_RX_VL` |
 | `rx_flt` | `rtl/rx/rx_flt.v` | valid/VLID/网/Lmax 过滤 | — |
 | `rx_ic` | `rtl/rx/rx_ic.v` | SN 完整性 | `IC_EN`；`IC_FIRST_ANY` |
 | `rx_rm` | `rtl/rx/rx_rm.v` | SkewMax 去重 + hist 窗 | `RM_EN` |
@@ -88,9 +88,77 @@
 
 ---
 
-## 3. 接口
 
-### 3.1 顶层端口（摘自 `rtl/top/AFDX_top.v`）
+
+## 3. 创新点与工程特色
+
+本设计的特色体现在可复核的工程取舍，而非空泛的先进性宣称。每条按同一结构说明：做了什么、与常规做法相比、实现位置、证据、文献依据、本作品贡献、适用边界。文献编号见文末参考文献；采用方式分为「规范/标准原样采用（设计依据）」「改造到本 FPGA 实现」「多文献方法组合」。
+
+### 3.1 全硬件管理面
+
+- **做了什么：** SNMP v1 子集、TFTP/615A 加卸载子集与 RTC/PPS 驯服均在 FPGA 内完成，不依赖片上软核或外挂协议栈。
+- **与常规做法相比：** 常见方案把管理面放在 CPU/软核（如 LwIP）或主机侧守护进程。
+- **实现位置：** `rtl/mgmt/snmp_lite.v`、`a615a_tftp.v` / `a615a_fetch_engine.v` / `a615a_lur_*.v`、`rtc_sync.v`；经 `mgmt_sap_rx` 与数据面分流（`AFDX_top`）。
+- **证据：** T88 演示步骤 5–7（`t88_steps_ok`=`8`，`t88_pass`=`True`）；T16a `t16a_pass`=`True`（FLL 最大绝对误差 `t16a_fll_max_abs_err_us`=`1` μs）。
+- **文献依据：** L116 提供 SNMP SET PDU 语义（规范原样采用）；L074、L072 描述航电侧 SNMP/615A 软件管理范围，用于划定本作品子集边界。
+- **本作品贡献：** 将上述子集收进同一 FPGA、与数据面旁路共存，并以 T88/T16a 自建测试闭环验证。
+- **适用边界：** 覆盖已实现的 SNMP v1 / TFTP·615A 子集与 RTC 驯服；不含完整协议认证，也不含对端真装载设备或网络授时口闭环（顶层网络授时仍接 0）。
+
+### 3.2 4096 RX 哈希双表 4-way 流水查表
+
+- **做了什么：** 在 `NUM_RX_VL=4096` 下，VLID→索引用双表并行、每表 2-way，COMPARE 共 4 路匹配；流水为 HASH_ADD→HASH_MUL→RAM_READ→COMPARE。
+- **与常规做法相比：** 常见为线性扫表或单口大 CAM；本设计用离线摆放与固定 4-way 比较换取可综合的常量延迟。
+- **实现位置：** `rtl/rx/rx_vl_lookup.v`（`HASH_BUCKETS=2048`）；对照黄金 `sw/golden/hash_seed.py`；算法摘要见 §9.2。
+- **证据：** 冻结 `098efc9` Questa 全量 `regress.csv`：**T12c** `lookups=100000`（hits=61638 / misses=38362，N=4096，buckets=2048，`ways=1111`）；**T12f** 顶层前门写读 + `real_lookup=4`；规模旁证 `t35p_pass`=`True`、`t34p_pass`=`True`。
+- **文献依据：** L109–L113 给出布谷鸟 / 多 way / FPGA 查表的方法可行性；对账次数以本项目冻结日志为准。
+- **本作品贡献：** 将动态 cuckoo 插入/驱逐改为双表×2-way **离线摆放**与固定五段流水比较，以适应配置期可重摆、运行期常量延迟的端系统约束；满配查表由 T12c/T12f 自证。
+- **适用边界：** 验证的是表项覆盖与查表正确性，不是 4096 路同时收；摆放依赖配置期种子，运行期不做动态驱逐。
+
+### 3.3 共享块池与所有权不变量
+
+- **做了什么：** TX/RX 共用 PMEM 字空间；RX 块 6..15 由 `rx_block_pool` 分配/回收；顶层 `free_pipe` 规定同拍单口归还与优先级，维持每块唯一持有者。
+- **与常规做法相比：** 常见为每端口或每 VL 独立缓冲，面积大且回收路径分散。
+- **实现位置：** `rtl/rx/rx_block_pool.v`；所有权关系见 §7；释放优先级在 `AFDX_top`。
+- **证据：** 回环/交付相关 T22 族；全量 `full_pass`/`full_n`=`145`/`145`；综合规模 `cells`/`altsyncram`=`106241`/`507`。
+- **文献依据：** L010、L044 提供共享存储与端口路径线索；L121–L123 提供公共池配额、缓冲上界与空闲块管理方法（多文献组合）。本芯片字段布局由本工程定义。
+- **本作品贡献：** 将共享池与空闲链表思路落到固定 16 块 PMEM、主机字址与 `free_pipe` 优先级；资源数字仅采用本项目综合结果。
+- **适用边界：** 默认配置为单块消息路径；块守恒的形式证明仅为局部（见 `bmc_bag_grade`=`F`），文献中的缓冲上界不直接等同本芯片容量。
+
+### 3.4 时延可预算（界 vs 实测）与 BAG 预算
+
+- **做了什么：** 用规范抖动/时延关系给出场景上界，再用测试台实测 ES 贡献（commit→TX SFD、RX SFD→host 等）对照；BAG/份额超额由配置判决拒收，界与实测分列。
+- **与常规做法相比：** 常见只报平均时延或单次示波器读数，缺少可复核的代数对照。
+- **实现位置：** `tools/afdx_delay_bound.py`、`tools/bag_budget.py`；调度在 `tx_vl_scheduler.v`；计量场 T05c／T13／T13w／T42／T89。
+- **证据：** 界代入见 §9.5；T89 `t89_es_total_max_ns`=`5976`、`t89_bound_40sig_us`=`141`；T42 `t42_tx_commit_to_eof_max_us`/`t42_rx_sof_to_host_max_us`=`16.08`/`12.936`；T13/T13w worst `t13_worst_total_ns`/`t13w_worst_total_ns`=`243416`/`453752`。
+- **文献依据：** L158（2005）§3.2.4.3 抖动双式与 BAG 语义作为规范依据（引用标版本）；L096、L104 提供网络级时延上界与 VL/BAG 配置方法学出处；本工程判决式以设计书与工具脚本为准。
+- **本作品贡献：** 将网络级分析方法收成 **ES 内** commit/SFD/host 实测键，并与代数界分列；BAG 预算落到 T05c 拒载与 Q20 份额。
+- **适用边界：** 结论限于单 ES 仿真场景，不含交换机与官方字面 SFD→同帧 SFD 端到端验收；网络级论文数字不替代本 ES 实测。
+
+### 3.5 验证方法学与 IC/RM 窗口结构
+
+- **做了什么：** 同一结论可追溯到独立黄金模型、双仿真器一致、变异分列、形式 BMC 边界、单一 `metrics.json` 与 P/I/F 分级；IC/RM 判据与抗重放历史窗可复核。
+- **与常规做法相比：** 常见仅依赖自研测试台一次通过，或把覆盖率/BMC 空真表述为「已证明」。
+- **实现位置：** `sw/golden/`；`sim/tests.manifest` 与 Questa/ModelSim SE；C3 变异汇总；`formal/` BAG BMC；`rx_ic`／`rx_rm`（hist／SkewMax）。
+- **证据：** `dual_sim_match`=`145`（`full_pass`=`145`，`se_full_pass`=`145`）；C3 `c3_mutants_killed`/`c3_mutants_total`=`23`/`28`（历史 57/57 另列）；`bmc_bag_grade`=`F`；T09/T10 `t09_accept`/`t09_reject`/`t10_fwd`/`t10_dup`/`t10_skew`=`1759`/`4248`/`56`/`46`/`3`；覆盖率见测试报告 §7.1。
+- **文献依据：** L158 给出 IC/RM 窗口与 First-Valid 语义（规范依据）；L137（RFC 4303 ESP 抗重放滑动窗口）提供「最高序列＋窗口」的结构借鉴；L071／L087、L117、L153、L136 分别支撑自动化测试、变异、覆盖率表述与小模块形式验证方法（多文献组合）。
+- **本作品贡献：** 将 L158 规则落实到 `rx_ic`/`rx_rm`，把 L137 结构借鉴落到工程 hist／SkewMax（冲突时以 L158 为准）；验证侧用自建清单、双仿真器、C3 变异与 BMC 边界分列报告。
+- **适用边界：** PASS 仅覆盖对应测试标题；不是认证实验室结论；覆盖率双口径见测试报告；L137 不是 A664 强制条款；本作品不声明任何 DAL／DO-254 等级。
+
+### 3.6 `IF_MODE` 三模式复用
+
+- **做了什么：** 同一套 TX/RX MAC 与上层协议，用参数 `IF_MODE=0/1/2` 切换历史口与公开 GMII PHY 字节节拍，避免维护三套顶层。
+- **与常规做法相比：** 常见为板级与仿真各复制一份 MAC 或顶层。
+- **实现位置：** `rtl/tx/mac_tx_if.v`、`rtl/rx/mac_rx_if.v`、`tx_pace.v`；顶层参数与 `PREPARE_CYCLES`（`AFDX_top.v`）。
+- **证据：** T41（GMII PHY 检查）／T42（吞吐与工程时延，`t42_tx_a_mbps`=`131.072`）／T89（`t89_pass`=`True`）；提交默认 `IF_MODE=2`。
+- **文献依据：** L001 提供 ES／GMII 参考分层；L088、L089 提供以太网口与 FPGA 接口时序方法。赛题公开口为 GMII。
+- **本作品贡献：** 以单一 RTL 参数切换三模式，公开交付默认 `IF_MODE=2`，历史模式保留回归。
+- **适用边界：** 未做板级 PHY 异步跨域或 IO 签核；不同 `IF_MODE` 的指标分列报告，不混写成同一条现行数字。
+
+---
+
+## 4. 接口
+
+### 4.1 顶层端口（摘自 `rtl/top/AFDX_top.v`）
 
 | 端口 | 方向 | 位宽 | 说明 |
 |---|---|---|---|
@@ -109,7 +177,7 @@
 
 **答辩句**：网络公开口 = GMII A/B；主机 = 扩展 `host_*`；与答疑「模块在内部、可加端口」一致。
 
-### 3.2 GMII 时序（`IF_MODE=2`）
+### 4.2 GMII 时序（`IF_MODE=2`）
 
 ```
 拍:     0  1  2  3  4  5  6  7  8  9 ...
@@ -121,19 +189,19 @@ tx_data:  55 55 55 55 55 55 55 D5 DA .. FCS
 
 RX 对称：自前导起 `rx_valid` 连续 1，下降沿结束帧。证据场：T41（前导/SFD/FCS/IFG/ready 忽略/RX_ER）。
 
-### 3.3 主机总线
+### 4.3 主机总线
 
 - 字地址 `host_addr[15:0]`；数据 32 bit；须等 `host_ack`（存储可多拍）。
 - 寄存器页由 `doc/regs.yaml` 定义（附录）；表区/PMEM 基址由 `tools/form_addr.py` 生成、`tools/check_addr.py` 复核。
 
-### 3.4 ready 语义（答疑）
+### 4.4 ready 语义（答疑）
 
 外部 `rx_ready` 可固定 0/1，**不暂停**模式 2 发送；`tx_ready` **不作为**外部采样条件。网络按 `valid=1` 判定。内部 FIFO 仍用 vld/rdy。  
-**不能推出：** 板级 PHY 异步跨域或 IO 时序已验证。
+**适用边界：** 板级 PHY 异步跨域或 IO 时序已验证。
 
 ---
 
-## 4. TX 通路
+## 5. TX 通路
 
 顺序：端口缓冲 → BAG 调度 → 帧构建 → SN → 双网复制 → MAC（前导/FCS/IFG）。
 
@@ -147,11 +215,11 @@ RX 对称：自前导起 `rx_valid` 连续 1，下降沿结束帧。证据场：
 | `mac_tx_if` | 7×55+D5、FCS、IFG；`IF_MODE=2` 连续 1 B/拍 | 帧长+8+12 字节时 | 内部 FIFO；公开口忽略外部 ready |
 
 BAG 截止以**线上 MAC 帧起始**为锚；`PREPARE_CYCLES`（顶层按 `IF_MODE`）可提前准备构帧，不缩短合法 BAG 下限（`doc/接口契约.md`）。  
-BAG 合法间隔：T27/T34p 等。**不能推出：** 任意 128 VL 同相满载抖动均 ≤500 μs。
+BAG 合法间隔：T27/T34p 等。**适用边界：** 任意 128 VL 同相满载抖动均 ≤500 μs。
 
 ---
 
-## 5. RX 通路
+## 6. RX 通路
 
 顺序：前导剥离 → MAC 校验/入池 →（A 优先串行）查表 → 过滤 → IC → RM → 解析 → 端口交付（SAP 旁路）。
 
@@ -166,11 +234,11 @@ BAG 合法间隔：T27/T34p 等。**不能推出：** 任意 128 VL 同相满载
 | 解析/端口 | 类型不符、队满覆盖 | 端口溢出相关 STATUS |
 
 判断链固定：**过滤 → IC → RM**（设计书/工程口径）。T09 accept/reject：`1759` / `4248`。T10：fwd/dup/skew = `56` / `46` / `3`。  
-**不能推出：** 任意拓扑下 SkewMax 配置均最优；4096 VL 同时有帧在途已测。
+**适用边界：** 任意拓扑下 SkewMax 配置均最优；4096 VL 同时有帧在途已测。
 
 ---
 
-## 6. 存储与块所有权
+## 7. 存储与块所有权
 
 见图 2。
 
@@ -178,7 +246,7 @@ BAG 合法间隔：T27/T34p 等。**不能推出：** 任意 128 VL 同相满载
 
 源：`doc/figs/fig2_block_owner.mmd`。
 
-### 6.1 PMEM 预算（默认 `PMEM_KB=32`）
+### 7.1 PMEM 预算（默认 `PMEM_KB=32`）
 
 | 池 | 块号 | 每块 | 用途 |
 |---|---|---|---|
@@ -187,16 +255,16 @@ BAG 合法间隔：T27/T34p 等。**不能推出：** 任意 128 VL 同相满载
 
 主机字地址形如 `0x8800 + block×512 + word`（与 `tools/form_addr.py` 一致）。默认单块消息；`TX_MESSAGE_CHAIN_BLOCKS=4` 时一消息最多 4 块（仍用 TX 池 0..5）。
 
-### 6.2 所有权不变量
+### 7.2 所有权不变量
 
 块 6..15 每一拍只在 `free_map` 或唯一持有者中；同拍单口归还；归还下一拍才回空闲。释放优先级（顶层 `free_pipe`）：RM 重复 > IC 拒绝 > FLT 拒绝 > drain。  
-**不能推出：** 形式化块守恒已全覆盖（BMC 仅局部）；8 KiB 链式路径为默认生产配置。
+**适用边界：** 形式化块守恒已全覆盖（BMC 仅局部）；8 KiB 链式路径为默认生产配置。
 
 ---
 
-## 7. 管理面
+## 8. 管理面
 
-### 7.1 SNMP（`snmp_lite`）
+### 8.1 SNMP（`snmp_lite`）
 
 - **版本**：仅 SNMPv1（version≠0 或 community≠`public` → 静默丢弃）。无 TRAP、无 GETBULK、无 v3。
 - **操作**：GET / GETNEXT / SET。
@@ -205,7 +273,7 @@ BAG 合法间隔：T27/T34p 等。**不能推出：** 任意 128 VL 同相满载
   - 组 2：`STATS_BLOCK` 只读字；
   - 另有按 VL 索引的只读实例（模块头注释）。
 
-### 7.2 615A / TFTP
+### 8.2 615A / TFTP
 
 见图 3。答疑：**非硬要求**；本仓交 TFTP 子集证据。
 
@@ -215,23 +283,23 @@ BAG 合法间隔：T27/T34p 等。**不能推出：** 任意 128 VL 同相满载
 
 - 服务端：`a615a_tftp`，512 B 块、octet、无 OACK；WRQ 加载进独立 `LOAD` 区。
 - 客户端核：`a615a_tftp_client_1350`（经 fetch）；初始化 9 B 源见契约。
-- LUR：控制文件 TFTP 接收 + 受限清单取件；完整 615A/665 **OPEN**，不宣称认证。
+- LUR：控制文件 TFTP 接收 + 受限清单取件；完整 615A/665 认证不在本作品交付范围。
 
-### 7.3 RTC
+### 8.3 RTC
 
 `rtc_sync`：PPS 输入驯服 FLL；`rtc_time_us` 可读；失步判据与 `RTC_SYNC_TO_US` 相关。T16a：`True`。报文网络授时口顶层仍接 0——**不宣称**网络授时已实现。
 
 ---
 
-## 8. 关键算法
+## 9. 关键算法
 
-### 8.1 BAG 与错相
+### 9.1 BAG 与错相
 
 - 判决：`due = valid ∧ ¬inflight ∧ port_ready ∧ ¬age[31]`；选最大 age（最早到期）。
 - 发送成功后 `next_tx ← frame_start_cycle + bag_cycles`。
 - **错相（D10）**：多 VL 同相会使队尾排队下界过大；由配置/激励在提交与首帧相位上错开（TB 如 T05b），调度器本身按到期选路。硬件无单独「相位寄存器」字段时，错相体现在各 VL 的 `next_tx` 初值与消息到达时刻。
 
-### 8.2 哈希查表（双表 4-way 比较）
+### 9.2 哈希查表（双表 4-way 比较）
 
 流水：IDLE 捕获 → `HASH_ADD` → `HASH_MUL` → `RAM_READ` → `COMPARE`（与 `sw/golden/hash_seed.py` 一致）。
 
@@ -245,17 +313,17 @@ hash = product ^ (product >> 9)   → 桶号取低 HASH_BITS
 
 每表 2-way，两表并行读，共 **4** 次 `valid_match`；命中取对应 `idx[11:0]`。冲突由**离线摆放**解决（换种子/重排映像）；运行期无探测驱逐。主机提交 `HASH_IMAGE` 后才允许 `RX_EN`。
 
-### 8.3 RM 与 SkewMax
+### 9.3 RM 与 SkewMax
 
 - `Skew = 4 << skewmax_exp` μs（exp 0..15 → 4 μs..131 ms）。
 - 窗内同 SN 或 hist 命中 → 丢弃副本；窗外同 SN → forward + skew 事件。
 - 表项含 `seen` 与 8-deep hist，缓解「只记最后 SN」漏删旧副本。
 
-### 8.4 IC 的 SN 判据
+### 9.4 IC 的 SN 判据
 
 每 VL×网一份 PSN。接受：SN=0（复位）；PSN=0 时 SN=1 或 `IC_FIRST_ANY`；SN=PSN+1；SN=PSN+2（丢 1 帧）。否则拒绝且**不写** PSN。
 
-### 8.5 时延界（规范式 + 代入）
+### 9.5 时延界（规范式 + 代入）
 
 规范（L158 / 摘录）：  
 `J = min(40 + Σ_j (20+Lmax_j)·8/Nbw , 500)` μs；  
@@ -265,15 +333,15 @@ hash = product ^ (product >> 9)   → 桶号取低 HASH_BITS
 **代入例（T13w 注释代数，Nbw=100 Mbps）**：3×1518 + 3×356 →  
 `J = 40 + (3×1538+3×376)×0.08 = 499.36` μs（与自检一致）。  
 T89 本场景 40+Σ 实测键：`141` μs。工程总时延（非官方 SFD）例：T13 worst `243416` ns；T13w `453752` ns。  
-**不能推出：** 已按官方 SFD→SFD 验收 2 ms；J 式等于仿真线速 1 Gbps 的介质定义。
+**适用边界：** 已按官方 SFD→SFD 验收 2 ms；J 式等于仿真线速 1 Gbps 的介质定义。
 
 ---
 
-## 9. 时钟、复位与参数
+## 10. 时钟、复位与参数
 
 | 项 | 说明 |
 |---|---|
-| 时钟 | 单域 `clk`；仿真 `CLK_FREQ_HZ=125_000_000`（与 GMII 8 bit×125 MHz 匹配）。**Fmax 板级见 §10，I** |
+| 时钟 | 单域 `clk`；仿真 `CLK_FREQ_HZ=125_000_000`（与 GMII 8 bit×125 MHz 匹配） |
 | 复位 | `reset` → `rst_sync`；`INIT_DONE` 前禁止开流 |
 
 ### 顶层参数表（默认 / 可选 / 证据 T）
@@ -299,49 +367,42 @@ T89 本场景 40+Σ 实测键：`141` μs。工程总时延（非官方 SFD）�
 
 ---
 
-## 10. 综合与实现
+## 11. 综合与实现
 
-代理器件（Quartus/eLinx 路径，非板卡签核）。数字唯一来源：冻结 metrics。
+eLinx 综合规模（数字唯一来源：冻结 metrics）。本作品不做时序签核与板级验证（赛题未要求）。
 
 | 项 | 值 | 等级 |
 |---|---|---|
 | cells | 106241 | P |
 | altsyncram | 507 | P |
-| post-fit Fmax (MHz) | 41.66 | **I** |
-| Setup (ns) | -16.005 | **I** |
-| 门级 VO sha256 | 2801113d07f7f72cf8d9d3a6c737fc0d1fea3669effa1a53551058c85165fb46 | P（切片） |
-| 门级 T88b S1/S2/S3 | PASS / PASS / PASS | P（切片） |
 
-**为何约 41.66 MHz：** 约束目标周期 8 ns（125 MHz）；post-fit 最差 setup slack = `-16.005` ns → 受限 Fmax = `41.66` MHz。  
-**关键路径（STA）：** `tx_vl_scheduler:u_sched|group_idx[3]` → `tx_vl_scheduler:u_sched|go_viol`（Slow 900mV 85C；数据延迟约 23.6 ns）。报告：`out/p8_clean_20261022_191733/out/p8_fit_sta_20261022_221328/sta/post_fit_setup.rpt`（汇总亦见同目录 `post_fit_fmax.rpt`、`logs/sta_detail.log`）。  
-**不能推出：** Fmax 已签到线速 125 MHz；GUI LUT；板卡/IO 时序闭合；门级 full 回归（仅 T88b S1–S3）。
-
-功能全量：`144`/`144`（`True`）。  
-**不能推出：** 历史 140/140 与本冻结 N 可拼接；变异/lint 本轮已重测（冻结键可为 null）。
+门级切片（综合后仿真，见测试报告 §6）：VO `2801113d07f7f72cf8d9d3a6c737fc0d1fea3669effa1a53551058c85165fb46`；T88b S1/S2/S3 = `PASS` / `PASS` / `PASS`。  
+功能全量：`145`/`145`（`True`）。  
+**适用边界：** GUI LUT；门级 full 回归；历史 140/140 与本冻结 N 可拼接。
 
 ---
 
-## 11. 设计取舍与已知边界
+## 12. 设计取舍与已知边界
 
 | 做了什么 | 没做什么 | 为什么 | 证据 |
 |---|---|---|---|
 | 自研双网 MAC + PHY GMII | 强制 eLinx Tri_Mode×2 | 答疑后期无强制 MAC IP | 契约；T41/T42 |
-| 模板 8 口作 GMII，扩展 host/PPS/B 网 | 把模板当纯应用口 | 可加端口 + GMII=PHY | 对照报告 §3.3 |
+| 模板 8 口作 GMII，扩展 host/PPS/B 网 | 把模板当纯应用口 | 可加端口 + GMII=PHY | 赛方答疑（附录 A） |
 | SNMP v1 GET/GETNEXT/SET | TRAP、v2c/v3、完整 MIB | 子集可测；G4 不加 TRAP | `snmp_lite`；T43 |
 | TFTP 512 B 子集 + 部分 615A 编排 | 完整 615A/665 认证 | 答疑非硬要求 | 图3；披露边界 |
 | IC→RM 顺序、SkewMax hist | 任意网络偏斜下最优 | 规范窗口 + 工程可配 | T10 |
-| 仿真 125 MHz 功能全量 | post-fit 125 MHz 闭合 | STA 关键在调度器扫描 | §10 metrics I |
+| 仿真 125 MHz 功能全量（GMII 速率匹配） | 布局布线后时序签核 / 板级 | 赛题要求综合后仿真，未要求时序签核 | §11；测试报告 §6 |
 | 门级 T88b 三步 | 门级全量 144 | 实例/墙钟；答疑允许后仿切片 | gate metrics |
 | 自建 TB + 独立 Python/golden | 官方 A664 实验室套件 | 评测用参赛者 TB | 尺子；manifest |
 | 默认单块消息 | 默认开 8 KiB 分片 | G3：参数化可选 | `TX/RX_*_CHAIN_BLOCKS` |
-| 单 ES 回环 + 默认 CTL（SAP 开，口 6/7） | 同芯片上 128 TX + 128 RX 全配 | 端口预算 `NUM_PORTS=256 = 128 TX + 126 RX + 2 SAP`；VL126/127 不配 RX 表则 FLT unconf | T90 r6 P；契约 L95 |
+| 单 ES 回环 + 默认 CTL（SAP 开，口 6/7） | 同芯片上 128 TX + 128 RX 全配 | 端口预算 `NUM_PORTS=256 = 128 TX + 126 RX + 2 SAP`；VL126/127 不配 RX 表则 FLT unconf | T90 r5；契约 L95 |
 | `tx_vl_scheduler` 配置后使能 | 假定 `next_tx[]`/`bag_arr[]` 上电即合法 | 两数组**不随复位清零**；VL 须先配置再使能 | 配置时序：T04 / T05c；形式侧见 `bag_bmc40_CE_ANALYSIS.md` (b) |
 
 ---
 
-## 12. 附录
+## 13. 附录
 
-### 12.1 寄存器
+### 13.1 寄存器
 
 单一来源：`doc/regs.yaml`。生成/校验：`tools/gen_regs.py`（默认校验；`--emit`/`--write` 出头文件或回写设计书附录）。提交包附 YAML；下列为寄存器页摘要（完整位域以 YAML 为准）。
 
@@ -365,7 +426,7 @@ T89 本场景 40+Σ 实测键：`141` μs。工程总时延（非官方 SFD）�
 
 表区（TX_VL_TAB、TX_Q20_SHARE、RX_VL_CFG、RX_HASH、PORT_TAB、VL_STATS、PMEM、LOAD）基址见 `tools/form_addr.py` 产出与设计书 §7.14，不在 YAML 手填。
 
-### 12.2 VL 表项格式
+### 13.2 VL 表项格式
 
 **TX_VL_TAB**（每 VL 5 字入 RAM；动态 `next_tx` 在调度器阵列）：
 
@@ -390,4 +451,51 @@ T89 本场景 40+Σ 实测键：`141` μs。工程总时延（非官方 SFD）�
 
 ---
 
-*文档版本随冻结 `225cd91be4f6a4b332db1674b44761bca367bd67`；指标数字不得手填，须经 metrics 渲染。*
+### 附录 A. 内部追溯（评委可不读）
+
+| 正文位置 | 内部索引（工程台账） |
+|---|---|
+| §1.3 答疑依据 | 赛方答疑原文；`doc/赛方答疑口径对照报告_20261023.md` |
+| §3 管理面子集 | 工程追踪 `REQ-MGMT-*`（完整协议未作为交付承诺） |
+| §3 查表／时延／IC·RM | `doc/AFDX文献工程映射.md` 对应行 |
+| §12 取舍表 | 对照报告模板口章节 |
+
+---
+
+## 14. 参考文献（正文实际引用）
+
+> 编号同 `doc/AFDX文献目录.md`。下列仅列 §3 实际引用者；完整题录见该目录。C 级只作方法出处，不供指标数字。
+
+| ID | 题名／作者（短） | 证据级 | 在本文用途 |
+|---|---|---|---|
+| L001 | Architecting ARINC 664 P7 (AFDX) / Xilinx XAPP1130 | A | §3.6 GMII／ES 分层参考 |
+| L010 | 基于共享内存的 AFDX 航空网络交换机 / 胡靖飞 | D | §3.3 共享存储线索 |
+| L044 | AFDX 端系统通信端口的设计与实现 / 武华等 | A | §3.3 端口路径线索 |
+| L071 | 基于协议符合性的端系统自动化测试 / 黎万山 | A | §3.5 自动化测试思路 |
+| L072 | 一种航电系统 AFDX 网络管理技术 / 王纯委 | A | §3.1 管理面范围（软件侧） |
+| L074 | 基于 AFDX 的网络管理与数据加载协议 / 黄玉港 | A | §3.1 SNMP+615A 子集边界 |
+| L087 | ARINC664 终端测试系统软件 / 王传霸 | A | §3.5 测试框架思路 |
+| L088 | 基于 FPGA 的百兆以太网 RGMII 接口设计 / 石华 | B | §3.6 接口方法（辅助） |
+| L089 | 芯片测试平台 FPGA 时序分析与接口测试 / 鲍瑞 | A | §3.6 接口时序方法 |
+| L096 | Bounding end-to-end delays on AFDX / Charara 等 | C | §3.4 网络级时延上界**方法学** |
+| L104 | Optimal design of virtual links in AFDX / Al Sheikh 等 | C | §3.4 BAG／VL 配置方法出处 |
+| L109 | Cuckoo hashing / Pagh, Rodler | C | §3.2 查表基础 |
+| L110 | Tightly packed constant size bins / Dietzfelbinger, Weidling | C | §3.2 多 way 负载率背景 |
+| L111 | Cuckoo hashing with a stash / Kirsch 等 | C | §3.2 摆放稳健性背景 |
+| L112 | Fast lookup for dynamic packet filtering in FPGA / Kekely 等 | C | §3.2 FPGA 查表方法 |
+| L113 | FPGA-based cuckoo hashing for NIDS / Tran, Kittitornkun | C | §3.2 同上 |
+| L116 | RFC 3416 SNMPv2 PDU §4.2.5 | A | §3.1 SET 语义（原样采用） |
+| L117 | Mutation testing survey / Jia, Harman | C | §3.5 变异方法学 |
+| L121 | Dynamic queue length thresholds… / Choudhury, Hahne | C | §3.3 公共池配额方法 |
+| L122 | Tighter buffer dimensioning in AFDX / Benammar 等 | C | §3.3 缓冲上界方法 |
+| L123 | FPGA-based queue management… / Nikologiannis 等 | C | §3.3 空闲块管理方法 |
+| L136 | Formal Verification… / Seligman 等 | C | §3.5 小模块 FPV 工具书 |
+| L137 | RFC 4303 ESP §3.4.3 抗重放滑动窗口 / Kent | B | §3.5 RM hist **结构借鉴**（非 A664 强制） |
+| L153 | FAA DOT/FAA/TC-14/41 Advanced Verification… / Butka | B | §3.5 覆盖率表述口径（非 DAL） |
+| L158 | ARINC 664 Part 7（2005 初版） | A | §3.4／§3.5 BAG·抖动·IC/RM **规范原文**（原样采用；须标版本） |
+
+工程映射总表：`doc/AFDX文献工程映射.md`。
+
+---
+
+*文档版本随冻结 `098efc98d379c29b113d52dfccb24cdf36be7391`；指标数字由 metrics 渲染填充。*

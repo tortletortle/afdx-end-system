@@ -16,7 +16,7 @@ def main() -> int:
     ap.add_argument(
         "--metrics",
         type=Path,
-        default=Path("out/p8_freeze_225cd91/metrics.json"),
+        default=Path("out/p9_freeze_dfac58a/metrics.json"),
     )
     ap.add_argument(
         "--roots",

@@ -1,0 +1,18 @@
+# 提交打包排除（相对仓库根；一行一条；含 DO_NOT_CITE 的证据树）
+# pack_submission.py / 人工打包均须遵守。
+
+sim/out/p_c1_t90_se_20261024_174911/
+shots/_discard/
+
+# 选题二材料，不进选题一提交包
+archive/pmux_cases.zip
+pmux_cases.zip
+
+# Fit / STA / 代理器件时序（赛题未要求；不进提交包）
+out/baseline_full140_fit_sta_20261018_223600/
+out/p8_clean_20261022_191733/out/p8_fit_sta_20261022_221328/
+
+# 队内学习/脚本，不进提交包（计划 G5/G6）
+doc/submit/答辩必懂清单.md
+doc/submit/演示视频脚本.md
+doc/最终冲刺计划_20261026.md

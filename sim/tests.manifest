@@ -151,3 +151,9 @@ T88b tb_gate_public_loopback public-port-gmii-loopback-s1-s2-s3
 T89 tb_t89_gmii_metrics_full phy-gmii-metrics-ifmode2
 # T90 新增系统场，非原矩阵（C1：128 TX VL 同时活动吞吐 IF_MODE=2）
 T90 tb_t90_vl128_throughput phy-gmii-vl128-throughput-ifmode2
+# T91 新增系统场，非原矩阵：公开端口吞吐；正式 NVL=16 ROUNDS=3（T42 同配，稳态第2–3轮）
+# 门级吞吐 F（2026-10-26：探速未在 18:10 前完成，不启 R=2/R=3）；不再启动任何 T91 门级
+# RTL 吞吐证据 P：Questa R=3 checks=144；OutDir sim/out/g4_t91_rtl_nvl16_r3_20261026_164718
+# TB sha256=16914ab98472286d7b50742bec76743f9edcc0af9d43afefa41421e258585b99
+# NVL=128 不做；综合后仿真证据保持 T88b 切片（技术文档 3.2.2 只写 T88b）
+T91 tb_gate_t91_throughput public-port-gate-throughput-nvl16-r3
