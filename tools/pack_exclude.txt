@@ -19,3 +19,5 @@ doc/最终冲刺计划_20261026.md
 # 心得体会内部草稿说明（正文是 doc/submit/心得体会_4.2.txt）；filled 副本同理
 doc/submit/心得体会_可读说明.md
 doc/submit/filled/心得体会_可读说明.md
+# 组委会原件（报告模板），仅供生成器使用，不进提交包
+doc/官方模板/

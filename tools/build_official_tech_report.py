@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build official-template tech report (docx + optional PDF) from 报告模板.docx.
+"""Build official-template tech report (docx + optional PDF) from doc/官方模板/报告模板.docx.
 
 - Preserves template paragraph styles (Heading 2 / Normal / List Paragraph).
 - Fills {{metric:key}} from freeze metrics.json.
@@ -281,7 +281,7 @@ def main() -> int:
         type=Path,
         default=ROOT / "out/p9_freeze_dfac58a/metrics.json",
     )
-    ap.add_argument("--template", type=Path, default=ROOT / "报告模板.docx")
+    ap.add_argument("--template", type=Path, default=ROOT / "doc/官方模板/报告模板.docx")
     ap.add_argument(
         "--out-docx",
         type=Path,
