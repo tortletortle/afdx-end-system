@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import json
 from pathlib import Path
 
@@ -11,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "doc/submit/figs"
 WAVE = ROOT / "out/p9_freeze_dfac58a/wave_png"
-METRICS = ROOT / "out/p9_freeze_dfac58a/metrics.json"
+METRICS = Path(os.environ["AFDX_METRICS"]) if os.environ.get("AFDX_METRICS") else ROOT / "out/p9_freeze_dfac58a/metrics.json"
 
 
 def font(size: int):
@@ -80,7 +81,13 @@ def s3_smoke_summary(m: dict):
         ["T90 吞吐", f"RX去重 {m['t90_rx_dedup_mbps']['value']} Mbps", "公开口"],
         ["T89 ES时延合计", f"{m['t89_es_total_max_ns']['value']} ns", "公开口"],
     ]
-    img, draw = new_canvas(900, 360, "S3 关键结果摘要（排版示意）")
+    if "t94_steady_rx_mbps" in m:
+        rows += [
+            ["封装 T94 吞吐", f"{m['t94_steady_rx_mbps']['value']} Mbps", "应用口，RTL 仿真"],
+            ["封装 T93 时延 A/B", f"{m['t93_a_max_ns']['value']}/{m['t93_b_max_ns']['value']} ns", "应用口，RTL 仿真"],
+            ["封装 T95 发/收", f"{m['t95_submit']['value']}/{m['t95_deliver']['value']}", "128 发 / 126 收"],
+        ]
+    img, draw = new_canvas(900, 360 + (96 if "t94_steady_rx_mbps" in m else 0), "S3 关键结果摘要（排版示意）")
     f = font(14)
     draw.text((16, 52), "数字来自冻结测试结果；本图仅作版面示意。", fill=(60, 60, 60), font=f)
     draw_table(draw, 16, 80, [220, 360, 280], 32, ["项", "结果", "备注"], rows, f)
@@ -142,6 +149,12 @@ def s6_synth(m: dict):
         ["cells", str(m["cells"]["value"]), "综合规模"],
         ["altsyncram", str(m["altsyncram"]["value"]), "存储宏"],
         ["门级切片", "T88b 公开端口回环", "S1/S2/S3 均通过"],
+    ]
+    if "app_synth_cells" in m:
+        rows += [
+            ["封装 afdx_app_top", f"{m['app_synth_cells']['value']} cells / {m['app_synth_altsyncram']['value']} altsyncram", "综合通过"],
+        ]
+    rows += [
         ["说明", "本作品不做时序签核与板级验证", "赛题未要求"],
     ]
     img, draw = new_canvas(900, 320, "S6 综合结果摘要（排版示意，非 GUI 截屏）")

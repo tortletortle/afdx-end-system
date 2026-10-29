@@ -26,6 +26,8 @@ FREEZE_DIR_REL = "out/p9_freeze_dfac58a"
 QUESTA_REL = (
     "out/p9_clean_20261025_133746/sim/out/p9_questa_full_20261025_134051"
 )
+# Overridden by --commit7 / --freeze-dir / --questa-dir / --carried-dir (p10 freeze).
+CARRIED_DIR: Path | None = None
 
 # Consoles kept in evidence (plus gate log).
 KEY_CONSOLES = {
@@ -38,6 +40,14 @@ KEY_CONSOLES = {
     "T90_console.txt",
     "T10_console.txt",
     "T16a_console.txt",
+    "T92_console.txt",
+    "T93_console.txt",
+    "T94_console.txt",
+    "T95_console.txt",
+    "t93_gmii_sfd.csv",
+    "t93_vl_gap.csv",
+    "t93_metrics.csv",
+    "t93_verilog_summary.json",
 }
 
 TOOLS_ALLOW = {
@@ -54,6 +64,17 @@ TOOLS_ALLOW = {
     "pack_submission.py",
     "pack_exclude.txt",
     "README.md",
+    "sim_lock.ps1",
+    "t89_metrics_check.py",
+    "t90_metrics_check.py",
+    "t91_metrics_check.py",
+    "t93_metrics_check.py",
+    "t94_metrics_check.py",
+    "t95_metrics_check.py",
+    "run_afdx_app_top_synth.py",
+    "add_app_metrics.py",
+    "extract_metrics.py",
+    "build_freeze_p10.py",
 }
 # Also allow bag_* / gen_* used by selfcheck / docs
 TOOLS_PREFIX_ALLOW = ("bag_", "check_", "gen_regs", "gen_")
@@ -190,14 +211,19 @@ def rewrite_abs_workspace(text: str, root_name: str = "diansai") -> str:
 
 def stage_evidence(root: Path, stage: Path) -> None:
     ev = stage / "evidence" / COMMIT7
-    freeze = root / FREEZE_DIR_REL
-    questa = root / QUESTA_REL
+    freeze = Path(FREEZE_DIR_REL) if Path(FREEZE_DIR_REL).is_absolute() else root / FREEZE_DIR_REL
+    questa = Path(QUESTA_REL) if Path(QUESTA_REL).is_absolute() else root / QUESTA_REL
 
     for name in (
         "FREEZE.json",
         "metrics.json",
         "metrics_diff_vs_C.csv",
         "metrics_diff_vs_C.md",
+        "metrics_diff_vs_p9.csv",
+        "metrics_diff_vs_p9.md",
+        "freeze_regress_questa.json",
+        "freeze_regress_se.json",
+        "rtl_empty_vs_098efc9.txt",
         "dual_sim_compare.csv",
         "waves_manifest.csv",
         "rtl_empty_vs_225cd91.txt",
@@ -220,11 +246,26 @@ def stage_evidence(root: Path, stage: Path) -> None:
         src = gate / name
         if src.is_file():
             copy_file(src, ev / "gate_t88b" / name)
+    vo_sha = "2801113d07f7f72cf8d9d3a6c737fc0d1fea3669effa1a53551058c85165fb46"
+    fj = freeze / "FREEZE.json"
+    if fj.is_file():
+        vo_sha = json.loads(fj.read_text(encoding="utf-8-sig")).get("gate_vo_sha256", vo_sha)
     (ev / "gate_vo_NOTE.txt").write_text(
         "VO not packed.\n"
-        "gate_vo_sha256=2801113d07f7f72cf8d9d3a6c737fc0d1fea3669effa1a53551058c85165fb46\n",
+        f"gate_vo_sha256={vo_sha}\n",
         encoding="utf-8",
     )
+    if CARRIED_DIR is not None and CARRIED_DIR.is_dir():
+        # evidence that was not re-measured in this freeze (coverage etc.); kept apart and labelled
+        for name in ("coverage_report_du_AFDX_top.txt", "coverage_summary_all145.txt", "coverage_summary_afdx_top_all145.txt",
+                     "coverage_by_du.md", "coverage_by_du.json", "coverage_hotspots_top20.md", "dual_sim_compare.csv"):
+            src = CARRIED_DIR / name
+            if src.is_file():
+                copy_file(src, ev / "carried_from_p9" / name)
+        (ev / "carried_from_p9" / "NOTE.txt").write_text(
+            "Not re-measured in this freeze (coverage, dual-simulator compare): carried from the p9 freeze at 098efc9.\n",
+            encoding="utf-8",
+        )
 
     wp = freeze / "wave_png"
     if wp.is_dir():
@@ -395,7 +436,7 @@ def build_stage(root: Path, stage: Path, excludes: list[str]) -> None:
 
     stage_evidence(root, stage)
 
-    freeze_alias = stage / FREEZE_DIR_REL
+    freeze_alias = stage / "out" / Path(FREEZE_DIR_REL).name
     freeze_alias.mkdir(parents=True, exist_ok=True)
     for name in ("metrics.json", "FREEZE.json", "coverage_by_du.md"):
         src = stage / "evidence" / COMMIT7 / name
@@ -536,8 +577,23 @@ def main() -> int:
     ap.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     ap.add_argument("--out-dir", type=Path, default=None)
     ap.add_argument("--check-exclude", action="store_true")
+    ap.add_argument("--commit7", default=None, help="default: git rev-parse --short=7 HEAD in --root")
+    ap.add_argument("--freeze-dir", type=Path, default=None, help="freeze dir holding FREEZE.json/metrics.json")
+    ap.add_argument("--questa-dir", type=Path, default=None, help="Questa full regress OutDir")
+    ap.add_argument("--carried-dir", type=Path, default=None, help="previous freeze dir with carried coverage evidence")
     args = ap.parse_args()
+    global COMMIT7, FREEZE_DIR_REL, QUESTA_REL, CARRIED_DIR
     root = args.root.resolve()
+    if args.commit7:
+        COMMIT7 = args.commit7
+    elif args.freeze_dir or args.questa_dir:
+        COMMIT7 = subprocess.check_output(["git", "rev-parse", "--short=7", "HEAD"], cwd=root, text=True).strip()
+    if args.freeze_dir:
+        FREEZE_DIR_REL = str(args.freeze_dir.resolve())
+    if args.questa_dir:
+        QUESTA_REL = str(args.questa_dir.resolve())
+    if args.carried_dir:
+        CARRIED_DIR = args.carried_dir.resolve()
     excludes = load_excludes(root)
 
     if args.check_exclude:
