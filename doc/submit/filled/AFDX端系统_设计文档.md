@@ -1,4 +1,4 @@
-<!-- rendered from AFDX端系统_设计文档.md using C:/Workspace/diansai/out/p9_freeze_dfac58a/metrics.json commit=098efc98d379c29b113d52dfccb24cdf36be7391 -->
+<!-- rendered from AFDX端系统_设计文档.md using C:/Workspace/diansai/out/p10_draft_20261030/metrics.json commit=098efc98d379c29b113d52dfccb24cdf36be7391 -->
 
 # AFDX 端系统设计文档（提交版）
 

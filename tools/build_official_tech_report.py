@@ -200,9 +200,9 @@ def export_pdf_word_com(docx_path: Path, pdf_path: Path) -> tuple[bool, str]:
 def build_sections(catalog: dict) -> dict[str, str]:
     """Return raw section texts (with metric anchors) for counting after render."""
 
-    abstract = """本作品实现面向航电确定性以太网的AFDX（ARINC 664 Part 7）端系统协议逻辑，以FPGA RTL交付。公开网络口为双网GMII（A/B），主机侧为扩展寄存器与表项前门；默认配置支持128条发送虚拟链路与4096条接收虚拟链路能力声明，单时钟功能仿真按与千兆GMII线速匹配的125 MHz拍运行。功能覆盖五类：发送侧端口排队、BAG调度与帧构造；接收侧过滤、完整性检查（IC）与冗余管理（RM）；主机接口与共享报文存储；管理面SNMP v1子集、615A/TFTP加卸载子集与RTC/PPS驯服；以及可复现的自建验证环境。管理面与数据面均在同一FPGA内完成，不依赖片上软核或嵌入式软件栈。开发上先按规范与答疑划定可交付子集，再完成RTL与独立黄金模型；随后用清单化测试台做双仿真器全量回归，并结合综合与公开端口综合后仿真切片，把关键数字冻结进实测数据包供文档引用。验证以自建测试台为主：功能全量回归{{metric:full_pass}}/{{metric:full_n}}，Questa与ModelSim SE逐项一致{{metric:dual_sim_match}}项；公开端口门级切片T88b三场景均为PASS；变异测试（新增28个）与历史基线分列报告。吞吐、时延、抖动与规模能力等四项指标均绑定具体测试编号与场景参数。官方字面端到端SFD→SFD在单端系统回环下缺少网络段，故不作为已测通过项写入。本作品不做时序签核与板级验证（赛题未要求），亦不宣称完整ARINC认证、4096路同时接收或门级全量矩阵。正文数字以冻结测试结果为准，不手写拼接历史轮次。"""
+    abstract = """本作品实现面向航电确定性以太网的AFDX（ARINC 664 Part 7）端系统协议逻辑，以FPGA RTL交付。公开网络口为双网GMII（A/B），主机侧为扩展寄存器与表项前门；默认配置支持128条发送虚拟链路与4096条接收虚拟链路能力声明，单时钟功能仿真按与千兆GMII线速匹配的125 MHz拍运行。功能覆盖五类：发送侧端口排队、BAG调度与帧构造；接收侧过滤、完整性检查（IC）与冗余管理（RM）；主机接口与共享报文存储；管理面SNMP v1子集、615A/TFTP加卸载子集与RTC/PPS驯服；以及可复现的自建验证环境。管理面与数据面均在同一FPGA内完成，不依赖片上软核或嵌入式软件栈。开发上先按规范与答疑划定可交付子集，再完成RTL与独立黄金模型；随后用清单化测试台做双仿真器全量回归，并结合综合与公开端口综合后仿真切片，把关键数字冻结进实测数据包供文档引用。验证以自建测试台为主：功能全量回归{{metric:full_pass}}/{{metric:full_n}}，Questa与ModelSim SE逐项一致{{metric:dual_sim_match}}项；公开端口门级切片T88b三场景均为PASS；变异测试（新增28个）与历史基线分列报告。吞吐、时延、抖动与规模能力等四项指标在评测封装afdx_app_top的应用口测得，分别绑定T94、T93、T95及具体场景参数；T42、T89、T90（GMII口）作补充。官方字面端到端SFD→SFD在单端系统回环下缺少网络段，故不作为已测通过项写入。本作品不做时序签核与板级验证（赛题未要求），亦不宣称完整ARINC认证、4096路同时接收或门级全量矩阵。正文数字以冻结测试结果为准，不手写拼接历史轮次。"""
 
-    s11 = """本设计在FPGA内实现AFDX端系统收发与管理子集。发送链：主机写入端口缓冲后，由虚拟链路调度器按BAG与份额约束选路，序列号生成与帧构建模块组装以太网/IP/UDP/SN，经双网复制与MAC整形从GMII发出。接收链：双网MAC收帧入共享存储，经哈希查表、过滤、IC、RM去重后解析交付主机或管理SAP。管理面含SNMP v1（GET/GETNEXT/SET子集）、TFTP/615A加卸载子集与PPS/FLL时钟驯服，均为硬件状态机。接口模式参数可在历史口与公开GMII间切换而复用同一套协议逻辑。特性侧重可综合、可仿真复现与证据可追溯，而非认证实验室结论。"""
+    s11 = """本设计在FPGA内实现AFDX端系统收发与管理子集。发送链：主机写入端口缓冲后，由虚拟链路调度器按BAG与份额约束选路，序列号生成与帧构建模块组装以太网/IP/UDP/SN，经双网复制与MAC整形从GMII发出。接收链：双网MAC收帧入共享存储，经哈希查表、过滤、IC、RM去重后解析交付主机或管理SAP。管理面含SNMP v1（GET/GETNEXT/SET子集）、TFTP/615A加卸载子集与PPS/FLL时钟驯服，均为硬件状态机。接口模式参数可在历史口与公开GMII间切换而复用同一套协议逻辑。评测入口为封装顶层afdx_app_top：应用口送入虚拟链路号加载荷，接收侧去重后输出同格式字节流，核心协议逻辑不变。特性侧重可综合、可仿真复现与证据可追溯，而非认证实验室结论。"""
 
     s12 = """目标应用为综合模块化航电等场景下的端系统通信节点：连接主机应用与AFDX交换网络，按虚拟链路提供确定性发送整形与双网冗余接收。亦可作为协议芯片原型，供教学、预研与自建测试台对照。本作品交付为可综合RTL与仿真验证包，评测环境为自建测试台；不替代适航取证、交换机实现或对端真实端系统闭环。物理层侧对接标准GMII语义的千兆以太网PHY接口模型；主机侧以寄存器与表项配置虚拟链路、端口与管理参数。应用边界以赛题评分项与已披露协议子集为准。"""
 
@@ -325,30 +325,30 @@ def main() -> int:
         missing |= miss
         counts[k] = count_chars(t)
 
-    # 1.4：无「等级」列；字数≤200
+    # 1.4：无「等级」列；字数≤200。主指标 = 评测封装 afdx_app_top 应用口（T93/T94/T95）。
     rows_14 = [
         [
             "吞吐",
-            "≥100 Mbps（RX去重）",
-            f"T90 {fmt_metric(catalog,'t90_tx_a_mbps')}/{fmt_metric(catalog,'t90_rx_dedup_mbps')} Mbps",
+            "应用口稳态有效载荷≥100 Mbps",
+            f"T94 {fmt_metric(catalog,'t94_steady_rx_mbps')} Mbps",
         ],
         [
             "时延",
-            "ES贡献",
-            f"T89 {fmt_metric(catalog,'t89_es_total_max_ns')} ns",
+            "首字节tx→rx ≤2 ms",
+            f"T93 A {fmt_metric(catalog,'t93_a_max_ns')}/B {fmt_metric(catalog,'t93_b_max_ns')} ns",
         ],
         [
             "抖动",
-            "同VL max−min",
-            f"T42 {fmt_metric(catalog,'t42_jitter_max_us')} μs；T89 {fmt_metric(catalog,'t89_max_jit_ns')} ns",
+            "同VL同帧长 max−min",
+            f"T93 A {fmt_metric(catalog,'t93_a_jit_ns')}/B {fmt_metric(catalog,'t93_b_jit_ns')} ns",
         ],
         [
             "规模",
-            "128 TX/4096 RX",
-            "T34p/T35p；T90同时",
+            "128 TX VL/126 RX VL",
+            f"T95 发{fmt_metric(catalog,'t95_submit')}收{fmt_metric(catalog,'t95_deliver')}",
         ],
     ]
-    note_14 = "测试条件：IF_MODE=2；T90为128 VL同时；仿真125 MHz；单ES回环不做官方SFD→SFD宣称。"
+    note_14 = "测试条件：封装口afdx_app_top，仿真125 MHz，RTL仿真；补充T42/T89/T90（GMII口）。"
     text_14 = "".join("".join(r) for r in rows_14) + note_14
     counts["1.4"] = count_chars(text_14)
     reflection_path = ROOT / "doc/submit/心得体会_4.2.txt"
@@ -423,6 +423,16 @@ def main() -> int:
     )
     try_add_picture(doc, figs / "fig1_dataflow.png", 14.0)
     add_caption(doc, "图 总体数据流")
+    add_para(
+        doc,
+        "评测入口为封装顶层 afdx_app_top：应用侧送入「虚拟链路号 2 字节 + 载荷」字节流，"
+        "封装内的发送适配器申请块、写报文存储并提交；上电配置状态机配好 128 条发送与 126 条接收虚拟链路；"
+        "接收适配器轮询各接收端口、读出载荷并按同格式输出，双网去重后每帧只交付一次。"
+        "核心 AFDX_top 不改，封装内双网 GMII 回环在配置完成后接通。",
+        first_line=True,
+    )
+    try_add_picture(doc, figs / "fig_app_top.png", 14.5)
+    add_caption(doc, "图 评测封装 afdx_app_top 框图")
 
     add_heading_like(doc, "2.2 硬件系统介绍", style="List Paragraph")
     add_para(doc, "本节「硬件」指 FPGA 上的 RTL 逻辑实现，不是板级原理图或 PCB。")
@@ -554,11 +564,15 @@ def main() -> int:
     add_para(
         doc,
         "电路成果指可综合 RTL 与综合/门级证据，而非 PCB 实物。"
-        f"eLinx 综合：cells {fmt_metric(catalog,'cells')}，altsyncram {fmt_metric(catalog,'altsyncram')}。"
+        f"eLinx 综合：核心单独 cells {fmt_metric(catalog,'cells')}，altsyncram {fmt_metric(catalog,'altsyncram')}；"
+        f"评测封装 afdx_app_top 综合通过（能正常综合）：cells {fmt_metric(catalog,'app_synth_cells')}，"
+        f"altsyncram {fmt_metric(catalog,'app_synth_altsyncram')}，"
+        f"相对核心增加 {fmt_metric(catalog,'app_synth_delta_cells')} cells、{fmt_metric(catalog,'app_synth_delta_altsyncram')} altsyncram。"
         f"综合后仿真门级切片 T88b：S1={fmt_metric(catalog,'gate_t88b_s1')}，"
         f"S2={fmt_metric(catalog,'gate_t88b_s2')}，S3={fmt_metric(catalog,'gate_t88b_s3')}；"
         f"VO 内容哈希前缀 {fmt_metric(catalog,'gate_vo_sha256')[:16]}…。"
-        "测试条件：公开端口双网回环切片；不含门级全量矩阵与 SDF 时序仿真；综合数字不等于 GUI LUT；"
+        "测试条件：T92–T95 为 RTL 仿真，测试台用层次引用读内部计数器，不用于门级；门级证据为 T88b 公开端口双网回环切片；"
+        "不含门级全量矩阵与 SDF 时序仿真；综合数字不等于 GUI LUT；"
         "不做时序签核与板级验证。eLinx 工程界面、综合资源页与 ModelSim Transcript（M1–M3）为占位，与演示视频同期补入。",
         first_line=True,
     )
@@ -576,7 +590,13 @@ def main() -> int:
     add_heading_like(doc, "3.3 特性成果", style="List Paragraph")
     add_para(
         doc,
-        "四项指标见表 1.4。"
+        "四项指标见表 1.4，均在评测封装口测得：T93 时延与抖动，T94 吞吐，T95 规模（128 条发送、126 条接收，"
+        f"提交 {fmt_metric(catalog,'t95_submit')}、交付 {fmt_metric(catalog,'t95_deliver')}，另 {fmt_metric(catalog,'t95_unconf')} 条无接收表项），T92 基本收发。"
+        "T92–T95 均为 RTL 仿真。"
+        f"T93 按虚拟链路统计相邻帧发送 SFD 间隔，最小 {fmt_metric(catalog,'t93_vl_gap_min_cyc')} 周期，不小于 BAG {fmt_metric(catalog,'t93_bag_cyc')} 周期；"
+        "测试台注入间隔大于 BAG，此项只说明未早于 BAG 发帧，BAG 整形本身由核心测试 T04、T05c、T27、T90 证明，封装未改调度器。"
+        f"T93 单链路场景抖动 {fmt_metric(catalog,'t93_a_jit_ns')} ns 来自封装接收侧对报文计数的轮询相位，仅首帧：发送段极差 15 周期，"
+        "接收段极差 393 周期；轮询一圈 126 条链路 × 5 周期 = 630 周期（约 5.04 μs），为该抖动上界量级。"
         f"补充：T89 ES 分列 commit→TX SFD {fmt_metric(catalog,'t89_tx_commit2sfd_max_ns')} ns、"
         f"RX SFD→host {fmt_metric(catalog,'t89_rx_sfd2host_max_ns')} ns；"
         f"T90 在 128 发送 VL 同时活动下 RX 去重吞吐 {fmt_metric(catalog,'t90_rx_dedup_mbps')} Mbps。"

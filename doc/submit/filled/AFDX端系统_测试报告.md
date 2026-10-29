@@ -1,4 +1,4 @@
-<!-- rendered from AFDX端系统_测试报告.md using C:/Workspace/diansai/out/p9_freeze_dfac58a/metrics.json commit=098efc98d379c29b113d52dfccb24cdf36be7391 -->
+<!-- rendered from AFDX端系统_测试报告.md using C:/Workspace/diansai/out/p10_draft_20261030/metrics.json commit=098efc98d379c29b113d52dfccb24cdf36be7391 -->
 
 # AFDX 端系统测试报告（提交版）
 
@@ -79,8 +79,8 @@
 ## 3. 需求追踪大表（五功能 + 四指标）
 
 > 等级：P / I / F（尺子 §1）。实测列只写 metric 锚点或「无独立 key / 未测」。  
-> **主口径（新答疑 / `afdx_app_top`）**：应用口时延·抖动·吞吐·128 VL → **T93/T94/T95**（§5.4；`out/app_top_metrics_20261029.json`）。  
-> **补充**：T42/T89/T90；单 ES 回环「GMII SFD→SFD」不作主宣称。
+> **主口径（新答疑 / `afdx_app_top`）**：应用口时延·抖动·吞吐·128 VL → **T93/T94/T95**（§5.4）。T92–T95 为 RTL 仿真（测试台用 `dut.*` 层次引用），门级证据是 §6 的 T88b。BAG 整形证据仍是核心测试 T04 / T05c / T27 / T90。  
+> **补充**：T42/T89/T90（GMII/ES 贡献）；单 ES 回环「GMII SFD→SFD」不作主宣称。
 
 ### 3.1 五功能
 
@@ -97,14 +97,14 @@
 
 | 指标 | T | 配置 | 实测 | 等级 | 适用边界 |
 |---|---|---|---|---|---|
-| **主·时延** 首字节 tx→rx ≤2 ms | **T93** | `afdx_app_top` | A max **11984 ns** / B max **13824 ns** | **P** | 封装口；`t93_bag_r2` |
-| **主·抖动** 同 VL 同长 max−min | **T93** | 同上 | A **3080 ns** / B **4920 ns** | **P** | 本场；来源见 `doc/T93_抖动来源与BAG判据_20261029.md` |
-| **主·吞吐** 应用口 ≥100 Mbps | **T94** | NVL16 R3 | 稳态 **123.22 Mbps** | **P** | `app_bram_r4` |
-| **主·128 VL** | **T95** | TX128/RX126 | submit=128 deliver=126 unconf=4 | **P** | `app_top_t95_r3` |
-| 补充·吞吐（GMII） | T42；T90 | 见 §5 | T90 rx_dedup **673.304** Mbps | P（补充） | 不替代 T94 |
-| 补充·ES 贡献 ≤2 ms | T89 | IF_MODE=2 | 3384 / 2592 / 5976 ns | P（补充） | 与封装口分列 |
-| 补充·工程时延 | T13 / T13w / T42 | 见各节 | T13 `243416` ns 等 | P（补充） | 不冒充封装主口径 |
-| 补充·抖动 | T05b；T42；T89 | 见各节 | T05b startup `2` / steady `0` μs 等 | P（补充） | 须重算 40+Σ |
+| **主·时延** 首字节 tx→rx ≤2 ms | **T93** | `afdx_app_top`；PLEN=256；A 单 VL / B 4 VL | A max **11984 ns** / B max **13824 ns** | **P** | 封装口定义；不含网络/交换机端到端 |
+| **主·抖动** 同 VL 同长 max−min | **T93** | 同上 | A_jit **3080 ns**；B_jit **4920 ns** | **P** | 本场；A 抖动来源与按 VL 的 BAG 判据见 `doc/T93_抖动来源与BAG判据_20261029.md` |
+| **主·吞吐** 应用口 ≥100 Mbps | **T94** | NVL=16 ROUNDS=3 PLEN=1471 | 稳态 **123.22 Mbps** | **P** | 本场 |
+| **主·128 VL** | **T95** | TX128 / RX126 + unconf×4 | submit=128 deliver=126 unconf=4 | **P** | 交付以 126 为准；VL126/127 unconf |
+| 补充·吞吐（GMII 去重载荷） | T42；T90 | 见 §5.1/§5.3 | T90 rx_dedup **673.304** Mbps 等 | P（补充） | 不替代 T94 主口径 |
+| 补充·ES 贡献 ≤2 ms | T89 | IF_MODE=2 | 3384 / 2592 / 5976 ns | P（补充） | 与封装口起止分列 |
+| 补充·工程时延 | T13 / T13w / T42 | 见各节 | metric 锚点见原列 | P（补充） | 不冒充封装主口径 |
+| 补充·抖动（BAG 压力等） | T05b；T42；T89 | 见各节 | 见 metric 锚点 | P（补充） | 新场景须重算 40+Σ |
 | 规模：4096 RX 等 | T34p / T35p | 见 TB | `True` / `True` | P | 不含 4096 路同时收 |
 
 **分列：** 封装口（T92–T95）与 GMII/host 工程起止（T42/T89/T90）不可拼成同一「现行」数字。
@@ -133,13 +133,17 @@
 
 | 项 | 实测 | 证据 |
 |---|---|---|
-| T93 时延 max | A **11984** / B **13824 ns** ≪ 2e6 | `sim/out/t93_bag_r2/` |
+| T92 基本收发 | PASS checks=2773 | `T92_console.txt`；VL0/32/64/96 四档最小与最大载荷 |
+| T93 时延 max | A **11984** / B **13824 ns** ≪ 2e6 | `T93_console.txt` + `t93_metrics_check` |
 | T93 抖动 A/B | **3080 / 4920 ns** | 同上；来源与 BAG 判据见 `doc/T93_抖动来源与BAG判据_20261029.md` |
-| T94 稳态吞吐 | **123.22 Mbps** | `sim/out/app_bram_r4/` |
-| T95 128 VL | submit=128 deliver=126 unconf=4 | `sim/out/app_top_t95_r3/` |
-| 封装综合（平铺） | **I** | `out/app_top_synth_bram3/`：cells **107470** / altsyncram **514**；同流程核心 **106241/507**，增量 +1229/+7；eLinx 综合器为 32 位进程（约 2 GB） |
+| T93 按 VL 的 TX SFD 间隔 | min **132133** 周期 ≥ BAG **125000** 周期（违例 0） | `t93_gmii_sfd.csv` / `t93_vl_gap.csv` + `t93_metrics_check`；TB 注入间隔 > BAG，BAG 整形证据仍为 T04 / T05c / T27 / T90 |
+| T94 稳态吞吐 | **123.22 Mbps**（≥100） | `T94_console.txt` |
+| T95 128 VL | submit=128 deliver=126 unconf=4 | `T95_console.txt`；VL125 port=**255**（`vl_valid` 修复） |
+| 封装综合（平铺）能正常综合 | **PASS**（P） | `run_status.json`：eLinx `memory_bram`+`stat` 通过；非 Fit/STA/GUI LUT |
+| 封装综合数字 | cells **107470** / altsyncram **514**（I）；核心 **106241/507**，增量 +1229 / +7（I） | 同流程；「器件装得下」是由此推出的判断（I）。eLinx 综合器为 32 位进程（约 2 GB），封装 RTL 为此去掉大数组复位 for 循环与变量地址组合读 |
 
-汇总：`out/app_top_metrics_20261029.json`。
+汇总：最终冻结 metrics 副本中的 `t92_*` … `t95_*`、`app_synth_*` 键。  
+**适用边界：** 限于封装字节流与本仓 GMII 回环；不含评委自建 TB 以外协议全集；不得写封装已 Fit。T93 的 BAG 间隔判据由 TB 注入节奏（约 132144 周期）决定，只说明未早于 BAG 发帧；没有「同 VL 连续快速提交」场景。T93 Phase A 抖动来源（封装接收轮询相位，仅首帧）见 `doc/T93_抖动来源与BAG判据_20261029.md`（诊断，I）。
 
 ### 5.1 T42（IF_MODE=2，公开 GMII；工程起止；**补充**）
 

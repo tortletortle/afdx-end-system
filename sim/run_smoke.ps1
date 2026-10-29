@@ -13,9 +13,10 @@ $lockOwner = 'run_smoke_' + $PID
 $lockHeld = $false
 # post_fix4 walls (s): T00 19.8 T01 362.2 T03 18.6 T04 25.2 T08e 33 T09 16.9
 # T10 22.3 T11 20.2 T22g 21.9 T41 18 T42 40.1 T43 56.5 T16u 19.1 T16a 147.8
+# T92 (afdx_app_top basic min/max/mid, judge entry wrapper) ~25-35s added first => ~850s (~14 min).
 # Sum plan set ~821s (~13.7 min) + T88b ~31s => under 20 min.
 # T88 replaces T88b in judge smoke (demo steps 1-4). T88b remains gate/RTL entry.
-$Tests = 'T00,T01,T03,T04,T08e,T09,T10,T11,T22g,T41,T42,T43,T16u,T16a,T88'
+$Tests = 'T92,T00,T01,T03,T04,T08e,T09,T10,T11,T22g,T41,T42,T43,T16u,T16a,T88'
 if (-not $OutDir) {
   $OutDir = Join-Path $sim ('out\smoke_' + (Get-Date -Format 'yyyyMMdd_HHmmss'))
 }
