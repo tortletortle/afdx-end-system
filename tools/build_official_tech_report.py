@@ -351,7 +351,11 @@ def main() -> int:
     note_14 = "测试条件：IF_MODE=2；T90为128 VL同时；仿真125 MHz；单ES回环不做官方SFD→SFD宣称。"
     text_14 = "".join("".join(r) for r in rows_14) + note_14
     counts["1.4"] = count_chars(text_14)
-    counts["4.2"] = 0  # outline only
+    reflection_path = ROOT / "doc/submit/心得体会_4.2.txt"
+    reflection = ""
+    if reflection_path.is_file():
+        reflection = reflection_path.read_text(encoding="utf-8").strip()
+    counts["4.2"] = count_chars(reflection) if reflection else 0
 
     over = {k: counts[k] for k in limits if k in counts and counts[k] > limits[k]}
     if over:
@@ -431,7 +435,7 @@ def main() -> int:
         "发送与接收共享物理报文存储空间；接收块由块池分配回收。"
         "控制字可开关发送/接收/完整性检查/冗余管理/SNMP/TFTP/RTC 等功能。"
         "接口侧提供双网 GMII 字节流与 PPS 相关引脚。硬件目标是可综合、可门级加载的确定性数据通路，而不是片上软核系统。"
-        "工程界面人工截图见清单 M1。",
+        "工程界面截图 M1 为占位，与演示视频同期补入。",
         first_line=True,
     )
 
@@ -555,7 +559,7 @@ def main() -> int:
         f"S2={fmt_metric(catalog,'gate_t88b_s2')}，S3={fmt_metric(catalog,'gate_t88b_s3')}；"
         f"VO 内容哈希前缀 {fmt_metric(catalog,'gate_vo_sha256')[:16]}…。"
         "测试条件：公开端口双网回环切片；不含门级全量矩阵与 SDF 时序仿真；综合数字不等于 GUI LUT；"
-        "不做时序签核与板级验证。eLinx GUI 工程与综合资源页、ModelSim Transcript 见人工截图清单 M1–M3。",
+        "不做时序签核与板级验证。eLinx 工程界面、综合资源页与 ModelSim Transcript（M1–M3）为占位，与演示视频同期补入。",
         first_line=True,
     )
     try_add_picture(doc, figs / "S6_synth_summary.png", 14.0)
@@ -565,7 +569,7 @@ def main() -> int:
     add_para(
         doc,
         "软件成果为 PC 端验证输出：回归 CSV、双仿真器对照表、指标控制台、覆盖率摘要与一键复现说明。"
-        "仿真器 transcript 与波形窗口的人工截图见清单 M3–M4；信号活动图见下文 S8–S10。无嵌入式图形界面或移动端应用。",
+        "仿真器 transcript 与波形窗口（M3–M4）为占位，与演示视频同期补入；信号活动图见下文 S8–S10。无嵌入式图形界面或移动端应用。",
         first_line=True,
     )
 
@@ -613,57 +617,28 @@ def main() -> int:
     add_para(doc, rendered["4.1"], first_line=True)
 
     add_heading_like(doc, "4.2 心得体会", style="List Paragraph")
-    add_para(doc, "（提纲，正文由队员撰写，不超过 1000 字；勿写入队属单位或姓名；数字须能指回冻结测试结果或日志。）")
-    for line in [
-        "1. 真实缺陷与排查：任选 chipsim 漏接、门级参数覆盖、指标场硬复位清序列状态、SAP 背压、回归进程收割等中的 2–3 例，写清现象→根因→修复→回归。",
-        "2. 验证方法：为何需要独立黄金模型与双仿真器；变异测试与覆盖率两种测量条件如何避免假绿。",
-        "3. AI 协作边界：哪些环节用了辅助起草或排查，哪些必须本机工具与人工截图；如何用测量条件与证据边界防止表述漂移。",
-        "4. 取舍体会：子集披露、官方字面时延不写成已测通过、不做时序签核等决策的原因。",
-        "（正文留空，提交前由队员手写填入。）",
-    ]:
-        add_para(doc, line)
+    if reflection:
+        add_para(doc, reflection, first_line=True)
+    else:
+        add_para(
+            doc,
+            "（待填。定稿由队员提供后写入；非空白字符不超过 1000；勿写入队属单位或姓名；数字须能指回冻结测试结果或日志。）",
+        )
 
     add_heading_like(doc, "AI 工具使用说明")
     add_para(
         doc,
-        "赛题要求披露工具、场景与大致占比。以下内容依据队内 AI 使用声明整理，已去除身份信息。终稿须人工核对。",
+        "使用的工具为编辑器内的 AI 编程助手（对话代理一类）。综合网表、仿真判决由本机 Questa、ModelSim SE、eLinx 执行，不由该助手生成。",
         first_line=True,
     )
-    add_para(doc, "工具名称与用途", bold=True)
     add_para(
         doc,
-        "编辑器内 AI 编程助手（对话代理）：用于赛题与文献条款梳理、RTL/测试台修改建议与缺陷排查、回归与证据路径调度、文档表述对齐、打包与汇报材料起草。"
-        "不作为综合结论签核，不替代组委会原文与本队仿真日志。"
-        "本机判决工具（非 AI）包括 Questa、ModelSim SE、eLinx 等；结论以各次运行目录中的 CSV、日志与 transcript 为准。",
+        "用途限于辅助：代码（RTL 与测试台的修改建议和缺陷排查）、文档（结构与措辞起草）、脚本（回归调度、打包与工程元数据）。",
         first_line=True,
     )
-    add_table(
-        doc,
-        ["场景", "是否使用 AI", "说明"],
-        [
-            ["文献与赛题条款梳理", "是", "对照本地文献目录与答疑，不替代原文"],
-            ["RTL / 测试台编写与缺陷修复", "是", "以仿真通过/失败日志验收"],
-            ["黄金模型 / 向量脚本", "部分", "人机协作历史产物"],
-            ["仿真回归执行", "协助调度与核查", "编译、仿真、记分板由本机工具执行"],
-            ["综合工具 GUI 实操与截图", "否（人工）", "路径设置与截图由队员完成"],
-            ["综合网表与工具原始报告", "否", "不以 AI 改写为已签核"],
-            ["本文档与汇报材料", "是", "结构与措辞起草；数字须回溯日志；终稿须人工核对"],
-        ],
-    )
-    add_para(doc, "生成内容占比（估计）", bold=True)
     add_para(
         doc,
-        "文字约 30%～50% 经 AI 起草或改写，结论数字均要求能指到证据；"
-        "RTL 核心收发通路为项目既有实现，后续修补与测试台路径有 AI 辅助并以对应测试编号为准；"
-        "电路网表与工具报告 0% AI 生成；脚本与工程元数据有 AI 辅助，厂商仿真库未为得到通过而篡改。",
-        first_line=True,
-    )
-    add_para(doc, "责任说明", bold=True)
-    add_para(
-        doc,
-        "AI 输出不作为签核。可写入提交材料的结论必须具备：源码版本或内容哈希、具体测试编号、日志依据、以及不能推出什么。"
-        "现行功能回归见冻结测试结果中的全量通过计数；历史轮次不得拼装。"
-        "未完成项见测试报告中的边界说明。",
+        "写入本文的结论以各次运行目录中的仿真日志、CSV 与 transcript 为准，并经人工核对。AI 输出不作为签核，不替代组委会原文。",
         first_line=True,
     )
 
@@ -698,7 +673,8 @@ def main() -> int:
     add_para(
         doc,
         "自动排版图 S2–S6 与调试波形图 S8–S10 已嵌入正文。"
-        "人工仅需补拍 4 张（M1–M4）：eLinx 工程界面、eLinx 综合资源页、ModelSim Transcript（T88b PASS 且 Errors: 0）、"
+        "人工截图 M1–M4 为占位，推迟到封装测试台与最终冻结完成后，与演示视频同时补拍。"
+        "四张仍为：eLinx 工程界面、eLinx 综合资源页、ModelSim Transcript（T88b PASS 且 Errors: 0）、"
         "ModelSim 波形窗口（T88 或 T90）。窗口布局与去身份要求见同目录《人工截图清单》。",
         first_line=True,
     )
@@ -755,7 +731,10 @@ def main() -> int:
     for k in ["abstract", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "4.1", "4.2"]:
         lim = limits[k]
         n = counts.get(k, 0)
-        st = "提纲" if k == "4.2" else ("OK" if n <= lim else "超限")
+        if k == "4.2" and n == 0:
+            st = "待填"
+        else:
+            st = "OK" if n <= lim else "超限"
         name = {"abstract": "摘要"}.get(k, k)
         lines.append(f"| {name} | {n} | {lim} | {st} |")
     lines += [
@@ -802,7 +781,7 @@ def main() -> int:
         f"| 架构/模块/流程框图 | 已嵌入 |",
         f"| S2–S6 排版图 | {'有' if (figs/'S2_manifest_table.png').is_file() else '缺'} |",
         f"| S8–S10 波形 | {'有' if (figs/'S8_T88_signals.png').is_file() else '缺'} |",
-        "| 人工 M1–M4 | 见 `doc/submit/人工截图清单.md`（仅 4 张） |",
+        "| 人工 M1–M4 | 占位；封装测试台与最终冻结后，与演示视频同期补拍 |",
         "",
         "## 参考文献 [18]–[20]",
         "",
@@ -828,15 +807,15 @@ def main() -> int:
         "## 验收卡",
         "",
         "```",
-        "改动：冻结前小修（哈希来源/6拍/学习07第12题）+ 外部评审修订落仓；重生 docx/PDF",
-        "触及模块：doc/submit/*、doc/学习/*、tools/build_official_tech_report.py；无 rtl/sim/tb/manifest",
+        "改动：文末 AI 说明压成 3 段；4.2 待队员定稿；M1–M4 改为占位并与演示视频同期",
+        "触及模块：tools/build_official_tech_report.py、doc/submit 截图与上传说明；无 rtl/sim/tb/manifest",
         "宣称等级：文档对齐；无新仿真宣称",
-        "对应 T 号：无新跑",
-        "实际跑了：build_official_tech_report；run_all --strict",
-        "日志路径：本交付表；out/p9_freeze_dfac58a/metrics.json",
-        "未跑的相关 T：全量/门级未因文档重跑；不再启 T91 门级",
-        "面积/时序：未重测",
-        "禁止写出的句子：T91 门级已 P；门级全量；队属学校姓名路径；首创；Quartus map 冒充 eLinx",
+        "对应 T 号：无，故 I",
+        "实际跑了：build_official_tech_report（docx/PDF）",
+        "日志路径：本交付表",
+        "未跑的相关 T：全量/门级未因文档重跑",
+        "面积/时序：未重测（数字保持改前）",
+        "禁止写出的句子：4.2 已由队员定稿；M1–M4 已拍入；AI 输出即签核",
         "```",
         "",
     ]

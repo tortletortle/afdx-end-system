@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Whitelist packer for AFDX ES submission ZIP (E / §10.1, tightened).
+"""Whitelist packer for AFDX ES submission (E / §10.1, tightened).
 
-Builds ZIP + PACKAGE_MANIFEST.json + PACK_SIZE.md + ABS_PATHS.md.
+Default deliverable is RAR via WinRAR Rar.exe (≤200 MB, no .git).
+ZIP is written only as AFDX_ES_<commit>.internal.zip for local use.
+Also writes PACKAGE_MANIFEST.json + PACK_SIZE.md + ABS_PATHS.md.
 Skips DO_NOT_CITE trees, pack_exclude.txt, debug scripts, unrelated tools.
 VO not packed. Consoles: key T only.
 """
@@ -12,6 +14,7 @@ import hashlib
 import json
 import re
 import shutil
+import subprocess
 import sys
 import zipfile
 from collections import defaultdict
@@ -450,7 +453,7 @@ def size_report(stage: Path) -> str:
     return "\n".join(lines) + "\n", total
 
 
-def write_manifest(stage: Path, manifest_path: Path, zip_path: Path) -> dict:
+def write_manifest(stage: Path, manifest_path: Path, zip_path: Path, rar_path: Path | None = None) -> dict:
     members = []
     for p in sorted(stage.rglob("*")):
         if not p.is_file():
@@ -463,12 +466,60 @@ def write_manifest(stage: Path, manifest_path: Path, zip_path: Path) -> dict:
         "created_local": datetime.now(timezone(timedelta(hours=8))).strftime(
             "%Y-%m-%dT%H:%M:%S%z"
         ),
-        "zip": zip_path.name,
+        "rar": rar_path.name if rar_path else "",
+        "zip_internal": zip_path.name,
         "member_count": len(members),
         "members": members,
     }
     manifest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return data
+
+
+RAR_EXE = Path(r"C:\Program Files\WinRAR\Rar.exe")
+RAR_MAX_BYTES = 200 * 1024 * 1024
+
+
+def rar_listing_has_git(archive: Path) -> bool:
+    out = subprocess.check_output(
+        [str(RAR_EXE), "lb", str(archive)],
+        text=True,
+        errors="replace",
+    )
+    for line in out.splitlines():
+        parts = line.replace("\\", "/").strip("/").split("/")
+        if any(p == ".git" or p.endswith(".git") for p in parts):
+            return True
+    return False
+
+
+def rar_stage(stage: Path, rar_path: Path) -> None:
+    if not RAR_EXE.is_file():
+        print(f"FAIL missing {RAR_EXE}", file=sys.stderr)
+        raise SystemExit(1)
+    if rar_path.exists():
+        rar_path.unlink()
+    cmd = [
+        str(RAR_EXE),
+        "a",
+        "-r",
+        "-m5",
+        "-ep1",
+        "-idq",
+        "-y",
+        "-x.git",
+        "-x.git\\",
+        "-x*\\.git\\*",
+        str(rar_path),
+        str(stage / "*"),
+    ]
+    subprocess.check_call(cmd)
+    if rar_listing_has_git(rar_path):
+        print("FAIL .git inside RAR", file=sys.stderr)
+        raise SystemExit(1)
+    size = rar_path.stat().st_size
+    if size > RAR_MAX_BYTES:
+        print(f"FAIL RAR {size} bytes > 200 MB", file=sys.stderr)
+        raise SystemExit(1)
 
 
 def zip_stage(stage: Path, zip_path: Path) -> None:
@@ -548,19 +599,25 @@ def main() -> int:
     (out_dir / "PACK_SIZE.md").write_text(size_txt, encoding="utf-8")
     (stage / "PACK_SIZE.md").write_text(size_txt, encoding="utf-8")
 
-    zip_path = out_dir / f"AFDX_ES_{COMMIT7}.zip"
-    print(f"ZIP → {zip_path}", flush=True)
+    rar_path = out_dir / f"AFDX_ES_{COMMIT7}.rar"
+    print(f"RAR → {rar_path}", flush=True)
+    rar_stage(stage, rar_path)
+    zip_path = out_dir / f"AFDX_ES_{COMMIT7}.internal.zip"
+    print(f"ZIP internal → {zip_path}", flush=True)
     zip_stage(stage, zip_path)
     manifest_path = out_dir / "PACKAGE_MANIFEST.json"
-    data = write_manifest(stage, manifest_path, zip_path)
-    data["zip_sha256"] = sha256_file(zip_path)
-    data["zip_bytes"] = zip_path.stat().st_size
+    data = write_manifest(stage, manifest_path, zip_path, rar_path)
+    data["rar_sha256"] = sha256_file(rar_path)
+    data["rar_bytes"] = rar_path.stat().st_size
+    data["zip_internal_sha256"] = sha256_file(zip_path)
+    data["zip_internal_bytes"] = zip_path.stat().st_size
     data["abs_path_residue_count"] = len(abs_hits)
     data["stage_bytes"] = total
     manifest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
-        f"PACK_OK members={data['member_count']} zip_MiB={data['zip_bytes']/1024/1024:.2f} "
-        f"abs_residue={len(abs_hits)} sha256={data['zip_sha256'][:16]}…"
+        f"PACK_OK members={data['member_count']} rar_MiB={data['rar_bytes']/1024/1024:.2f} "
+        f"zip_internal_MiB={data['zip_internal_bytes']/1024/1024:.2f} "
+        f"abs_residue={len(abs_hits)} sha256={data['rar_sha256'][:16]}…"
     )
     return 0
 
