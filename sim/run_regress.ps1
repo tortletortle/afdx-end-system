@@ -30,6 +30,31 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
+# Single-seat lock (tools/sim_lock.ps1). Parent runners may already hold it.
+$script:SimLockOwned = $false
+$script:SimLockPath = Join-Path (Split-Path $PSScriptRoot -Parent) 'tools\sim_lock.ps1'
+function Release-SimLockIfOwned {
+  if ($script:SimLockOwned -and (Test-Path -LiteralPath $script:SimLockPath)) {
+    powershell -NoProfile -ExecutionPolicy Bypass -File $script:SimLockPath -Action release -Owner ('run_regress_' + $PID) | Out-Null
+    $script:SimLockOwned = $false
+  }
+}
+if ($env:AFDX_SIM_LOCK_HELD -ne '1') {
+  if (-not (Test-Path -LiteralPath $script:SimLockPath)) {
+    Write-Output "ERROR: missing sim lock script: $($script:SimLockPath)"
+    exit 1
+  }
+  $lockOut = powershell -NoProfile -ExecutionPolicy Bypass -File $script:SimLockPath -Action acquire -Owner ('run_regress_' + $PID) -WaitSeconds 0
+  $lockOut | ForEach-Object { Write-Output $_ }
+  if ($LASTEXITCODE -ne 0) { exit 2 }
+  $script:SimLockOwned = $true
+}
+
+function Exit-Locked([int]$code) {
+  Release-SimLockIfOwned
+  exit $code
+}
+
 # --- locate vsim (same candidate list as run_t01.ps1) ---
 $cands = @(
   "C:\altera_pro\26.1.1\questa_fse\win64\vsim.exe",
@@ -40,7 +65,7 @@ $cands = @(
 $vsim = $null
 if ($VsimPath -ne '') {
   if (Test-Path -LiteralPath $VsimPath -PathType Leaf) { $vsim = [IO.Path]::GetFullPath($VsimPath) }
-  else { Write-Output "ERROR: requested VsimPath not found: '$VsimPath'"; exit 1 }
+  else { Write-Output "ERROR: requested VsimPath not found: '$VsimPath'"; Exit-Locked 1 }
 } elseif ($env:VSIM_EXE -and (Test-Path -LiteralPath $env:VSIM_EXE -PathType Leaf)) {
   $vsim = [IO.Path]::GetFullPath($env:VSIM_EXE)
 }
@@ -49,12 +74,12 @@ if (-not $vsim -and -not $VsimPath) {
   $f = Get-ChildItem "C:\altera_pro" -Recurse -Filter "vsim.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
   if ($f) { $vsim = $f.FullName }
 }
-if (-not $vsim) { Write-Output "ERROR: vsim.exe not found"; exit 1 }
+if (-not $vsim) { Write-Output "ERROR: vsim.exe not found"; Exit-Locked 1 }
 
 # --- license env (Starter SALT keyring, see run_t01.ps1) ---
 $licUser = [Environment]::GetEnvironmentVariable('SALT_LICENSE_SERVER','User')
 if (-not $env:SALT_LICENSE_SERVER -and $licUser) { $env:SALT_LICENSE_SERVER = $licUser }
-if (-not $env:SALT_LICENSE_SERVER) { Write-Output "ERROR: SALT_LICENSE_SERVER not set"; exit 1 }
+if (-not $env:SALT_LICENSE_SERVER) { Write-Output "ERROR: SALT_LICENSE_SERVER not set"; Exit-Locked 1 }
 
 # A path existing on disk does not prove the Windows loader can start it.
 $probeInfo = New-Object System.Diagnostics.ProcessStartInfo
@@ -85,18 +110,18 @@ try {
       Write-Output 'HINT: this failed before HDL compilation. On this machine Win32 623 is reproduced inside the restricted automation sandbox; rerun the same command outside that sandbox. See sim/SIMULATOR_STARTUP.md.'
     }
   }
-  exit 1
+  Exit-Locked 1
 }
 if ($vsimVersionRc -ne 0 -or $vsimVersionText -eq '') {
   Write-Output ("ERROR: simulator version probe failed (rc=" + $vsimVersionRc + "): " + $vsimVersionText)
-  exit 1
+  Exit-Locked 1
 }
 
 # Never terminate processes by executable name. Each simulator is launched by
 # this run and, on timeout, only that cmd.exe process tree is terminated below.
 if ($KeepWork) {
   Write-Output 'ERROR: -KeepWork is disabled; an isolated run always starts with a fresh library.'
-  exit 1
+  Exit-Locked 1
 }
 $sourceSim = $PSScriptRoot
 $sourceRoot = Split-Path -Parent $sourceSim
@@ -105,16 +130,16 @@ if ($OutDir -eq '') {
   $runLeaf = 'regress_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_' + ([guid]::NewGuid().ToString('N').Substring(0,6))
   $OutDir = Join-Path 'out' $runLeaf
 }
-if ($OutDir -match '[\s"&|<>]') { Write-Output "ERROR: bad -OutDir '$OutDir'"; exit 1 }
+if ($OutDir -match '[\s"&|<>]') { Write-Output "ERROR: bad -OutDir '$OutDir'"; Exit-Locked 1 }
 if ([IO.Path]::IsPathRooted($OutDir)) { $runOutput = [IO.Path]::GetFullPath($OutDir) }
 else { $runOutput = [IO.Path]::GetFullPath((Join-Path $sourceSim $OutDir)) }
 $outRoot = [IO.Path]::GetFullPath((Join-Path $sourceSim 'out')).TrimEnd('\') + '\'
 if (-not $runOutput.StartsWith($outRoot, [StringComparison]::OrdinalIgnoreCase)) {
-  Write-Output "ERROR: -OutDir must resolve under '$outRoot'"; exit 1
+  Write-Output "ERROR: -OutDir must resolve under '$outRoot'"; Exit-Locked 1
 }
 if (Test-Path -LiteralPath $runOutput) {
   if (@(Get-ChildItem -LiteralPath $runOutput -Force).Count -gt 0) {
-    Write-Output "ERROR: refusing to overwrite non-empty run directory '$runOutput'"; exit 1
+    Write-Output "ERROR: refusing to overwrite non-empty run directory '$runOutput'"; Exit-Locked 1
   }
 } else {
   New-Item -ItemType Directory -Path $runOutput -Force | Out-Null
@@ -214,58 +239,58 @@ foreach ($line in (Get-Content (Join-Path $sim 'tests.manifest') -Encoding UTF8)
   $t = "$line".Trim()
   if ($t -eq '' -or $t.StartsWith('#')) { continue }
   $p = $t -split '\s+'
-  if ($p.Count -lt 2) { Write-Output "ERROR: malformed manifest row: '$t'"; exit 1 }
+  if ($p.Count -lt 2) { Write-Output "ERROR: malformed manifest row: '$t'"; Exit-Locked 1 }
   $cfg = if ($p.Count -gt 2) { $p[2] } else { 'default' }
   $manifest += [pscustomobject]@{ Id = $p[0]; Tb = $p[1]; Cfg = $cfg }
 }
 $dupIds = @($manifest | Group-Object Id | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
-if ($dupIds.Count -gt 0) { Write-Output ("ERROR: duplicate test id(s) in manifest: " + ($dupIds -join ',')); exit 1 }
+if ($dupIds.Count -gt 0) { Write-Output ("ERROR: duplicate test id(s) in manifest: " + ($dupIds -join ',')); Exit-Locked 1 }
 $scopePath = Join-Path $sim 'bind_scope.tsv'
 $profilesPath = Join-Path $sim 'bind_scope_profiles.tsv'
 $scopeAudit = Join-Path $sim 'check_bind_scope.py'
-if (-not (Test-Path -LiteralPath $scopePath) -or -not (Test-Path -LiteralPath $profilesPath) -or -not (Test-Path -LiteralPath $scopeAudit)) { Write-Output 'ERROR: bind scope inputs missing'; exit 1 }
+if (-not (Test-Path -LiteralPath $scopePath) -or -not (Test-Path -LiteralPath $profilesPath) -or -not (Test-Path -LiteralPath $scopeAudit)) { Write-Output 'ERROR: bind scope inputs missing'; Exit-Locked 1 }
 & python $scopeAudit --source-root $projectRoot --sim-dir $sim --scope $scopePath --profiles $profilesPath
-if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: bind scope audit failed'; exit 1 }
+if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: bind scope audit failed'; Exit-Locked 1 }
 $scopeRows = @(Import-Csv -LiteralPath $scopePath -Delimiter "`t")
-if ($scopeRows.Count -ne $manifest.Count) { Write-Output "ERROR: bind scope row count $($scopeRows.Count) != manifest count $($manifest.Count)"; exit 1 }
+if ($scopeRows.Count -ne $manifest.Count) { Write-Output "ERROR: bind scope row count $($scopeRows.Count) != manifest count $($manifest.Count)"; Exit-Locked 1 }
 $bindTopById = @{}
 foreach ($scopeRow in $scopeRows) {
   $mapped = @($manifest | Where-Object { $_.Id -eq $scopeRow.test_id })
-  if ($mapped.Count -ne 1 -or $mapped[0].Tb -ne $scopeRow.tb) { Write-Output "ERROR: bind scope id/TB mismatch: $($scopeRow.test_id)/$($scopeRow.tb)"; exit 1 }
+  if ($mapped.Count -ne 1 -or $mapped[0].Tb -ne $scopeRow.tb) { Write-Output "ERROR: bind scope id/TB mismatch: $($scopeRow.test_id)/$($scopeRow.tb)"; Exit-Locked 1 }
   $top = switch ($scopeRow.profile) { 'full' {'afdx_bind_full'} 'rx_ic' {'afdx_bind_rx_ic'} 'mac_tx_if' {'afdx_bind_mac_tx_if'} 'none' {'none'} default {$null} }
-  if ($null -eq $top) { Write-Output "ERROR: unmapped bind profile '$($scopeRow.profile)' for $($scopeRow.test_id)"; exit 1 }
+  if ($null -eq $top) { Write-Output "ERROR: unmapped bind profile '$($scopeRow.profile)' for $($scopeRow.test_id)"; Exit-Locked 1 }
   $bindTopById[$scopeRow.test_id] = $top
 }
-if (@($bindTopById.Keys).Count -ne $manifest.Count) { Write-Output 'ERROR: bind scope duplicate or missing test IDs'; exit 1 }
+if (@($bindTopById.Keys).Count -ne $manifest.Count) { Write-Output 'ERROR: bind scope duplicate or missing test IDs'; Exit-Locked 1 }
 # powershell -File passes "-Tests T00,T01" as one string (not a string[]).
 # Accept both that documented spelling and -Command's array spelling.
 if ($Tests.Count -gt 0) {
   $selected = @($Tests | ForEach-Object { $_ -split ',' } |
                 ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
   $dupSelected = @($selected | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
-  if ($dupSelected.Count -gt 0) { Write-Output ("ERROR: duplicate requested test id(s): " + ($dupSelected -join ',')); exit 1 }
+  if ($dupSelected.Count -gt 0) { Write-Output ("ERROR: duplicate requested test id(s): " + ($dupSelected -join ',')); Exit-Locked 1 }
   $unknown = @($selected | Where-Object { @($manifest.Id) -notcontains $_ })
-  if ($unknown.Count -gt 0) { Write-Output ("ERROR: unknown test id(s): " + ($unknown -join ',')); exit 1 }
+  if ($unknown.Count -gt 0) { Write-Output ("ERROR: unknown test id(s): " + ($unknown -join ',')); Exit-Locked 1 }
   $manifest = @($manifest | Where-Object { $selected -contains $_.Id })
 }
-if ($manifest.Count -eq 0) { Write-Output "ERROR: no tests selected"; exit 1 }
+if ($manifest.Count -eq 0) { Write-Output "ERROR: no tests selected"; Exit-Locked 1 }
 if (@($manifest | Where-Object { $_.Id -eq 'T31' -or $_.Id -eq 'T31g' -or $_.Id -eq 'T36' -or $_.Id -eq 'T36g' }).Count -gt 0) {
   $snmpChecker = Join-Path $sim 'check_snmp_wire_capture.py'
   if (-not (Test-Path -LiteralPath $snmpChecker -PathType Leaf)) {
     Write-Output "ERROR: SNMP on-wire tests require the independent SNMP wire checker: $snmpChecker"
-    exit 1
+    Exit-Locked 1
   }
   & python $snmpChecker --self-test
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: independent SNMP wire checker self-test failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -in @('T35','T35g','T35p') }).Count -gt 0) {
   $t35Checker = Join-Path $sim 'check_t35_coverage.py'
   if (-not (Test-Path -LiteralPath $t35Checker -PathType Leaf)) {
     Write-Output "ERROR: T35/T35g requires the independent full-index coverage checker: $t35Checker"
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -gt 0) {
@@ -273,7 +298,7 @@ if (@($manifest | Where-Object { $_.Id -eq 'T09' -or $_.Id -eq 'T09s' }).Count -
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t09_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T09 Python golden vector generation failed"
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -like 'T15*' -or $_.Id -like 'T16*' -or $_.Id -like 'T24*' -or $_.Id -like 'T25*' -or $_.Id -like 'T31*' -or $_.Id -like 'T32*' -or $_.Id -like 'T36*' -or $_.Id -like 'T37*' -or $_.Id -like 'T40*' }).Count -gt 0) {
@@ -282,14 +307,14 @@ if (@($manifest | Where-Object { $_.Id -like 'T15*' -or $_.Id -like 'T16*' -or $
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t15_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T15/T16/T24/T25 management golden vector generation failed"
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -eq 'T36' -or $_.Id -eq 'T36g' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t36_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T36 malformed SNMP vector generation failed"
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -like 'T08*' -or $_.Id -like 'T11*' -or $_.Id -like 'T14*' -or $_.Id -like 'T15*' -or $_.Id -like 'T16*' -or $_.Id -like 'T17*' -or $_.Id -like 'T21*' -or $_.Id -like 'T22*' -or $_.Id -like 'T23*' }).Count -gt 0) {
@@ -297,7 +322,7 @@ if (@($manifest | Where-Object { $_.Id -like 'T08*' -or $_.Id -like 'T11*' -or $
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t08a_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T08 RX Python golden vector generation failed"
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -like 'T12*' -or $_.Id -like 'T08f*' -or
@@ -307,14 +332,14 @@ if (@($manifest | Where-Object { $_.Id -like 'T12*' -or $_.Id -like 'T08f*' -or
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t12_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output "ERROR: T12 offline hash image generation failed"
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -like 'T35*' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t35_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T35 independent full-index live-frame vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # P08 (2026-10-11): IPv4 fragment reassembly end-to-end golden vectors.
@@ -322,21 +347,21 @@ if (@($manifest | Where-Object { $_.Id -eq 'T60' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t60_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T60 reassembly fragment vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -like 'T64*' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t64_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T64 reassembled UDP checksum vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -in @('T65','T66','T67') }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t65_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T65/T66/T67 reassembly metadata/contention vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # T79: short first/later IPv4 fragments at the Ethernet minimum frame boundary.
@@ -344,7 +369,7 @@ if (@($manifest | Where-Object { $_.Id -eq 'T79' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t79_rx_frag_minlen.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T79 fragment minimum-length vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # P05 (2026-10-11): 615A fetch-engine GMII-level loader downlink frames.
@@ -353,12 +378,12 @@ if (@($manifest | Where-Object { $_.Id -eq 'T82' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t82_tx8k.py') --out (Join-Path $sim 'vec/t82_tx8k') --verify-existing
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T82 production TX8KiB golden generation failed'
-    exit 1
+    Exit-Locked 1
   }
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t82_recovery.py') --out (Join-Path $sim 'vec/t82_recovery') --verify-existing
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T82 metadata-fault recovery golden generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # T80: independent full-message/fragment and dual-GMII golden vectors.
@@ -368,7 +393,7 @@ if (@($manifest | Where-Object { $_.Id -eq 'T80' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_tx_fragment_builder.py') --out (Join-Path $sim 'vec/tx_fragment_builder') --verify-existing
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T80 TX fragment vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # T83: one production DUT, TX4/RX5, host and TFTP contention/recovery.
@@ -376,7 +401,7 @@ if (@($manifest | Where-Object { $_.Id -in @('T83','T86') }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t83_coexist.py') --out (Join-Path $sim 'vec/t83_coexist') --verify-existing
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T83 coexistence golden generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # P05 (2026-10-11): 615A fetch-engine GMII-level loader downlink frames.
@@ -384,14 +409,14 @@ if (@($manifest | Where-Object { $_.Id -eq 'T84' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t84_init_source.py') --out (Join-Path $sim 'vec/t84_init_source') --verify-existing
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T84 initialization ACK golden verification failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 if (@($manifest | Where-Object { $_.Id -eq 'T57' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t57_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T57 fetch-engine loader vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # P05 (2026-10-11): 615A LUR top-level upload -> per-file fetch GMII frames.
@@ -399,7 +424,7 @@ if (@($manifest | Where-Object { $_.Id -eq 'T62' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t62_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T62 LUR top-level vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 # P05 (2026-10-11): 615A LUR host observation read-path (0xAC88/89/8A/8B) frames.
@@ -407,22 +432,22 @@ if (@($manifest | Where-Object { $_.Id -eq 'T63' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t63_vectors.py')
   if ($LASTEXITCODE -ne 0) {
     Write-Output 'ERROR: T63 LUR host read-path vector generation failed'
-    exit 1
+    Exit-Locked 1
   }
 }
 
 if (@($manifest | Where-Object { $_.Id -in @('T41','T42') }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_gmii_vectors.py')
-  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: PHY GMII vector generation failed'; exit 1 }
+  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: PHY GMII vector generation failed'; Exit-Locked 1 }
 }
 if (@($manifest | Where-Object { $_.Id -in @('T43','T85') }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_gmii_management.py')
-  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: PHY management vector generation failed'; exit 1 }
+  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: PHY management vector generation failed'; Exit-Locked 1 }
 }
 # P02 (2026-10-10): top-level TFTP timeout/backpressure contract vectors.
 if (@($manifest | Where-Object { $_.Id -eq 'T45' }).Count -gt 0) {
   python (Join-Path (Split-Path -Parent $sim) 'sw/golden/gen_t45_vectors.py')
-  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: T45 timeout-contract vector generation failed'; exit 1 }
+  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: T45 timeout-contract vector generation failed'; Exit-Locked 1 }
 }
 
 # Bind the exact copied sources and generated vectors before compilation.
@@ -561,6 +586,8 @@ if (-not $KeepWork) {
     '../rtl/common/sync_fifo.v', '../rtl/common/crc32.v',
     '../rtl/common/bram_sdp.v',  '../rtl/top/init_sweep.v', '../rtl/top/AFDX_top.v',
     '../rtl/top/AFDX_top_chipsim.v',
+    '../rtl/top/afdx_app_host_arb.v', '../rtl/top/afdx_app_init.v',
+    '../rtl/top/afdx_app_tx.v', '../rtl/top/afdx_app_rx.v', '../rtl/top/afdx_app_top.v',
     '../rtl/top/stats_regs.v',
     '../rtl/tx/tx_sn_gen.v',     '../rtl/tx/tx_port_buf.v',
     '../rtl/tx/tx_frame_builder.v', '../rtl/tx/tx_vl_scheduler.v',
@@ -661,7 +688,7 @@ if (-not $KeepWork) {
     Save-RunMetadata
     Write-Output "ERROR: compile session failed; log follows:"
     Get-Content $compileLog -Encoding UTF8 | Write-Output
-    exit 1
+    Exit-Locked 1
   }
   # vlog prints "Errors: N, Warnings: M" - parse it (tcl exit code alone
   # does not catch vlog errors when Questa still exits 0)
@@ -675,7 +702,7 @@ if (-not $KeepWork) {
     Save-RunMetadata
     Write-Output ("ERROR: vlog reported " + $nErr + " error(s); log follows:")
     Get-Content $compileLog -Encoding UTF8 | Write-Output
-    exit 1
+    Exit-Locked 1
   }
   $meta.compile_result = 'PASS'
   $meta.compile_rc = $rc
@@ -689,6 +716,7 @@ $rows = New-Object System.Collections.Generic.List[string]
 $rows.Add('test_id,config,tb,result,max_dev,wall_s,summary')
 $npass = 0
 $idx = 0
+$roundVoid = $false
 $partialCsvPath = Join-Path $runOutput 'regress.partial.csv'
 $meta.regression_result = 'RUNNING'
 $meta.tests_completed = 0
@@ -715,6 +743,10 @@ foreach ($m in $manifest) {
   if ($m.Id -eq 'T89') { $cap = 1200 }
   if ($m.Id -eq 'T90') { $cap = 1800 }
   if ($m.Id -eq 'T91') { $cap = 1800 }
+  if ($m.Id -eq 'T92') { $cap = 900 }
+  if ($m.Id -eq 'T93') { $cap = 1800 }
+  if ($m.Id -eq 'T94') { $cap = 1800 }
+  if ($m.Id -eq 'T95') { $cap = 1800 }
   if ($m.Id -eq 'T88') { $cap = 900 }
   $meta.current_test = $m.Id
   $meta.current_test_started_local = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')
@@ -769,6 +801,23 @@ foreach ($m in $manifest) {
     }
   }
   $result = $vd.Result
+  if ($result -eq 'ENV_DISCONNECT') {
+    $roundVoid = $true
+    $verdict = 'ENV_DISCONNECT'
+    $summary = 'env-disconnect-void'
+    $rows.Add(($m.Id + ',' + $m.Cfg + ',' + $m.Tb + ',ENV_DISCONNECT,na,' + $wall + ',' + $summary))
+    [IO.File]::WriteAllLines($partialCsvPath, $rows)
+    $meta.tests_completed = $idx
+    $meta.pass_count = $npass
+    $meta.regression_result = 'ENV_VOID'
+    $meta.void_reason = 'env-disconnect-void'
+    $meta.return_code = 2
+    $meta.test_results += [ordered]@{ id=$m.Id; result='ENV_DISCONNECT'; simulator_exit_code=$rc; wall_s=$wall; console_log=[IO.Path]::GetFileName($log); reason='ENV_DISCONNECT' }
+    Save-RunMetadata
+    Write-Output ("[" + $idx + "/" + $manifest.Count + "] " + $m.Id + " " + $m.Tb + " -> ENV_DISCONNECT (" + $wall + " s) void")
+    Write-Output 'ROUND_VOID env-disconnect'
+    break
+  }
   if ($vd.Result -eq 'PASS' -and ($m.Id -eq 'T89')) {
     foreach ($fn in @('t89_metrics.csv', 't89_verilog_summary.json')) {
       $src = Join-Path $sim $fn
@@ -811,6 +860,48 @@ foreach ($m in $manifest) {
       $semanticNote = 'independent T91 CSV/JSON metrics check PASS'
     }
   }
+  if ($vd.Result -eq 'PASS' -and ($m.Id -eq 'T93')) {
+    foreach ($fn in @('t93_metrics.csv', 't93_verilog_summary.json', 't93_gmii_sfd.csv', 't93_vl_gap.csv')) {
+      $src = Join-Path $sim $fn
+      if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $runOutput $fn) -Force
+      }
+    }
+    & python (Join-Path $sourceRoot 'tools\t93_metrics_check.py') $runOutput
+    if ($LASTEXITCODE -ne 0) {
+      $vd = [pscustomobject]@{ Result='FAIL'; Reason='independent T93 metrics CSV/JSON check failed'; Verdict='' }
+    } else {
+      $semanticNote = 'independent T93 CSV/JSON metrics check PASS'
+    }
+  }
+  if ($vd.Result -eq 'PASS' -and ($m.Id -eq 'T94')) {
+    foreach ($fn in @('t94_metrics.csv', 't94_verilog_summary.json')) {
+      $src = Join-Path $sim $fn
+      if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $runOutput $fn) -Force
+      }
+    }
+    & python (Join-Path $sourceRoot 'tools\t94_metrics_check.py') $runOutput
+    if ($LASTEXITCODE -ne 0) {
+      $vd = [pscustomobject]@{ Result='FAIL'; Reason='independent T94 metrics CSV/JSON check failed'; Verdict='' }
+    } else {
+      $semanticNote = 'independent T94 CSV/JSON metrics check PASS'
+    }
+  }
+  if ($vd.Result -eq 'PASS' -and ($m.Id -eq 'T95')) {
+    foreach ($fn in @('t95_metrics.csv', 't95_verilog_summary.json')) {
+      $src = Join-Path $sim $fn
+      if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $runOutput $fn) -Force
+      }
+    }
+    & python (Join-Path $sourceRoot 'tools\t95_metrics_check.py') $runOutput
+    if ($LASTEXITCODE -ne 0) {
+      $vd = [pscustomobject]@{ Result='FAIL'; Reason='independent T95 metrics CSV/JSON check failed'; Verdict='' }
+    } else {
+      $semanticNote = 'independent T95 CSV/JSON metrics check PASS'
+    }
+  }
   if ($vd.Result -eq 'PASS' -and ($m.Id -in @('T33p','T34p'))) {
     $scaleTest = $m.Id.Substring(0,3)
     $scaleRounds = if ($m.Id -eq 'T34p') {100} else {16}
@@ -847,10 +938,18 @@ foreach ($m in $manifest) {
 
 $csvPath = Join-Path $runOutput 'regress.csv'
 [IO.File]::WriteAllLines($csvPath, $rows)
-$meta.regression_result = if ($npass -eq $manifest.Count) { 'PASS' } else { 'FAIL' }
+if ($roundVoid) {
+  $meta.regression_result = 'ENV_VOID'
+  $meta.void_reason = 'env-disconnect-void'
+  Set-Content -LiteralPath (Join-Path $runOutput 'ROUND_VOID.txt') -Value 'env-disconnect-void' -Encoding ascii
+} else {
+  $meta.regression_result = if ($npass -eq $manifest.Count) { 'PASS' } else { 'FAIL' }
+}
 $meta.pass_count = $npass
 $meta.test_count = $manifest.Count
-$meta.return_code = if ($npass -eq $manifest.Count) { 0 } else { 1 }
+if (-not $roundVoid) {
+  $meta.return_code = if ($npass -eq $manifest.Count) { 0 } else { 1 }
+}
 $meta.wall_s = [math]::Round($t0.Elapsed.TotalSeconds,1)
 $meta.completed_local = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')
 $meta.current_test = $null
@@ -864,7 +963,8 @@ if (Test-Path $py) {
   New-Item -ItemType Directory -Path $metricExport -Force | Out-Null
   Get-ChildItem -LiteralPath $met -File | Copy-Item -Destination $metricExport -Force
   python $py --regress $csvPath --metrics $met --out (Join-Path $metricExport 'summary.txt')
-  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: metrics report generation failed'; exit 1 }
+  if ($LASTEXITCODE -ne 0) { Write-Output 'ERROR: metrics report generation failed'; Exit-Locked 1 }
 }
-if ($npass -ne $manifest.Count) { exit 1 }
-exit 0
+if ($roundVoid) { Exit-Locked 2 }
+if ($npass -ne $manifest.Count) { Exit-Locked 1 }
+Exit-Locked 0

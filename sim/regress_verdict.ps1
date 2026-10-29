@@ -25,6 +25,12 @@ function Get-TestVerdict {
     [int]$Rc
   )
   $mk = { param($r, $why, $v) [pscustomobject]@{ Result = $r; Reason = $why; Verdict = $v } }
+  # Simulator died (license/RPC). Not a DUT timeout and not a criterion fail.
+  $blob = ''
+  if ($null -ne $Lines) { $blob = ($Lines -join "`n") }
+  if ($blob -match 'vish lost connection to vsim|Unexpected EOF on RPC|Exiting VSIM license process') {
+    return (& $mk 'ENV_DISCONNECT' 'ENV_DISCONNECT' '')
+  }
   if ($Rc -eq -1) { return (& $mk 'FAIL' 'TIMEOUT' '') }
   if ($null -eq $Lines -or $Lines.Count -eq 0) { return (& $mk 'FAIL' ('empty log, vsim rc=' + $Rc) '') }
   if (@($Lines -match 'License checkout has been disallowed').Count -gt 0 -and

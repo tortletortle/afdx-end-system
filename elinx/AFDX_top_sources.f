@@ -46,3 +46,8 @@ rtl/mgmt/a615a_tftp_tx_pack.v
 rtl/mgmt/rtc_sync.v
 rtl/top/stats_regs.v
 rtl/top/AFDX_top.v
+rtl/top/afdx_app_host_arb.v
+rtl/top/afdx_app_init.v
+rtl/top/afdx_app_tx.v
+rtl/top/afdx_app_rx.v
+rtl/top/afdx_app_top.v

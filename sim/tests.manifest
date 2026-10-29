@@ -157,3 +157,9 @@ T90 tb_t90_vl128_throughput phy-gmii-vl128-throughput-ifmode2
 # TB sha256=16914ab98472286d7b50742bec76743f9edcc0af9d43afefa41421e258585b99
 # NVL=128 不做；综合后仿真证据保持 T88b 切片（技术文档 3.2.2 只写 T88b）
 T91 tb_gate_t91_throughput public-port-gate-throughput-nvl16-r3
+# T92–T95：评测封装 afdx_app_top（应用口 VLID+载荷；新答疑主口径）
+T92 tb_t92_app_basic app-top-basic-minmax-mid
+T93 tb_t93_app_latency app-top-latency-jitter
+T94 tb_t94_app_throughput app-top-throughput-nvl16-r3
+T95 tb_t95_app_vl128 app-top-vl128-tx128-rx126
+

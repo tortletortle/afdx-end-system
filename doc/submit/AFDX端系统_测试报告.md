@@ -77,7 +77,8 @@
 ## 3. 需求追踪大表（五功能 + 四指标）
 
 > 等级：P / I / F（尺子 §1）。实测列只写 metric 锚点或「无独立 key / 未测」。  
-> **官方字面 SFD→SFD**：单 ES 回环无网络段 → **I**（0 by construction）。**ES 贡献**三列（`tx_commit2sfd`/`rx_sfd2host`/`es_total`）→ **P**（Questa `p_c0_t89_questa_20261024_170643` **L33**）；尚未写入 C 的 `metrics.json` 键时渲染仍可缺键。
+> **主口径（新答疑 / `afdx_app_top`）**：应用口时延·抖动·吞吐·128 VL → **T93/T94/T95**（§5.4；`out/app_top_metrics_20261029.json`）。  
+> **补充**：T42/T89/T90（GMII/ES 贡献）；单 ES 回环「GMII SFD→SFD」不作主宣称。
 
 ### 3.1 五功能
 
@@ -92,16 +93,19 @@
 
 ### 3.2 四指标
 
-| 指标 | T | 配置 | 实测（metric） | 等级 | 适用边界 |
+| 指标 | T | 配置 | 实测 | 等级 | 适用边界 |
 |---|---|---|---|---|---|
-| 吞吐 ≥100 Mbps（S：RX 去重后有效载荷） | T42；T89；T90 | T42：16 VL；T89：见 §5；T90：128 TX / RX126+2unconf，CTL 0x051F | T42/T89 见各节；T90 r6 rx_dedup **673.304** Mbps（§5.3） | P（T42/T89）/ **P（T90）** | 限于各场 BAG/Lmax；不含任意 BAG 外推或官方字面 SFD→SFD |
-| 官方字面：单帧 GMII **SFD→SFD** ≤2 ms | T89（列保留） | IF_MODE=2 单 ES 回环 | `sfd2sfd=0 by construction` → **I** | **I** | 单 ES 回环无网络段，故不宣称官方字面已 P；不含网络/交换机端到端 |
-| ES 发送/接收贡献与总占用 ≤2 ms | T89（C0） | IF_MODE=2 | L33：3384 / 2592 / 5976 ns（`p_c0_t89_questa_20261024_170643`） | **P** | ES 贡献三列与工程 commit/eof 分列；不含官方字面 SFD→SFD |
-| 工程时延（分列） | T13 / T13w / T42 / T89 | **IF_MODE=0**：T13/T13w；**IF_MODE=2**：T42/T89 | T13 worst `{{metric:t13_worst_total_ns}}` ns；T13w `{{metric:t13w_worst_total_ns}}` ns；T42 tx `{{metric:t42_tx_commit_to_eof_max_us}}` μs / rx `{{metric:t42_rx_sof_to_host_max_us}}` μs；T89 tx `{{metric:t89_max_tx_ns}}` ns / rx `{{metric:t89_max_rx_ns}}` ns | P（各起止） | 工程起止分列报告；不冒充官方字面 SFD→SFD，也不引用 XAPP RX&lt;150μs 为赛题项 |
-| 抖动（同 VL 时延 max−min；本场景对照 40+Σ） | T05b；T42；T89 | T05b 压力档；T89：32VL×`{{metric:t89_frames_per_vl}}` 帧 | T05b startup `{{metric:t05b_startup_jitter_us}}` / steady `{{metric:t05b_steady_max_jitter_us}}` μs；T42 `{{metric:t42_jitter_max_us}}` μs；T89 max_jit `{{metric:t89_max_jit_ns}}` ns，本场景 40+Σ=`{{metric:t89_bound_40sig_us}}` μs | P（各场景） | 各场景实测；「几十微秒」无硬性官方上限；合法 BAG 全档与未重算的 40+Σ 不套用本场数字 |
-| 规模：128 TX / 4096 RX 能力 | T34p / T35p；满配吞吐 T90 | 见各 TB；T90 端口预算 128+126+2 SAP | `{{metric:t34p_pass}}` / `{{metric:t35p_pass}}`；T90 r6 **P** | P（规模 TB）/ **P（128 同时活动吞吐）** | 限于已跑规模/吞吐场；不含 4096 路同时收或任意配置均 ≥100 Mbps |
+| **主·时延** 首字节 tx→rx ≤2 ms | **T93** | `afdx_app_top`；PLEN=256；A 单 VL / B 4 VL | A max **11984 ns** / B max **13824 ns**（`t93_bag_r2`） | **P** | 封装口定义；不含网络/交换机端到端 |
+| **主·抖动** 同 VL 同长 max−min | **T93** | 同上 | A_jit **3080 ns**；B_jit **4920 ns** | **P** | 本场；A 抖动来源与按 VL 的 BAG 判据见 `doc/T93_抖动来源与BAG判据_20261029.md` |
+| **主·吞吐** 应用口 ≥100 Mbps | **T94** | NVL=16 ROUNDS=3 PLEN=1471 | 稳态 **123.22 Mbps**（`app_bram_r4`） | **P** | 本场 |
+| **主·128 VL** | **T95** | TX128 / RX126 + unconf×4 | submit=128 deliver=126 unconf=4（`app_top_t95_r3`） | **P** | 交付以 126 为准；VL126/127 unconf |
+| 补充·吞吐（GMII 去重载荷） | T42；T90 | 见 §5.1/§5.3 | T90 rx_dedup **673.304** Mbps 等 | P（补充） | 不替代 T94 主口径 |
+| 补充·ES 贡献 ≤2 ms | T89 | IF_MODE=2 | 3384 / 2592 / 5976 ns | P（补充） | 与封装口起止分列 |
+| 补充·工程时延 | T13 / T13w / T42 | 见各节 | metric 锚点见原列 | P（补充） | 不冒充封装主口径 |
+| 补充·抖动（BAG 压力等） | T05b；T42；T89 | 见各节 | 见 metric 锚点 | P（补充） | 新场景须重算 40+Σ |
+| 规模：4096 RX 等 | T34p / T35p | 见 TB | `{{metric:t34p_pass}}` / `{{metric:t35p_pass}}` | P | 不含 4096 路同时收 |
 
-**IF_MODE 分列（勿混读）**：T13/T13w/T05b 等为 IF_MODE=0（或 TB 标明）；T42/T89/T88b 公开口指标为 IF_MODE=2。同一物理量在不同 IF_MODE 下不拼成一条「现行」数字。
+**分列：** 封装口（T92–T95）与 GMII/host 工程起止（T42/T89/T90）不可拼成同一「现行」数字。
 
 全量矩阵：`{{metric:full_pass}}` / `{{metric:full_n}}`（`{{metric:full_all_pass}}`）。  
 **适用边界：**认证实验室套件；评委自建 TB 以外的协议全集。
@@ -123,7 +127,21 @@
 
 ## 5. 指标章
 
-### 5.1 T42（IF_MODE=2，公开 GMII；工程起止）
+### 5.4 评测封装 `afdx_app_top`（主口径；T92–T95）
+
+| 项 | 实测 | 证据 |
+|---|---|---|
+| T92 基本收发 | PASS checks=2773 submit=4 deliver=4 | `sim/out/app_top_t92_fix3/`；回归 `app_top_post_t95_rxfix` |
+| T93 时延 max | A **11984** / B **13824 ns** ≪ 2e6 | `sim/out/t93_bag_r2/` + `t93_metrics_check` |
+| T93 抖动 A/B | **3080 / 4920 ns** | 同上；来源与 BAG 判据见 `doc/T93_抖动来源与BAG判据_20261029.md` |
+| T94 稳态吞吐 | **123.22 Mbps**（≥100） | `sim/out/app_bram_r4/` |
+| T95 128 VL | submit=128 deliver=126 unconf=4 | `sim/out/app_top_t95_r3/`；VL125 port=**255**（`vl_valid` 修复） |
+| 封装综合（平铺） | **I** | `out/app_top_synth_bram3/`：cells **107470** / altsyncram **514**；同流程核心 **106241/507**，增量 +1229/+7；非 Fit/STA/GUI LUT。eLinx 综合器为 32 位进程（约 2 GB），改前三次 `memory_collect` bad allocation |
+
+汇总：`out/app_top_metrics_20261029.json`。  
+**适用边界：** 限于封装字节流与本仓 GMII 回环；不含评委自建 TB 以外协议全集；不得写封装已 Fit/已出 cells。
+
+### 5.1 T42（IF_MODE=2，公开 GMII；工程起止；**补充**）
 
 | 项 | metric | 备注 |
 |---|---|---|

@@ -14,6 +14,16 @@ param(
 $ErrorActionPreference = 'Stop'
 $sim = $PSScriptRoot
 $root = Split-Path $sim -Parent
+$lockScript = Join-Path $root 'tools\sim_lock.ps1'
+$lockOwner = 'run_gate_t91_' + $PID
+$lockHeld = $false
+if ($env:AFDX_SIM_LOCK_HELD -ne '1') {
+  if (-not (Test-Path -LiteralPath $lockScript)) { throw "missing $lockScript" }
+  powershell -NoProfile -ExecutionPolicy Bypass -File $lockScript -Action acquire -Owner $lockOwner -WaitSeconds 0
+  if ($LASTEXITCODE -ne 0) { exit 2 }
+  $lockHeld = $true
+  $env:AFDX_SIM_LOCK_HELD = '1'
+}
 if (-not $TbFile) { $TbFile = Join-Path $sim 'tb\tb_gate_t91_throughput.v' }
 if (-not $VsimPath) {
   foreach ($c in @(
@@ -124,4 +134,8 @@ $status = @{
 
 $status | ConvertTo-Json | Set-Content (Join-Path $OutDir 'simulation_status.json')
 Write-Output ('GATE_T91 result=' + $result + ' wall_s=' + $status.wall_s)
+if ($lockHeld) {
+  powershell -NoProfile -ExecutionPolicy Bypass -File $lockScript -Action release -Owner $lockOwner | Out-Null
+  Remove-Item Env:AFDX_SIM_LOCK_HELD -ErrorAction SilentlyContinue
+}
 if ($result -ne 'PASS') { exit 1 }
