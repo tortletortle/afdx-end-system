@@ -113,6 +113,15 @@ def try_add_picture(doc, path: Path, width_cm: float = 14.0) -> bool:
     return True
 
 
+def add_shot(doc, path: Path, caption: str, width_cm: float = 14.0) -> bool:
+    if not path.is_file():
+        return False
+    ok = try_add_picture(doc, path, width_cm)
+    if ok:
+        add_caption(doc, caption)
+    return ok
+
+
 def _set_cell_border(cell) -> None:
     tc = cell._tc
     tcPr = tc.get_or_add_tcPr()
@@ -200,7 +209,7 @@ def export_pdf_word_com(docx_path: Path, pdf_path: Path) -> tuple[bool, str]:
 def build_sections(catalog: dict) -> dict[str, str]:
     """Return raw section texts (with metric anchors) for counting after render."""
 
-    abstract = """本作品实现面向航电确定性以太网的AFDX（ARINC 664 Part 7）端系统协议逻辑，以FPGA RTL交付。公开网络口为双网GMII（A/B），主机侧为扩展寄存器与表项前门；默认配置支持128条发送虚拟链路与4096条接收虚拟链路能力声明，单时钟功能仿真按与千兆GMII线速匹配的125 MHz拍运行。功能覆盖五类：发送侧端口排队、BAG调度与帧构造；接收侧过滤、完整性检查（IC）与冗余管理（RM）；主机接口与共享报文存储；管理面SNMP v1子集、615A/TFTP加卸载子集与RTC/PPS驯服；以及可复现的自建验证环境。管理面与数据面均在同一FPGA内完成，不依赖片上软核或嵌入式软件栈。开发上先按规范与答疑划定可交付子集，再完成RTL与独立黄金模型；随后用清单化测试台做双仿真器全量回归，并结合综合与公开端口综合后仿真切片，把关键数字冻结进实测数据包供文档引用。验证以自建测试台为主：功能全量回归{{metric:full_pass}}/{{metric:full_n}}，Questa与ModelSim SE逐项一致{{metric:dual_sim_match}}项；公开端口门级切片T88b三场景均为PASS；变异测试（新增28个）与历史基线分列报告。吞吐、时延、抖动与规模能力等四项指标在评测封装afdx_app_top的应用口测得，分别绑定T94、T93、T95及具体场景参数；T42、T89、T90（GMII口）作补充。官方字面端到端SFD→SFD在单端系统回环下缺少网络段，故不作为已测通过项写入。本作品不做时序签核与板级验证（赛题未要求），亦不宣称完整ARINC认证、4096路同时接收或门级全量矩阵。正文数字以冻结测试结果为准，不手写拼接历史轮次。"""
+    abstract = """本作品实现面向航电确定性以太网的AFDX（ARINC 664 Part 7）端系统协议逻辑，以FPGA RTL交付。公开网络口为双网GMII（A/B），主机侧为扩展寄存器与表项前门；默认配置支持128条发送虚拟链路与4096条接收虚拟链路能力声明，单时钟功能仿真按与千兆GMII线速匹配的125 MHz拍运行。功能覆盖五类：发送侧端口排队、BAG调度与帧构造；接收侧过滤、完整性检查（IC）与冗余管理（RM）；主机接口与共享报文存储；管理面SNMP v1子集、615A/TFTP加卸载子集与RTC/PPS驯服；以及可复现的自建验证环境。管理面与数据面均在同一FPGA内完成，不依赖片上软核或嵌入式软件栈。开发上先按规范与答疑划定可交付子集，再完成RTL与独立黄金模型；随后用清单化测试台做双仿真器全量回归，并结合综合与公开端口综合后仿真切片，把关键数字冻结进实测数据包供文档引用。验证以自建测试台为主：功能全量回归{{metric:full_pass}}/{{metric:full_n}}，Questa与ModelSim SE逐项一致{{metric:dual_sim_match}}项；公开端口综合后仿真为核心T88b（Quartus功能VO）三场景均为PASS；变异测试（新增28个）与历史基线分列报告。吞吐、时延、抖动与规模能力等四项指标在评测封装afdx_app_top的应用口测得，分别绑定T94、T93、T95及具体场景参数；T42、T89、T90（GMII口）作补充。官方字面端到端SFD→SFD在单端系统回环下缺少网络段，故不作为已测通过项写入。本作品不做时序签核与板级验证（赛题未要求），亦不宣称完整ARINC认证、4096路同时接收或门级全量矩阵。正文数字以冻结测试结果为准，不手写拼接历史轮次。"""
 
     s11 = """本设计在FPGA内实现AFDX端系统收发与管理子集。发送链：主机写入端口缓冲后，由虚拟链路调度器按BAG与份额约束选路，序列号生成与帧构建模块组装以太网/IP/UDP/SN，经双网复制与MAC整形从GMII发出。接收链：双网MAC收帧入共享存储，经哈希查表、过滤、IC、RM去重后解析交付主机或管理SAP。管理面含SNMP v1（GET/GETNEXT/SET子集）、TFTP/615A加卸载子集与PPS/FLL时钟驯服，均为硬件状态机。接口模式参数可在历史口与公开GMII间切换而复用同一套协议逻辑。评测入口为封装顶层afdx_app_top：应用口送入虚拟链路号加载荷，接收侧去重后输出同格式字节流，核心协议逻辑不变。特性侧重可综合、可仿真复现与证据可追溯，而非认证实验室结论。"""
 
@@ -297,12 +306,20 @@ def main() -> int:
         type=Path,
         default=ROOT / "doc/submit/技术文档_官方模板_交付表.md",
     )
+    ap.add_argument(
+        "--root",
+        type=Path,
+        default=None,
+        help="directory that contains doc/submit/figs and doc/submit/shots; default is this repo",
+    )
     ap.add_argument("--skip-pdf", action="store_true")
     args = ap.parse_args()
 
+    root = args.root.resolve() if args.root is not None else ROOT
     data, catalog = load_metrics(args.metrics)
     commit = str(data.get("commit") or fmt_metric(catalog, "freeze_commit"))
-    figs = ROOT / "doc/submit/figs"
+    figs = root / "doc/submit/figs"
+    shots = root / "doc/submit/shots"
 
     raw = build_sections(catalog)
     rendered: dict[str, str] = {}
@@ -351,7 +368,7 @@ def main() -> int:
     note_14 = "测试条件：封装口afdx_app_top，仿真125 MHz，RTL仿真；补充T42/T89/T90（GMII口）。"
     text_14 = "".join("".join(r) for r in rows_14) + note_14
     counts["1.4"] = count_chars(text_14)
-    reflection_path = ROOT / "doc/submit/心得体会_4.2.txt"
+    reflection_path = root / "doc/submit/心得体会_4.2.txt"
     reflection = ""
     if reflection_path.is_file():
         reflection = reflection_path.read_text(encoding="utf-8").strip()
@@ -462,9 +479,13 @@ def main() -> int:
         "主机通过地址映射读写控制/状态、虚拟链路表、哈希映像、端口表与报文存储窗口。"
         "发送与接收共享物理报文存储空间；接收块由块池分配回收。"
         "控制字可开关发送/接收/完整性检查/冗余管理/SNMP/TFTP/RTC 等功能。"
-        "接口侧提供双网 GMII 字节流与 PPS 相关引脚。硬件目标是可综合、可门级加载的确定性数据通路，而不是片上软核系统。"
-        "工程界面截图 M1 为占位，与演示视频同期补入。",
+        "接口侧提供双网 GMII 字节流与 PPS 相关引脚。硬件目标是可综合、可门级加载的确定性数据通路，而不是片上软核系统。",
         first_line=True,
+    )
+    add_shot(
+        doc,
+        shots / "manual_M1_elinx_project.png",
+        "图 eLinx 工程界面（AFDX_top）",
     )
 
     add_heading_like(doc, "2.2.2 机械设计介绍", style="List Paragraph")
@@ -586,14 +607,19 @@ def main() -> int:
         f"评测封装 afdx_app_top 综合通过（能正常综合）：cells {fmt_metric(catalog,'app_synth_cells')}，"
         f"altsyncram {fmt_metric(catalog,'app_synth_altsyncram')}，"
         f"相对核心增加 {fmt_metric(catalog,'app_synth_delta_cells')} cells、{fmt_metric(catalog,'app_synth_delta_altsyncram')} altsyncram。"
-        f"综合后仿真门级切片 T88b：S1={fmt_metric(catalog,'gate_t88b_s1')}，"
+        f"综合后仿真证据为核心 T88b（Quartus 功能 VO + ModelSim SE）：S1={fmt_metric(catalog,'gate_t88b_s1')}，"
         f"S2={fmt_metric(catalog,'gate_t88b_s2')}，S3={fmt_metric(catalog,'gate_t88b_s3')}；"
         f"VO 内容哈希前缀 {fmt_metric(catalog,'gate_vo_sha256')[:16]}…。"
-        "测试条件：T92–T95 为 RTL 仿真，测试台用层次引用读内部计数器，不用于门级；门级证据为 T88b 公开端口双网回环切片；"
-        "封装顶层两次 eLinx 导出都没有得到可仿真网表：第一次 vlog 报 1 个错误，第二次 flatten 报 altsyncram 未定义。综合后仿真未做。"
+        "测试条件：T92–T95 为 RTL 仿真，测试台用层次引用读内部计数器，不用于门级。"
+        "封装口综合后仿真未完成。上述 T88b 是 Quartus 功能 VO，不是 eLinx 导出的网表。"
         "不含门级全量矩阵与 SDF 时序仿真；综合数字不等于 GUI LUT；"
-        "不做时序签核与板级验证。eLinx 工程界面、综合资源页与 ModelSim Transcript（M1–M3）为占位，与演示视频同期补入。",
+        "不做时序签核与板级验证。综合资源页截图未嵌入：磁盘上的 GUI 资源页与本文 cells 不是同一次综合。",
         first_line=True,
+    )
+    add_shot(
+        doc,
+        shots / "manual_M3_modelsim_transcript_t88b.png",
+        "图 eLinx GUI 行为仿真（RTL）T88b 测试台 PASS / Errors: 0",
     )
     try_add_picture(doc, figs / "S6_synth_summary.png", 14.0)
     add_caption(doc, "图 综合结果摘要（排版示意）")
@@ -602,7 +628,7 @@ def main() -> int:
     add_para(
         doc,
         "软件成果为 PC 端验证输出：回归 CSV、双仿真器对照表、指标控制台、覆盖率摘要与一键复现说明。"
-        "仿真器 transcript 与波形窗口（M3–M4）为占位，与演示视频同期补入；信号活动图见下文 S8–S10。无嵌入式图形界面或移动端应用。",
+        "ModelSim Transcript 见 3.2.2，T93 波形见 3.3。信号活动图见下文 S8–S10。无嵌入式图形界面或移动端应用。",
         first_line=True,
     )
 
@@ -648,6 +674,11 @@ def main() -> int:
         "块池有界 BMC 与 BAG BMC 分列。"
         "细表见仓内学习材料「验证剩余项一页」（不进提交包）。",
         first_line=True,
+    )
+    add_shot(
+        doc,
+        shots / "manual_M4_modelsim_wave_t93.png",
+        "图 封装顶层 afdx_app_top 的 T93 波形（clk、tx_data、tx_valid、rx_data、rx_valid）",
     )
     try_add_picture(doc, figs / "S8_T88_signals.png", 14.0)
     add_caption(doc, "图 T88 信号活动（取自调试运行；功能判定以全量回归为准）")
@@ -717,9 +748,10 @@ def main() -> int:
     add_para(
         doc,
         "自动排版图 S2–S6 与调试波形图 S8–S10 已嵌入正文。"
-        "人工截图 M1–M4 为占位，推迟到封装测试台与最终冻结完成后，与演示视频同时补拍。"
-        "四张仍为：eLinx 工程界面、eLinx 综合资源页、ModelSim Transcript（T88b PASS 且 Errors: 0）、"
-        "ModelSim 波形窗口（T88 或 T90）。窗口布局与去身份要求见同目录《人工截图清单》。",
+        "人工截图已嵌入三张：eLinx 工程界面（AFDX_top）；"
+        "ModelSim Transcript（eLinx GUI 行为仿真（RTL）T88b 测试台 PASS / Errors: 0）；"
+        "封装顶层 afdx_app_top 的 T93 波形。"
+        "综合资源页截图未嵌入。窗口布局与去身份要求见同目录《人工截图清单》。",
         first_line=True,
     )
     add_para(
@@ -801,7 +833,7 @@ def main() -> int:
         "| 2.2 硬件 | FPGA RTL 逻辑 |",
         "| 2.2.2 / 3.2.1 机械 | 本作品不涉及机械结构 |",
         "| 2.3 软件 | PC 端验证环境（Verilog TB、Python 黄金模型、回归脚本）；无嵌入式软件 |",
-        "| 3.2.2 电路成果 | eLinx 综合 + 综合后仿真（T88b） |",
+        "| 3.2.2 电路成果 | eLinx 综合；综合后仿真为核心 T88b（Quartus 功能 VO） |",
         "| 3.3 特性成果 | 四指标、波形图、145 回归、双仿真器、变异/BMC 剩余项、覆盖率统一表 |",
         "| 2.2.3 块池 | free_pipe 单口优先级 + valid/ready 反压保持 |",
         "",
@@ -825,7 +857,8 @@ def main() -> int:
         f"| 架构/模块/流程框图 | 已嵌入 |",
         f"| S2–S6 排版图 | {'有' if (figs/'S2_manifest_table.png').is_file() else '缺'} |",
         f"| S8–S10 波形 | {'有' if (figs/'S8_T88_signals.png').is_file() else '缺'} |",
-        "| 人工 M1–M4 | 占位；封装测试台与最终冻结后，与演示视频同期补拍 |",
+        "| 人工 M1、M3、M4 | 已嵌入 |",
+        "| 人工 M2 综合资源页 | 未嵌入；与本文 cells 不是同一次综合 |",
         "",
         "## 参考文献 [18]–[20]",
         "",
@@ -851,15 +884,15 @@ def main() -> int:
         "## 验收卡",
         "",
         "```",
-        "改动：文末 AI 说明压成 3 段；4.2 待队员定稿；M1–M4 改为占位并与演示视频同期",
-        "触及模块：tools/build_official_tech_report.py、doc/submit 截图与上传说明；无 rtl/sim/tb/manifest",
+        "改动：嵌入 M1、M3、M4；M2 不嵌入。代码与 51f117d 相同",
+        "触及模块：tools/build_official_tech_report.py；无 rtl/sim/tb/manifest",
         "宣称等级：文档对齐；无新仿真宣称",
         "对应 T 号：无，故 I",
         "实际跑了：build_official_tech_report（docx/PDF）",
         "日志路径：本交付表",
         "未跑的相关 T：全量/门级未因文档重跑",
         "面积/时序：未重测（数字保持改前）",
-        "禁止写出的句子：4.2 已由队员定稿；M1–M4 已拍入；AI 输出即签核",
+        "禁止写出的句子：eLinx 综合后仿真通过；满负载已测；把 GUI 资源页数字写成当前 cells",
         "```",
         "",
     ]
