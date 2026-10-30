@@ -1,6 +1,6 @@
 # AFDX 端系统设计文档（提交版）
 
-> 数字一律 metrics 锚点（键见 `out/p9_freeze_dfac58a/metrics.json`），定稿由 `tools/render_doc_metrics.py` 填充。面向评委阅读；开发编年史不写入正文。  
+> 数字一律 metrics 锚点（键见 `out/p10_freeze_51f117d/metrics.json`），定稿由 `tools/render_doc_metrics.py` 填充。面向评委阅读；开发编年史不写入正文。  
 > 冻结：`{{metric:freeze_commit}}` · 全量 `{{metric:full_pass}}`/`{{metric:full_n}}`。  
 > 结论附适用边界：可核对测试编号的写实测；仅有实现无专用测试的注明边界；未测的不写进成果句。
 

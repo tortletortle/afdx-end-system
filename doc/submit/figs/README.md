@@ -14,6 +14,6 @@ PNG 由 `doc/figs/*.mmd` 用 mermaid-cli 渲染。正文引用本目录 PNG，�
 | `fig_mgmt_modules.png` | `doc/figs/fig_mgmt_modules.mmd` | 管理面框图（2.2.3） |
 
 | `S2_manifest_table.png` … `S6_synth_summary.png` | `tools/gen_submit_layout_figs.py` | 排版示意（非终端截屏） |
-| `S8_T88_signals.png` / `S9_T90_signals.png` / `S10_T10_signals.png` | `out/p9_freeze_dfac58a/wave_png/` | 调试波形；功能判定以全量回归为准 |
+| `S8_T88_signals.png` / `S9_T90_signals.png` / `S10_T10_signals.png` | `out/p9_freeze_dfac58a/wave_png/`（沿用 p9） | 调试波形；功能判定以全量回归为准 |
 
 人工仅 4 张（M1–M4）：见 `doc/submit/人工截图清单.md`。推迟到封装测试台与最终冻结后，与演示视频同时补拍；此前正文只留占位。

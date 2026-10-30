@@ -18,7 +18,7 @@
 - **仿真器**：Questa FSE（功能全量）；ModelSim SE 2020.4（功能全量对照 + 门级 T88b、eLinx GUI 行为）。
 - **TB**：`sim/tb/`；清单 `sim/tests.manifest`；runner `sim/run_regress.ps1` / `sim/run_smoke.ps1`。
 - **时钟**：与 GMII 线速拍一致（仿真 125 MHz）。
-- **双仿真器墙钟**：同树 `098efc9` 全量 Questa FSE **wall_s=6306.3**、ModelSim SE **wall_s=840.9**（约 **7.5×**）。原因：Questa **FSE 受限版** 仿真吞吐低于 SE；**判据与 PASS/FAIL 逐项一致**（`dual_sim_compare.csv` 145/145 match），墙钟差不表示结果不一致。
+- **双仿真器墙钟**：同树 `51f117d` 全量 150 项逐项一致（`out/p10_freeze_51f117d/FREEZE.json` 的 `steps.modelsim_se_full.dual_match`=150）。Questa FSE 累计 wall_s_sum=**11970.2** s；ModelSim SE 逐项 PASS 时间合计 **1072.5** s（`se_full.driver.log`；该日志 `REGRESS SUMMARY` wall_s=1090.6）。原因：Questa **FSE 受限版** 仿真吞吐低于 SE。墙钟差不表示结果不一致。
 
 ### 1.1 BFM 列表（`sim/env/`）
 
@@ -381,7 +381,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 
 - 门级 T88b：S1=`{{metric:gate_t88b_s1}}` S2=`{{metric:gate_t88b_s2}}` S3=`{{metric:gate_t88b_s3}}`
 - VO sha256：`{{metric:gate_vo_sha256}}`
-- 阐述：`VoptFlow=0`（见 `out/p8_freeze_225cd91/STATUS.md` / `out/p8g_t88b`）；**判据与 RTL 场相同**，仅加载路径不同。
+- 阐述：`VoptFlow=0`（历史：见 `out/p8_freeze_225cd91/STATUS.md` / `out/p8g_t88b`）；**判据与 RTL 场相同**，仅加载路径不同。
 - **eLinx GUI 行为仿真（人工，2026-10-23）**：工程 `elinx/gui_afdx/AFDX_top.epr`，顶层 `tb_gate_public_loopback`，ModelSim SE。  
   证据（**仅此**）：`out/p3_elinx_gui_20261023/transcript` **L1102**（`T88b GATE PUBLIC LOOPBACK PASS…`）、**L1106**（`Errors: 0, Warnings: 2`）；`shots/elinx_sources.png`；`shots/elinx_modelsim_path.png`。  
   等级：**P（GUI 行为）**；≠ 门级 VO。  
@@ -401,9 +401,9 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 |---|---|---|
 | 变异杀死 | **分列**：历史 `{{metric:mutants_historical_detected}}`/`{{metric:mutants_historical_total}}`；C3 新增 `{{metric:c3_mutants_total}}`、杀死 `{{metric:c3_mutants_killed}}`、存活 `{{metric:c3_mutants_survived}}`、已证等价 `{{metric:c3_mutants_equiv}}`（`p_c3_merged_20261025`） | **P**（分列；勿与历史 57/57 拼接成现行） |
 | lint %Error | `lint_error` = `{{metric:lint_error}}`（`out/p4_lint_20261022_182034`；rtl 相对 `225cd91` 空差，见 `out/p9_freeze_dfac58a/rtl_empty_vs_225cd91.txt`） | **P** |
-| 覆盖率（DU 加权，全设计） | stmt `{{metric:coverage_stmt_pct}}`% / branch `{{metric:coverage_branch_pct}}`% / total `{{metric:coverage_total_pct}}`% | **I** |
-| 覆盖率（实例口径，含 TB/bind） | stmt **58.73%** / branch **44.63%** / total **51.68%**（145 UCDB `vcover summary` BY INSTANCES，8379 实例） | **I** |
-| 覆盖率（单行 AFDX_top DU 参考） | stmt `{{metric:coverage_top_du_stmt_pct}}`% / branch `{{metric:coverage_top_du_branch_pct}}`% / total `{{metric:coverage_top_du_total_pct}}`% — 仅作顶层 DU 参考，非全设计覆盖率 | **I** |
+| 覆盖率（DU 加权，全设计） | stmt `{{metric:coverage_stmt_pct}}`% / branch `{{metric:coverage_branch_pct}}`% / total `{{metric:coverage_total_pct}}`% | **I**（沿用 p9） |
+| 覆盖率（实例口径，含 TB/bind） | stmt **58.73%** / branch **44.63%** / total **51.68%**（沿用 p9；145 UCDB `vcover summary` BY INSTANCES，8379 实例） | **I**（沿用 p9） |
+| 覆盖率（单行 AFDX_top DU 参考） | stmt `{{metric:coverage_top_du_stmt_pct}}`% / branch `{{metric:coverage_top_du_branch_pct}}`% / total `{{metric:coverage_top_du_total_pct}}`% — 仅作顶层 DU 参考，非全设计覆盖率 | **I**（沿用 p9） |
 | 形式 BMC（BAG） | cover 可达；bmc20 **vacuous**；bmc40 FAIL（主因 wrapper (a)）；**(c) 未排除（VCD 未能解码 start_vld/next_tx）**；**不宣称 BAG** — `formal/ENV_STATUS.md` / `bag_bmc40_CE_ANALYSIS.md` | **F** |
 | 形式 BMC（pool/RM 历史） | 有界 PASS 见 ENV_STATUS；不替代仿真 T | I |
 
@@ -411,10 +411,10 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 
 | 指标 | 统计对象 | 是否含 TB/bind | 来源报告文件 | 数值 |
 |---|---|---|---|---|
-| 语句% | 全设计生产 DU 加权（Σhits/Σbins） | **否** | `out/p9_freeze_dfac58a/coverage_by_du.md` | `{{metric:coverage_stmt_pct}}`% |
+| 语句% | 全设计生产 DU 加权（Σhits/Σbins） | **否** | `out/p9_freeze_dfac58a/coverage_by_du.md`（沿用 p9） | `{{metric:coverage_stmt_pct}}`% |
 | 分支% | 同上 | **否** | 同上 | `{{metric:coverage_branch_pct}}`% |
 | 合计% | 同上（语句/分支再合成） | **否** | 同上 | `{{metric:coverage_total_pct}}`% |
-| 语句% | UCDB **BY INSTANCES**（8379 实例） | **是** | `out/p9_freeze_dfac58a/coverage_summary_all145.txt` | **58.73%** |
+| 语句% | UCDB **BY INSTANCES**（8379 实例） | **是** | `out/p9_freeze_dfac58a/coverage_summary_all145.txt`（沿用 p9） | **58.73%** |
 | 分支% | 同上 | **是** | 同上 | **44.63%** |
 | 合计% | 同上 | **是** | 同上 | **51.68%** |
 | 语句% | 仅 `AFDX_top` 单 DU 参考 | **否**（该 DU） | `coverage_report_du_AFDX_top.txt` | `{{metric:coverage_top_du_stmt_pct}}`% |
@@ -464,7 +464,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 根因 | vsim 收尾未退出；runner 仅靠进程退出判成败 |
 | 修复 | `run_regress.ps1` Run-Vsim：见 `$finish`+Errors 后 grace **harvest**；`run_smoke.ps1` 同步 |
 | 回归 | 冒烟一次 15/15（含 T42） |
-| 证据 | `sim/out/p3_smoke_20261022_182316/SMOKE_SUMMARY.md`；提分计划 §12 步骤 9；commit `225cd91` |
+| 证据 | `sim/out/p3_smoke_20261022_182316/SMOKE_SUMMARY.md`；提分计划 §12 步骤 9；历史 commit `225cd91` |
 | 适用边界 | harvest 只改进程退出判定，不改 TB 判据；冒烟集不等于全量矩阵 |
 
 ### D3. lint 误改 RTL 后回退
@@ -475,7 +475,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 根因 | lint 清 warning 动机越权改生产 RTL |
 | 修复 | `git restore` 回 `683e959`；改用 `-Wno-BLKLOOPINIT` 豁免 |
 | 回归 | `tools_lint.ps1` LINT GATE PASS（sources.f=48）；RTL 与锚点 ignore-cr 一致 |
-| 证据 | `out/p4_lint_20261022_182034/`；提分计划 §12 步骤 8；commit `225cd91` |
+| 证据 | `out/p4_lint_20261022_182034/`；提分计划 §12 步骤 8；历史 commit `225cd91` |
 | 适用边界 | lint 无 warning；本 FREEZE `lint_error` 已有数（实为 null） |
 
 ### D4. 门级 TB 参数覆盖 → vopt-2732
@@ -567,7 +567,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 128 TX VL 同时活动吞吐（T90） | r6 PASS（`p_c1_t90_r6_20261024_214647`） | **P** |
 | T88 演示步骤 1–8 | `p_c2_t88_r3` + D 全量 Questa/SE PASS；分段演示 | **P** |
 | BAG 有界 BMC（C4） | bmc20 空真；bmc40 未收绿 | **F**（不宣称） |
-| ModelSim SE 全量逐项 vs Questa | D：145/145 一致（`dual_sim_compare.csv`）；墙钟 SE 快约 7.5×（FSE） | **P**（结果）；墙钟差 I |
+| ModelSim SE 全量逐项 vs Questa | p10：150 项逐项一致（`dual_match`=150）；墙钟见 §1 | **P**（结果）；墙钟差 I |
 | 覆盖率 / FREEZE 内变异·lint 数值 | 全设计加权覆盖率 I（非单行 AFDX_top）；lint_error=0 **P**；变异分列见 §7 | I（覆盖）/ P（lint·C3） |
 | 时序签核 / 板级验证 | 不做（赛题未要求） | — |
 | 门级 full 矩阵、SDF、eLinx 原生网表业务 | 未做 | F |
@@ -582,14 +582,15 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 ## 缺图清单（人工补）
 
 - [x] eLinx GUI：`transcript` L1102/L1106 + `shots/elinx_sources.png` + `shots/elinx_modelsim_path.png`（`_discard/` 不入包）
-- [x] T10 / T16u / T88 / T89 / T90 波形 PNG（`out/p9_freeze_dfac58a/wave_png/*_signals.png`；VCD→`plot_vcd_signals.py`；注明 VCD sha256）。图注：**取自 -Acc 调试运行（严格判官因 vopt-10908 警告记 FAIL，TB 自判 PASS），功能结论以全量回归为准**（等级 **I**）。探针：T10=RM fwd/dup/skew；T16u=TFTP unload ack/file_valid；T88/T89/T90=TX/RX valid + host_ack/MT_COMMIT（帧时序/去重/吞吐相关，非活动度直方）。
+- [x] T10 / T16u / T88 / T89 / T90 波形 PNG（沿用 p9：`out/p9_freeze_dfac58a/wave_png/*_signals.png`；VCD→`plot_vcd_signals.py`；注明 VCD sha256）。图注：**取自 -Acc 调试运行（严格判官因 vopt-10908 警告记 FAIL，TB 自判 PASS），功能结论以全量回归为准**（等级 **I**）。探针：T10=RM fwd/dup/skew；T16u=TFTP unload ack/file_valid；T88/T89/T90=TX/RX valid + host_ack/MT_COMMIT（帧时序/去重/吞吐相关，非活动度直方）。
 - [ ] T42/T89 吞吐时间序列、时延直方图、抖动箱线（可选补；现行探针图已覆盖时延/去重窗口）
 
 ---
 
 ## 历史附录（勿与现行冻结拼接）
 
-- 2026-10-18：140/140 — `sim/out/post_fix4_full140_20261018_011708/`（commit 内容哈希另册）
+- 历史，2026-10-18：140/140 — `sim/out/post_fix4_full140_20261018_011708/`（commit 内容哈希另册）
+- 历史 p9：`098efc9` 全量 Questa wall_s=6306.3、SE wall_s=840.9（145/145）
 - 2026-10-06：80/80 — `closeout_20261006`
 - 更早：70/70（2026-10-03）等  
 

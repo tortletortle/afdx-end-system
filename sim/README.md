@@ -1,6 +1,8 @@
 # sim/ — RTL 仿真入口
 
-当前 `sim/tests.manifest` 为 140 项；当前同版完整运行入口是 `sim/out/production_repairs_full140_20261013_r1`，已记录 140/140 PASS、编译 rc=0，六项独立审计和前端五 stage 也有同版证据。T34p/T35p 是独立公开规模 RTL 动态证据，不能与 140 项拼成 142 项，也不能替代综合、网表编译/加载或综合后业务。历史 137 项和更早 manifest 按各自冻结版本引用。
+现行以 `doc/submit/00_先读.md` 为准（150/150 @ `51f117d`）。
+
+历史：当时 `sim/tests.manifest` 记为 140 项；同版完整运行入口是 `sim/out/production_repairs_full140_20261013_r1`，已记录 140/140 PASS、编译 rc=0，六项独立审计和前端五 stage 也有同版证据。T34p/T35p 是独立公开规模 RTL 动态证据，不能与 140 项拼成 142 项，也不能替代综合、网表编译/加载或综合后业务。更早的 137 项和更早 manifest 按各自冻结版本引用。
 
 当前入口为 `sim/run_regress.ps1`。每次运行会创建独立源码快照、编译库和日志目录，拒绝覆盖非空目录；超时只停止本次启动的进程树。需要本机可启动的 Questa 与有效授权，启动限制见 [SIMULATOR_STARTUP.md](SIMULATOR_STARTUP.md)。
 
