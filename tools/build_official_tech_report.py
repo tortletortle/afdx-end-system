@@ -339,7 +339,7 @@ def main() -> int:
         ],
         [
             "抖动",
-            "同VL同帧长 max−min",
+            "同VL同帧长256B，1VL与4VL，max−min",
             f"T93 A {fmt_metric(catalog,'t93_a_jit_ns')}/B {fmt_metric(catalog,'t93_b_jit_ns')} ns",
         ],
         [
@@ -428,11 +428,29 @@ def main() -> int:
         "评测入口为封装顶层 afdx_app_top：应用侧送入「虚拟链路号 2 字节 + 载荷」字节流，"
         "封装内的发送适配器申请块、写报文存储并提交；上电配置状态机配好 128 条发送与 126 条接收虚拟链路；"
         "接收适配器轮询各接收端口、读出载荷并按同格式输出，双网去重后每帧只交付一次。"
-        "核心 AFDX_top 不改，封装内双网 GMII 回环在配置完成后接通。",
+        "核心 AFDX_top 不改，封装内双网 GMII 回环在配置完成后接通。"
+        "封装例化核心时不改分片链参数，默认发送链块数 1、接收链块数 1，两条链都不打开。"
+        "因此长于 1471 字节的应用消息不会进入发送调度，提交计数仍然加 1。"
+        "分片路径在核心测试 T82（发送链块数 4）、T83 与 T86（发送链块数 4、接收链块数 5）中通过。",
         first_line=True,
     )
     try_add_picture(doc, figs / "fig_app_top.png", 14.5)
     add_caption(doc, "图 评测封装 afdx_app_top 框图")
+
+    add_heading_like(doc, "网络规划", style="List Paragraph")
+    add_para(
+        doc,
+        "封装上电配置按下列规划写入，配置在 afdx_app_init 中完成，不在顶层激励里写表。"
+        "发送虚拟链路 128 条，接收表项 126 条（编号 0 至 125）。编号 126 与 127 可以发送，回环后没有接收表项。"
+        "每条发送虚拟链路的带宽分配间隔为 1000 微秒。"
+        "帧长分四档：编号 0 至 31 为 17 字节，32 至 63 为 256 字节，64 至 95 为 1024 字节，96 至 127 为 1471 字节。"
+        f"已记录的稳态吞吐是 T94 这一场：16 条虚拟链路、帧长 1471 字节、3 轮，"
+        f"{fmt_metric(catalog,'t94_steady_rx_mbps')} Mbps。"
+        "日志中没有 128 条虚拟链路配置带宽之和，本文不另算。"
+        "T93、T94、T95 的测试台在 tx_ready 为 1 之后才发送下一帧。"
+        "答疑没有把反压写成允许或禁止，本文也不写。",
+        first_line=True,
+    )
 
     add_heading_like(doc, "2.2 硬件系统介绍", style="List Paragraph")
     add_para(doc, "本节「硬件」指 FPGA 上的 RTL 逻辑实现，不是板级原理图或 PCB。")
@@ -572,6 +590,7 @@ def main() -> int:
         f"S2={fmt_metric(catalog,'gate_t88b_s2')}，S3={fmt_metric(catalog,'gate_t88b_s3')}；"
         f"VO 内容哈希前缀 {fmt_metric(catalog,'gate_vo_sha256')[:16]}…。"
         "测试条件：T92–T95 为 RTL 仿真，测试台用层次引用读内部计数器，不用于门级；门级证据为 T88b 公开端口双网回环切片；"
+        "封装顶层两次 eLinx 导出都没有得到可仿真网表：第一次 vlog 报 1 个错误，第二次 flatten 报 altsyncram 未定义。综合后仿真未做。"
         "不含门级全量矩阵与 SDF 时序仿真；综合数字不等于 GUI LUT；"
         "不做时序签核与板级验证。eLinx 工程界面、综合资源页与 ModelSim Transcript（M1–M3）为占位，与演示视频同期补入。",
         first_line=True,
@@ -597,6 +616,11 @@ def main() -> int:
         "测试台注入间隔大于 BAG，此项只说明未早于 BAG 发帧，BAG 整形本身由核心测试 T04、T05c、T27、T90 证明，封装未改调度器。"
         f"T93 单链路场景抖动 {fmt_metric(catalog,'t93_a_jit_ns')} ns 来自封装接收侧对报文计数的轮询相位，仅首帧：发送段极差 15 周期，"
         "接收段极差 393 周期；轮询一圈 126 条链路 × 5 周期 = 630 周期（约 5.04 μs），为该抖动上界量级。"
+        f"T93 的 {fmt_metric(catalog,'t93_a_jit_ns')} ns 与 {fmt_metric(catalog,'t93_b_jit_ns')} ns 是最大时延减最小时延："
+        "A 为 1 条虚拟链路，B 为 4 条虚拟链路，帧长均为 256 字节。该数没有再减带宽分配间隔。"
+        "答疑第 139 行第 1 点原文：抖动 ≈ 最大时延-最小时延-BAG配置值。"
+        "第 2 点原文：系统满负载下，不出现三位数（单位μs）以上的抖动即可。"
+        "T93 不是满负载。T94 的日志没有逐帧时延，不能从 T94 读取最大时延减最小时延。"
         f"补充：T89 ES 分列 commit→TX SFD {fmt_metric(catalog,'t89_tx_commit2sfd_max_ns')} ns、"
         f"RX SFD→host {fmt_metric(catalog,'t89_rx_sfd2host_max_ns')} ns；"
         f"T90 在 128 发送 VL 同时活动下 RX 去重吞吐 {fmt_metric(catalog,'t90_rx_dedup_mbps')} Mbps。"

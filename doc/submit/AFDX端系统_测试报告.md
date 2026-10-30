@@ -114,14 +114,160 @@
 
 ## 4. 全量清单
 
-由冻结同源 `regress.csv` **自动生成**（脚本 `tools/gen_regress_table.py`，只读 CSV）。  
-打包时附完整表或生成物；正文不手抄 144 行。
+冻结包 `replay_pkg/evidence/51f117d/regress.csv` 共 150 项，逐项结果都是 PASS。有 console 的列出包内路径；没有单独 console 的写「CSV 记录」。本表不新增日志。CSV 本体：`replay_pkg/evidence/51f117d/regress.csv`。
 
-- 汇总：PASS `{{metric:full_pass}}` / N `{{metric:full_n}}`
-- 建议 CSV：`out/p8_clean_20261022_191733/sim/out/p8_full_20261022_191856/regress.csv`（与 metrics `full_*` 同源）
-- 生成：`python tools/gen_regress_table.py --csv <上路径> [--out doc/submit/_generated_regress_table.md]`
-
-列：id、功能/摘要、配置、结果、墙钟(s)。
+| 编号 | 结果 | 包内路径 |
+|---|---|---|
+| T00 | PASS | replay_pkg/sim/out/replay_smoke/T00_console.txt |
+| T01 | PASS | replay_pkg/sim/out/replay_smoke/T01_console.txt |
+| T02 | PASS | CSV 记录 |
+| T03 | PASS | replay_pkg/sim/out/replay_smoke/T03_console.txt |
+| T04 | PASS | replay_pkg/sim/out/replay_smoke/T04_console.txt |
+| T04g | PASS | CSV 记录 |
+| T05c | PASS | CSV 记录 |
+| T08a | PASS | CSV 记录 |
+| T08ag | PASS | CSV 记录 |
+| T08b | PASS | CSV 记录 |
+| T08bg | PASS | CSV 记录 |
+| T08c | PASS | CSV 记录 |
+| T08cg | PASS | CSV 记录 |
+| T08d | PASS | CSV 记录 |
+| T08dg | PASS | CSV 记录 |
+| T08e | PASS | replay_pkg/sim/out/replay_smoke/T08e_console.txt |
+| T08eg | PASS | CSV 记录 |
+| T08f | PASS | CSV 记录 |
+| T08fg | PASS | CSV 记录 |
+| T10 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T10_console.txt |
+| T10g | PASS | CSV 记录 |
+| T11 | PASS | replay_pkg/sim/out/replay_smoke/T11_console.txt |
+| T11g | PASS | CSV 记录 |
+| T17 | PASS | CSV 记录 |
+| T17g | PASS | CSV 记录 |
+| T21 | PASS | CSV 记录 |
+| T21g | PASS | CSV 记录 |
+| T09 | PASS | replay_pkg/sim/out/replay_smoke/T09_console.txt |
+| T09s | PASS | CSV 记录 |
+| T09p | PASS | CSV 记录 |
+| T09ps | PASS | CSV 记录 |
+| T12c | PASS | CSV 记录 |
+| T12r | PASS | CSV 记录 |
+| T12s | PASS | CSV 记录 |
+| T12h | PASS | CSV 记录 |
+| T12f | PASS | CSV 记录 |
+| T12fg | PASS | CSV 记录 |
+| T22 | PASS | CSV 记录 |
+| T22g | PASS | replay_pkg/sim/out/replay_smoke/T22g_console.txt |
+| T11i | PASS | CSV 记录 |
+| T11ig | PASS | CSV 记录 |
+| T22a | PASS | CSV 记录 |
+| T23 | PASS | CSV 记录 |
+| T23g | PASS | CSV 记录 |
+| T05b | PASS | replay_pkg/evidence/51f117d/questa_consoles/T05b_console.txt |
+| T05bg | PASS | CSV 记录 |
+| T13 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T13_console.txt |
+| T13g | PASS | CSV 记录 |
+| T13w | PASS | replay_pkg/evidence/51f117d/questa_consoles/T13w_console.txt |
+| T13wg | PASS | CSV 记录 |
+| T18 | PASS | CSV 记录 |
+| T18g | PASS | CSV 记录 |
+| T14 | PASS | CSV 记录 |
+| T15 | PASS | CSV 记录 |
+| T15u | PASS | CSV 记录 |
+| T16 | PASS | CSV 记录 |
+| T16r | PASS | CSV 记录 |
+| T16a | PASS | replay_pkg/evidence/51f117d/questa_consoles/T16a_console.txt |
+| T16u | PASS | replay_pkg/sim/out/replay_smoke/T16u_console.txt |
+| T14g | PASS | CSV 记录 |
+| T15g | PASS | CSV 记录 |
+| T16g | PASS | CSV 记录 |
+| T15b | PASS | CSV 记录 |
+| T15c | PASS | CSV 记录 |
+| T15cg | PASS | CSV 记录 |
+| T16b | PASS | CSV 记录 |
+| T24 | PASS | CSV 记录 |
+| T24g | PASS | CSV 记录 |
+| T25 | PASS | CSV 记录 |
+| T25g | PASS | CSV 记录 |
+| T26 | PASS | CSV 记录 |
+| T26g | PASS | CSV 记录 |
+| T27 | PASS | CSV 记录 |
+| T28 | PASS | CSV 记录 |
+| T29 | PASS | CSV 记录 |
+| T33 | PASS | CSV 记录 |
+| T33g | PASS | CSV 记录 |
+| T34 | PASS | CSV 记录 |
+| T33p | PASS | CSV 记录 |
+| T34p | PASS | CSV 记录 |
+| T35 | PASS | CSV 记录 |
+| T35g | PASS | CSV 记录 |
+| T35p | PASS | CSV 记录 |
+| T36 | PASS | CSV 记录 |
+| T36g | PASS | CSV 记录 |
+| T38 | PASS | CSV 记录 |
+| T38g | PASS | CSV 记录 |
+| T41 | PASS | replay_pkg/sim/out/replay_smoke/T41_console.txt |
+| T42 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T42_console.txt |
+| T43 | PASS | replay_pkg/sim/out/replay_smoke/T43_console.txt |
+| T30 | PASS | CSV 记录 |
+| T31 | PASS | CSV 记录 |
+| T31g | PASS | CSV 记录 |
+| T32 | PASS | CSV 记录 |
+| T32g | PASS | CSV 记录 |
+| T37 | PASS | CSV 记录 |
+| T37g | PASS | CSV 记录 |
+| T40 | PASS | CSV 记录 |
+| T40g | PASS | CSV 记录 |
+| T39 | PASS | CSV 记录 |
+| T39g | PASS | CSV 记录 |
+| T44 | PASS | CSV 记录 |
+| T45 | PASS | CSV 记录 |
+| T46 | PASS | CSV 记录 |
+| T47 | PASS | CSV 记录 |
+| T48 | PASS | CSV 记录 |
+| T49 | PASS | CSV 记录 |
+| T50 | PASS | CSV 记录 |
+| T51 | PASS | CSV 记录 |
+| T52 | PASS | CSV 记录 |
+| T53 | PASS | CSV 记录 |
+| T54 | PASS | CSV 记录 |
+| T55 | PASS | CSV 记录 |
+| T56 | PASS | CSV 记录 |
+| T57 | PASS | CSV 记录 |
+| T62 | PASS | CSV 记录 |
+| T58 | PASS | CSV 记录 |
+| T59 | PASS | CSV 记录 |
+| T60 | PASS | CSV 记录 |
+| T64 | PASS | CSV 记录 |
+| T64a | PASS | CSV 记录 |
+| T64b | PASS | CSV 记录 |
+| T65 | PASS | CSV 记录 |
+| T66 | PASS | CSV 记录 |
+| T67 | PASS | CSV 记录 |
+| T63 | PASS | CSV 记录 |
+| T70 | PASS | CSV 记录 |
+| T75 | PASS | CSV 记录 |
+| T76 | PASS | CSV 记录 |
+| T77 | PASS | CSV 记录 |
+| T78 | PASS | CSV 记录 |
+| T79 | PASS | CSV 记录 |
+| T80 | PASS | CSV 记录 |
+| T81 | PASS | CSV 记录 |
+| T82 | PASS | CSV 记录 |
+| T83 | PASS | CSV 记录 |
+| T84 | PASS | CSV 记录 |
+| T85 | PASS | CSV 记录 |
+| T86 | PASS | CSV 记录 |
+| T87 | PASS | CSV 记录 |
+| T88a | PASS | CSV 记录 |
+| T88 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T88_console.txt |
+| T88b | PASS | CSV 记录 |
+| T89 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T89_console.txt |
+| T90 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T90_console.txt |
+| T91 | PASS | CSV 记录 |
+| T92 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T92_console.txt |
+| T93 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T93_console.txt |
+| T94 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T94_console.txt |
+| T95 | PASS | replay_pkg/evidence/51f117d/questa_consoles/T95_console.txt |
 
 ---
 
@@ -133,7 +279,7 @@
 |---|---|---|
 | T92 基本收发 | {{metric:t92_pass}} checks={{metric:t92_checks}} | `T92_console.txt`；VL0/32/64/96 四档最小与最大载荷 |
 | T93 时延 max | A **{{metric:t93_a_max_ns}}** / B **{{metric:t93_b_max_ns}} ns** ≪ 2e6 | `T93_console.txt` + `t93_metrics_check` |
-| T93 抖动 A/B | **{{metric:t93_a_jit_ns}} / {{metric:t93_b_jit_ns}} ns** | 同上；来源与 BAG 判据见 `doc/T93_抖动来源与BAG判据_20261029.md` |
+| T93 抖动 A/B | **{{metric:t93_a_jit_ns}} / {{metric:t93_b_jit_ns}} ns** | max−min。A：1 VL，B：4 VL，帧长 256。逐帧表 `replay_pkg/evidence/51f117d/questa_consoles/t93_metrics.csv`。来源与 BAG 判据见 `doc/T93_抖动来源与BAG判据_20261029.md` |
 | T93 按 VL 的 TX SFD 间隔 | min **{{metric:t93_vl_gap_min_cyc}}** 周期 ≥ BAG **{{metric:t93_bag_cyc}}** 周期（违例 {{metric:t93_vl_bag_viol}}） | `t93_gmii_sfd.csv` / `t93_vl_gap.csv` + `t93_metrics_check`；TB 注入间隔 > BAG，BAG 整形证据仍为 T04 / T05c / T27 / T90 |
 | T94 稳态吞吐 | **{{metric:t94_steady_rx_mbps}} Mbps**（≥100） | `T94_console.txt` |
 | T95 128 VL | submit={{metric:t95_submit}} deliver={{metric:t95_deliver}} unconf={{metric:t95_unconf}} | `T95_console.txt`；VL125 port=**255**（`vl_valid` 修复） |
@@ -142,6 +288,32 @@
 
 汇总：最终冻结 metrics 副本中的 `t92_*` … `t95_*`、`app_synth_*` 键。  
 **适用边界：** 限于封装字节流与本仓 GMII 回环；不含评委自建 TB 以外协议全集；不得写封装已 Fit。T93 的 BAG 间隔判据由 TB 注入节奏（约 132144 周期）决定，只说明未早于 BAG 发帧；没有「同 VL 连续快速提交」场景。T93 Phase A 抖动来源（封装接收轮询相位，仅首帧）见 `doc/T93_抖动来源与BAG判据_20261029.md`（诊断，I）。
+
+T93 的 3080 / 4920 ns 是 max−min，没有减 BAG。答疑第 139 行两句原文并列：
+
+1. 「抖动 ≈ 最大时延-最小时延-BAG配置值」
+2. 「系统满负载下，不出现三位数（单位μs）以上的抖动即可。」
+
+T93 是 1 条 VL 与 4 条 VL、帧长 256，不是满负载。T94 控制台没有逐帧时延，不能从 T94 读 max−min。
+
+### 5.5 分片
+
+| 位置 | 参数 | 结果 | 日志 |
+|---|---|---|---|
+| 封装默认档 | 不覆盖链参数，`TX_MESSAGE_CHAIN_BLOCKS=1`，`RX_REASM_CHAIN_BLOCKS=1` | **F** | `afdx_app_top.v` 第 120–130 行 |
+| 核心 T82 | `TX_MESSAGE_CHAIN_BLOCKS=4` | **P** | `out/p10_clean_51f117d/sim/out/questa_full/T82_console.txt` 第 69 行 `T82 TX8K GMII PASS` |
+| 核心 T83 | 发送 4、接收 5 | **P** | 同目录 `T83_console.txt` 第 32 行 `T83 COEXIST PASS` |
+| 核心 T86 | 发送 4、接收 5 | **P** | 同目录 `T86_console.txt` 第 40 行 `T86 PUBLIC TXRX PASS` |
+
+超过 1471 B 的消息在封装口不会进入发送调度（`AFDX_top.v` 第 1186–1192 行，默认链关闭时长度上限 1471）。`submit_cnt` 仍加 1（`afdx_app_tx.v` 第 207 行）。这一路不计入 `drop_cnt`。
+
+### 5.6 网络规划（封装默认配置）
+
+- 发送 VL 128 条，接收表项 126 条（VL0..125）。VL126、127 可发送，回环后无接收表项（T95 的 unconf）。
+- 每条发送 VL 的 BAG 为 1000 µs（`afdx_app_init.v` 第 7 行）。
+- 四档帧长：17 / 256 / 1024 / 1471 字节（同文件第 115–121 行）。
+- 已记录的稳态吞吐是 T94：16 条 VL、帧长 1471 B、3 轮，`{{metric:t94_steady_rx_mbps}}` Mbps。日志没有「128 条 VL 配置带宽之和」，这里不另算。
+- T93 / T94 / T95 在 `tx_ready` 为 1 之后才发下一帧。答疑没有把反压写成允许或禁止，本节也不写。
 
 ### 5.1 T42（IF_MODE=2，公开 GMII；工程起止；**补充**）
 
@@ -215,6 +387,7 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
   等级：**P（GUI 行为）**；≠ 门级 VO。  
   证据不含 `elinx_pass.png` / `elinx_run_behav.png` / 记事本摘录 / `shots/_discard/`。
 - **T91 门级吞吐：F**（2026-10-26）。公开端口吞吐场在 RTL（Questa，NVL=16 ROUNDS=3，稳态第 2–3 轮）已 PASS；门级探速 ROUNDS=1 至 18:10 决策点仍未 `$finish`（墙钟约 20994 s），按外推不再启动 R=2/R=3 门级。综合后仿真证据以 **T88b 切片**为准，不以 T91 门级吞吐宣称。
+- **封装门级 T96（新增系统场，不进 150 项清单）：F**。第 1 次 eLinx 网表 `vlog` Errors: 1，仿真未开始（`out/app_gate_t96_se_20261030/attempt1_FAIL.md`，transcript 未改）。第 2 次 `flatten` 后 `synth.log` 第 1749 行 `ERROR: :-1: undefine entity altsyncram`，墙钟 158.8 s，没有新 VO。到此停止。工程副本 `elinx/gui_afdx_app/AFDX_app.epr`，未改 `elinx/gui_afdx`。RTL 上同一 TB 的静默窗口 PASS 不是这条门级。
 
 **适用边界：**本结论限于公开端口门级切片 T88b；不含门级全量矩阵、SDF、T91 门级吞吐，也不将 eLinx 原生网表等同 Quartus VO。
 
@@ -398,6 +571,8 @@ Questa `p_c2_t88_r3_20261024_202813`：**1–8 PASS**（**分段演示**：步 5
 | 覆盖率 / FREEZE 内变异·lint 数值 | 全设计加权覆盖率 I（非单行 AFDX_top）；lint_error=0 **P**；变异分列见 §7 | I（覆盖）/ P（lint·C3） |
 | 时序签核 / 板级验证 | 不做（赛题未要求） | — |
 | 门级 full 矩阵、SDF、eLinx 原生网表业务 | 未做 | F |
+| 封装口分片（默认链关闭） | 核心 T82/T83/T86 为 P；封装默认档 F | **F**（封装） |
+| 封装门级 T96 | 第 1 次 vlog Errors: 1；第 2 次 flatten 报 altsyncram 未定义，158.8 s，无 VO | **F** |
 | T91 门级吞吐（公开端口 ROUNDS=2/3） | 探速未在 18:10 前完成；不启门级 | **F**（RTL R=3 旁证另列） |
 | 完整 ARINC / 615A/665 认证、对端真 ES | 不做 | F |
 | T18 8h 长时 | 禁止宣称 | F |
