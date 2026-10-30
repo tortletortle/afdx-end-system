@@ -12,9 +12,29 @@ pmux_cases.zip
 out/baseline_full140_fit_sta_20261018_223600/
 out/p8_clean_20261022_191733/out/p8_fit_sta_20261022_221328/
 
-# 队内学习/脚本，不进提交包（计划 G5/G6）
+# 队内文件，不进提交包
+doc/submit/上传清单.md
+doc/submit/filled/上传清单.md
+doc/submit/人工待办.md
+doc/submit/filled/人工待办.md
+doc/submit/人工清单_3到5.md
+doc/submit/filled/人工清单_3到5.md
+doc/submit/人工事项3到5.html
+doc/submit/filled/人工事项3到5.html
+doc/submit/人工截图清单.md
+doc/submit/filled/人工截图清单.md
+doc/submit/提示词_人工事项3到5.txt
+doc/submit/filled/提示词_人工事项3到5.txt
+doc/submit/答辩要点.md
+doc/submit/filled/答辩要点.md
 doc/submit/答辩必懂清单.md
+doc/submit/filled/答辩必懂清单.md
 doc/submit/演示视频脚本.md
+doc/submit/filled/演示视频脚本.md
+doc/submit/技术文档_官方模板_交付表.md
+doc/submit/filled/技术文档_官方模板_交付表.md
+doc/submit/最终总表.md
+doc/submit/filled/最终总表.md
 doc/最终冲刺计划_20261026.md
 # 心得体会内部草稿说明（正文是 doc/submit/心得体会_4.2.txt）；filled 副本同理
 doc/submit/心得体会_可读说明.md
