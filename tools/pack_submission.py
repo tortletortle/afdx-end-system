@@ -426,7 +426,7 @@ def build_stage(root: Path, stage: Path, excludes: list[str]) -> None:
     copy_file(root / "README.md", stage / "README.md")
     for name in ("AFDX端系统_总体设计书.md", "README_tools.md", "_project.md"):
         src = root / name
-        if src.is_file():
+        if src.is_file() and not is_excluded(root, Path(name), excludes):
             copy_file(src, stage / name)
 
     for name in ("elinx_sources.png", "elinx_modelsim_path.png"):
