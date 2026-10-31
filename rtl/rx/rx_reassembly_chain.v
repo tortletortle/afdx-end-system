@@ -4,7 +4,7 @@
 module rx_reassembly_chain #(
   parameter integer DW=208,
   parameter integer SLOTS=8,
-  parameter integer MAX_FRAGS=16
+  parameter integer MAX_FRAGS=8
 )(
   input wire clk, rst_sync, en,
   input wire in_vld, output wire in_ready,
@@ -32,7 +32,7 @@ module rx_reassembly_chain #(
   output reg free_blk_valid, output reg [3:0] free_blk_id,
   output wire drain_active,
   output reg [31:0] hit_cnt, drop_cnt,
-  output reg [31:0] slot_used
+  output wire [31:0] slot_used
 );
   localparam [3:0] IDLE=0, ALLOC=1, COPY_REQ=2, COPY_WAIT=3,
     SOURCE_FREE=4, AFTER_COPY=5, CHECK_REQ=6, CHECK_WAIT=7,
@@ -45,7 +45,10 @@ module rx_reassembly_chain #(
   reg [31:0] slot_src[0:SLOTS-1],slot_dst[0:SLOTS-1];
   reg [15:0] slot_ident[0:SLOTS-1];
   reg [11:0] slot_vl[0:SLOTS-1];
-  reg [1023:0] slot_bits[0:SLOTS-1];
+  // Interval table replaces 8x1024-bit combo bitmap (eLinx MEMORY_COLLECT OOM).
+  // Units are 8-byte granules of the reassembled application payload.
+  reg [10:0] slot_iv_lo[0:SLOTS-1][0:MAX_FRAGS-1];
+  reg [10:0] slot_iv_hi[0:SLOTS-1][0:MAX_FRAGS-1];
   reg [13:0] slot_end[0:SLOTS-1];
   reg [7:0] slot_frags[0:SLOTS-1];
   reg [19:0] slot_blocks[0:SLOTS-1];
@@ -87,37 +90,40 @@ module rx_reassembly_chain #(
   wire [15:0] app_start=is_first ? 16'd0 : wire_start-16'd8;
   wire [16:0] app_end={1'b0,app_start}+{6'd0,in_desc[173:163]};
   wire [10:0] frag_plen=in_desc[173:163];
-  integer hit_slot,empty_slot,scan_i,bit_i;
-  reg hit_found,empty_found,overlap,beyond_end,complete;
-  reg [1023:0] merged_bits;
+  wire [10:0] new_lo=app_start[13:3];
+  wire [10:0] new_hi=(app_end+17'd7)>>3;
+  integer hit_slot,empty_slot,scan_i,iv_i,iv_n;
+  reg hit_found,empty_found,overlap,beyond_end;
   reg [13:0] merged_end;
   reg merged_first,merged_last;
   reg [3:0] input_reason;
+  // slot_used was combo-assigned into an output reg (latch farm). Keep a wire sum.
+  assign slot_used = {29'd0,slot_valid[0]} + {29'd0,slot_valid[1]} + {29'd0,slot_valid[2]}
+                   + {29'd0,slot_valid[3]} + {29'd0,slot_valid[4]} + {29'd0,slot_valid[5]}
+                   + {29'd0,slot_valid[6]} + {29'd0,slot_valid[7]};
   always @* begin
-    hit_slot=0;empty_slot=0;hit_found=0;empty_found=0;slot_used=0;
+    hit_slot=0;empty_slot=0;hit_found=0;empty_found=0;
     for(scan_i=SLOTS-1;scan_i>=0;scan_i=scan_i-1) begin
       if(slot_valid[scan_i]) begin
-        slot_used=slot_used+32'd1;
         if(slot_src[scan_i]==in_desc[95:64] && slot_dst[scan_i]==in_desc[63:32] &&
            slot_ident[scan_i]==in_desc[207:192] && slot_vl[scan_i]==in_vl) begin
           hit_found=1;hit_slot=scan_i;
         end
       end else begin empty_found=1;empty_slot=scan_i;end
     end
-    overlap=0;beyond_end=0;complete=1;
-    merged_bits=hit_found ? slot_bits[hit_slot] : 1024'd0;
+    overlap=0;beyond_end=0;
     merged_first=(hit_found && slot_first[hit_slot]) || is_first;
     merged_last=(hit_found && slot_last[hit_slot]) || !in_desc[191];
     merged_end=(hit_found && slot_last[hit_slot]) ? slot_end[hit_slot] : app_end[13:0];
-    for(bit_i=0;bit_i<1024;bit_i=bit_i+1) begin
-      if(bit_i >= (app_start>>3) && bit_i < ((app_end+17'd7)>>3)) begin
-        if(merged_bits[bit_i]) overlap=1;
-        merged_bits[bit_i]=1;
+    iv_n=hit_found ? slot_frags[hit_slot] : 8'd0;
+    // Dead 'complete' coverage merge removed: original bitmap path never fed input_reason.
+    if(hit_found) begin
+      for(iv_i=0;iv_i<MAX_FRAGS;iv_i=iv_i+1) if(iv_i<iv_n) begin
+        if(!(new_hi<=slot_iv_lo[hit_slot][iv_i] || new_lo>=slot_iv_hi[hit_slot][iv_i]))
+          overlap=1;
+        if(slot_iv_hi[hit_slot][iv_i]>new_hi) beyond_end=1;
       end
-      if(bit_i >= ((app_end+17'd7)>>3) && merged_bits[bit_i]) beyond_end=1;
-      if(bit_i < (({3'd0,merged_end}+17'd7)>>3) && !merged_bits[bit_i]) complete=0;
     end
-    complete=complete && merged_first && merged_last;
     input_reason=0;
     if(app_end>17'd8192 || (!is_first && wire_start<16'd8) ||
        (is_first && ({1'b0,frag_plen}+12'd42)>12'd2048) ||
@@ -133,16 +139,24 @@ module rx_reassembly_chain #(
     else if(!hit_found && !empty_found) input_reason=E_SLOT;
   end
 
+  // Coverage of the active slot: first/last plus contiguous sorted intervals.
   integer ready_i;
   reg ready_complete, any_owned;
+  reg [10:0] r_cursor,r_need;
+  reg [7:0] ready_n;
   always @* begin
-    ready_complete=slot_valid[active_slot] && slot_first[active_slot] && slot_last[active_slot];
-    for(ready_i=0;ready_i<1024;ready_i=ready_i+1)
-      if(ready_i<(({3'd0,slot_end[active_slot]}+17'd7)>>3) && !slot_bits[active_slot][ready_i])
-        ready_complete=0;
-    any_owned=0;
-    for(ready_i=0;ready_i<SLOTS;ready_i=ready_i+1)
-      if(slot_valid[ready_i]) any_owned=1;
+    ready_n=slot_frags[active_slot];
+    ready_complete=slot_valid[active_slot] && slot_first[active_slot] && slot_last[active_slot]
+                 && (ready_n!=0) && (slot_iv_lo[active_slot][0]==11'd0);
+    r_need=({3'd0,slot_end[active_slot]}+17'd7)>>3;
+    r_cursor=slot_iv_hi[active_slot][0];
+    for(ready_i=1;ready_i<MAX_FRAGS;ready_i=ready_i+1) if(ready_i<ready_n) begin
+      if(slot_iv_lo[active_slot][ready_i]>r_cursor) ready_complete=0;
+      if(slot_iv_hi[active_slot][ready_i]>r_cursor) r_cursor=slot_iv_hi[active_slot][ready_i];
+    end
+    if(r_cursor<r_need) ready_complete=0;
+    any_owned = slot_valid[0]|slot_valid[1]|slot_valid[2]|slot_valid[3]
+              | slot_valid[4]|slot_valid[5]|slot_valid[6]|slot_valid[7];
   end
   wire draining=cancel_pending || !en;
   assign drain_active=draining && (any_owned || state!=IDLE);
@@ -166,7 +180,9 @@ module rx_reassembly_chain #(
   assign check_dst_ip=slot_dst[active_slot];
   wire [2:0] needed_count=({1'b0,slot_end[active_slot]}+15'd2089)>>11;
 
-  integer reset_i,drain_i;
+  integer reset_i,drain_i,ins_i,ins_pos;
+  reg [7:0] ins_cnt;
+  reg [3:0] ins_slot;
   always @(posedge clk) begin
     free_blk_valid<=0;
     if(rst_sync) begin
@@ -179,9 +195,11 @@ module rx_reassembly_chain #(
       for(reset_i=0;reset_i<SLOTS;reset_i=reset_i+1) begin
         slot_valid[reset_i]<=0;slot_first[reset_i]<=0;slot_last[reset_i]<=0;
         slot_src[reset_i]<=0;slot_dst[reset_i]<=0;slot_ident[reset_i]<=0;
-        slot_vl[reset_i]<=0;slot_bits[reset_i]<=0;slot_end[reset_i]<=0;
+        slot_vl[reset_i]<=0;slot_end[reset_i]<=0;
         slot_frags[reset_i]<=0;slot_blocks[reset_i]<=0;slot_count[reset_i]<=0;
         slot_first_desc[reset_i]<=0;
+        // Do not clear slot_iv_* here: nested SLOTS*MAX_FRAGS resets blow
+        // eLinx MEMORY_COLLECT. slot_valid/slot_frags=0 hide stale intervals.
       end
     end else begin
       if(!en) cancel_pending<=1;
@@ -218,7 +236,19 @@ module rx_reassembly_chain #(
               slot_valid[hit_found ? hit_slot : empty_slot]<=1;
               slot_first[hit_found ? hit_slot : empty_slot]<=merged_first;
               slot_last[hit_found ? hit_slot : empty_slot]<=merged_last;
-              slot_bits[hit_found ? hit_slot : empty_slot]<=merged_bits;
+              // Keep intervals sorted by lo so combo coverage stays a linear walk.
+              ins_slot=hit_found ? hit_slot : empty_slot;
+              ins_cnt=hit_found ? slot_frags[hit_slot] : 0;
+              ins_pos=ins_cnt;
+              for(ins_i=MAX_FRAGS-1;ins_i>=0;ins_i=ins_i-1)
+                if(ins_i<ins_cnt && slot_iv_lo[ins_slot][ins_i]>new_lo) ins_pos=ins_i;
+              for(ins_i=MAX_FRAGS-2;ins_i>=0;ins_i=ins_i-1)
+                if(ins_i<ins_cnt && ins_i>=ins_pos) begin
+                  slot_iv_lo[ins_slot][ins_i+1]<=slot_iv_lo[ins_slot][ins_i];
+                  slot_iv_hi[ins_slot][ins_i+1]<=slot_iv_hi[ins_slot][ins_i];
+                end
+              slot_iv_lo[ins_slot][ins_pos]<=new_lo;
+              slot_iv_hi[ins_slot][ins_pos]<=new_hi;
               slot_end[hit_found ? hit_slot : empty_slot]<=merged_end;
               slot_frags[hit_found ? hit_slot : empty_slot]<=hit_found ? slot_frags[hit_slot]+8'd1 : 8'd1;
               if(is_first) slot_first_desc[hit_found ? hit_slot : empty_slot]<=in_desc;

@@ -45,6 +45,10 @@ module tx_fragment_frame_builder (
   reg [7:0] tos_q, ttl_q, sn_q;
   reg [31:0] source_q, destination_q;
   reg has_udp_q;
+  // Single-fragment UDP: fold checksum while FILL (avoids a second full
+  // PMEM window that cost ~2k cyc/frame and dropped T94 below 100 Mbps).
+  // Multi-fragment first piece still needs a full-message CHECK pass.
+  reg fold_during_fill_q;
   reg [31:0] udp_sum;
   reg [7:0] checksum_high;
   reg checksum_odd;
@@ -151,7 +155,7 @@ module tx_fragment_frame_builder (
       blocks_q<=0; count_q<=0; ident_q<=0; vlid_q<=0; udi_q<=0;
       sport_q<=0; dport_q<=0; ifid_a_q<=0; ifid_b_q<=0;
       tos_q<=0; ttl_q<=0; sn_q<=0; source_q<=0; destination_q<=0;
-      has_udp_q<=0; udp_sum<=0; checksum_high<=0; checksum_odd<=0;
+      has_udp_q<=0; fold_during_fill_q<=0; udp_sum<=0; checksum_high<=0; checksum_odd<=0;
       udp_checksum<=0; ip_checksum<=0; fill_index<=0; emit_index<=0; frame_length<=0;
       last_fragment<=0; next_fragment_offset<=0; fragment_payload_len<=0;
     end else begin
@@ -172,12 +176,15 @@ module tx_fragment_frame_builder (
             window_length_q<={3'd0,app_window_in};
             frame_length<=(frag_length_in < 11'd25) ? 11'd60 : frag_length_in+11'd35;
             fill_index<=0; emit_index<=0; udp_checksum<=0; checksum_odd<=0;
+            fold_during_fill_q<=udp_checksum_enable && has_udp_in && !more_in;
             // All terms are explicitly widened so no intermediate carry is lost.
             udp_sum<={16'd0,source_ip[31:16]}+{16'd0,source_ip[15:0]}
                     +{16'd0,destination_ip[31:16]}+{16'd0,destination_ip[15:0]}
                     +32'd17+{17'd0,total_in}+{17'd0,total_in}
                     +{16'd0,source_port}+{16'd0,destination_port};
-            state<=udp_checksum_enable && has_udp_in ? CHECK_START : FILL_START;
+            // Multi-fragment + UDP csum: full-message CHECK, then FILL this window.
+            // Single-fragment + UDP csum: FILL folds csum in one pass (T94 path).
+            state<=(udp_checksum_enable && has_udp_in && more_in) ? CHECK_START : FILL_START;
           end
         end
         CHECK_START: if (reader_ready) state<=CHECK_READ;
@@ -193,13 +200,21 @@ module tx_fragment_frame_builder (
         end
         CHECK_FOLD: begin
           udp_checksum<=checksum_complement == 0 ? 16'hffff : checksum_complement;
-          state<=FILL_START;
+          // After multi-frag CHECK → FILL; after single-frag merged FILL → HEADER.
+          state<=fold_during_fill_q ? HEADER : FILL_START;
         end
         FILL_START: if (reader_ready) state<=FILL_READ;
         FILL_READ: if (reader_valid) begin
+          if (fold_during_fill_q) begin
+            checksum_odd<=!checksum_odd;
+            if (!checksum_odd) begin
+              checksum_high<=reader_byte;
+              if (reader_last) udp_sum<=udp_sum+{16'd0,reader_byte,8'd0};
+            end else udp_sum<=udp_sum+{16'd0,checksum_high,reader_byte};
+          end
           frame_data[fill_index]<=reader_byte;
           fill_index<=fill_index+11'd1;
-          if (reader_last) state<=HEADER;
+          if (reader_last) state<=fold_during_fill_q ? CHECK_FOLD : HEADER;
         end
         HEADER: begin
           ip_checksum<=ip_sum(tos_q,ttl_q,ip_length,ident_q,flags_offset,source_q,destination_q);

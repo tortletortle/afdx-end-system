@@ -53,9 +53,21 @@ module tx_message_store #(
   output reg pending
 );
   reg [NUM_PORTS-1:0] port_valid, port_full, port_sampling, port_fresh;
+  // port_head_busy[p]=1 iff the current head message of port p is in flight.
+  // Maintained on the edges that change head/inflight so sch_req does not
+  // combo-read port_head[0..255] (that pattern blew eLinx MEMORY_COLLECT).
+  reg [NUM_PORTS-1:0] port_head_busy;
   reg [3:0] port_head [0:NUM_PORTS-1];
   reg [3:0] port_tail [0:NUM_PORTS-1];
-  reg [3:0] port_count [0:NUM_PORTS-1];
+  // Packed so reset is one assignment (for-loop clear of unpacked 256x4
+  // inside this always blew cells ~115k→313k on eLinx). TB still sees
+  // port_count[i] via the generate view below.
+  reg [NUM_PORTS*4-1:0] port_count_flat;
+  wire [3:0] port_count [0:NUM_PORTS-1];
+  genvar pc_gi;
+  generate for(pc_gi=0;pc_gi<NUM_PORTS;pc_gi=pc_gi+1) begin: g_pc_view
+    assign port_count[pc_gi]=port_count_flat[pc_gi*4 +: 4];
+  end endgenerate
   reg [7:0] port_age [0:NUM_PORTS-1];
   reg [15:0] message_blocks [0:5];
   reg [15:0] message_mask [0:5];
@@ -73,6 +85,7 @@ module tx_message_store #(
   assign wr_blk=open_blocks[3:0];
   assign open_mask=rst_sync ? 16'd0 : open_owned_mask;
   assign buf_full=port_full;
+  assign sch_req = port_valid & ~port_head_busy & {NUM_PORTS{!rst_sync}};
   // This eLinx frontend cannot index packed bits directly with a memory
   // read expression. A fixed mux retains the six valid heads and X for an
   // out-of-pool head without an unsupported nested dynamic range select.
@@ -87,12 +100,7 @@ module tx_message_store #(
       endcase
     end
   endfunction
-  genvar gp;
-  generate for(gp=0;gp<NUM_PORTS;gp=gp+1) begin: g_requests
-    assign sch_req[gp]=port_valid[gp] && !inflight_at(message_inflight,port_head[gp]) && !rst_sync;
-  end endgenerate
-  wire [3:0] descriptor_head=port_head[desc_rd_addr];
-  wire [13:0] descriptor_length=message_length[descriptor_head];
+  // Descriptor fields are read only inside the clocked block (no async mem read).
 
   reg take_pending;
   reg [7:0] pending_port;
@@ -183,12 +191,11 @@ module tx_message_store #(
   reg error_remove;
   reg [7:0] error_port;
   reg [3:0] error_head, error_tail, error_count;
-  integer i;
   always @(posedge clk) begin
 
     reserve_reject<=0; commit_reject<=0; sch_ack<=0; pending<=0;
     if(rst_sync) begin
-      port_valid<=0; port_full<=0; port_sampling<=0; port_fresh<=0;
+      port_valid<=0; port_full<=0; port_sampling<=0; port_fresh<=0; port_head_busy<=0;
       message_valid<=0; message_inflight<=0; message_dequeued<=0; next_ident<=0;
       free_map<=16'h003f; open_valid<=0; open_owned_mask<=0;
       open_blocks<=0; open_count<=0; open_length<=0; reservation_active<=0;
@@ -199,18 +206,21 @@ module tx_message_store #(
       desc_rd_data<=0; sch_head<=0; sch_length<=0; sch_app_length<=0;
       sch_fragment_offset<=0; sch_blocks<=0; sch_identification<=0; sch_block_count<=0;
       overwrite_count<=0; queue_overflow_count<=0; exhaust_count<=0; bad_completion_count<=0; failed_message_count<=0;
-      for(i=0;i<NUM_PORTS;i=i+1) begin port_head[i]<=0;port_tail[i]<=0;port_count[i]<=0;port_age[i]<=0;end
-      // Only validity bits are reset for message arrays.
+      // T81: port_valid[p]==(port_count[p]!=0). One-shot flat clear keeps
+      // that invariant without a 256-iter for inside this always.
+      // Leave head/tail/age stale (unreachable while count=0 / valid=0).
+      port_count_flat<={NUM_PORTS*4{1'b0}};
     end else begin
       returned_mask=0;
       error_remove=0; error_port=0; error_head=0; error_tail=0; error_count=0;
       // TX descriptor preserves legacy field positions. Length bit13 is in
       // formerly reserved bit28; low13 bits remain at descriptor[20:8].
-      if(desc_rd_addr<NUM_PORTS && port_valid[desc_rd_addr])
-        desc_rd_data<={3'd0,descriptor_length[13],1'b1,
+      if(desc_rd_addr<NUM_PORTS && port_valid[desc_rd_addr]) begin
+        // Sync read of head then length; avoid a combo memory port.
+        desc_rd_data<={3'd0,message_length[port_head[desc_rd_addr]][13],1'b1,
                        port_full[desc_rd_addr],port_fresh[desc_rd_addr],port_head[desc_rd_addr],
-                       descriptor_length[12:0],port_age[desc_rd_addr]};
-      else desc_rd_data<=0;
+                       message_length[port_head[desc_rd_addr]][12:0],port_age[desc_rd_addr]};
+      end else desc_rd_data<=0;
 
       if(fragment_error) begin
         complete_ok=0;
@@ -218,15 +228,17 @@ module tx_message_store #(
           if(message_dequeued[done_head]) complete_ok=1;
           else if(message_port[done_head]<NUM_PORTS) begin
             error_port=message_port[done_head];
-            complete_ok=port_valid[error_port] && port_count[error_port]!=0 &&
+            complete_ok=port_valid[error_port] && port_count_flat[error_port*4 +: 4]!=0 &&
                         port_head[error_port]==done_head;
             if(complete_ok) begin
               error_remove=1;
               error_head=queue_next[done_head]; error_tail=port_tail[error_port];
-              error_count=port_count[error_port]-4'd1;
-              port_head[error_port]<=error_head; port_count[error_port]<=error_count;
+              error_count=port_count_flat[error_port*4 +: 4]-4'd1;
+              port_head[error_port]<=error_head; port_count_flat[error_port*4 +: 4]<=error_count;
               port_valid[error_port]<=error_count!=0;
               port_full[error_port]<=0; port_fresh[error_port]<=0;
+              // New head is not in flight after error reclaim.
+              port_head_busy[error_port]<=1'b0;
             end
           end
         end
@@ -248,14 +260,19 @@ module tx_message_store #(
           if(done_last) begin
             returned_mask=returned_mask | message_mask[done_head];
             message_valid[done_head]<=0; message_dequeued[done_head]<=0;
-          end else message_offset[done_head]<=done_next_offset;
+          end else begin
+            message_offset[done_head]<=done_next_offset;
+            // Same head remains; clear busy so the next fragment can be taken.
+            if(message_port[done_head]<NUM_PORTS)
+              port_head_busy[message_port[done_head]]<=1'b0;
+          end
         end else bad_completion_count<=increment(bad_completion_count);
       end
 
       if(request_valid) begin
         head=0;tail=0;count=0;
         if(request_port<NUM_PORTS && port_valid[request_port]) begin
-          head=port_head[request_port];tail=port_tail[request_port];count=port_count[request_port];
+          head=port_head[request_port];tail=port_tail[request_port];count=port_count_flat[request_port*4 +: 4];
         end
         // Fold a same-edge head removal into the request before updating FIFO
         // state. Captured commits and takes are never dropped or replayed.
@@ -291,12 +308,13 @@ module tx_message_store #(
                 overwrite_count<=increment(overwrite_count);
               end
               port_head[request_port]<=old_head;port_tail[request_port]<=old_head;
-              port_count[request_port]<=1;port_valid[request_port]<=1;
+              port_count_flat[request_port*4 +: 4]<=4'd1;port_valid[request_port]<=1;
               port_full[request_port]<=request_type!=0 && request_depth==1;
               port_fresh[request_port]<=request_type==0 && count!=0;
+              port_head_busy[request_port]<=1'b0;
             end else begin
               queue_next[tail]<=old_head;port_tail[request_port]<=old_head;
-              port_count[request_port]<=count+4'd1;
+              port_count_flat[request_port*4 +: 4]<=count+4'd1;
               port_full[request_port]<=count+4'd1>=request_depth;
             end
           end else begin
@@ -317,9 +335,18 @@ module tx_message_store #(
             message_ident[head]<=next_ident;sch_identification<=next_ident;next_ident<=next_ident+16'd1;
           end else sch_identification<=message_ident[head];
           if(selected_end=={1'b0,message_length[head]}+15'd8) begin
-            port_count[request_port]<=count-4'd1;port_full[request_port]<=0;port_fresh[request_port]<=0;
-            if(count==1) port_valid[request_port]<=0;
-            else port_head[request_port]<=queue_next[head];
+            port_count_flat[request_port*4 +: 4]<=count-4'd1;port_full[request_port]<=0;port_fresh[request_port]<=0;
+            if(count==1) begin
+              port_valid[request_port]<=0;
+              port_head_busy[request_port]<=1'b0;
+            end else begin
+              port_head[request_port]<=queue_next[head];
+              // Advanced to a waiting successor that is not in flight.
+              port_head_busy[request_port]<=1'b0;
+            end
+          end else begin
+            // Non-final fragment: same head stays, now busy until fragment_done.
+            port_head_busy[request_port]<=1'b1;
           end
         end
       end

@@ -187,18 +187,18 @@ module tb_t60_reasm_e2e;
     $display("  [diag] %0s flt_drop_total=%0d unconf=%0d lmax=%0d ic_drop=%0d reasm_used=%0d",
              tag, a,b,c,d,a2);
     $display("  [diag] reasm hit=%0d drop=%0d in=%b/%b copy=%b/%b busy=%b done=%b",
-      dut.u_rxreasm.hit_cnt, dut.u_rxreasm.drop_cnt,
+      dut.g_rx_legacy.u_rxreasm.hit_cnt, dut.g_rx_legacy.u_rxreasm.drop_cnt,
       dut.reasm_in_vld, dut.reasm_in_ready,
       dut.reasm_copy_valid, dut.reasm_copy_ready,
-      dut.u_rxreasm.copy_busy, dut.reasm_copy_done);
+      dut.g_rx_legacy.u_rxreasm.copy_busy, dut.reasm_copy_done);
     for (di=0; di<8; di=di+1) begin
-      if (dut.u_rxreasm.slot_vld[di])
+      if (dut.g_rx_legacy.u_rxreasm.slot_vld[di])
         $display("  [diag] slot%0d first=%b src_count=%0d frag_count=%0d end=%0d iv0=%b [%0d,%0d)",
-          di, dut.u_rxreasm.slot_has_first[di], dut.u_rxreasm.slot_src_count[di],
-          dut.u_rxreasm.slot_frag[di], dut.u_rxreasm.slot_end[di],
-           dut.u_rxreasm.frag_iv_valid[(di*16)+0],
-           dut.u_rxreasm.frag_iv_start[(di*16)+0],
-           dut.u_rxreasm.frag_iv_end[(di*16)+0]);
+          di, dut.g_rx_legacy.u_rxreasm.slot_has_first[di], dut.g_rx_legacy.u_rxreasm.slot_src_count[di],
+          dut.g_rx_legacy.u_rxreasm.slot_frag[di], dut.g_rx_legacy.u_rxreasm.slot_end[di],
+           dut.g_rx_legacy.u_rxreasm.frag_iv_valid[(di*16)+0],
+           dut.g_rx_legacy.u_rxreasm.frag_iv_start[(di*16)+0],
+           dut.g_rx_legacy.u_rxreasm.frag_iv_end[(di*16)+0]);
     end
     dump_trace;
     end
@@ -327,7 +327,7 @@ module tb_t60_reasm_e2e;
       if(dut.reasm_free_valid) begin
         if(dut.rx_free_map[dut.reasm_free_id] !== 1'b0)
           bad("reassembly returned a block that was already free");
-        if(dut.u_rxreasm.complete_check_busy && dut.reasm_free_id==dut.reasm_check_blk)
+        if(dut.g_rx_legacy.u_rxreasm.complete_check_busy && dut.reasm_free_id==dut.reasm_check_blk)
           bad("destination released while UDP checker still owns it");
         if(copy_active && dut.reasm_free_id==active_copy_src) begin
           if(!copy_committed) bad("source released before final copy write committed");
@@ -335,7 +335,7 @@ module tb_t60_reasm_e2e;
         end
       end
       if(dut.reasm_check_valid && dut.reasm_check_ready) begin
-        if(copy_active || dut.u_rxreasm.complete_sources_pending || dut.copy_wr_valid)
+        if(copy_active || dut.g_rx_legacy.u_rxreasm.complete_sources_pending || dut.copy_wr_valid)
           bad("UDP check started before all copy writes and source returns");
         check_jobs=check_jobs+1;
       end
@@ -344,7 +344,7 @@ module tb_t60_reasm_e2e;
           {2'd0,dut.host_pmem_rd}+{2'd0,dut.fb_rd_en_a}+{2'd0,dut.sap_pm_gnt})>3'd1)
         bad("PMEM read port granted to multiple owners");
       if(dut.reasm_out_vld && !dut.reasm_out_drop && dut.reasm_out_desc[176]) begin
-        if(copy_active || dut.u_rxreasm.complete_check_busy || !dut.u_rxreasm.complete_checked)
+        if(copy_active || dut.g_rx_legacy.u_rxreasm.complete_check_busy || !dut.g_rx_legacy.u_rxreasm.complete_checked)
           bad("fragment descriptor published before successful UDP check");
       end
     end
@@ -429,7 +429,7 @@ module tb_t60_reasm_e2e;
     diag("after-frag1");
     read_word(16'hAC2D,v); chk(v===32'd1, "in-order: first frag holds 1 context");
     read_word(16'hAC2B,v); chk(v===32'd0, "in-order: nothing delivered on first frag");
-    neighbor_blk=dut.u_rxreasm.slot_blk0[0];
+    neighbor_blk=dut.g_rx_legacy.u_rxreasm.slot_blk0[0];
     read_word(16'h8800+(neighbor_blk<<9)+169,v);
     neighbor_before=v[15:0]; // raw bytes 678/679, beyond the destination range
     load_and_inject_frag;                       // 末片
@@ -606,10 +606,10 @@ module tb_t60_reasm_e2e;
     msg_cnt(base_cnt); pos=2;
     load_and_inject_frag; load_and_inject_frag;
     cancel_guard=0;
-    while(!dut.u_rxreasm.complete_check_busy && cancel_guard<2000) begin
+    while(!dut.g_rx_legacy.u_rxreasm.complete_check_busy && cancel_guard<2000) begin
       @(negedge clk); cancel_guard=cancel_guard+1;
     end
-    chk(dut.u_rxreasm.complete_check_busy,"active-cancel: checker owns a live job");
+    chk(dut.g_rx_legacy.u_rxreasm.complete_check_busy,"active-cancel: checker owns a live job");
     u_host.wr(16'h0008,(1<<1));
     u_host.wr(16'h0008,(1<<1)|(1<<7));
     repeat(3000) @(negedge clk);

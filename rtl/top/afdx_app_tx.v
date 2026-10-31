@@ -21,7 +21,7 @@ module afdx_app_tx #(
   input  wire [31:0] rdata,
   output reg  [31:0] drop_cnt,
   output reg  [31:0] submit_cnt,
-  output reg  [2:0]  dbg_st
+  output wire [2:0]  dbg_st
 );
   localparam [2:0]
     S_IDLE   = 3'd0,

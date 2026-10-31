@@ -1849,39 +1849,58 @@ module AFDX_top #(
   // 524 us, before even a 1 ms BAG. Incomplete contexts remain bounded by
   // the slot/block pools; completion/error/disable/system reset reclaim them.
   // Contest P7 edition is unspecified; do not claim edition certification.
-  rx_reassembly #(.DW(RXD_W), .SLOTS(8), .MAX_BYTES(8192), .TIMEOUT_TICKS(0),
-                  .COPY_ENABLE(1), .CHECK_ENABLE(1), .MAX_FRAGS(16), .PMEM_BLOCK_BYTES(2048))
-  u_rxreasm (
-    .clk(clk), .rst_sync(rst_sync), .en(reasm_en && !RX_CHAIN_ENABLE),
-    .in_vld(reasm_in_vld && !RX_CHAIN_ENABLE), .in_ready(legacy_reasm_ready),
-    .in_desc(rm_out_desc), .in_vl(rm_out_vl),
-    .out_vld(legacy_reasm_vld),
-    .out_ready((reasm_out_drop || reasm_draining) ? 1'b1 : prs_in_ready),
-    .out_drop(legacy_reasm_drop), .out_reason(legacy_reasm_reason),
-    .out_desc(legacy_reasm_desc), .out_vl(legacy_reasm_vl),
-    .copy_req_valid(legacy_copy_valid), .copy_req_ready(legacy_copy_ready),
-    .copy_src_blk(legacy_copy_src), .copy_src_byte(legacy_copy_src_byte),
-    .copy_dst_blk(legacy_copy_dst), .copy_dst_byte(legacy_copy_dst_byte),
-    .copy_len(legacy_copy_len), .copy_done(legacy_copy_done),
-    .check_req_valid(legacy_check_valid), .check_req_ready(reasm_check_ready),
-    .check_blk(legacy_check_blk), .check_app_len(legacy_check_len),
-    .check_src_ip(legacy_check_src), .check_dst_ip(legacy_check_dst),
-    .check_done(reasm_check_done), .check_good(reasm_check_good),
-    .check_reason(reasm_check_reason),
-    .free_blk_valid(legacy_free_valid), .free_blk_id(legacy_free_id),
-    .hit_cnt(legacy_hit_cnt), .drop_cnt(legacy_drop_cnt),
-    .drain_active(legacy_reasm_drain),
-    .slot_used(legacy_slot_used));
-  rx_pmem_copy_engine u_rxpmemcopy (
-    .clk(clk), .rst_sync(rst_sync),
-    .job_valid(legacy_copy_valid && !RX_CHAIN_ENABLE), .job_ready(legacy_copy_ready),
-    .job_src_blk(legacy_copy_src), .job_src_byte(legacy_copy_src_byte),
-    .job_dst_blk(legacy_copy_dst), .job_dst_byte(legacy_copy_dst_byte),
-    .job_len(legacy_copy_len),
-    .rd_req(legacy_copy_rd_req), .rd_addr(legacy_copy_rd_addr), .rd_grant(copy_rd_grant && !RX_CHAIN_ENABLE),
-    .rd_valid(copy_rd_valid && !RX_CHAIN_ENABLE), .rd_data(pmem_data_a),
-    .wr_valid(legacy_copy_wr_valid), .wr_addr(legacy_copy_wr_addr), .wr_data(legacy_copy_wr_data),
-    .wr_be(legacy_copy_wr_be), .wr_grant(copy_wr_grant && !RX_CHAIN_ENABLE), .done(legacy_copy_done));
+  // Chain-on must not elaborate the mem2reg legacy reassembly path: both
+  // trees together blew eLinx MEMORY_COLLECT (probe_frag_synth_20261031_010852).
+  generate if (!RX_CHAIN_ENABLE) begin : g_rx_legacy
+    rx_reassembly #(.DW(RXD_W), .SLOTS(8), .MAX_BYTES(8192), .TIMEOUT_TICKS(0),
+                    .COPY_ENABLE(1), .CHECK_ENABLE(1), .MAX_FRAGS(16), .PMEM_BLOCK_BYTES(2048))
+    u_rxreasm (
+      .clk(clk), .rst_sync(rst_sync), .en(reasm_en),
+      .in_vld(reasm_in_vld), .in_ready(legacy_reasm_ready),
+      .in_desc(rm_out_desc), .in_vl(rm_out_vl),
+      .out_vld(legacy_reasm_vld),
+      .out_ready((reasm_out_drop || reasm_draining) ? 1'b1 : prs_in_ready),
+      .out_drop(legacy_reasm_drop), .out_reason(legacy_reasm_reason),
+      .out_desc(legacy_reasm_desc), .out_vl(legacy_reasm_vl),
+      .copy_req_valid(legacy_copy_valid), .copy_req_ready(legacy_copy_ready),
+      .copy_src_blk(legacy_copy_src), .copy_src_byte(legacy_copy_src_byte),
+      .copy_dst_blk(legacy_copy_dst), .copy_dst_byte(legacy_copy_dst_byte),
+      .copy_len(legacy_copy_len), .copy_done(legacy_copy_done),
+      .check_req_valid(legacy_check_valid), .check_req_ready(reasm_check_ready),
+      .check_blk(legacy_check_blk), .check_app_len(legacy_check_len),
+      .check_src_ip(legacy_check_src), .check_dst_ip(legacy_check_dst),
+      .check_done(reasm_check_done), .check_good(reasm_check_good),
+      .check_reason(reasm_check_reason),
+      .free_blk_valid(legacy_free_valid), .free_blk_id(legacy_free_id),
+      .hit_cnt(legacy_hit_cnt), .drop_cnt(legacy_drop_cnt),
+      .drain_active(legacy_reasm_drain),
+      .slot_used(legacy_slot_used));
+    rx_pmem_copy_engine u_rxpmemcopy (
+      .clk(clk), .rst_sync(rst_sync),
+      .job_valid(legacy_copy_valid), .job_ready(legacy_copy_ready),
+      .job_src_blk(legacy_copy_src), .job_src_byte(legacy_copy_src_byte),
+      .job_dst_blk(legacy_copy_dst), .job_dst_byte(legacy_copy_dst_byte),
+      .job_len(legacy_copy_len),
+      .rd_req(legacy_copy_rd_req), .rd_addr(legacy_copy_rd_addr), .rd_grant(copy_rd_grant),
+      .rd_valid(copy_rd_valid), .rd_data(pmem_data_a),
+      .wr_valid(legacy_copy_wr_valid), .wr_addr(legacy_copy_wr_addr), .wr_data(legacy_copy_wr_data),
+      .wr_be(legacy_copy_wr_be), .wr_grant(copy_wr_grant), .done(legacy_copy_done));
+  end else begin : g_rx_legacy_off
+    assign legacy_reasm_ready=1'b0;
+    assign legacy_reasm_vld=1'b0; assign legacy_reasm_drop=1'b0; assign legacy_reasm_reason=4'd0;
+    assign legacy_reasm_desc={RXD_W{1'b0}}; assign legacy_reasm_vl=12'd0; assign legacy_reasm_drain=1'b0;
+    assign legacy_copy_valid=1'b0; assign legacy_copy_ready=1'b0;
+    assign legacy_copy_src=4'd0; assign legacy_copy_src_byte=13'd0;
+    assign legacy_copy_dst=4'd0; assign legacy_copy_dst_byte=13'd0; assign legacy_copy_len=14'd0;
+    assign legacy_copy_done=1'b0;
+    assign legacy_check_valid=1'b0; assign legacy_check_blk=4'd0; assign legacy_check_len=14'd0;
+    assign legacy_check_src=32'd0; assign legacy_check_dst=32'd0;
+    assign legacy_free_valid=1'b0; assign legacy_free_id=4'd0;
+    assign legacy_hit_cnt=32'd0; assign legacy_drop_cnt=32'd0; assign legacy_slot_used=32'd0;
+    assign legacy_copy_rd_req=1'b0; assign legacy_copy_rd_addr=13'd0;
+    assign legacy_copy_wr_valid=1'b0; assign legacy_copy_wr_addr=13'd0;
+    assign legacy_copy_wr_data=32'd0; assign legacy_copy_wr_be=4'd0;
+  end endgenerate
   rx_udp_checksum_engine #(.CHAIN_ENABLE(RX_CHAIN_ENABLE)) u_rxudpcheck (
     .clk(clk), .rst_sync(rst_sync),
     .job_valid(reasm_check_valid), .job_ready(reasm_check_ready),
@@ -1893,7 +1912,9 @@ module AFDX_top #(
     .rd_valid(check_rd_valid_q), .rd_data(pmem_data_a),
     .done(reasm_check_done), .good(reasm_check_good), .reason(reasm_check_reason));
   generate if (RX_CHAIN_ENABLE) begin : g_rx_chain
-    rx_reassembly_chain #(.DW(RXD_W), .SLOTS(8), .MAX_FRAGS(16)) u_reasm (
+    // FRAGS=16 OOMs eLinx opt (~1348MiB); 8 PASSed with COPY/META and T82/T86.
+    // 8KiB @1518 MAC needs ~6 frags; raise only after a new SYNTHESIS_PASS.
+    rx_reassembly_chain #(.DW(RXD_W), .SLOTS(8), .MAX_FRAGS(8)) u_reasm (
       .clk(clk), .rst_sync(rst_sync), .en(reasm_en),
       .in_vld(reasm_in_vld), .in_ready(chain_reasm_ready),
       .in_desc(rm_out_desc), .in_vl(rm_out_vl),

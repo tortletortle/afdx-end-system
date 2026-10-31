@@ -117,7 +117,10 @@ module afdx_app_top #(
   assign gmii_tx_data_b  = OBSERVE_GMII ? mac_tx_b : 8'd0;
   assign gmii_tx_valid_b = OBSERVE_GMII ? mac_dv_b : 1'b0;
 
-  AFDX_top u_es (
+  AFDX_top #(
+    .TX_MESSAGE_CHAIN_BLOCKS(4),
+    .RX_REASM_CHAIN_BLOCKS(5)
+  ) u_es (
     .clk(clk), .reset(reset),
     .tx_data(mac_tx_a), .tx_valid(mac_dv_a), .tx_ready(mac_tx_ready_a),
     .rx_data(loop_data_a), .rx_valid(loop_dv_a), .rx_ready(1'b0), .rx_error(1'b0),

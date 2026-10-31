@@ -62,7 +62,7 @@ module tb_t65_reasm_metadata;
   // host registers/PMEM. These hierarchical references are coupled to this
   // exact AFDX_top/rx_reassembly implementation and are not an external API.
   always @(posedge clk) begin
-    if(!dut.rst_sync && dut.u_rxreasm.complete_check_busy) begin
+    if(!dut.rst_sync && dut.g_rx_legacy.u_rxreasm.complete_check_busy) begin
       overlap_busy_cycles<=overlap_busy_cycles+1;
       if(dut.rm_hold_w0 !== dut.reasm_hold_w0)
         overlap_diff_cycles<=overlap_diff_cycles+1;
